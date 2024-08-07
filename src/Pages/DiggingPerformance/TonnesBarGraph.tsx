@@ -57,13 +57,12 @@ const TonnesBarGraph = (props) => {
     };
 
     return (
-            <Card style={{minHeight: '200px'}}>
+            <Card>
                 <CardBody>
                     <Chart
                         options={options}
                         series={props.series}
                         type="bar"
-                        width="250"
                     />
                 </CardBody>
             </Card>

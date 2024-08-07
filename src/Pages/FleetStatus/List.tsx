@@ -1,32 +1,32 @@
 import React from 'react';
 import { Card, CardBody, Col, Row } from 'reactstrap';
-import hd785 from "../../assets/images/HD785.png";
-import hd1500 from "../../assets/images/HD1500.png";
-import pc2000 from "../../assets/images/PC2000.png";
-import pc1250 from "../../assets/images/PC1250.png";
-import wa600 from "../../assets/images/WA600.png";
+import PC2000 from 'assets/images/PC2000.png';
+import PC1250 from 'assets/images/PC1250.png';
+import HD1500 from 'assets/images/HD1500.png';
+import HD785 from 'assets/images/HD785.png';
+import WA600 from "assets/images/WA600.png";
 import { round } from 'lodash';
 
 const stateConfig = [
     {
         name: 'Active',
         key: 'ACTIVE',
-        color: "green"
+        color: "#14E010"
     },
     {
         name: 'Standby',
         key: 'STANDBY',
-        color: "yellow"
+        color: "#F7B31A"
     },
     {
         name: 'Delay',
         key: 'DELAY',
-        color: "purple"
+        color: "#9143DE"
     },
     {
         name: 'Down',
         key: 'DOWN',
-        color: "red"
+        color: "#ED3A0F"
     }
 ]
 
@@ -48,15 +48,15 @@ const List = ({ data = [] }: any) => {
     const getImage = (category: string) => {
         
         if(containsCaseInsensitive(category, "hd785")) {
-            return hd785;
+            return HD785;
         } else if(containsCaseInsensitive(category, "hd1500")) {
-            return hd1500;
+            return HD1500;
         } else if(containsCaseInsensitive(category, "pc1250")) {
-            return pc1250;
+            return PC1250;
         }else if(containsCaseInsensitive(category, "pc2000")) {
-            return pc2000;
+            return PC2000;
         } else if(containsCaseInsensitive(category, "wa600")) {
-            return wa600;
+            return WA600;
         } 
     }
 
@@ -69,7 +69,7 @@ const List = ({ data = [] }: any) => {
         return info ? info.hours : '00:00'
     }
 
-    const statusColor = "gray"
+    const statusColor = "#F7B31A"
     return (
         <React.Fragment>
             <Row>
