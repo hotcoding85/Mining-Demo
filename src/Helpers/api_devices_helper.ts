@@ -4,20 +4,24 @@ import * as url from "./url_helper";
 
 const api = new APIClient();
 
-// All Devices
-export const getDevices = (page = 1, limit = 10) => {
-  return api.get(url.DEVICES, { page: page, limit: limit })
+// All Trackers
+export const getTrackers = (page = 1, limit = 10) => {
+  return api.get(url.TRACKERS, { page: page, limit: limit })
 };
 
-// Create Device
-export const postDevice = (device: any) => api.create(url.DEVICES, device);
+// Create Tracker
+export const postTracker = (tracker: any) => api.create(url.TRACKERS, tracker);
 
-// Update Device
-export const putDevice = (id: string, device: any) => {
-  return api.update(`${url.DEVICES}/${id}`, device);
+// Update Tracker
+export const putTracker = (id: string, tracker: any) => {
+  return api.update(`${url.TRACKERS}/${id}`, tracker);
 }
 
-// Delete Device
-export const deleteDevice = (id: string) => {
-  return api.delete(`${url.DEVICES}/${id}`, {});
+// Delete Tracker
+export const deleteTracker = (id: string) => {
+  return api.delete(`${url.TRACKERS}/${id}`, {});
+}
+
+export const isTrackerNameUnique = (name: string) => {
+  return api.get(`${url.TRACKERS}/unique/${name}`, {})
 }

@@ -8,7 +8,7 @@ import FleetReducer, { FleetState } from './fleet/reducer';
 import UsersReducer, { UsersState } from './users/reducer';
 import BenchesReducer, { BenchesState } from './benches/reducer';
 import MaterialsReducer, { MaterialsState } from './materials/reducer';
-import DevicesReducer, { DevicesState } from './devices/reducer';
+import TrackersReducer, { TrackersState } from './trackers/reducer';
 import ShiftRosterReducer, { ShiftRosterState } from './shiftroster/reducer';
 import GeoFenceReducer, { GeoFenceState } from './geofences/reducer';
 import DispatchReducer, { DispatchState } from './dispatch/reducer';
@@ -20,7 +20,7 @@ export interface RootState {
   Fleet: Reducer<FleetState> | undefined;
   Users: Reducer<UsersState> | undefined;
   Benches: Reducer<BenchesState> | undefined;
-  Devices: Reducer<DevicesState> | undefined;
+  Trackers: Reducer<TrackersState> | undefined;
   Materials: Reducer<MaterialsState> | undefined;
   ShiftRosters: Reducer<ShiftRosterState> | undefined;
   GeoFence: Reducer<GeoFenceState> | undefined;
@@ -35,7 +35,7 @@ const rootReducer = combineReducers<Partial<RootState>>({
   Fleet: FleetReducer,
   Users: UsersReducer,
   Benches: BenchesReducer,
-  Devices: DevicesReducer,
+  Trackers: TrackersReducer,
   Materials: MaterialsReducer,
   ShiftRosters: ShiftRosterReducer,
   GeoFence: GeoFenceReducer,

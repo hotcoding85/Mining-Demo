@@ -11,12 +11,12 @@ import { withTranslation } from "react-i18next";
 
 //i18n
 import i18n from "../../i18n";
-import languages from "../../common/languages";
+import languages from "../../Common/languages";
 
 //img
 import usflag from "assets/images/flags/us.jpg";
 
-const LanguageDropdown = (props: any) => {
+const LanguageDropdown = () => {
   // Declare a new state variable, which we'll call "menu"
   const [selectedLang, setSelectedLang] = useState<string>("");
   const [menu, setMenu] = useState<boolean>(false);
@@ -40,13 +40,12 @@ const LanguageDropdown = (props: any) => {
   return (
     <React.Fragment>
       <Dropdown isOpen={menu} toggle={toggle} className="d-inline-block language-switch">
-        <DropdownToggle className="btn btn-sm px-3 font-size-16 header-item" tag="button">
-          {/* <img
-            src={get(languages, `${selectedLang}.code`) || 'US'}
+        <DropdownToggle className="btn header-item " tag="button">
+          <img
+            src={get(languages, `${selectedLang}.flag`) || usflag}
             alt="fms"
             height="16"
-          /> */}
-          <p   >{get(languages, `${selectedLang}.code`) || 'US'}</p>
+          />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
           {map(Object.keys(languages), key => (
@@ -56,21 +55,20 @@ const LanguageDropdown = (props: any) => {
               className={`notify-item ${selectedLang === key ? "active" : "none"
                 }`}
             >
-              {/* <img
-                src={get(languages, `${key}.code`)}
+              <img
+                src={get(languages, `${key}.flag`)}
                 alt="fms"
                 className="me-1"
                 height="12"
-              /> */}
-              <p className="me-1" style={{ height: '12' }}  ><span className="align-middle">
+              />
+              <span className="align-middle">
                 {get(languages, `${key}.label`)}
-              </span> - {get(languages, `${key}.code`)} </p>
-
+              </span>
             </DropdownItem>
           ))}
         </DropdownMenu>
       </Dropdown>
-    </React.Fragment >
+    </React.Fragment>
   );
 };
 

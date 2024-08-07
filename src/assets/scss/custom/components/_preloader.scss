@@ -8,7 +8,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: $card-bg;
+    background-color: var(--#{$prefix}secondary-bg);
     z-index: 9999;
 }
 

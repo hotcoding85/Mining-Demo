@@ -148,47 +148,64 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/dashboard">{props.t("Default")}</Link>
+                  <Link to="/fleet-status">{props.t("Fleet Status")}</Link>
                 </li>
-                <li>
-                  <Link to="/fms">{props.t("FMS")}</Link>
-                </li>
-                {/* <li>
-                  <Link to="/#">{props.t("Telemetry")}</Link>
-                </li> */}
                 <li>
                   <Link to="/map">{props.t("Map")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Trucking Summary")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Digging Summary")}</Link>
                 </li>
               </ul>
             </li>
 
             {/* <li className="menu-title">{props.t("Apps")}</li> */}
-
             <li>
-              <Link to="/dispatch" >
-                <i className="bx bx-calendar"></i>
-                <span>{props.t("Dispatch Planner")}</span>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-pulse"></i>
+                <span>{props.t("Production")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/daily-production">{props.t("Daily Production")}</Link>
+                </li>
+                <li>
+                  <Link to="/digging-performance">{props.t("Digging Performance")}</Link>
+                </li>
+                <li>
+                  <Link to="/telemetry">{props.t("Trucking Trip Summary")}</Link>
+                </li>
+                <li>
+                  <Link to="/ore-tracker">{props.t("ROM & Waste Summary")}</Link>
+                </li>
+              </ul>
             </li>
 
-            {/* <li>
-              <Link to="/stock" >
-                <i className="bx bx-columns"></i>
-                <span>{props.t("Material Stock")}</span>
-              </Link>
-            </li> */}
-
             <li>
-              <Link to="/shiftrosters" >
-                <i className="bx bx-columns"></i>
-                <span>{props.t("Shift Roster")}</span>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-analyse"></i>
+                <span>{props.t("Operations")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/dispatch">{props.t("Dispatch")}</Link>
+                </li>
+                <li>
+                  <Link to="/shiftrosters">{props.t("Shift Roster")}</Link>
+                </li>
+                <li>
+                  <Link to="/fleet-timeline">{props.t("Time Utilization")}</Link>
+                </li>
+              </ul>
             </li>
 
             <li>
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-radar"></i>
-                <span>{props.t("Resources")}</span>
+                <span>{props.t("Ore Tracker")}</span>
               </Link>
               <ul className="sub-menu">
                 <li>
@@ -200,22 +217,53 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
+                <li>
+                  <Link to="/geofences">{props.t("Material Inventory")}</Link>
+                </li>
               </ul>
             </li>
+
             <li>
-              <Link to="/#" className="has-arrow">
+              <Link to="/" >
+                <i className="bx bx-checkbox-square"></i>
+                <span>{props.t("Telemetry ")}</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/dispatch" >
+                <i className="bx bx-cog"></i>
+                <span>{props.t("Fleet Maintenance")}</span>
+              </Link>
+            </li>
+
+            {/* <li>
+              <Link to="/stock" >
+                <i className="bx bx-columns"></i>
+                <span>{props.t("Material Stock")}</span>
+              </Link>
+            </li> */}
+
+            <li>
+              <Link to="http://thingsboard.cloud" target="_blank" rel="noopener noreferrer">
+                <i className="bx bx-chip"></i>
+                <span>{props.t("Asset Insights")}</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/reports">
                 <i className="bx bx-bar-chart-square"></i>
                 <span>{props.t("Reports")}</span>
               </Link>
-              <ul className="sub-menu">
+              {/* <ul className="sub-menu">
                 <li>
                   <Link to="/benches">{props.t("Shift")}</Link>
                 </li>
                 <li>
-                  <Link to="/fms-live">{props.t("FMS Live")}</Link>
+                  <Link to="/daily-production">{props.t("FMS Live")}</Link>
                 </li>
                 <li>
-                  <Link to="/telemetry-live">{props.t("Telemetry Live")}</Link>
+                  <Link to="/digging-performance">{props.t("Telemetry Live")}</Link>
                 </li>
                 <li>
                   <Link to="/telemetry">{props.t("Telemetry")}</Link>
@@ -226,7 +274,7 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/fleet-timeline">{props.t("Fleet Timeline")}</Link>
                 </li>
-              </ul>
+              </ul> */}
             </li>
 
           </ul>

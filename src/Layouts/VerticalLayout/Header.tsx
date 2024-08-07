@@ -12,6 +12,8 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 
 //i18n
 import { withTranslation } from "react-i18next";
+import { changeLayoutMode } from "Slices/thunk";
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 
 const Header = (props: any) => {
 
@@ -64,7 +66,6 @@ const Header = (props: any) => {
     }
   }
 
-
   return (
     <React.Fragment>
       <header id="page-topbar">
@@ -95,7 +96,7 @@ const Header = (props: any) => {
           </div>
           <div className="d-flex">
 
-            {/* <LanguageDropdown /> */}
+            <LanguageDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button

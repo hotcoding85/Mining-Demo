@@ -202,7 +202,7 @@ const TableContainer = ({
       </Row>
 
       <div className={divClassName ? divClassName : "table-responsive"}>
-        <Table hover className={tableClass} bordered={isBordered} >
+        <Table hover className={tableClass} bordered={isBordered}>
           <thead className={theadClass}>
             {getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
@@ -270,8 +270,7 @@ const TableContainer = ({
         isPagination && (
           <Row>
             <Col sm={12} md={5}>
-              {(getState().pagination.pageSize < Number({ total })) ? (<div className="dataTables_info">Showing {getState().pagination.pageSize} of {total} Results</div>) : (<div className="dataTables_info">Showing {total} of {total} Results</div>)
-              }
+              <div className="dataTables_info">Showing {getState().pagination.pageSize} of {data.length} Results</div>
             </Col>
             <Col sm={12} md={7}>
               <div className={paginationWrapper}>

@@ -2,10 +2,10 @@ import { getMaterials, postMaterial, putMaterial, deleteMaterial } from "Helpers
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
-export const getAllMaterials = (page = 1, limit = 10) => async (dispatch: any) => {
+export const getAllMaterials = (page = 1, limit = 10, sortBy = 'name', sortOrder = 'ASC', name?, category?) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await getMaterials(page, limit)
+        response = await getMaterials(page, limit, sortBy, sortOrder, name, category)
         dispatch(allSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

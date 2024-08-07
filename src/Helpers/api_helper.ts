@@ -1,8 +1,7 @@
 import axios from "axios";
-import { decryptData } from "utils/cryptoUtils";
-
+import { decryptData } from "Utils/cryptoUtils";
 // default
-axios.defaults.baseURL = "http://localhost:3000/v1";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL+"/v1";
 
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";

@@ -3,16 +3,15 @@ import { Card, CardBody, Col, Container, Row, } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import TableContainer, { TableColumn, } from "../../Components/Common/TableContainer";
 import { AppState } from "store";
-import { getAllFleet, addVehicle, updateVehicle, removeVehicle, } from "slices/thunk";
+import { getAllFleet, addVehicle, updateVehicle, removeVehicle, } from "Slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
-import { StatusOptions, VehicleCategories, VehicleMakes, VehicleModels } from "common/options";
+import { StatusOptions, VehicleCategories, VehicleMakes, VehicleModels } from "Common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
-import axios from "axios";
-import * as url from "../../Helpers/url_helper";
+import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
 
 const Fleet = (props: any) => {
   document.title = "Fleet";
@@ -34,7 +33,7 @@ const Fleet = (props: any) => {
   const { data, total } = useSelector(selectProperties);
 
   useEffect(() => {
-    dispatch(getAllFleet()); // Dispatch action to fetch data on component mount
+    dispatch(getAllFleet(1, 50)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   const toggle = useCallback(() => {
@@ -163,7 +162,7 @@ const Fleet = (props: any) => {
       .test('unique', 'vehicle with this name already exists', async function (value) {
         if (value && value.length >= 2) {
           try {
-            const response = await axios.get(`${url.VEHICLES}/check-name/${value}`);
+            const response = await isVehicleNameUnique(value);
             return response.available; // assuming your API returns { available: true } if username is unique
           } catch (error) {
             console.error('Error checking name uniqueness:', error);
@@ -175,11 +174,11 @@ const Fleet = (props: any) => {
         }
         return true;
       }),
-    serial: Yup.string().required("Please enter serial number"),
-    make: Yup.string().required("Please select the make"),
+    serial: Yup.string(),
+    make: Yup.string(),
     model: Yup.string(),
     category: Yup.string().required("Please select the category"),
-    capacity: Yup.number().required("Please enter the capacity"),
+    capacity: Yup.number(),
     status: Yup.string(),
   });
 
@@ -188,6 +187,12 @@ const Fleet = (props: any) => {
       {
         header: "Name",
         accessorKey: "name",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Serial",
+        accessorKey: "serial",
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -219,12 +224,6 @@ const Fleet = (props: any) => {
       {
         header: "Capacity",
         accessorKey: "capacity",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Serial",
-        accessorKey: "serial",
         enableColumnFilter: false,
         enableSorting: true,
       },

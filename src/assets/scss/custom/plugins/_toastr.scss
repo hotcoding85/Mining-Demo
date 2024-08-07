@@ -44,7 +44,7 @@
 
 .toastr-options{
     padding: 24px;
-    background-color: lighten($gray-200, 2%);
+    background-color: var(--#{$prefix}tertiary-bg);
     margin-bottom: 0;
-    border: 1px solid $border-color;
+    border: 1px solid var(--#{$prefix}border-color);
 }

@@ -14,8 +14,8 @@ export const BENCHES = "/locations";
 // MATERIALS
 export const MATERIALS = "/materials";
 
-// DEVICES
-export const DEVICES = "/trackers";
+// TRACKERS
+export const TRACKERS = "/trackers";
 
 // SHIFT ROSTERS
 export const SHIFT_ROSTER = "/shiftrosters";

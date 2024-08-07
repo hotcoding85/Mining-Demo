@@ -9,7 +9,7 @@ import withRouter from "../../Common/withRouter";
 
 import { AppState } from "store";
 // users
-import user1 from "../../../assets/images/users/avatar-1.jpg";
+import user1 from "../../../assets/images/users/dispatcher.png";
 
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
@@ -61,8 +61,13 @@ const ProfileMenu = (props: any) => {
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
         <DropdownMenu onOptionChange={handleOptionChange} className="dropdown-menu-end">
+        <Link to="/admin" onClick={handleOptionChange} className="dropdown-item">
+            <i className="bx bx-lock font-size-16 align-middle me-1" />
+            {/* <i className="fa fa-solid fa-user-tie font-size-16 align-middle me-1"></i> */}
+            <span>{props.t("Admin Settings")}</span>
+          </Link>
           <Link to="/users" onClick={handleOptionChange} className="dropdown-item">
-            <i className="bx bx-user-circle font-size-16 align-middle me-1" />
+            <i className="fa fa-user font-size-16 align-middle me-1"></i>
             <span>{props.t("Users")}</span>
           </Link>
           <Link to="/fleet" onClick={handleOptionChange} className="dropdown-item">

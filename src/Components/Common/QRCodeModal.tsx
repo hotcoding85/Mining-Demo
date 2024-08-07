@@ -13,8 +13,8 @@ const QRCodeModal = ({ show, data, onCloseClick }: props) => {
     <Modal isOpen={show} toggle={onCloseClick} centered={true}>
       <div className="modal-content">
         <ModalBody className="px-4 py-5 text-center">
-          <p className="text-muted text-left font-size-16 mb-4">Device Name - {data && data.name ? data.name : ''}</p>
-          <p className="text-muted font-size-16 mb-4">Device ID - {data && data.identifier ? data.identifier : ''}</p>
+          <p className="text-muted text-left font-size-16 mb-4">Tracker Name - {data && data.name ? data.name : ''}</p>
+          <p className="text-muted font-size-16 mb-4">Tracker ID - {data && data.identifier ? data.identifier : ''}</p>
           <QRCodeCanvas size={120} bgColor="#FFFFFF" includeMargin={true} value={data && data.identifier ? data.identifier : ''} />
           <p>   </p>
           <div className="hstack gap-2 justify-content-center mb-0">

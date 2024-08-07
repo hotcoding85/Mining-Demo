@@ -9,7 +9,7 @@ import { filter } from "lodash";
 import { ScheduleComponent, ResourcesDirective, ResourceDirective, ViewsDirective, ViewDirective, Inject, ResourceDetails, TimelineViews, TreeViewArgs } from '@syncfusion/ej2-react-schedule'
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { getAllEvents } from 'slices/thunk';
+import { getAllEvents } from 'Slices/thunk';
 
 const shifts: any = [
     { value: 'DS', label: 'Day Shift', startTime: "06:00", endTime: "18:00" },

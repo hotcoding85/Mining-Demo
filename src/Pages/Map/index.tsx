@@ -1,16 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Row, Col, Card, CardBody, ListGroup, ListGroupItem, Label } from 'reactstrap';
+import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Row, Col, Card, CardBody, ListGroup, ListGroupItem, Label, Breadcrumb } from 'reactstrap';
 import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Leaflet from 'leaflet';
-import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
-import 'leaflet-draw/dist/leaflet.draw.css';
-import 'leaflet-draw';
-import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches, getAllFleet, getAllEvents } from 'slices/thunk';
+import { getGeoFences, getAllFleet, getAllEvents } from 'Slices/thunk';
 import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
 import _, { forEach } from 'lodash';
-import Select from 'react-select';
 import dayjs from "dayjs";
 
 interface EquipmentLocation {
@@ -197,11 +193,7 @@ const Map = ({ socket }) => {
     const { fleet } = useSelector(fleetProperties);
     const { benches } = useSelector(benchesProperties);
     const [markers, setMarkers] = useState<MarkerData[]>([]);
-    const [selectedFence, setSelectedFence]: any = useState({});
     var [geofences, setGeofences] = useState<any[]>([]);
-    const [modal, setModal] = useState(false);
-    const [newGeofenceName, setNewGeofenceName] = useState("");
-    const [newSelectedBench, setNewSelectedBench] = useState("");
 
     const mapRef = useRef<Leaflet.Map | null>(null);
     const drawItems = new Leaflet.FeatureGroup();
@@ -269,41 +261,19 @@ const Map = ({ socket }) => {
             mapRef.current = Leaflet.map('map', {
                 center: origin,
                 zoom: 13,
-                attributionControl: false
+                attributionControl: true,
+                zoomControl: false,
             });
 
             Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
-
-
             mapRef.current.addLayer(drawItems);
-            const drawControl = new Leaflet.Control.Draw({
-                edit: {
-                    featureGroup: drawItems
-                },
-                draw: {
-                    polyline: false,
-                    circlemarker: false,
-                    marker: false,
-                    circle: false
-                }
-            });
 
-            // mapRef.current.addControl(drawControl);
-            mapRef.current.tap?.enable();
-            mapRef.current.on('draw:created', function (event: Leaflet.LeafletEvent) {
-                let type = (event as Leaflet.DrawEvents.Created).layerType;
-                let layer = (event as Leaflet.DrawEvents.Created).layer;
-                updateGeoFences(type, layer);
-                toggle();
-                drawItems.addLayer(layer);
-            });
+            Leaflet.control.zoom({
+                position: 'bottomright'
+            }).addTo(mapRef.current);
 
-            drawItems.on('click', function (event: Leaflet.LeafletEvent) {
-                handleEditGeofence(event, event.propagatedFrom.id);
-            });
+            addMarkers();
         }
-
-        addMarkers();
     }, []);
 
     const shifts: any = [
@@ -375,15 +345,6 @@ const Map = ({ socket }) => {
         setGeofences([...geofences]);
     }
 
-    const updateGeoFences = (type: string, layer: any) => {
-        layer.id = Date.now();
-        let geofence = { layer: layer, type: type };
-        geofences.push(geofence)
-        setGeofences([...geofences]);
-        setSelectedFence(geofence);
-        console.log(geofence.layer.toGeoJSON());
-    }
-
     const getFleetData = (truckId) => {
         return fleet[truckId] && fleet[truckId].length > 0 ? fleet[truckId][0] : {};
     }
@@ -441,176 +402,18 @@ const Map = ({ socket }) => {
         setMarkers(markersData);
     }
 
-    const zoomToGeofence = (id) => {
-        let geofence = geofences.find((fence) => fence.layer.id === id);
-        mapRef.current?.fitBounds(geofence.layer.getBounds());
-    }
-
-    const toggle = () => setModal(!modal);
-
-    const handleAddGeofence = () => {
-        setNewGeofenceName("");
-        toggle();
-    };
-
-    const handleSaveGeofence = () => {
-        let fenceIndex = geofences.findIndex((fence) => fence.layer.id === selectedFence.layer.id);
-        geofences[fenceIndex].name = newGeofenceName;
-        geofences[fenceIndex].bench = newSelectedBench;
-        createGeofence(geofences[fenceIndex]);
-        setGeofences([...geofences]);
-        toggle();
-        setNewGeofenceName("");
-    };
-
-    const handleCancel = () => {
-        toggle();
-        setNewGeofenceName("");
-    };
-
-    const handleEditGeofence = (event, id) => {
-        const editGeofence = geofences.find(geofence => geofence.layer.id == id);
-        if (editGeofence && !editGeofence.name) {
-            setSelectedFence(editGeofence);
-            setNewGeofenceName("");
-            setNewSelectedBench("");
-        } else {
-            setSelectedFence(editGeofence);
-            setNewGeofenceName(editGeofence.name);
-            setNewSelectedBench(editGeofence.bench);
-        }
-        toggle();
-    }
-    const handleDeleteGeofence = (event, id) => {
-        event.stopPropagation();
-        if (mapRef.current) {
-            const deletedGeofence = geofences.find(geofence => geofence.layer.id == id);
-            if (deletedGeofence) {
-                mapRef.current.removeLayer(deletedGeofence.layer!);
-            }
-        }
-        dispatch(removeGeoFence(id));
-        geofences = geofences.filter(geofence => geofence.layer.id !== id);
-        setGeofences([...geofences])
-    };
-
-    const createGeofence = (geoFence) => {
-        var geojson = {};
-        if (geoFence.type === 'circle') {
-            geojson = (geoFence.layer as Leaflet.Circle<any>).toGeoJSON();
-            geojson['properties']['radius'] = (geoFence.layer as Leaflet.Circle<any>).getRadius();
-        } else {
-            geojson = (geoFence.layer as Leaflet.Circle<any>).toGeoJSON();
-        }
-        var geoFenceSave = {
-            name: geoFence.name,
-            geoJson: geojson,
-            locationId: geoFence.bench ? geoFence.bench.value : ""
-        };
-        if (geoFence.id) {
-            // geoFenceSave['id'] = geoFence.id;
-            dispatch(updateGeoFence(geoFence.id, geoFenceSave));
-        } else {
-            dispatch(addGeoFence(geoFenceSave));
-        }
-        // console.log('createGeofence', geoFenceSave);
-    }
-    const onChange = (op) => {
-        setNewSelectedBench(op);
-    }
-
-    const getBenchName = () => {
-        return newSelectedBench;
-    }
-
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
+                    <Breadcrumb title="Resources" breadcrumbItem="Materials" />
                     <Row>
                         <Col md="12">
-                            <Card>
-                                <CardBody>
-                                    <div id="map" style={{ height: '80vh', width: '100%' }}></div>
-                                </CardBody>
-                            </Card>
+                            <div id="map" style={{ height: '80vh', width: '100%' }}></div>
                         </Col>
-                        {/* <Col md="4">
-                            <Card>
-                                <CardBody>
-                                    <Row className="mb-3 d-flex justify-content-between">
-                                        <Col xs="6">
-                                            <h4>Geofences</h4>
-                                        </Col>
-                                        <Col xs="6" className="d-flex justify-content-end">
-                                            <Button color="primary" onClick={handleAddGeofence}>Add</Button>
-                                        </Col>
-                                    </Row>
-                                    <ListGroup>
-                                        {geofences.map(geofence => {
-                                            if (geofence.name) {
-                                                return (
-                                                    <ListGroupItem key={geofence.layer.id} onClick={() => zoomToGeofence(geofence.layer.id)} className="d-flex justify-content-between align-items-center" style={{ 'cursor': 'pointer' }}>
-                                                        {geofence.name}
-                                                        <span >
-                                                            <Button color="success" size="sm" onClick={(event) => handleEditGeofence(event, geofence.layer.id)}>Edit</Button>
-                                                            <Button color="danger" size="sm" onClick={(event) => handleDeleteGeofence(event, geofence.layer.id)}>Delete</Button>
-                                                        </span>
-                                                    </ListGroupItem>
-                                                )
-                                            }
-                                        })}
-                                    </ListGroup>
-                                </CardBody>
-                            </Card>
-                        </Col> */}
                     </Row>
                 </Container>
             </div>
-
-            <Modal isOpen={modal} toggle={toggle}>
-                <ModalHeader toggle={toggle}>Add Geofence</ModalHeader>
-                <ModalBody>
-                    <Row>
-                        <Col xs={5}>
-                            <Label style={{ fontSize: '15px', verticalAlign: 'center', display: 'flex' }}>{"Fence Name"}</Label>
-                        </Col>
-                        <Col xs={5}>
-                            <Input
-                                type="text"
-                                value={newGeofenceName}
-                                onChange={(e) => setNewGeofenceName(e.target.value)}
-                                placeholder="Enter geofence name"
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={5}>
-                            <Label style={{ fontSize: '15px', verticalAlign: 'center', display: 'flex' }}>{"Bench"}</Label>
-                        </Col>
-                        <Col xs={5}>
-                            <Select
-                                className="basic-single"
-                                classNamePrefix="select"
-                                defaultValue={getBenchName()}
-                                value={getBenchName()}
-                                isDisabled={false}
-                                isLoading={false}
-                                isClearable={true}
-                                isRtl={false}
-                                isSearchable={true}
-                                name="Benches"
-                                options={locations}
-                                onChange={(selectedOption) => onChange(selectedOption)}
-                            />
-                        </Col>
-                    </Row>
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={handleCancel}>Cancel</Button>
-                    <Button color="primary" onClick={handleSaveGeofence}>Save</Button>
-                </ModalFooter>
-            </Modal>
         </React.Fragment>
     );
 }

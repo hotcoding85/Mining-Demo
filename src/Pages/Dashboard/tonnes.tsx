@@ -4,7 +4,7 @@ import { ApexOptions } from 'apexcharts';
 import { Card, CardBody, CardTitle } from "reactstrap";
 import dayjs from "dayjs";
 import { groupBy, round } from "lodash";
-import { getTonnesMoved } from 'slices/thunk';
+import { getTonnesMoved } from 'Slices/thunk';
 import { format } from 'date-fns';
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";

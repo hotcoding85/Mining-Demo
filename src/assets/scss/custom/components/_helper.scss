@@ -50,11 +50,7 @@
     font-size: 24px !important;
 }
 
-// Font weight help class
 
-.fw-medium {
-    font-weight: $fw-medium;
-}
 
 // Social
 
@@ -70,7 +66,7 @@
     transition: all 0.4s;
 
     &:hover {
-        color: $gray-600;
+        color: var(--#{$prefix}secondary-color);
         background-color: $gray-200;
     }
 }
@@ -96,9 +92,7 @@
     min-width: 160px;
 }
 
-
 // alert
-
 .alert-dismissible {
     .btn-close {
         font-size: 10px;
@@ -107,7 +101,7 @@
     }
 }
 
-[data-layout-mode="dark"] {
+[data-bs-theme="dark"] {
     .btn-close {
         filter: invert(1) grayscale(100%) brightness(200%);
     }

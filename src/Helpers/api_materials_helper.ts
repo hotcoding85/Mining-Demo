@@ -5,8 +5,17 @@ import * as url from "./url_helper";
 const api = new APIClient();
 
 // All Materials
-export const getMaterials = (page = 1, limit = 10) => {
-  return api.get(url.MATERIALS, { page: page, limit: limit })
+export const getMaterials = (page = 1, limit = 10, sortBy, sortOrder, name?, category?) => {
+  var options = {page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder}
+
+  if(name) {
+    options['name'] = name
+  }
+
+  if(category) {
+    options['category'] = category
+  }
+  return api.get(url.MATERIALS, options)
 };
 
 // Create Material
@@ -20,4 +29,8 @@ export const putMaterial = (id: string, material: any) => {
 // Delete Material
 export const deleteMaterial = (id: string) => {
   return api.delete(`${url.MATERIALS}/${id}`, {});
+}
+
+export const isMaterialNameUnique = (name: string) => {
+  return api.get(`${url.MATERIALS}/unique/${name}`, {})
 }

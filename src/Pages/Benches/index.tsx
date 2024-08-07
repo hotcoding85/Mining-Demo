@@ -3,16 +3,15 @@ import { Card, CardBody, Col, Container, Row, } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import TableContainer, { TableColumn, } from "../../Components/Common/TableContainer";
 import { AppState } from "store";
-import { getAllBenches, addBench, updateBench, removeBench, } from "slices/thunk";
+import { getAllBenches, addBench, updateBench, removeBench, } from "Slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
-import { BenchCategories, StatusOptions } from "common/options";
+import { BenchCategories, StatusOptions } from "Common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
-import * as url from "../../Helpers/url_helper";
-import axios from "axios";
+import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 
 const Benches = (props: any) => {
   document.title = "Benches";
@@ -73,7 +72,7 @@ const Benches = (props: any) => {
       .test('unique', 'Bench with this name already exists', async function (value) {
         if (value && value.length >= 2) {
           try {
-            const response = await axios.get(`${url.BENCHES}/check-name/${value}`);
+            const response = await isBenchNameUnique(value);
             return response.available; // assuming your API returns { available: true } if username is unique
           } catch (error) {
             console.error('Error checking name uniqueness:', error);

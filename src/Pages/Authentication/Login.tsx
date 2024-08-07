@@ -11,7 +11,7 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import CarouselPage from "./CarouselPage";
 
-import { loginuser } from "slices/thunk";
+import { loginuser } from "Slices/thunk";
 
 import withRouter from "Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,7 +84,7 @@ const LoginPage = (props: any) => {
                     </div>
                     <div className="my-auto">
                       <div>
-                        <h5 className="text-primary">Welcome to Openpit FMS</h5>
+                        <h5 className="text-primary">Welcome to FMS Live</h5>
                         <p className="text-muted">
                           Sign in to continue
                         </p>
@@ -100,7 +100,7 @@ const LoginPage = (props: any) => {
                         >
                           <div className="mb-3">
                             {error ? <Alert color="danger">{errorMsg}</Alert> : null}
-                            <Label className="form-label">Email</Label>
+                            <Label className="form-label">Username</Label>
                             <Input
                               name="email"
                               className="form-control"

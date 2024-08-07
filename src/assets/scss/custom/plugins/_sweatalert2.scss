@@ -5,7 +5,7 @@
 .swal2-container {
     .swal2-title {
         font-size: 20px;
-        font-weight: $fw-medium;
+        font-weight: $font-weight-medium;
     }
 }
 
@@ -60,11 +60,11 @@
     border-color: $primary transparent $primary transparent;
 }
 .swal2-popup {
-    background: var(--#{$prefix}custom-white);
+    background: var(--#{$prefix}secondary-bg);
 }
 
 .swal2-title, .swal2-html-container{
-     color: var(--#{$prefix}gray-700);
+    color: var(--#{$prefix}emphasis-color);
 }
 
 .swal2-file,
@@ -76,4 +76,8 @@
         box-shadow: none;
         border-color: var(--#{$prefix}border-color);
     }
+}
+
+div:where(.swal2-container) div:where(.swal2-popup) {
+    color: var(--#{$prefix}secondary-color);
 }

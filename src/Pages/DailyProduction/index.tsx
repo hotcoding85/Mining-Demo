@@ -4,15 +4,15 @@ import Chart from 'react-apexcharts';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import MiningTruckGraphCard from "./MiningTruckGraphCard";
 import TruckingExecutionCard from './TruckExecutionCard';
-import { getAllFleet } from 'slices/fleet/thunk';
+import { getAllFleet } from 'Slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import ForecastProgressBar from './ForecastProgressBar';
 
 import HD1500 from 'assets/images/HD1500.png'
 
-const FMSLive = () => {
-  document.title = "FMS";
+const DailyProduction = () => {
+  document.title = "Daily Production";
 
   const dispatch = useDispatch<any>();
 
@@ -202,7 +202,7 @@ const FMSLive = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Dashboards" breadcrumbItem="FMSLive" />
+          <Breadcrumb title="Dashboards" breadcrumbItem="Daily Production" />
           <Row>
             <Col md={4}>
               <Card>
@@ -314,4 +314,4 @@ const FMSLive = () => {
   );
 }
 
-export default FMSLive;
+export default DailyProduction;

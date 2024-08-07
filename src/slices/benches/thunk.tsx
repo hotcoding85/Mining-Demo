@@ -1,10 +1,10 @@
 import { getBenches, postBench, putBench, deleteBench } from "Helpers/api_benches_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
 
-export const getAllBenches = (page = 1, limit = 10) => async (dispatch: any) => {
+export const getAllBenches = (page = 1, limit = 10, sortBy = 'name', sortOrder = 'ASC', name?, category?) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await getBenches(page, limit)
+        response = await getBenches(page, limit, sortBy, sortOrder, name, category)
         dispatch(allSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

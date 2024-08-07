@@ -3,17 +3,15 @@ import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
-import { getAllMaterials, addMaterial, updateMaterial, removeMaterial } from 'slices/thunk';
+import { getAllMaterials, addMaterial, updateMaterial, removeMaterial } from 'Slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
 import { Link } from 'react-router-dom';
-import { MaterialCategories, StatusOptions } from 'common/options';
+import { MaterialCategories, StatusOptions } from 'Common/options';
 import DeleteButton from 'Components/Common/DeleteButton';
 import FormModal from 'Components/Common/FormModal';
 import { createSelector } from 'reselect';
-import { identity } from 'lodash';
-import axios from 'axios';
-import * as url from "../../Helpers/url_helper";
+import { isMaterialNameUnique } from '../../Helpers/api_materials_helper';
 
 const Materials = (props: any) => {
   document.title = "Materials";
@@ -144,7 +142,7 @@ const Materials = (props: any) => {
       .test('unique', 'Material with this name already exists', async function (value) {
         if (value && value.length >= 2) {
           try {
-            const response = await axios.get(`${url.MATERIALS}/check-name/${value}`);
+            const response = await isMaterialNameUnique(value);
             return response.available; // assuming your API returns { available: true } if username is unique
           } catch (error) {
             console.error('Error checking name uniqueness:', error);

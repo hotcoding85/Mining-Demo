@@ -1,11 +1,11 @@
 import { getUsers, postUser, putUser, deleteUser } from "Helpers/api_users_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, loading } from "./reducer";
 
-export const getAllUsers = (page = 1, limit = 10) => async (dispatch: any) => {
+export const getAllUsers = (page = 1, limit = 10, sortBy = 'firstName', sortOrder = 'ASC', firstName?, lastName?) => async (dispatch: any) => {
     try {
         let response: any;
         dispatch(loading)
-        response = await getUsers(page, limit)
+        response = await getUsers(page, limit, sortBy, sortOrder, firstName, lastName)
         dispatch(allSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

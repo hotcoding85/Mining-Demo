@@ -5,8 +5,17 @@ import * as url from "./url_helper";
 const api = new APIClient();
 
 // All Vehicles
-export const getFleet = (page = 1, limit = 10) => {
-  return api.get(url.VEHICLES, { page: page, limit: limit })
+export const getFleet = (page, limit, sortBy, sortOrder, name?, category?) => {
+  var options = {page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder}
+
+  if(name) {
+    options['name'] = name
+  }
+
+  if(category) {
+    options['category'] = category
+  }
+  return api.get(url.VEHICLES, options)
 };
 
 // Create Vehicle
@@ -30,4 +39,8 @@ export const getTonnesMovedByRoster = (roster: string) => {
 // Vehicle Latest Locations
 export const getVehicleLatestLocations = (roster: string) => {
   return api.get(`${url.VEHICLES}/locations/${roster}`, {});
+}
+
+export const isVehicleNameUnique = (name: string) => {
+  return api.get(`${url.VEHICLES}/unique/${name}`, {})
 }

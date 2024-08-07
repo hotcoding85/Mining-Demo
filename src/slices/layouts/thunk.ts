@@ -1,4 +1,4 @@
-import { changeBodyAttribute, manageBodyClass } from './utils';
+import { changeBodyAttribute, manageBodyClass, changeHTMLAttribute } from './utils';
 
 import {
     changeLayoutModeAction,
@@ -38,7 +38,7 @@ export const changeLayout = (layout: any) => async (dispatch: any) => {
  */
 export const changeLayoutMode = (layoutMode: any) => async (dispatch: any) => {
     try {
-        changeBodyAttribute("data-layout-mode", layoutMode)
+        changeHTMLAttribute("data-bs-theme", layoutMode)
         dispatch(changeLayoutModeAction(layoutMode));
 
     } catch (error) { }

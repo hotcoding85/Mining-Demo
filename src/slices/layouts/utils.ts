@@ -3,6 +3,11 @@ const changeBodyAttribute = (attribute: any, value: any) => {
     return true;
 }
 
+function changeHTMLAttribute(attribute: any, value: any) {
+    if (document.documentElement) document.documentElement.setAttribute(attribute, value);
+    return true;
+}
+
 /**
  * Toggle the class on body
  * @param {*} cssClass
@@ -23,4 +28,4 @@ const manageBodyClass = (cssClass: any, action: any) => {
     return true
 }
 
-export { changeBodyAttribute, manageBodyClass };
+export { changeBodyAttribute, manageBodyClass, changeHTMLAttribute };

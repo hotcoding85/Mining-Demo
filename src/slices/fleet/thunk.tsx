@@ -1,11 +1,11 @@
-import { getFleet, postVehicle, putVehicle, deleteVehicle, getTonnesMovedByRoster, getVehicleLatestLocations } from "Helpers/api_fleet_helper";
+import { getFleet, postVehicle, putVehicle, deleteVehicle, getTonnesMovedByRoster, getVehicleLatestLocations } from "Helpers/api_vehicle_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, tonnesFetched, latestLocations } from "./reducer";
 import { toast } from "react-toastify";
 
-export const getAllFleet = (page = 1, limit = 10) => async (dispatch: any) => {
+export const getAllFleet = (page = 1, limit = 10, sortBy = 'name', sortOrder = 'ASC', name?, category?) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await getFleet(page, limit)
+        response = await getFleet(page, limit, sortBy, sortOrder, name, category)
         dispatch(allSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

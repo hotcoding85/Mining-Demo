@@ -3,7 +3,7 @@ import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Labe
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
-import { getAllDevices, addDevice, updateDevice, removeDevice, getAllFleet } from 'slices/thunk';
+import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'Slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -14,21 +14,20 @@ import { v4 as uuidv4 } from "uuid";
 import DeleteButton from "Components/Common/DeleteButton";
 import { createSelector } from 'reselect';
 import FormModal from 'Components/Common/FormModal';
-import { StatusOptions } from "common/options";
-import * as url from "../../Helpers/url_helper";
-import axios from 'axios';
+import { StatusOptions } from "Common/options";
+import { isTrackerNameUnique } from '../../Helpers/api_devices_helper';
 
-const Device = (props: any) => {
+const Trackers = (props: any) => {
   document.title = "Trackers";
 
   const dispatch: any = useDispatch();
-  const [device, setDevice] = useState<any>();
+  const [tracker, setTracker] = useState<any>();
 
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const devicesProperties = createSelector(
-    (state: any) => state.Devices,
+    (state: any) => state.Trackers,
     (devices) => ({
       data: devices.data,
       total: devices.total,
@@ -55,10 +54,8 @@ const Device = (props: any) => {
     return { value: option.name, "label": option.name }
   });
 
-  var platforms: any = [{ value: 'android', "label": 'Android' }, { value: 'ios', "label": 'iOS' }];
-
   useEffect(() => {
-    dispatch(getAllDevices()); // Dispatch action to fetch data on component mount
+    dispatch(getAllTrackers()); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   useEffect(() => {
@@ -70,13 +67,13 @@ const Device = (props: any) => {
   }, [modal]);
 
   const handleUserClick = useCallback((arg: any) => {
-    const device = arg;
-    setDevice({
-      id: device.id,
-      vehicle: device.vehicle,
-      name: device.name,
-      identifier: device.identifier,
-      type: device.type
+    const tracker = arg;
+    setTracker({
+      id: tracker.id,
+      vehicle: tracker.vehicle,
+      name: tracker.name,
+      identifier: tracker.identifier,
+      type: tracker.type
     });
     // vehicles = fleet.map(option => {
     //   return { value: option.name, "label": option.name }
@@ -87,12 +84,12 @@ const Device = (props: any) => {
   }, [toggle]);
 
   const onClickDelete = (deviceData: any) => {
-    setDevice(deviceData);
+    setTracker(deviceData);
     setDeleteModal(true);
   };
 
   const onQRCodeView = (deviceData: any) => {
-    setDevice(deviceData);
+    setTracker(deviceData);
     setQRCodeModal(true);
   };
 
@@ -110,12 +107,12 @@ const Device = (props: any) => {
   };
 
   const handleDeleteUser = () => {
-    dispatch(removeDevice(device.id));
+    dispatch(removeTracker(tracker.id));
     onPaginationPageChange(1);
     setDeleteModal(false);
   };
 
-  const parseDeviceData = (doc) => {
+  const parseTrackerData = (doc) => {
     return {
       identifier: (doc && doc.identifier) || uuidv4(),
       name: (doc && doc.name) || "",
@@ -124,13 +121,13 @@ const Device = (props: any) => {
     }
   }
 
-  const initialValues = parseDeviceData(device);
+  const initialValues = parseTrackerData(tracker);
 
   const handleOnAdd = () => {
     // setting as it is not edit
     setIsEdit(false);
     // clearing the resource state if previous value is set
-    setDevice("");
+    setTracker("");
     // show dialog
     toggle();
   };
@@ -138,9 +135,9 @@ const Device = (props: any) => {
   const handleOnEdit = useCallback(
     (arg: any) => {
       // reading the row data from table
-      const device = parseDeviceData(arg)
+      const tracker = parseTrackerData(arg)
       // saving to state
-      setDevice(device);
+      setTracker(tracker);
       // setting the dialog to show as edit
       setIsEdit(true);
       // show dialog
@@ -150,7 +147,7 @@ const Device = (props: any) => {
   );
 
   const handleOnDelete = useCallback((arg: string) => {
-    dispatch(removeDevice(arg));
+    dispatch(removeTracker(arg));
     onPaginationPageChange(1);
   }, [dispatch]);
 
@@ -159,7 +156,7 @@ const Device = (props: any) => {
     if (isEdit) {
       var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
       var updateDoc: any = {};
-      updateDoc.id = device.id;
+      updateDoc.id = tracker.id;
       updateDoc.identifier = values.identifier
       updateDoc.name = values.name;
       updateDoc.platform = 'ANDROID';
@@ -176,30 +173,30 @@ const Device = (props: any) => {
       }
 
       delete updateDoc.id;
-      // update device
-      dispatch(updateDevice(device.id, updateDoc));
+      // update tracker
+      dispatch(updateTracker(tracker.id, updateDoc));
       setIsEdit(false);
     } else {
       var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
-      var newDevice: any = {};
-      newDevice.id = device.id;
-      newDevice.identifier = values.identifier;
-      newDevice.name = values.name;
-      newDevice.platform = 'ANDROID';
-      newDevice.status = values.status;
+      var newTracker: any = {};
+      newTracker.id = tracker.id;
+      newTracker.identifier = values.identifier;
+      newTracker.name = values.name;
+      newTracker.platform = 'ANDROID';
+      newTracker.status = values.status;
 
       if (selectedVehicle && selectedVehicle.length > 0) {
-        newDevice.vehicleId = selectedVehicle[0].id;
-        newDevice.type = "device_equipment";
-        delete newDevice.vehicle;
+        newTracker.vehicleId = selectedVehicle[0].id;
+        newTracker.type = "device_equipment";
+        delete newTracker.vehicle;
       } else {
-        delete newDevice.vehicle;
-        delete newDevice.vehicleId;
-        delete newDevice.type;
+        delete newTracker.vehicle;
+        delete newTracker.vehicleId;
+        delete newTracker.type;
       }
-      delete newDevice.id;
-      // save new device
-      dispatch(addDevice(newDevice));
+      delete newTracker.id;
+      // save new tracker
+      dispatch(addTracker(newTracker));
     }
     resetForm();
     toggle();
@@ -240,14 +237,14 @@ const Device = (props: any) => {
   ]
 
   const validationSchema = Yup.object().shape({
-    identifier: Yup.string().required("Please enter device identifier name"),
+    identifier: Yup.string().required("Please enter tracker identifier name"),
     name: isEdit ? Yup.string() : Yup.string()
       .min(2, 'Tracker name must be at least 2 characters')
       .required("Please enter tracker name")
       .test('unique', 'Tracker with this name already exists', async function (value) {
         if (value && value.length >= 2) {
           try {
-            const response = await axios.get(`${url.DEVICES}/check-name/${value}`);
+            const response = await isTrackerNameUnique(value);
             return response.available; // assuming your API returns { available: true } if username is unique
           } catch (error) {
             console.error('Error checking name uniqueness:', error);
@@ -320,7 +317,7 @@ const Device = (props: any) => {
 
   const handleUserClicks = () => {
     setIsEdit(false);
-    setDevice({ identifier: uuidv4() });
+    setTracker({ identifier: uuidv4() });
     // vehicles = fleet.map(option => {
     //   return { value: option.name, "label": option.name }
     // });
@@ -334,10 +331,10 @@ const Device = (props: any) => {
         onDeleteClick={handleDeleteUser}
         onCloseClick={() => setDeleteModal(false)}
       /> */}
-      <DeleteButton item={device ? device.name : ''} onDelete={() => handleDeleteUser()} />
+      <DeleteButton item={tracker ? tracker.name : ''} onDelete={() => handleDeleteUser()} />
       <QRCodeModal
         show={qRCodeModal}
-        data={device}
+        data={tracker}
         onCloseClick={() => setQRCodeModal(false)}
       />
       <div className="page-content">
@@ -375,4 +372,4 @@ const Device = (props: any) => {
   );
 }
 
-export default Device;
+export default Trackers;

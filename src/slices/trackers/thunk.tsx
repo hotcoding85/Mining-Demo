@@ -1,42 +1,42 @@
-import { getDevices, postDevice, putDevice, deleteDevice } from "Helpers/api_devices_helper";
+import { getTrackers, postTracker, putTracker, deleteTracker } from "Helpers/api_devices_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
-export const getAllDevices = (page = 1, limit = 10) => async (dispatch: any) => {
+export const getAllTrackers = (page = 1, limit = 10) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await getDevices(page, limit)
+        response = await getTrackers(page, limit)
         dispatch(allSuccess(response));
     } catch (error) {
         dispatch(apiError(error));
     }
 }
 
-export const addDevice = (device: any) => async (dispatch: any) => {
+export const addTracker = (tracker: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await postDevice(device)
-        toast.success("Device added successfully", { autoClose: 2000 });
+        response = await postTracker(tracker)
+        toast.success("Tracker added successfully", { autoClose: 2000 });
         dispatch(createSuccess(response));
     } catch (error) {
         dispatch(apiError(error));
     }
 }
 
-export const updateDevice = (id: string, device: any) => async (dispatch: any) => {
+export const updateTracker = (id: string, tracker: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await putDevice(id, device)
+        response = await putTracker(id, tracker)
         dispatch(updateSuccess(response));
     } catch (error) {
         dispatch(apiError(error));
     }
 }
 
-export const removeDevice = (id: string) => async (dispatch: any) => {
+export const removeTracker = (id: string) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await deleteDevice(id)
+        response = await deleteTracker(id)
         dispatch(deleteSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

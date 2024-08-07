@@ -7,10 +7,10 @@
     padding: 20px calc(#{$grid-gutter-width} * 0.75);
     position: absolute;
     right: 0;
-    color: $footer-color;
+    color: var(--#{$prefix}footer-color);
     left: 250px;
     height: $footer-height;
-    background-color: $footer-bg;
+    background-color: var(--#{$prefix}footer-bg);
 
     @media (max-width: 991.98px) {
         left: 0;

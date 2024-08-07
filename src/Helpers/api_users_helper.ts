@@ -5,8 +5,17 @@ import * as url from "./url_helper";
 const api = new APIClient();
 
 // All Users
-export const getUsers = (page = 1, limit = 10) => {
-  return api.get(url.USERS, { page: page, limit: limit })
+export const getUsers = (page, limit, sortBy, sortOrder, firstName, lastName) => {
+  var options = {page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder}
+
+  if(firstName) {
+    options['firstName'] = firstName
+  }
+
+  if(lastName) {
+    options['lastName'] = lastName
+  }
+  return api.get(url.USERS, options)
 };
 
 // Create User

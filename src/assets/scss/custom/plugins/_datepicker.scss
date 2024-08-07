@@ -3,14 +3,6 @@
 // Datepicker
 //
 
-// [dir="rtl"]{
-//   .datepicker {
-//     right: 0 !important;
-//     left: auto;
-//   }
-// }
-
-
 .datepicker {
   border: 1px solid var(--#{$prefix}border-color);
   padding: 8px;
@@ -49,7 +41,7 @@
         }
 
         &.range, &.range.disabled, &.range.disabled:hover, &.range:hover{
-            background-color: var(--#{$prefix}gray-300);
+          background-color: var(--#{$prefix}tertiary-bg);
         }
       }
     }
@@ -73,7 +65,7 @@
 // DATEPICKER
 
 .datepicker-container{
-  border: 1px solid $border-color;
+  border: 1px solid var(--#{$prefix}border-color);
   box-shadow: none;
   background-color: $dropdown-bg;
 
@@ -83,7 +75,7 @@
 }
 
 .datepicker{
-  color: var(--#{$prefix}text-muted);
+  color: var(--#{$prefix}secondary-color);
     .datepicker-switch:hover,.next:hover,.prev:hover,  tfoot tr th:hover {
       background: var(--#{$prefix}light);
     } 
@@ -118,7 +110,7 @@
 
     &[data-view=week]{
       >li{
-        font-weight: $fw-medium;
+        font-weight: $font-weight-medium;
       }
 
       >li, >li:hover{

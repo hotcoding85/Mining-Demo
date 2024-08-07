@@ -20,11 +20,11 @@
                     top: 16px;
                     left: 0;
                     right: 0;
-                    border-bottom: 3px dashed var(--#{$prefix}gray-300);
+                    border-bottom: 3px dashed var(--#{$prefix}border-color);
                 }
                 .down-arrow-icon{
                     position: relative;
-                    background-color: var(--#{$prefix}custom-white);
+                    border-bottom: 3px dashed var(--#{$prefix}border-color);
                     padding: 4px;
                 }
             }
@@ -51,7 +51,7 @@
 /************** vertical timeline **************/ 
 
 .verti-timeline{
-    border-left: 3px dashed var(--#{$prefix}gray-300);
+    border-left: 3px dashed var(--#{$prefix}border-color);
     margin: 0 10px;
     .event-list{
         position: relative;

@@ -3,7 +3,6 @@
 // Light Theme
 @import "./bootstrap.scss";
 @import "./app.scss";
-@import "../../Components/CommonForBoth/rightbar.scss";
 
 // RTL Mode
 // @import "./rtl/bootstrap-rtl";
@@ -40,11 +39,6 @@ body {
 
 svg>rect:first-child {
   fill-opacity: 0 !important;
-}
-
-.dataTables_filter,
-.dataTables_paginate {
-  float: right;
 }
 
 .rdw-editor-main {
@@ -200,7 +194,7 @@ span.flatpickr-weekday {
 
 .carousel {
   .control-dots {
-    margin: -4px 0px;
+    margin: -5px 0px;
   }
 
   .dot {
@@ -352,6 +346,46 @@ span.flatpickr-weekday {
 }
 
 /* drawer */
+.react-drawer-drawer {
+  z-index: 9999;
+  background: #fff;
+}
+
+.drawer-main-menu {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.drawer-menu a i {
+  min-width: 2rem;
+  display: inline-block;
+  min-width: 1.75rem;
+  padding-bottom: 0.125em;
+  font-size: 1.25rem;
+  line-height: 1.40625rem;
+  vertical-align: middle;
+  color: #7f8387;
+  transition: all 0.4s;
+}
+
+.drawer-menu a {
+  display: block;
+  padding: 0.625rem 1.5rem;
+  color: #545a6d;
+  position: relative;
+  font-size: 13px;
+  transition: all 0.4s;
+}
+
+.drawer-close {
+  padding: 0.5rem 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem auto;
+}
+
+.ReactModal__Overlay {
+  z-index: 5000 !important;
+}
+
 .rangeslider__handle:focus {
   outline: none;
 }
@@ -625,8 +659,8 @@ input:-webkit-autofill:active {
 
 .css-b62m3t-container {
   .css-13cymwt-control {
-    // background-color: var(--#{$prefix}secondary-bg);
-    color: var(--#{$prefix}body-color);
+    background-color: var(--#{$prefix}secondary-bg);
+    color: var(--#{$prefix}secondary-color);
     border-color: var(--#{$prefix}border-color);
 
     &:hover,
@@ -659,7 +693,7 @@ input:-webkit-autofill:active {
   }
 }
 
-.css-13cymwt-control {
+[data-bs-theme=light] .css-13cymwt-control {
   border-color: hsl(0, 0%, 80%) !important
 }
 
@@ -678,7 +712,6 @@ input:-webkit-autofill:active {
 }
 
 // auth-logo
-
 [data-layout-mode="dark"] {
   .auth-logo {
     .auth-logo-light {
@@ -691,29 +724,6 @@ input:-webkit-autofill:active {
   }
 }
 
-// emoji
-aside.EmojiPickerReact.epr-main {
-  position: absolute !important;
-  bottom: 69px;
-  z-index: 2;
-  right: 110px;
-}
-
-[dir="rtl"] .EmojiPickerReact.epr-main {
-  right: unset !important;
-  left: 116px !important;
-}
-
-//chat img
-.replymessage-block {
-  padding: 12px 20px;
-  text-align: left;
-  border-left: 2px solid rgba(var(--tb-success-rgb), 1);
-  border-radius: 4px;
-  background-color: rgba(29, 207, 122, .1);
-}
-
-// noUi slider
 .noUi-connect {
   height: 2px !important;
 }
@@ -743,28 +753,153 @@ aside.EmojiPickerReact.epr-main {
   box-shadow: none !important;
 }
 
-// email read
-.list-message {
-  padding-left: 30px;
+// table container
+// pagination 
 
-  .col-mail {
-    margin-bottom: 11px;
+.dataTables_info {
+  justify-content: flex-start;
+  display: flex;
+}
 
-    .subject {
-      left: 0;
-      right: 200px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
+ul.pagination {
+  justify-content: end;
+}
 
-      .teaser {
-        color: var(--bs-gray-700);
-      }
+@media screen and (max-width: 767px) {
+  ul.pagination {
+    justify-content: center;
+  }
+
+  .dataTables_info {
+    justify-content: center;
+    display: flex;
+    margin-bottom: 7px;
+
+  }
+}
+
+// toasts
+.toast {
+  background-color: var(--#{$prefix}secondary-bg) !important;
+}
+
+// range slider
+@media screen and (max-width: 425px) {
+  .rangeslider__labels {
+    li:nth-child(odd):nth-child(n + 1):nth-child(-n + 12) {
+      visibility: hidden;
     }
   }
+}
+
+// general
+@media screen and (max-width: 767px) {
+  .fade.show.popover.bs-popover-end {
+    transform: translate3d(77px, 1074px, 0px) !important;
+  }
+
+  .fade.show.popover.bs-popover-start {
+    transform: translate3d(-70px, 1227px, 0px) !important;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .fade.show.popover.bs-popover-end {
+    transform: translate3d(44.5px, 1371px, 0px) !important;
+  }
+
+  .fade.show.popover.bs-popover-start {
+    transform: translate3d(-19px, 1539px, 0px) !important;
+  }
+
+  .fade.show.tooltip.bs-tooltip-start {
+    transform: translate3d(-200px, 1920px, 0px) !important;
+  }
+}
+
+// chartjs 
+@media screen and (max-width: 374px) {
+  .chartjs-render-monitor {
+    height: 230px !important;
+    width: 230px !important;
+
+  }
+}
+
+// Tinymce editor
+form .tox-tinymce {
+  border: 1px solid #ced4da !important;
+}
+
+form .tox :not(svg):not(rect) {
+  color: #495057;
+}
+
+.tox .tox-toolbar,
+.tox .tox-toolbar__overflow,
+.tox .tox-toolbar__primary {
+  // background: var(--bs-light) !important;
+  background-attachment: local;
+  background-color: #fff !important;
+  background-image: repeating-linear-gradient(#e3e3e3 0 1px, transparent 1px 39px);
+  background-position: center top 40px;
+  background-repeat: no-repeat;
+  background-size: calc(100% - 11px * 2) calc(100% - 41px);
+  display: flex;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding: 0 0;
+  transform: perspective(1px);
+}
+
+.tox .tox-editor-container {
+  background-color: #fff !important;
+}
+
+.tox .tox-statusbar {
+  align-items: center;
+  background-color: #fff !important;
+  border-top: 1px solid #e3e3e3;
+  color: rgba(34, 47, 62, .7) !important;
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: 400;
+  height: 25px;
+  overflow: hidden;
+  padding: 0 8px;
+  position: relative;
+  text-transform: none;
+}
+
+
+// emoji
+aside.EmojiPickerReact.epr-main {
+  position: absolute !important;
+  bottom: 69px;
+  z-index: 2;
+  right: 110px;
+}
+
+[dir="rtl"] .EmojiPickerReact.epr-main {
+  right: unset !important;
+  left: 116px !important;
+}
+
+.replymessage-block {
+  padding: 12px 20px;
+  text-align: left;
+  border-left: 2px solid rgba(var(--tb-success-rgb), 1);
+  border-radius: 4px;
+  background-color: rgba(29, 207, 122, .1);
 }
 
 // dark moda
 [data-layout-mode=dark] .form-select {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ced4da' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme=dark] .card {
+  --bs-card-bg: #2a3042;
 }

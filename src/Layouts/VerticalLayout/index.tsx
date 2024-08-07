@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import withRouter from "../../Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from 'reselect';
-import { changeLayout, changeLayoutMode, changeTopbarTheme, changeLeftSidebarType, changeLeftSidebarTheme, changeSidebarImageType } from "slices/layouts/thunk";
+import { changeLayout, changeLayoutMode, changeTopbarTheme, changeLeftSidebarType, changeLeftSidebarTheme, changeSidebarImageType } from "Slices/layouts/thunk";
 
 const VerticalLayout = (props: any) => {
   const dispatch: any = useDispatch();

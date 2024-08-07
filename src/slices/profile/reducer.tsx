@@ -1,6 +1,6 @@
 import { Reducer, createSlice } from "@reduxjs/toolkit";
-import { User } from "slices/users/reducer";
-import { encryptData } from "utils/cryptoUtils";
+import { User } from "Slices/users/reducer";
+import { encryptData } from "Utils/cryptoUtils";
 
 export interface ProfileState {
     user: User | null;

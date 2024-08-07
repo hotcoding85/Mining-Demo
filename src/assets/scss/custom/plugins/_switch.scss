@@ -18,7 +18,7 @@ input.switch {
     display: inline-block;
     text-align: center;
     position: relative;
-    font-weight: $fw-medium;
+    font-weight: $font-weight-medium;
     transition: all 0.1s ease-in-out;
     &:before {
       color: $dark;

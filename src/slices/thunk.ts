@@ -13,8 +13,8 @@ export * from "./users/thunk";
 // Benches
 export * from "./benches/thunk";
 
-// Devices
-export * from "./devices/thunk";
+// Trackers
+export * from "./trackers/thunk";
 
 // Materials
 export * from "./materials/thunk";

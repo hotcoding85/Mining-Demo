@@ -28,7 +28,7 @@
 }
 
 .crypto-buy-sell-nav-content{
-    border: 2px solid var(--#{$prefix}gray-300);
+    border: 2px solid var(--#{$prefix}border-color);
     border-top: 0;
 }
 
@@ -55,12 +55,12 @@
     padding-bottom: 80px;
 
     &.bg-white{
-        background-color: var(--#{$prefix}custom-white) !important;
+        background-color: var(--#{$prefix}secondary-bg) !important;
     }
 }
 
 .small-title{
-    color: var(--#{$prefix}gray-600);
+    color: var(--#{$prefix}secondary-color);
     margin-bottom: 8px;
 }
 
@@ -103,15 +103,16 @@
                 color: rgba($white, 0.6);
                 line-height: 58px;
                 padding: 6px 16px;
-                font-weight: $fw-medium;
+                font-weight: $font-weight-medium;
                 transition: all 0.4s;
 
                 @media (max-width: 991.98px) {
-                    color: $header-item-color;
+                    color: var(--#{$prefix}header-item-color);
                 }
 
-                &:hover, &.active{
-                    color:  rgba($white, 0.9);
+                &:hover,
+                &.active {
+                    color: rgba($white, 0.9);
 
                     @media (max-width: 991.98px) {
                         color: $primary;
@@ -126,25 +127,27 @@
     }
 
     &.nav-sticky{
-        background-color: $topnav-bg;
+        background-color: var(--#{$prefix}topnav-bg);
         box-shadow: $box-shadow;
         .navbar-logo{
             line-height: 60px;
 
             .logo-dark{
-                display: $display-block;
+                display: var(--#{$prefix}display-block);
             }
             .logo-light{
-                display: $display-none;
+                display: var(--#{$prefix}display-none);
             }
         }
 
         .navbar-nav {
             .nav-item {
-                .nav-link{
+                .nav-link {
                     line-height: 48px;
-                    color: $header-item-color;
-                    &:hover, &.active{
+                    color: var(--#{$prefix}header-item-color);
+
+                    &:hover,
+                    &.active {
                         color: $primary;
                     }
                 }
@@ -200,7 +203,7 @@
             border: 1px solid var(--#{$prefix}border-color);
             border-radius: 4px;
             padding: 8px;
-            background-color: var(--#{$prefix}custom-white);
+            background-color: var(--#{$prefix}secondary-bg);
 
             @media (max-width: 575.98px) {
                 display: inline-block;
@@ -230,7 +233,7 @@
             color: var(--#{$prefix}body-color);
             bottom: 20px;
             font-size: 12px;
-            font-weight: $fw-medium;
+            font-weight: $font-weight-medium;
         }
     }
 }

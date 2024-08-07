@@ -7,7 +7,7 @@
 // Breadcrumb item arrow
 .breadcrumb-item {
     > a {
-        color: var(--#{$prefix}gray-700);
+        color: var(--#{$prefix}emphasis-color);
     }
     +.breadcrumb-item {
         &::before {

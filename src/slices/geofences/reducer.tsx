@@ -1,6 +1,6 @@
 import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
-import { User } from "slices/users/reducer";
-import { Vehicle } from "slices/fleet/reducer";
+import { User } from "Slices/users/reducer";
+import { Vehicle } from "Slices/fleet/reducer";
 
 
 interface CreateResponse {

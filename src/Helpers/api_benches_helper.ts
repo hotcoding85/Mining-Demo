@@ -5,8 +5,17 @@ import * as url from "./url_helper";
 const api = new APIClient();
 
 // All Benches
-export const getBenches = (page = 1, limit = 10) => {
-  return api.get(url.BENCHES, { page: page, limit: limit })
+export const getBenches = (page, limit, sortBy, sortOrder, name?, category?) => {
+  var options = {page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder}
+
+  if(name) {
+    options['name'] = name
+  }
+
+  if(category) {
+    options['category'] = category
+  }
+  return api.get(url.BENCHES, options)
 };
 
 // Create Bench
@@ -20,4 +29,8 @@ export const putBench = (id: string, bench: any) => {
 // Delete Bench
 export const deleteBench = (id: string) => {
   return api.delete(`${url.BENCHES}/${id}`, {});
+}
+
+export const isBenchNameUnique = (name: string) => {
+  return api.get(`${url.BENCHES}/unique/${name}`, {})
 }

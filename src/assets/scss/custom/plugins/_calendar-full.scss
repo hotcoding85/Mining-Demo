@@ -3,9 +3,11 @@
 ===================*/
 
 
-.fc td, .fc th{
+.fc td,
+.fc th {
   border: $table-border-width solid $table-border-color;
 }
+
 
 
 
@@ -43,6 +45,64 @@
       }
 
   }
+  .fc-col-header-cell-cushion {
+    color: var(--#{$prefix}body-color);
+  }
+
+  .fc-daygrid-day-number {
+    color: var(--#{$prefix}body-color);
+  }
+}
+
+.fc-daygrid-event-dot {
+  display: none;
+}
+
+.fc-prev-button,
+.fc-next-button {
+  position: relative;
+  padding: 6px 8px !important;
+}
+
+
+.fc-toolbar-chunk {
+  .fc-button-group {
+    .fc-button {
+      background-color: var(--#{$prefix}primary);
+      border-color: var(--#{$prefix}primary);
+      ;
+      box-shadow: none;
+
+      &:hover,
+      &.active {
+        color: $white;
+        background-color: var(--#{$prefix}primary);
+        border-color: var(--#{$prefix}primary);
+      }
+    }
+  }
+
+  .fc-today-button {
+    background-color: var(--#{$prefix}primary) !important;
+    border-color: var(--#{$prefix}primary) !important;
+  }
+}
+
+.fc {
+
+  .fc-button-primary:not(:disabled).fc-button-active,
+  .fc-button-primary:not(:disabled):active {
+    background-color: var(--#{$prefix}primary) !important;
+    border-color: var(--#{$prefix}primary) !important;
+    color: $white !important;
+  }
+}
+
+.fc-toolbar {
+  @media (max-width: 575.98px) {
+    flex-direction: column;
+    gap: 16px;
+  }
 }
 
 .fc {
@@ -77,8 +137,8 @@
 }
 
 .fc-button {
-  background: $card-bg;
-  border-color: $border-color;
+  background: var(--#{$prefix}secondary-bg);
+  border-color: var(--#{$prefix}border-color);
   color: $gray-700;
   text-transform: capitalize;
   box-shadow: none;
@@ -102,6 +162,17 @@
   margin: 5px 7px;
   padding: 5px 5px;
   text-align: center;
+  color: $white;
+
+  &.bg-dark {
+    .fc-event-time {
+      color: var(--#{$prefix}secondary-bg) !important;
+    }
+    background-color: var(--#{$prefix}secondary-color) !important;
+    .fc-event-title {
+      color: var(--#{$prefix}secondary-bg) !important;
+    }
+  }
 }
 
 .fc-event,
@@ -117,6 +188,8 @@
   .external-event {
       text-align: left;
       padding: 8px 16px;
+      margin-left: 0;
+      margin-right: 0;
   }
 }
 
@@ -137,4 +210,36 @@
   .fc-toolbar>*>:not(:first-child) {
       margin-left: .75em;
   }
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border-color: var(--#{$prefix}border-color);
+}
+
+.fc .fc-daygrid-week-number {
+  background-color: var(--#{$prefix}body-bg);
+  color: var(--#{$prefix}body-color);
+}
+
+.fc .fc-daygrid-more-link {
+  padding: 5px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fc .fc-daygrid-more-link:hover {
+  background-color: rgba(var(--#{$prefix}primary-rgb), 0.1);
+}
+
+.fc .fc-popover-header {
+  padding: 6px 12px;
+}
+
+.fc-theme-standard .fc-popover-header {
+  background: var(--#{$prefix}body-bg);
+}
+
+.fc-theme-standard .fc-popover {
+    background: var(--#{$prefix}secondary-bg);
+    border: 1px solid var(--#{$prefix}border-color);
 }

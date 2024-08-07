@@ -4,11 +4,11 @@ interface CreateResponse {
     code: number,
     type: string,
     success: boolean,
-    data: Device,
+    data: Tracker,
 }
 
-export interface DevicesState {
-    data: Device[];
+export interface TrackersState {
+    data: Tracker[];
     page: number;
     limit: number;
     total: number;
@@ -17,7 +17,7 @@ export interface DevicesState {
     errorMsg: string | null;
 }
 
-interface Device {
+interface Tracker {
     id: string,
     name: string | undefined,
     identifier: string,
@@ -26,7 +26,7 @@ interface Device {
     vehicleId: object
 }
 
-export const initialState: DevicesState = {
+export const initialState: TrackersState = {
     data: [],
     page: 1,
     limit: 10,// for error msg
@@ -36,8 +36,8 @@ export const initialState: DevicesState = {
     errorMsg: null
 };
 
-const devicesSlice = createSlice({
-    name: "devices",
+const trackersSlice = createSlice({
+    name: "trackers",
     initialState,
     reducers: {
         allSuccess(state, action) {
@@ -71,5 +71,5 @@ const devicesSlice = createSlice({
         },
     }
 });
-export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } = devicesSlice.actions;
-export default devicesSlice.reducer as Reducer<DevicesState>;
+export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } = trackersSlice.actions;
+export default trackersSlice.reducer as Reducer<TrackersState>;

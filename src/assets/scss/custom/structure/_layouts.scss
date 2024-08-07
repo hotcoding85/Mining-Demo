@@ -3,7 +3,7 @@
 // 
 
 body[data-layout-size="boxed"] {
-    background-color: $boxed-body-bg;
+    background-color: var(--#{$prefix}boxed-body-bg);
     #layout-wrapper {
         background-color: var(--#{$prefix}body-bg);
         max-width: $boxed-layout-width;
@@ -16,14 +16,16 @@ body[data-layout-size="boxed"] {
     margin: 0 auto;
   }
 
-  &.vertical-collpsed {
-    #page-topbar {
-      max-width: calc(#{$boxed-layout-width} - #{$sidebar-collapsed-width});
-      margin: 0 auto;
+  .footer {
+    margin: 0 auto;
+    max-width: calc(#{$boxed-layout-width} - #{$sidebar-width});
+}
+
+&.vertical-collpsed {
+    .footer {
+        max-width: calc(#{$boxed-layout-width} - #{$sidebar-collapsed-width});
     }
-    .main-content {
-      min-height: $layout-collapsed-min-height;
-    }
+
   }
 
   &[data-sidebar-size="small"] {

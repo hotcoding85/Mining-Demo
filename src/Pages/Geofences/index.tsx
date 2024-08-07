@@ -6,7 +6,7 @@ import * as Leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
-import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'slices/thunk';
+import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'Slices/thunk';
 import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
@@ -295,11 +295,15 @@ const MapGeofence = ({ socket }) => {
             mapRef.current = Leaflet.map('map', {
                 center: origin,
                 zoom: 13,
-                attributionControl: false
+                attributionControl: true,
+                zoomControl: false
             });
 
             Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
 
+            Leaflet.control.zoom({
+                position: 'bottomright'
+            }).addTo(mapRef.current);
 
             mapRef.current.addLayer(drawItems);
             const drawControl = new Leaflet.Control.Draw({
@@ -311,7 +315,8 @@ const MapGeofence = ({ socket }) => {
                     circlemarker: false,
                     marker: false,
                     circle: false
-                }
+                },
+                position: 'topright'
             });
 
             mapRef.current.addControl(drawControl);
@@ -471,11 +476,7 @@ const MapGeofence = ({ socket }) => {
                 <Container fluid>
                     <Row>
                         <Col md="8">
-                            <Card>
-                                <CardBody>
-                                    <div id="map" style={{ height: '80vh', width: '100%' }}></div>
-                                </CardBody>
-                            </Card>
+                            <div id="map" style={{ height: '80vh', width: '100%' }}></div>
                         </Col>
                         <Col md="4">
                             <Card>
