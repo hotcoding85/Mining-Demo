@@ -4,7 +4,7 @@ import Chart from 'react-apexcharts';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import MiningTruckGraphCard from "./MiningTruckGraphCard";
 import TruckingExecutionCard from './TruckExecutionCard';
-import { getAllFleet } from 'Slices/fleet/thunk';
+import { getAllFleet } from 'slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import ForecastProgressBar from './ForecastProgressBar';

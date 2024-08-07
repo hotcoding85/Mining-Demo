@@ -3,7 +3,7 @@ import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, R
 import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Leaflet from 'leaflet';
-import { getGeoFences, getAllFleet, getAllEvents } from 'Slices/thunk';
+import { getGeoFences, getAllFleet, getAllEvents } from 'slices/thunk';
 import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
 import _, { forEach } from 'lodash';

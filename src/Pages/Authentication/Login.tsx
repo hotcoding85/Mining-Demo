@@ -11,7 +11,7 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import CarouselPage from "./CarouselPage";
 
-import { loginuser } from "Slices/thunk";
+import { loginuser } from "slices/thunk";
 
 import withRouter from "Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";

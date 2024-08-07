@@ -1,5 +1,5 @@
 import axios from "axios";
-import { decryptData } from "Utils/cryptoUtils";
+import { decryptData } from "utils/cryptoUtils";
 // default
 axios.defaults.baseURL = process.env.REACT_APP_API_URL+"/v1";
 

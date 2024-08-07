@@ -12,7 +12,7 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 
 //i18n
 import { withTranslation } from "react-i18next";
-import { changeLayoutMode } from "Slices/thunk";
+import { changeLayoutMode } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 
 const Header = (props: any) => {

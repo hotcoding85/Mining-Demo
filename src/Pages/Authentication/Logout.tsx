@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import withRouter from "Components/Common/withRouter";
 import { Navigate } from "react-router-dom";
 
-import { logoutUser } from "Slices/thunk";
+import { logoutUser } from "slices/thunk";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";

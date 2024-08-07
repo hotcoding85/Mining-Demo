@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import withRouter from "../Components/Common/withRouter";
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { changeLayoutMode } from "Slices/thunk";
+import { changeLayoutMode } from "slices/thunk";
 
 const NonAuthLayout = (props: any) => {
 

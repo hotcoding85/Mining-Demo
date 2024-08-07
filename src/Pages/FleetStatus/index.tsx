@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import List from './List';
-import { getAllFleet } from 'Slices/fleet/thunk';
+import { getAllFleet } from 'slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import _, { cloneDeep, groupBy } from 'lodash';

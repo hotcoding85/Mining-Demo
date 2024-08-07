@@ -7,7 +7,7 @@ import { DragAndDropEventArgs } from '@syncfusion/ej2-navigations';
 import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
 import { DateTimePickerComponent } from '@syncfusion/ej2-react-calendars';
 import { DropDownListComponent } from '@syncfusion/ej2-react-dropdowns';
-import { getDispatchs, updateDispatch, getAllFleet, getAllUsers, addDispatch, getShiftRosters, getAllBenches, getAllMaterials } from 'Slices/thunk';
+import { getDispatchs, updateDispatch, getAllFleet, getAllUsers, addDispatch, getShiftRosters, getAllBenches, getAllMaterials } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import Select from 'react-select';

@@ -3,7 +3,7 @@ import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Labe
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
-import { getShiftRosters, updateShiftRoster, getAllFleet, getAllUsers, addShiftRoster } from 'Slices/thunk';
+import { getShiftRosters, updateShiftRoster, getAllFleet, getAllUsers, addShiftRoster } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import Select from 'react-select';

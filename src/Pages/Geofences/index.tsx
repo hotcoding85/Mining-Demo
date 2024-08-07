@@ -6,7 +6,7 @@ import * as Leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
-import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'Slices/thunk';
+import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'slices/thunk';
 import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';

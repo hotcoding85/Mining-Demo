@@ -3,7 +3,7 @@ import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Labe
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
-import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'Slices/thunk';
+import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import DeleteButton from "Components/Common/DeleteButton";
 import { createSelector } from 'reselect';
 import FormModal from 'Components/Common/FormModal';
-import { StatusOptions } from "Common/options";
+import { StatusOptions } from "common/options";
 import { isTrackerNameUnique } from '../../Helpers/api_devices_helper';
 
 const Trackers = (props: any) => {
