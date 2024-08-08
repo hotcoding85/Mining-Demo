@@ -5,26 +5,26 @@
 .nav-tabs,.nav-pills {
   > li {
       > a {
-        color: var(--#{$prefix}emphasis-color);
-        font-weight: $font-weight-medium;
+          color: var(--#{$prefix}gray-700);
+          font-weight: $fw-medium;
       }
   }
 }
 
 .nav-pills {
   > a {
-    color: var(--#{$prefix}emphasis-color);  
-    font-weight: $font-weight-medium;
+      color: var(--#{$prefix}gray-700);  
+      font-weight: $fw-medium;
   }
 }
 
 
 .nav-tabs-custom {
-  border-bottom: 2px solid var(--#{$prefix}border-color);
+  border-bottom: 2px solid var(--#{$prefix}gray-300);
 
   .nav-item {
     position: relative;
-    color: var(--#{$prefix}body-color);
+    color: var(--#{$prefix}dark);
     .nav-link {
       border: none;
 

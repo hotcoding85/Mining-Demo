@@ -28,7 +28,7 @@
 }
 
 .crypto-buy-sell-nav-content{
-    border: 2px solid var(--#{$prefix}border-color);
+    border: 2px solid var(--#{$prefix}gray-300);
     border-top: 0;
 }
 
@@ -55,12 +55,12 @@
     padding-bottom: 80px;
 
     &.bg-white{
-        background-color: var(--#{$prefix}secondary-bg) !important;
+        background-color: var(--#{$prefix}custom-white) !important;
     }
 }
 
 .small-title{
-    color: var(--#{$prefix}secondary-color);
+    color: var(--#{$prefix}gray-600);
     margin-bottom: 8px;
 }
 
@@ -103,16 +103,15 @@
                 color: rgba($white, 0.6);
                 line-height: 58px;
                 padding: 6px 16px;
-                font-weight: $font-weight-medium;
+                font-weight: $fw-medium;
                 transition: all 0.4s;
 
                 @media (max-width: 991.98px) {
-                    color: var(--#{$prefix}header-item-color);
+                    color: $header-item-color;
                 }
 
-                &:hover,
-                &.active {
-                    color: rgba($white, 0.9);
+                &:hover, &.active{
+                    color:  rgba($white, 0.9);
 
                     @media (max-width: 991.98px) {
                         color: $primary;
@@ -127,27 +126,25 @@
     }
 
     &.nav-sticky{
-        background-color: var(--#{$prefix}topnav-bg);
+        background-color: $topnav-bg;
         box-shadow: $box-shadow;
         .navbar-logo{
             line-height: 60px;
 
             .logo-dark{
-                display: var(--#{$prefix}display-block);
+                display: $display-block;
             }
             .logo-light{
-                display: var(--#{$prefix}display-none);
+                display: $display-none;
             }
         }
 
         .navbar-nav {
             .nav-item {
-                .nav-link {
+                .nav-link{
                     line-height: 48px;
-                    color: var(--#{$prefix}header-item-color);
-
-                    &:hover,
-                    &.active {
+                    color: $header-item-color;
+                    &:hover, &.active{
                         color: $primary;
                     }
                 }
@@ -173,7 +170,7 @@
     padding-bottom: 190px;
 
     &.bg-ico-hero{
-        // background-image: url("../../../images/crypto/bg-ico-hero.jpg");
+        background-image: url("../../../images/crypto/bg-ico-hero.jpg");
         background-size: cover;
         background-position: top;
     }
@@ -203,7 +200,7 @@
             border: 1px solid var(--#{$prefix}border-color);
             border-radius: 4px;
             padding: 8px;
-            background-color: var(--#{$prefix}secondary-bg);
+            background-color: var(--#{$prefix}custom-white);
 
             @media (max-width: 575.98px) {
                 display: inline-block;
@@ -233,7 +230,7 @@
             color: var(--#{$prefix}body-color);
             bottom: 20px;
             font-size: 12px;
-            font-weight: $font-weight-medium;
+            font-weight: $fw-medium;
         }
     }
 }

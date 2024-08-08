@@ -2,7 +2,7 @@
 
 import CryptoJS from 'crypto-js';
 
-const ENCRYPTION_KEY = 'your-secret-key'; // Replace with your secret key
+const ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY ?? "your-secret-key";
 const IV_LENGTH = 16; // For AES encryption, IV length is typically 16 bytes
 
 // Function to encrypt data

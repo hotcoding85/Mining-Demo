@@ -16,7 +16,7 @@ import languages from "../../common/languages";
 //img
 import usflag from "assets/images/flags/us.jpg";
 
-const LanguageDropdown = () => {
+const LanguageDropdown = (props: any) => {
   // Declare a new state variable, which we'll call "menu"
   const [selectedLang, setSelectedLang] = useState<string>("");
   const [menu, setMenu] = useState<boolean>(false);
@@ -43,7 +43,7 @@ const LanguageDropdown = () => {
         <DropdownToggle className="btn header-item " tag="button">
           <img
             src={get(languages, `${selectedLang}.flag`) || usflag}
-            alt="fms"
+            alt="skote"
             height="16"
           />
         </DropdownToggle>
@@ -57,7 +57,7 @@ const LanguageDropdown = () => {
             >
               <img
                 src={get(languages, `${key}.flag`)}
-                alt="fms"
+                alt="skote"
                 className="me-1"
                 height="12"
               />

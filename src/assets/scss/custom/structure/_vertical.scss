@@ -426,7 +426,7 @@ body[data-sidebar="dark"] {
   }
   // Enlarge menu
   &.vertical-collpsed {
-    min-height: 1760px;
+    min-height: $layout-collapsed-min-height;
 
     // Side menu
     .vertical-menu {
@@ -1012,29 +1012,29 @@ body[data-sidebar-image] {
   }
 }
 
-// body[data-sidebar-image="img1"] {
-//   .sidebar-background {
-//     background-image: url("../../../images/sidebar/img1.jpg");
-//   }
-// }
+body[data-sidebar-image="img1"] {
+  .sidebar-background {
+    background-image: url("../../../images/sidebar/img1.jpg");
+  }
+}
 
-// body[data-sidebar-image="img2"] {
-//   .sidebar-background {
-//     background-image: url("../../../images/sidebar/img2.jpg");
-//   }
-// }
+body[data-sidebar-image="img2"] {
+  .sidebar-background {
+    background-image: url("../../../images/sidebar/img2.jpg");
+  }
+}
 
-// body[data-sidebar-image="img3"] {
-//   .sidebar-background {
-//     background-image: url("../../../images/sidebar/img3.jpg");
-//   }
-// }
+body[data-sidebar-image="img3"] {
+  .sidebar-background {
+    background-image: url("../../../images/sidebar/img3.jpg");
+  }
+}
 
-// body[data-sidebar-image="img4"] {
-//   .sidebar-background {
-//     background-image: url("../../../images/sidebar/img4.jpg");
-//   }
-// }
+body[data-sidebar-image="img4"] {
+  .sidebar-background {
+    background-image: url("../../../images/sidebar/img4.jpg");
+  }
+}
 
 .verticalcontent {
   writing-mode: vertical-rl;

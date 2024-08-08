@@ -11,15 +11,12 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "useUnknownInCatchVariables": false,
     "module": "esnext",
     "baseUrl": "src", // This must be specified if "paths" is.
     "paths": {
-       "@pages/*": ["src/Pages/*"],
+       "@common/*": ["src/Components/Common/*"],
        "@assets/*": ["src/assets/*"],
-       "@shared/*": ["app/_shared/*"],
        "@helpers/*": ["src/Helpers/*"]
-
    },
     "moduleResolution": "node",
     "resolveJsonModule": true,

@@ -8,17 +8,16 @@
 }
 
 .card-drop {
-  color: var(--#{$prefix}body-color);
+  color: $body-color;
 }
 
 .card-title {
   font-size: 15px;
   margin: 0 0 7px 0;
   font-weight: $font-weight-semibold;
-  color: var(--#{$prefix}emphasis-color);
 }
 
 .card-title-desc {
-  color: var(--#{$prefix}secondary-color);
-  margin-bottom: 24px;
+  color: $card-title-desc;
+  margin-bottom: 24px;  
 }

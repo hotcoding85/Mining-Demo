@@ -1,5 +1,5 @@
-import Select from "react-select";
-
+// import Select from "react-select";
+import { Select } from 'antd';
 const CustomSelect = ({
   id,
   name,
@@ -43,11 +43,11 @@ const CustomSelect = ({
   return (
     <Select
       id={id}
-      name={name}
-      className="basic-single"
-      isClearable={true}
-      isSearchable={true}
-      styles={customStyles}
+      showSearch
+      allowClear
+      placeholder="Please select"
+      // styles={customStyles}
+      style={{ width: '100%' }}
       options={options}
       value={options.find((option) => option.value === formValues[name])} // set selected value
       onChange={(option) => setFieldValue(name, option?.value)}

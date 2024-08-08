@@ -1,20 +1,18 @@
 import React from "react";
-import { Breadcrumb, Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import Breadcrumb from "Components/Common/Breadcrumb";
 
 const Reports = (props: any) => {
-    document.title = "Reports";
+    document.title = "Reports | FMS Live";
 
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Resources" breadcrumbItem="Materials" />
+                    <Breadcrumb title="Reports" breadcrumbItem="Reports" />
                     <Row>
                         <Col lg="12">
-                            <Card>
-                                <CardBody>
-                                </CardBody>
-                            </Card>
+
                         </Col>
                     </Row>
                 </Container>

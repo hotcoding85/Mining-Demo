@@ -26,19 +26,19 @@
   }
 
   .irs-line {
-    background: var(--#{$prefix}tertiary-bg);
-    border-color: var(--#{$prefix}tertiary-bg);
+    background: var(--#{$prefix}gray-300);
+    border-color: var(--#{$prefix}gray-300);
   }
 
   .irs-grid-text {
     font-size: 11px;
-    color: var(--#{$prefix}secondary-color);
+    color: var(--#{$prefix}gray-400);
   }
 
   .irs-min,
   .irs-max {
-    color: var(--#{$prefix}secondary-color);
-    background: var(--#{$prefix}tertiary-bg);
+    color: var(--#{$prefix}gray-400);
+    background: var(--#{$prefix}gray-300);
     font-size: 11px;
   }
 
@@ -47,7 +47,7 @@
     width: 12px;
     height: 12px;
     top: 26px;
-    background-color: var(--#{$prefix}secondary-bg) !important;
+    background-color: var(--#{$prefix}custom-white) !important;
     cursor: pointer;
 
     &:active {
@@ -56,6 +56,6 @@
   }
 
   .irs-grid-pol {
-    background-color: var(--#{$prefix}secondary-color);
+    background-color: var(--#{$prefix}gray-400);
   }
 }

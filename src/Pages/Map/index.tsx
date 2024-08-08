@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Row, Col, Card, CardBody, ListGroup, ListGroupItem, Label, Breadcrumb } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Leaflet from 'leaflet';
 import { getGeoFences, getAllFleet, getAllEvents } from 'slices/thunk';
-import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
+import Breadcrumb from "Components/Common/Breadcrumb";
 import { ExtendedMarker } from './leaflet-extensions';
-import _, { forEach } from 'lodash';
+import _ from 'lodash';
 import dayjs from "dayjs";
+import { truckStandby } from 'assets/images/map';
 
 interface EquipmentLocation {
     id: string;
@@ -151,7 +152,7 @@ const equipments: EquipmentLocation[] = [
 
 const Map = ({ socket }) => {
 
-    document.title = "Map";
+    document.title = "Real-time positioning | FMS Live";
     const dispatch: any = useDispatch();
     const geoFenceProperties = createSelector(
         (state: any) => state.GeoFence,
@@ -234,7 +235,7 @@ const Map = ({ socket }) => {
         const isNotActive: boolean = eq.status.toLowerCase() != 'ACTIVE';
         const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
             <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${standbyDT}" alt="Description of the image">
+              <img src="${truckStandby}" alt="Description of the image">
             </div>`
 
         const icon = Leaflet.divIcon({
@@ -373,31 +374,36 @@ const Map = ({ socket }) => {
     const addMarkers = () => {
         const markersData: MarkerData[] = [];
 
-        const eventsByTruck = _.groupBy(events, 'truckId');
+        // const eventsByTruck = _.groupBy(events, 'truckId');
 
-        var latestEvents = {};
-        Object.keys(eventsByTruck).forEach((key) => {
-            eventsByTruck[key].forEach(event => {
-                const truckId = event.truckId; // Extract truckId
-                const eventStartTime = event.event.startTime; // Extract startTime
+        // var latestEvents = {};
+        // Object.keys(eventsByTruck).forEach((key) => {
+        //     eventsByTruck[key].forEach(event => {
+        //         const truckId = event.truckId; // Extract truckId
+        //         const eventStartTime = event.event.startTime; // Extract startTime
 
-                // If no event exists for the truck or if this event's startTime is later
-                if (!latestEvents[truckId] || eventStartTime > latestEvents[truckId].event.startTime) {
-                    latestEvents[truckId] = event; // Update to latest event
-                }
-            });
-        })
+        //         // If no event exists for the truck or if this event's startTime is later
+        //         if (!latestEvents[truckId] || eventStartTime > latestEvents[truckId].event.startTime) {
+        //             latestEvents[truckId] = event; // Update to latest event
+        //         }
+        //     });
+        // })
 
-        Object.values(latestEvents).forEach((eq: any) => {
-            console.log(eq);
-            let equip = getFleetData(eq['truckId']);
-            let eqData = {
-                color: getColorByState(eq['event']['state']),
-                status: eq['event']['state'],
-                name: eq['truck']['name']
-            }
-            const marker = new ExtendedMarker([eq.event.lat, eq.event.lng] as Leaflet.LatLngExpression, { icon: rippleIcon(eqData) }).addTo(mapRef.current!)
-            markersData.push({ id: equip['name'], marker: marker })
+        // Object.values(latestEvents).forEach((eq: any) => {
+        //     console.log(eq);
+        //     let equip = getFleetData(eq['truckId']);
+        //     let eqData = {
+        //         color: getColorByState(eq['event']['state']),
+        //         status: eq['event']['state'],
+        //         name: eq['truck']['name']
+        //     }
+        //     const marker = new ExtendedMarker([eq.event.lat, eq.event.lng] as Leaflet.LatLngExpression, { icon: rippleIcon(eqData) }).addTo(mapRef.current!)
+        //     markersData.push({ id: equip['name'], marker: marker })
+        // })
+
+        equipments.map(item => {
+            const marker = new ExtendedMarker(item.position as Leaflet.LatLngExpression, { icon: rippleIcon(item) }).addTo(mapRef.current!)
+            markersData.push({ id: item['name'], marker: marker })
         })
         setMarkers(markersData);
     }
@@ -406,7 +412,7 @@ const Map = ({ socket }) => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Resources" breadcrumbItem="Materials" />
+                    <Breadcrumb title="Dashboards" breadcrumbItem="Real-time Positioning" />
                     <Row>
                         <Col md="12">
                             <div id="map" style={{ height: '80vh', width: '100%' }}></div>

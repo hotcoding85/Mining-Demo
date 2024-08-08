@@ -8,7 +8,7 @@
     max-width: 1140px;
 }
 .mfp-close{
-  color: var(--#{$prefix}body-color) !important;
+  color: $dark !important;
 }
 
 // Modals
@@ -38,7 +38,7 @@
       display: block;
       font-size: 24px;
       margin-bottom: 16px;
-      color: var(--#{prefix}secondary-color);
+      color: $gray-600;
       transition: all 0.4s;
     }
   
@@ -62,7 +62,7 @@
         background-color: var(--#{$prefix}gray-100);
         margin-top: 10px;
         font-size: .8rem;
-        font-weight: $font-weight-medium;
+        font-weight: $fw-medium;
         padding: 10px 20px;
     }
 }
@@ -71,9 +71,9 @@
 // card radio
 
 .card-radio{
-  background-color: var(--#{$prefix}secondary-bg);
+  background-color: var(--#{$prefix}custom-white);
   border: 2px solid var(--#{$prefix}border-color);
-  border-radius: var(--#{$prefix}border-radius);
+  border-radius: $border-radius;
   padding: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;

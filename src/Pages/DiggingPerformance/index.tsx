@@ -2,18 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TruckingExecutionCard from './TruckingExecutionCard';
-
-import PC2000 from 'assets/images/PC2000.png'
-import PC1250 from 'assets/images/PC1250.png'
-import HD1500 from 'assets/images/HD1500.png'
-import HD785 from 'assets/images/HD785.png'
-import WA600 from "assets/images/WA600.png";
+import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { getAllFleet } from 'slices/thunk';
 
 const DiggingPerformance = () => {
-  document.title = "Digging Performance";
+  document.title = "Digging Performance | FMS Live";
   const [series, useSeries] = useState([67, 60, 90]); // Replace with actual data
   const [operationalDelay, useOperationalDelay] = useState([40, 50, 60]); // Replace with actual data
   const [availability, useAvailability] = useState([70, 80, 90]); // Replace with actual data
@@ -39,15 +34,15 @@ const DiggingPerformance = () => {
   const getImage = (category: string) => {
 
     if (containsCaseInsensitive(category, "hd785")) {
-      return HD785;
+      return hd785;
     } else if (containsCaseInsensitive(category, "hd1500")) {
-      return HD1500;
+      return hd1500;
     } else if (containsCaseInsensitive(category, "pc1250")) {
-      return PC1250;
+      return pc1250;
     } else if (containsCaseInsensitive(category, "pc2000")) {
-      return PC2000;
+      return pc2000;
     } else if (containsCaseInsensitive(category, "wa600")) {
-      return WA600;
+      return wa600;
     }
   }
 

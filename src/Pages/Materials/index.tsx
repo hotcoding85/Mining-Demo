@@ -14,7 +14,7 @@ import { createSelector } from 'reselect';
 import { isMaterialNameUnique } from '../../Helpers/api_materials_helper';
 
 const Materials = (props: any) => {
-  document.title = "Materials";
+  document.title = "Materials | FMS Live";
 
   const dispatch: any = useDispatch();
   const [material, setMaterial] = useState<any>();
@@ -264,7 +264,7 @@ const Materials = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={data || []}
-                    total={total || 0}
+                    // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
                     isPagination={true}

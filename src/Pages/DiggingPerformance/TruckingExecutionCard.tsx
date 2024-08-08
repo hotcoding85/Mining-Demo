@@ -1,10 +1,10 @@
 import React from 'react';
-import { CardBody, CardTitle, Progress, Row, Col, Card, CardImg, Container } from 'reactstrap';
+import { CardBody, Row, Col, Card, CardImg, Container } from 'reactstrap';
 import Chart from 'react-apexcharts';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
+
 import BarGraph from "./BarGraph";
 import TonnesBarGraph from "./TonnesBarGraph";
+import { Progress } from 'antd';
 
 // Renaming MiningTruckGraphCard to DetailedTruckingExecutionCard based on its usage
 function TruckingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue, progressMax, series, operationalDelay, availability, tbSeries, forecast, forecastColor }) {
@@ -106,20 +106,12 @@ function TruckingExecutionCard({ imgSrc, altText, title, cardTitle, progressValu
                 alt="image"
                 style={{ width: '200px' }}
               />
-              <Progress className='mt-4' value={progressValue} max={progressMax} style={{ height: '30px' }}>{progressValue} of {progressMax}</Progress>
+              {/* <Progress className='mt-4' value={progressValue} max={progressMax} style={{ height: '30px' }}>{progressValue} of {progressMax}</Progress> */}
+              <Progress strokeLinecap="butt" percent={progressValue} />
             </Col>
             <Col lg={2} className='d-flex align-items-center my-auto'>
               <div>
-                <CircularProgressbar
-                  value={series}
-                  text={`${series}%`}
-                  // circleRatio={0.75}
-                  // styles={buildStyles({
-                  //   rotation: 1 / 2 + 1 / 8,
-                  //   strokeLinecap: "butt",
-                  //   trailColor: "#eee",
-                  // })}
-                />
+                <Progress type="dashboard" percent={series} />
               </div>
             </Col>
             <Col lg={3}>

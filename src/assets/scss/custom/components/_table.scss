@@ -3,13 +3,14 @@
 // 
 
 .table {
+
   th {
-      font-weight: $font-weight-bold;
+    font-weight: $font-weight-bold;
   }
 }
 
-.table-dark>:not(:last-child)>:last-child>*{
-  border-bottom-color:  $table-dark-border-color;
+.table-dark>:not(:last-child)>:last-child>* {
+  border-bottom-color: $table-dark-border-color;
 }
 
 
@@ -18,11 +19,13 @@
 }
 
 .table-nowrap {
-  th, td {
+
+  th,
+  td {
     white-space: nowrap;
   }
 }
 
 .table>:not(:first-child) {
-    border-top: 0;
+  border-top: 0;
 }

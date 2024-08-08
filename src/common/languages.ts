@@ -4,32 +4,24 @@ import italy from "../assets/images/flags/italy.jpg";
 import russia from "../assets/images/flags/russia.jpg";
 import usflag from "../assets/images/flags/us.jpg"
 
-const languages: Object = {
-    sp: {
-        label: "Spanish",
-        flag: spain,
-        code: 'SP'
+const languages : Object = {
+    en:{
+        label:"English",
+        flag :usflag
     },
-    gr: {
-        label: "German",
-        flag: germany,
-        code: 'GR'
+    sp :{
+        label : "Spanish",
+        flag :spain
+    },
+    gr:{
+        label : "German",
+        flag :germany
     },
     it: {
-        label: "Italian",
-        flag: italy,
-        code: 'IT'
-    },
-    rs: {
-        label: "Russia",
-        flag: russia,
-        code: 'RS'
-    },
-    en: {
-        label: "English",
-        flag: usflag,
-        code: 'EN'
+        label :"Italian",
+        flag:italy
     }
+    
 }
 
 export default languages

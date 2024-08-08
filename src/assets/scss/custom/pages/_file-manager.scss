@@ -24,8 +24,8 @@
         a{
             display: block;
             padding: 8px 12px;
-            color: var(--#{$prefix}body-color);
-            font-weight: $font-weight-medium;
+            color: $body-color;
+            font-weight: $fw-medium;
         }
 
         &.active{
@@ -39,7 +39,7 @@
             li{
                 a{
                     padding: 4px 12px;
-                    color: var(--#{$prefix}secondary-color);
+                    color: $text-muted;
                     font-size: 13px;
                     font-weight: $font-weight-normal;
                 }

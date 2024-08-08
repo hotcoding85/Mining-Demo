@@ -2,6 +2,9 @@ import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
 
+// Reactstrap
+import { Row, Col, Dropdown, DropdownToggle, DropdownMenu, FormGroup, Input } from "reactstrap";
+
 // Import menuDropdown
 import LanguageDropdown from "../../Components/Common/LanguageDropdown";
 import NotificationDropDown from "../../Components/CommonForBoth/NotificationDropDown";
@@ -12,6 +15,8 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 
 //i18n
 import { withTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { createSelector } from "reselect";
 import { changeLayoutMode } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 
@@ -66,6 +71,26 @@ const Header = (props: any) => {
     }
   }
 
+  const dispatch = useDispatch<any>();
+
+  const selectLayoutState = (state: any) => state.Layout;
+  const selectProperties = createSelector(
+    selectLayoutState,
+    (layout) => ({
+      layoutType: layout.layoutTypes,
+      layoutModeType: layout.layoutModeTypes,
+      layoutWidthType: layout.layoutWidthTypes,
+      topbarThemeType: layout.topbarThemeTypes,
+      leftSidebarThemeType: layout.leftSideBarThemeTypes,
+      leftSidebarImageType: layout.leftSidebarImageTypes,
+      leftSidebarTypes: layout.leftSidebarTypes
+    })
+  );
+  const {
+    layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
+  } = useSelector(selectProperties);
+
+
   return (
     <React.Fragment>
       <header id="page-topbar">
@@ -93,11 +118,24 @@ const Header = (props: any) => {
             >
               <i className="fa fa-fw fa-bars" />
             </button>
+          
           </div>
           <div className="d-flex">
 
             <LanguageDropdown />
 
+            <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
+              <FormGroup switch>
+                <Input type="switch" className="border border-primary" checked={layoutModeType === LAYOUT_MODE_TYPES.DARK} role="switch" onClick={(e:any) => {
+                    if (e.target.checked) {
+                      dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
+                    } else {
+                      dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.LIGHT));
+                    }
+                }} />
+              </FormGroup>
+            </div>
+            
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button
                 type="button"
@@ -111,19 +149,10 @@ const Header = (props: any) => {
               </button>
             </div>
 
-            {/* <NotificationDropDown /> */}
+            <NotificationDropDown />
 
             <ProfileMenu />
 
-            {/* <div className="dropdown d-inline-block">
-              <button
-                type="button"
-                className="btn header-item noti-icon right-bar-toggle"
-                onClick={props.toggleCanvas}
-              >
-                <i className="bx bx-cog bx-spin" />
-              </button>
-            </div> */}
           </div>
         </div>
       </header>

@@ -2,10 +2,7 @@ import React from "react";
 import { Col, Card, CardBody, CardImg, CardImgOverlay, CardTitle, Row } from "reactstrap";
 import Chart from "react-apexcharts";
 
-import PC2000 from 'assets/images/PC2000.png'
-import PC1250 from 'assets/images/PC1250.png'
-import HD1500 from 'assets/images/HD1500.png'
-import HD785 from 'assets/images/HD785.png'
+import { hd785, hd1500, pc1250, pc2000 } from "assets/images/equipment";
 
 const Utilization = (props: any) => {
 
@@ -30,19 +27,19 @@ const Utilization = (props: any) => {
     }
 
     const getFleetImage = (model: string) => {
-        let image = HD785
+        let image = hd785
         switch (model) {
             case "PC1250":
-                image = PC1250;
+                image = pc1250;
                 break;
             case "PC2000":
-                image = PC2000;
+                image = pc2000;
                 break;
             case "HD785":
-                image = HD785;
+                image = hd785;
                 break;
             case "HD1500":
-                image = HD1500;
+                image = hd1500;
                 break;
         }
 

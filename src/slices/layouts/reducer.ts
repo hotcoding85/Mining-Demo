@@ -24,7 +24,7 @@ export const initialState: LayoutState = {
   layoutTypes: LAYOUT_TYPES.VERTICAL,
   layoutModeTypes: LAYOUT_MODE_TYPES.DARK,
   layoutWidthTypes: LAYOUT_WIDTH_TYPES.FLUID,
-  topbarThemeTypes: TOPBAR_THEME_TYPES.COLORED,
+  topbarThemeTypes: TOPBAR_THEME_TYPES.LIGHT,
   leftSidebarTypes: LEFT_SIDEBAR_TYPES.ICON,
   leftSideBarThemeTypes: LEFT_SIDEBAR_THEME_TYPES.DARK,
   leftSidebarImageTypes: LEFTBAR_THEME_IMAGES_TYPES.NONE

@@ -1,6 +1,6 @@
 import React from "react"
 import { Modal, ModalBody } from "reactstrap"
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCode } from 'antd';
 
 interface props {
   show: boolean;
@@ -13,14 +13,14 @@ const QRCodeModal = ({ show, data, onCloseClick }: props) => {
     <Modal isOpen={show} toggle={onCloseClick} centered={true}>
       <div className="modal-content">
         <ModalBody className="px-4 py-5 text-center">
-          <p className="text-muted text-left font-size-16 mb-4">Tracker Name - {data && data.name ? data.name : ''}</p>
-          <p className="text-muted font-size-16 mb-4">Tracker ID - {data && data.identifier ? data.identifier : ''}</p>
-          <QRCodeCanvas size={120} bgColor="#FFFFFF" includeMargin={true} value={data && data.identifier ? data.identifier : ''} />
-          <p>   </p>
-          <div className="hstack gap-2 justify-content-center mb-0">
+          <span className="text-muted font-size-24 mb-4">Tracker info for <span style={{ color: 'red', fontWeight: 'bold' }}>{data && data.vehicle ? data.vehicle.name : ''}</span></span>
+          <div className="hstack gap-2 justify-content-center mt-2">
+            <QRCode type="canvas" value={data && data.id ? data.id : ''} color={'black'}
+              bgColor={'white'} size={360} />
+          </div>
+          <div className="hstack gap-2 justify-content-center mt-2">
             <button type="button" className="btn btn-secondary" onClick={onCloseClick}>Close</button>
           </div>
-
         </ModalBody>
       </div>
     </Modal>

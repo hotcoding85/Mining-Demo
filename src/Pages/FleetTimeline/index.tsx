@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, Container, Row } from "reactstrap";
-import { Space, DatePicker, DatePickerProps } from "antd";
+// import { Space, DatePicker, DatePickerProps } from "antd";
 import Select from 'react-select';
 import dayjs from "dayjs";
 import { format } from 'date-fns';
 import { useSearchParams } from "react-router-dom";
 import { filter } from "lodash";
-import { ScheduleComponent, ResourcesDirective, ResourceDirective, ViewsDirective, ViewDirective, Inject, ResourceDetails, TimelineViews, TreeViewArgs } from '@syncfusion/ej2-react-schedule'
+// import { ScheduleComponent, ResourcesDirective, ResourceDirective, ViewsDirective, ViewDirective, Inject, ResourceDetails, TimelineViews, TreeViewArgs } from '@syncfusion/ej2-react-schedule'
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { getAllEvents } from 'slices/thunk';
@@ -83,7 +83,7 @@ const data: Record<string, any>[] = [
 ]
 
 const FleetTimeline = (props: any) => {
-    document.title = "Fleet Timeline";
+    document.title = "Timeline Utilization Model | FMS Live";
     const dispatch: any = useDispatch();
     const timeScale = {
         enable: true,
@@ -150,13 +150,13 @@ const FleetTimeline = (props: any) => {
             })
     }
 
-    const onDateChange: DatePickerProps['onChange'] = (date, dateString): void => {
-        if (date) {
-            setStartDate(date.toDate());
-            let params: URLSearchParams = new URLSearchParams({ date: format(date.toDate(), 'yyyy-MM-dd'), shift: shift });
-            setSearchParams(params);
-        }
-    }
+    // const onDateChange: DatePickerProps['onChange'] = (date, dateString): void => {
+    //     if (date) {
+    //         setStartDate(date.toDate());
+    //         let params: URLSearchParams = new URLSearchParams({ date: format(date.toDate(), 'yyyy-MM-dd'), shift: shift });
+    //         setSearchParams(params);
+    //     }
+    // }
 
     const onShiftChange = (shiftInfo): void => {
         setShift(shiftInfo.value);
@@ -257,7 +257,7 @@ const FleetTimeline = (props: any) => {
         return (
             <div className="template-wrap">
                 <div className="fleetType-category">
-                    <div className="fleetType-name"> {getFleetName(props)}</div>
+                    {/* <div className="fleetType-name"> {getFleetName(props)}</div> */}
                 </div>
             </div>
         )
@@ -275,9 +275,9 @@ const FleetTimeline = (props: any) => {
         }
     }
 
-    const getFleetName = (value: ResourceDetails | TreeViewArgs): string => {
-        return (value as ResourceDetails).resourceData[(value as ResourceDetails).resource.textField!] as string;
-    }
+    // const getFleetName = (value: ResourceDetails | TreeViewArgs): string => {
+    //     return (value as ResourceDetails).resourceData[(value as ResourceDetails).resource.textField!] as string;
+    // }
 
     return (
         <React.Fragment>
@@ -292,9 +292,9 @@ const FleetTimeline = (props: any) => {
                                     <Button onClick={zoomOut}>Zoom Out</Button>
                                 </Col>
                                 <Col xs={2} content='right'>
-                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                    {/* <Space direction="vertical" style={{ width: '100%' }}>
                                         <DatePicker style={{ width: '100%', fontSize: '18px' }} size='large' allowClear={false} variant={'outlined'} value={dayjs(startDate)} onChange={onDateChange} />
-                                    </Space>
+                                    </Space> */}
                                 </Col>
                                 <Col xs={2}>
                                     <Select
@@ -329,7 +329,7 @@ const FleetTimeline = (props: any) => {
                                     <Row>
                                         <Col lg="12">
                                             <div className="schedule-container">
-                                                <ScheduleComponent
+                                                {/* <ScheduleComponent
                                                     ref={timelineRef}
                                                     cssClass='schedule-drag-drop'
                                                     width='100%' height='100%'
@@ -357,7 +357,7 @@ const FleetTimeline = (props: any) => {
                                                         <ViewDirective option='TimelineDay' interval={shift === 'DS' ? 1 : 2} />
                                                     </ViewsDirective>
                                                     <Inject services={[TimelineViews]} />
-                                                </ScheduleComponent>
+                                                </ScheduleComponent> */}
                                             </div>
                                         </Col>
                                     </Row>

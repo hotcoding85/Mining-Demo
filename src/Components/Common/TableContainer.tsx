@@ -33,7 +33,7 @@ const Filter = ({
         type="text"
         value={(columnFilterValue ?? '') as string}
         onChange={value => column.setFilterValue(value)}
-        placeholder="Search"
+        placeholder="Search..."
         className="w-36 border shadow rounded"
         list={column.id + 'list'}
       />
@@ -78,7 +78,6 @@ const DebouncedInput = ({
 interface TableContainerProps {
   columns?: any;
   data?: any;
-  total?: number;
   divClassName?: any;
   tableClass?: any;
   theadClass?: any;
@@ -99,7 +98,6 @@ interface TableContainerProps {
 const TableContainer = ({
   columns,
   data,
-  total,
   tableClass = "table-bordered dt-responsive nowrap w-100 dataTable no-footer dtr-inline table-striped",
   theadClass,
   divClassName,
@@ -107,8 +105,8 @@ const TableContainer = ({
   isPagination,
   isGlobalFilter,
   paginationWrapper = "dataTables_paginate paging_simple_numbers pagination-rounded",
-  SearchPlaceholder = "Search",
-  pagination = "pagination",
+  SearchPlaceholder,
+  pagination= "pagination",
   buttonClass,
   buttonName,
   isAddButton,

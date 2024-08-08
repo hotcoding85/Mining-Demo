@@ -6,13 +6,12 @@ import { withTranslation } from "react-i18next";
 // Redux
 import { Link } from "react-router-dom";
 import withRouter from "../../Common/withRouter";
+import { createSelector } from 'reselect';
 
-import { AppState } from "store";
 // users
-import user1 from "../../../assets/images/users/dispatcher.png";
+import user1 from "assets/images/users/avatar-1.jpg";
 
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 
 const ProfileMenu = (props: any) => {
   // Declare a new state variable, which we'll call "menu"
@@ -20,18 +19,15 @@ const ProfileMenu = (props: any) => {
 
   const [username, setUsername] = useState("Admin");
 
-  const selectProperties = createSelector(
+  const selectProfileProperties = createSelector(
     (state: any) => state.Auth,
     (profile) => ({
-      user: profile.user
+      user: profile.user,
     })
   );
 
-  useEffect(() => {
-    console.log(user)
-  })
+  const { user } = useSelector(selectProfileProperties);
 
-  const { user } = useSelector(selectProperties);
 
   useEffect(() => {
     setUsername(`${user?.firstName!!} ${user?.lastName!!}`);
@@ -40,6 +36,7 @@ const ProfileMenu = (props: any) => {
   const handleOptionChange = () => {
     setMenu(!menu);
   }
+
   return (
     <React.Fragment>
       <Dropdown
@@ -57,11 +54,11 @@ const ProfileMenu = (props: any) => {
             src={user1}
             alt="Header Avatar"
           />
-          <span className="d-none d-xl-inline-block ms-2 me-1">{username || "admin"}</span>
+          <span className="d-none d-xl-inline-block ms-2 me-1">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
-        <DropdownMenu onOptionChange={handleOptionChange} className="dropdown-menu-end">
-        <Link to="/admin" onClick={handleOptionChange} className="dropdown-item">
+        <DropdownMenu className="dropdown-menu-end">
+          <Link to="/admin" onClick={handleOptionChange} className="dropdown-item">
             <i className="bx bx-lock font-size-16 align-middle me-1" />
             {/* <i className="fa fa-solid fa-user-tie font-size-16 align-middle me-1"></i> */}
             <span>{props.t("Admin Settings")}</span>
@@ -78,12 +75,8 @@ const ProfileMenu = (props: any) => {
             <i className="bx bx-devices font-size-16 align-middle me-1" />
             <span>{props.t("Trackers")}</span>
           </Link>
-          {/* <DropdownItem tag="a" href={process.env.PUBLIC_URL + "/users"}>
-            <i className="bx bx-user-circle font-size-16 align-middle me-1" />
-            {props.t("Users")}
-          </DropdownItem> */}
           <div className="dropdown-divider" />
-          <Link to="/logout" className="dropdown-item">
+          <Link to="/logout" onClick={handleOptionChange} className="dropdown-item">
             <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />
             <span>{props.t("Logout")}</span>
           </Link>
@@ -94,7 +87,3 @@ const ProfileMenu = (props: any) => {
 };
 
 export default withRouter(withTranslation()(ProfileMenu));
-
-function handleOptionChange() {
-  throw new Error("Function not implemented.");
-}

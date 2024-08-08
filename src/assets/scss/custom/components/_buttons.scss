@@ -12,12 +12,6 @@ a {
     border-radius: 30px;
 }
 
-.btn {
-    &:focus {
-        box-shadow: $btn-focus-box-shadow;
-    }
-}
-
 // example 1
 
 .btn-group-example {
@@ -38,9 +32,9 @@ a {
             height: 24px;
             line-height: 24px;
             border-radius: 50%;
-            background-color: var(--#{$prefix}secondary-color);
-            color: var(--#{$prefix}secondary-bg);
-            border: 1px solid var(--#{$prefix}secondary-bg);
+            background-color: $gray-600;
+            color: $light;
+            border: 1px solid $white;
             left: -12px;
             top: 50%;
             transform: translateY(-50%);

@@ -9,10 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import ForecastProgressBar from './ForecastProgressBar';
 
-import HD1500 from 'assets/images/HD1500.png'
+import {hd1500} from 'assets/images/equipment'
 
 const DailyProduction = () => {
-  document.title = "Daily Production";
+  document.title = "Daily Production | FMS Live";
 
   const dispatch = useDispatch<any>();
 
@@ -290,7 +290,7 @@ const DailyProduction = () => {
               </Card>
               <Card>
                 <MiningTruckGraphCard
-                  imgSrc={HD1500}
+                  imgSrc={hd1500}
                   altText="HD1500"
                   cardTitle="Trucks on Shift, Total number of loads per hour"
                   series={seriesBg[0]}
@@ -299,7 +299,7 @@ const DailyProduction = () => {
               </Card>
               <Card>
                 <MiningTruckGraphCard
-                  imgSrc={HD1500}
+                  imgSrc={hd1500}
                   altText="HD1500"
                   cardTitle="DIGGING - Total Tonnes Per Hour Across Shift"
                   series={seriesBg[1]}

@@ -8,7 +8,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import _, { cloneDeep, groupBy } from 'lodash';
 
 const FMS = () => {
-    document.title = "Dashboards";
+    document.title = "Fleet Status | FMS Live";
 
     const dispatch = useDispatch<any>();
 

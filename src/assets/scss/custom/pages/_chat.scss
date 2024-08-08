@@ -13,7 +13,7 @@
 
     .chat-leftsidebar-nav {
         .nav {
-            background-color: var(--#{$prefix}secondary-bg);
+            background-color: var(--#{$prefix}custom-white);
         }
 
         .tab-content {
@@ -36,10 +36,10 @@
     }
 
     .btn {
-        border: none;
         padding: 6px;
         box-shadow: none;
         font-size: 20px;
+        border: none;
     }
 }
 
@@ -51,26 +51,23 @@
 
 .chat-list {
     margin: 0;
-
     li {
         &.active {
             a {
-                background-color: var(--#{$prefix}secondary-bg);
+                background-color: var(--#{$prefix}custom-white);
                 border-color: transparent;
                 box-shadow: $box-shadow;
             }
         }
-
         a {
             display: block;
             padding: 14px 16px;
-            color: var(--#{$prefix}secondary-color);
+            color: var(--#{$prefix}gray-600);
             transition: all 0.4s;
             border-top: 1px solid var(--#{$prefix}border-color);
             border-radius: 4px;
-
             &:hover {
-                background-color: var(--#{$prefix}secondary-bg);
+                background-color: var(--#{$prefix}custom-white);
                 border-color: transparent;
                 box-shadow: $box-shadow;
             }
@@ -111,7 +108,7 @@
         margin-bottom: 24px;
 
         .title {
-            background-color: var(--#{$prefix}secondary-bg);
+            background-color: var(--#{$prefix}custom-white);
             position: relative;
             z-index: 1;
             padding: 6px 24px;
@@ -127,12 +124,10 @@
             background-color: var(--#{$prefix}border-color);
             top: 10px;
         }
-
         .badge {
             font-size: 12px;
         }
     }
-
     .conversation-list {
         margin-bottom: 24px;
         display: inline-block;
@@ -153,12 +148,10 @@
 
         .dropdown {
             float: right;
-
             .dropdown-toggle {
                 font-size: 18px;
                 padding: 4px;
-                color: var(--#{$prefix}secondary-color);
-
+                color: var(--#{$prefix}gray-600);
                 @media (max-width: 575.98px) {
                     display: none;
                 }
@@ -178,13 +171,11 @@
     .right {
         .conversation-list {
             float: right;
-
             .ctext-wrap {
                 background-color: var(--#{$prefix}light);
                 text-align: right;
                 border-radius: 8px 8px 0px 8px;
             }
-
             .dropdown {
                 float: left;
             }
@@ -235,7 +226,6 @@
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
-
     li {
         a {
             font-size: 16px;

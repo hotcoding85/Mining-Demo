@@ -3,16 +3,13 @@ import { Container, Card, CardBody, CardTitle, Progress, Row, Col } from 'reacts
 import Chart from 'react-apexcharts';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 
-import PC2000 from 'assets/images/PC2000.png'
-import PC1250 from 'assets/images/PC1250.png'
-import HD1500 from 'assets/images/HD1500.png'
-import HD785 from 'assets/images/HD785.png'
 import ProgressIndicator from './ProgressIndicator';
 import BarGraph from './BarGraph';
 import LineGraph from './LineGraph';
+import { hd1500 } from 'assets/images/equipment';
 
 const OreTracker = () => {
-  document.title = "FMS";
+  document.title = "Ore Tracker | FMS Live";
 
   let color = '#F44336'
   var options = {
@@ -130,7 +127,7 @@ const OreTracker = () => {
                     </Col>
                     <Col style={{ marginBottom: '20px', textAlign: 'center', border: '2px solid white', borderRadius: '5px' }}>
                         <CardTitle>ROM Loader</CardTitle>
-                        <img src={HD1500} alt="Selected Truck" width={300} height={200} />
+                        <img src={hd1500} alt="Selected Truck" width={300} height={200} />
                     </Col>
                 </Row>
                 <Row style={{ border: '2px solid white', borderRadius: '5px', padding: '10px' }}>

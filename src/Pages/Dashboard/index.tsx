@@ -10,7 +10,7 @@ import TonnesGraph from './tonnes';
 import Materials from './materials';
 
 const Dashboard = (props: any) => {
-    document.title = "Dashboards";
+    document.title = "Dashboards | FMS Live";
 
     const dispatch: any = useDispatch();
     const [util, setUtil] = useState<number>(65)

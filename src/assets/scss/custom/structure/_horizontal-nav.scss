@@ -3,7 +3,7 @@
 // 
 
 .topnav {
-    background: var(--#{$prefix}topnav-bg);
+    background: $topnav-bg;
     padding: 0 calc(#{$grid-gutter-width} * 0.5);
     box-shadow: $box-shadow;
     margin-top: $header-height;
@@ -23,33 +23,33 @@
             font-size: 14px;
             position: relative;
             padding: 1rem 1.3rem;
-            color: var(--#{$prefix}menu-item-color);
+            color: $menu-item-color;
             i{
                 font-size: 15px;
             }
             &:focus, &:hover{
-                color: var(--#{$prefix}menu-item-active-color);
+                color: $menu-item-active-color;
                 background-color: transparent;
             }
         }
         
         .dropdown-item{
-            color: var(--#{$prefix}menu-item-color);
+            color: $menu-item-color;
             &.active, &:hover{
-                color: var(--#{$prefix}menu-item-active-color);
+                color: $menu-item-active-color;
             }
         }
         
         .nav-item{
             .nav-link.active{
-                color: var(--#{$prefix}menu-item-active-color);
+                color: $menu-item-active-color;
             }
         }
 
         .dropdown{
             &.active{
               >a {
-                    color: var(--#{$prefix}menu-item-active-color);
+                    color: $menu-item-active-color;
                     background-color: transparent;
                 }
             }
@@ -179,14 +179,14 @@ body[data-layout="horizontal"] {
 
     .navbar-brand-box{
         .logo-dark {
-            display: var(--#{$prefix}display-block);
+            display: $display-block;
             span.logo-sm{
-                display: var(--#{$prefix}display-block);
+                display: $display-block;
             }
         }
     
         .logo-light {
-            display: var(--#{$prefix}display-none);
+            display: $display-none;
         }
     }
     
@@ -241,11 +241,11 @@ body[data-layout="horizontal"] {
     body[data-layout="horizontal"][data-topbar="light"] {
         .navbar-brand-box{
             .logo-dark {
-                display: var(--#{$prefix}display-block);
+                display: $display-block;
             }
         
             .logo-light {
-                display: var(--#{$prefix}display-none);
+                display: $display-none;
             }
         }
 
@@ -292,7 +292,7 @@ body[data-layout="horizontal"][data-topbar="colored"] {
     .app-search {
     
         .form-control {
-            background-color: rgba(var(--#{$prefix}topbar-search-bg),0.07);
+            background-color: rgba($topbar-search-bg,0.07);
             color: $white;
         }
         span,
@@ -301,10 +301,10 @@ body[data-layout="horizontal"][data-topbar="colored"] {
         }
     }
     .header-item {
-        color: var(--#{$prefix}header-dark-item-color);
+        color: $header-dark-item-color;
     
         &:hover {
-            color: var(--#{$prefix}header-dark-item-color);
+            color: $header-dark-item-color;
         }
     }
 
@@ -322,7 +322,7 @@ body[data-layout="horizontal"][data-topbar="colored"] {
 
     .noti-icon {
         i {
-            color: var(--#{$prefix}header-dark-item-color);
+            color: $header-dark-item-color;
         }
     }
 

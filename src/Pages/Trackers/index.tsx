@@ -15,10 +15,10 @@ import DeleteButton from "Components/Common/DeleteButton";
 import { createSelector } from 'reselect';
 import FormModal from 'Components/Common/FormModal';
 import { StatusOptions } from "common/options";
-import { isTrackerNameUnique } from '../../Helpers/api_devices_helper';
+import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
 
 const Trackers = (props: any) => {
-  document.title = "Trackers";
+  document.title = "Trackers | FMS Live";
 
   const dispatch: any = useDispatch();
   const [tracker, setTracker] = useState<any>();
@@ -72,7 +72,6 @@ const Trackers = (props: any) => {
       id: tracker.id,
       vehicle: tracker.vehicle,
       name: tracker.name,
-      identifier: tracker.identifier,
       type: tracker.type
     });
     // vehicles = fleet.map(option => {
@@ -114,7 +113,7 @@ const Trackers = (props: any) => {
 
   const parseTrackerData = (doc) => {
     return {
-      identifier: (doc && doc.identifier) || uuidv4(),
+      id: (doc && doc.id) || uuidv4(),
       name: (doc && doc.name) || "",
       vehicle: (doc && doc.vehicle) || "",
       status: (doc && doc.status) || "ACTIVE"
@@ -157,15 +156,12 @@ const Trackers = (props: any) => {
       var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
       var updateDoc: any = {};
       updateDoc.id = tracker.id;
-      updateDoc.identifier = values.identifier
       updateDoc.name = values.name;
-      updateDoc.platform = 'ANDROID';
       updateDoc.status = values.status;
 
       if (selectedVehicle && selectedVehicle.length > 0) {
         updateDoc.vehicleId = selectedVehicle[0].id;
         delete updateDoc.vehicle;
-        updateDoc.type = "device_equipment";
       } else {
         delete updateDoc.vehicle;
         delete updateDoc.vehicleId;
@@ -180,21 +176,17 @@ const Trackers = (props: any) => {
       var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
       var newTracker: any = {};
       newTracker.id = tracker.id;
-      newTracker.identifier = values.identifier;
       newTracker.name = values.name;
-      newTracker.platform = 'ANDROID';
       newTracker.status = values.status;
 
       if (selectedVehicle && selectedVehicle.length > 0) {
         newTracker.vehicleId = selectedVehicle[0].id;
-        newTracker.type = "device_equipment";
         delete newTracker.vehicle;
       } else {
         delete newTracker.vehicle;
         delete newTracker.vehicleId;
         delete newTracker.type;
       }
-      delete newTracker.id;
       // save new tracker
       dispatch(addTracker(newTracker));
     }
@@ -204,9 +196,9 @@ const Trackers = (props: any) => {
 
   const fields = [
     {
-      id: 'identifier',
-      name: 'identifier',
-      label: 'Tracker ID',
+      id: 'id',
+      name: 'id',
+      label: 'ID',
       type: 'input',
       editable: false,
       inputType: 'text'
@@ -237,7 +229,6 @@ const Trackers = (props: any) => {
   ]
 
   const validationSchema = Yup.object().shape({
-    identifier: Yup.string().required("Please enter tracker identifier name"),
     name: isEdit ? Yup.string() : Yup.string()
       .min(2, 'Tracker name must be at least 2 characters')
       .required("Please enter tracker name")
@@ -269,14 +260,20 @@ const Trackers = (props: any) => {
         enableSorting: true,
       },
       {
-        header: 'Tracker ID',
-        accessorKey: 'identifier',
+        header: 'Vehicle',
+        accessorKey: 'vehicle.name',
         enableColumnFilter: false,
         enableSorting: true,
       },
       {
-        header: 'Vehicle',
-        accessorKey: 'vehicle.name',
+        header: 'AppVersion',
+        accessorKey: 'appVersion',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: 'Status',
+        accessorKey: 'status',
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -290,14 +287,14 @@ const Trackers = (props: any) => {
           const id = cellProps.row.original.id
           return (
             <div className="d-flex gap-3">
-              <Link to="#!" className="text-success"
+              {/* <Link to="#!" className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
                   const deviceData = cellProps.row.original;
                   handleUserClick(deviceData);
                 }} >
                 <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
+              </Link> */}
               <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
               <Link to="#!" className="text-view"
                 onClick={(event: any) => {
@@ -317,7 +314,7 @@ const Trackers = (props: any) => {
 
   const handleUserClicks = () => {
     setIsEdit(false);
-    setTracker({ identifier: uuidv4() });
+    setTracker({ id: uuidv4() });
     // vehicles = fleet.map(option => {
     //   return { value: option.name, "label": option.name }
     // });
@@ -331,15 +328,9 @@ const Trackers = (props: any) => {
         onDeleteClick={handleDeleteUser}
         onCloseClick={() => setDeleteModal(false)}
       /> */}
-      <DeleteButton item={tracker ? tracker.name : ''} onDelete={() => handleDeleteUser()} />
-      <QRCodeModal
-        show={qRCodeModal}
-        data={tracker}
-        onCloseClick={() => setQRCodeModal(false)}
-      />
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Trackers" breadcrumbItem="Resources" />
+          <Breadcrumb title="Resources" breadcrumbItem="Trackers" />
           <Row>
             <Col lg="12">
               <Card>
@@ -347,7 +338,7 @@ const Trackers = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={data || []}
-                    total={total || 0}
+                    // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleUserClicks}
                     isPagination={true}
@@ -368,6 +359,12 @@ const Trackers = (props: any) => {
           </Row>
         </Container>
       </div>
+
+      <QRCodeModal
+        show={qRCodeModal}
+        data={tracker}
+        onCloseClick={() => setQRCodeModal(false)}
+      />
     </React.Fragment >
   );
 }

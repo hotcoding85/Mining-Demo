@@ -139,15 +139,15 @@
     .tox-icon {
         color: var(--#{$prefix}dark) !important;
     }
-    // .tox-dialog__title {
-    //     color: $card-title-desc !important;
-    // }
-    // .tox-dialog__body-nav-item {
-    //     color: $card-title-desc !important;
-    // }
-    // .tox-label {
-    //     color: $card-title-desc !important;
-    // }
+    .tox-dialog__title {
+        color: $card-title-desc !important;
+    }
+    .tox-dialog__body-nav-item {
+        color: $card-title-desc !important;
+    }
+    .tox-label {
+        color: $card-title-desc !important;
+    }
     .tox-textfield {
         background-color: $input-bg !important;
         color: $input-color !important;

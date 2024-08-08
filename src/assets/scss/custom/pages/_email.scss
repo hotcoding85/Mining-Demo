@@ -14,7 +14,7 @@
 
 .chat-user-box {
   p.user-title {
-    color: var(--#{$prefix}emphasis-color);
+    color: var(--#{$prefix}dark);
     font-weight: 500;
   }
   p {
@@ -36,7 +36,7 @@
 .mail-list {
   a {
     display: block;
-    color: var(--#{$prefix}secondary-color);
+    color: var(--#{$prefix}gray-600);
     line-height: 24px;
     padding: 8px 5px;
     &.active {
@@ -59,11 +59,11 @@
     transition-duration: .3s;
 
     a{
-      color: var(--#{$prefix}secondary-color);
+      color: var(--#{$prefix}gray-600);
     }
 
     &:hover {
-      background: var(--#{$prefix}tertiary-bg);
+      background: var(--#{$prefix}gray-300);
       transition-duration: .05s;
     }
 
@@ -148,7 +148,7 @@
 
     
   &.unread  {
-    background-color: var(--#{$prefix}tertiary-bg);
+    background-color: var(--#{$prefix}gray-300);
     font-weight: 500;
     color: var(--#{$prefix}body-color);
       a{
@@ -165,8 +165,7 @@
     width: 20px;
     position: relative;
     display: inline-block;
-    background-color: var(--#{$prefix}secondary-bg);
-    box-shadow: inset 0 0 0 1px var(--#{$prefix}border-color-translucent);
+    box-shadow: inset 0 0 0 1px var(--#{$prefix}gray-400);
     border-radius: 1px;
 
     input {

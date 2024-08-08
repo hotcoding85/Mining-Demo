@@ -11,6 +11,9 @@ import withRouter from "Components/Common/withRouter";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
+// action
+// import { userForgetPassword } from "../../slices/thunk";
+
 // import images
 import profile from "../../assets/images/profile-img.png";
 import logo from "../../assets/images/logo.svg";
@@ -19,7 +22,7 @@ import { createSelector } from 'reselect';
 const ForgetPasswordPage = (props) => {
 
     //meta title
-    document.title = "Forget Password";
+    document.title = "Forget Password | FMS Live";
 
     const dispatch = useDispatch<any>();
 
@@ -65,7 +68,7 @@ const ForgetPasswordPage = (props) => {
                                         <Col xs={7}>
                                             <div className="text-primary p-4">
                                                 <h5 className="text-primary">Welcome Back !</h5>
-                                                <p>Sign in to continue to.</p>
+                                                <p>Sign in to continue to FMS Live.</p>
                                             </div>
                                         </Col>
                                         <Col className="col-5 align-self-end">
@@ -148,7 +151,8 @@ const ForgetPasswordPage = (props) => {
                                     </Link>{" "}
                                 </p>
                                 <p>
-                                    © {new Date().getFullYear()}.
+                                    © {new Date().getFullYear()} FMS Live. Crafted with{" "}
+                                    <i className="mdi mdi-heart text-danger" />
                                 </p>
                             </div>
                         </Col>

@@ -14,7 +14,7 @@ import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 
 const Benches = (props: any) => {
-  document.title = "Benches";
+  document.title = "Benches | FMS Live";
 
   const dispatch: any = useDispatch();
   const [bench, setBench] = useState<any>();
@@ -251,7 +251,7 @@ const Benches = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={data || []}
-                    total={total || 0}
+                    // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
                     isPagination={true}

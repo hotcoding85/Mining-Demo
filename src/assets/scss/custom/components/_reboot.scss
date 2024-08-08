@@ -25,12 +25,12 @@ label {
 
 .blockquote {
   padding: 10px 20px;
-  border-left: 4px solid var(--#{$variable-prefix}border-color);
+  border-left: 4px solid var(--#{$variable-prefix}gray-300);
 }
 
 .blockquote-reverse {
   border-left: 0;
-  border-right: 4px solid var(--#{$variable-prefix}border-color);
+  border-right: 4px solid var(--#{$variable-prefix}gray-300);
   text-align: right;
 }
 

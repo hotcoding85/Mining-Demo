@@ -50,14 +50,14 @@
 
   .form-check-input {
     border-width: 2px;
-    background-color: var(--#{$prefix}secondary-bg);
+    background-color: $card-bg;
 
     &:active {
       filter: none;
     }
 
     &:checked {
-      background-color: var(--#{$prefix}secondary-bg)  !important;
+      background-color: $card-bg  !important;
 
       &[type=checkbox] {
         background-image: none;
@@ -72,7 +72,7 @@
         left: 1px;
         /*rtl: -4px */
         font-size: 16px;
-        color: var(--#{$prefix}body-color);
+        color: $dark;
       }
     }
   }
@@ -82,7 +82,7 @@
 
 .form-radio-outline {
   .form-check-input {
-    background-color: var(--#{$prefix}secondary-bg);
+    background-color: $card-bg;
     position: relative;
 
     &:active {
@@ -90,7 +90,7 @@
     }
 
     &:checked {
-      background-color: var(--#{$prefix}secondary-bg)  !important;
+      background-color: $card-bg  !important;
 
       &[type=checkbox] {
         background-image: none;

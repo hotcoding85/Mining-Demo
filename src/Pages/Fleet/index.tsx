@@ -14,7 +14,7 @@ import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
 
 const Fleet = (props: any) => {
-  document.title = "Fleet";
+  document.title = "Fleet | FMS Live";
 
   const dispatch: any = useDispatch();
   const [vehicle, setVehicle] = useState<any>();
@@ -288,7 +288,7 @@ const Fleet = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={data || []}
-                    total={total || 0}
+                    // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
                     isPagination={true}

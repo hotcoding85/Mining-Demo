@@ -8,16 +8,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import Select from 'react-select';
 import { format } from 'date-fns';
-import type { DatePickerProps } from 'antd';
-import { DatePicker, Space } from 'antd';
-import dayjs, { Dayjs } from "dayjs";
+import type { DatePickerProps, RadioChangeEvent } from 'antd';
+import { DatePicker, Space, Radio } from 'antd';
+import dayjs from "dayjs";
 
 import { pick } from 'lodash';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 
 const ShiftRoster = (props: any) => {
-  document.title = "Shift Roster";
+  document.title = "Shift Roster | FMS Live";
 
   const dispatch: any = useDispatch();
 
@@ -61,8 +61,8 @@ const ShiftRoster = (props: any) => {
   ];
 
   const shifts: any = [
-    { value: 'DS', label: 'Day Shift', startTime: "06:00", endTime: "18:00" },
-    { value: 'NS', label: 'Night Shift', startTime: "18:00", endTime: "06:00" }
+    { value: 'DS', label: 'DS', startTime: "06:00", endTime: "18:00" },
+    { value: 'NS', label: 'NS', startTime: "18:00", endTime: "06:00" }
   ];
 
   var operators: any = {};
@@ -108,8 +108,9 @@ const ShiftRoster = (props: any) => {
   };
 
   const onShiftChange = (shiftInfo) => {
-    setShift(shiftInfo.value);
-    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo.value, date: format(startDate, 'yyyy-MM-dd') });
+    // alert(JSON.stringify(shiftInfo))
+    setShift(shiftInfo.target.value);
+    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo.target.value, date: format(startDate, 'yyyy-MM-dd') });
     setSearchParams(params);
   }
 
@@ -227,7 +228,7 @@ const ShiftRoster = (props: any) => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          {/* <Breadcrumb breadcrumbItem="Shift Roster" /> */}
+          <Breadcrumb breadcrumbItem="Shift Roster" title="Operations" />
 
           <Row>
             <Col lg="12">
@@ -255,12 +256,18 @@ const ShiftRoster = (props: any) => {
                     />
                   </Col> */}
                   <Col xs={2} content='right'>
-                    <Space direction="vertical" style={{ width: '100%' }}>
                       <DatePicker style={{ width: '100%', fontSize: '18px' }} size='large' allowClear={false} variant={'outlined'} value={dayjs(startDate)} onChange={onDateChange} />
-                    </Space>
                   </Col>
-                  <Col xs={2}>
-                    <Select
+                  <Col content='right'>
+                    <Radio.Group
+                      options={shifts}
+                      size='large' 
+                      onChange={onShiftChange}
+                      value={shift}
+                      optionType="button"
+                      buttonStyle="solid"
+                    />
+                    {/* <Select
                       className="basic-single"
                       classNamePrefix="Shifts"
                       defaultValue={shifts[0]}
@@ -273,7 +280,7 @@ const ShiftRoster = (props: any) => {
                       name="Shifts"
                       options={shifts}
                       onChange={onShiftChange}
-                    />
+                    /> */}
                   </Col>
                 </Row>
 

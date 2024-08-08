@@ -36,8 +36,8 @@
         a{
           display: block;
           padding: .5rem 1rem;
-          color: var(--#{$prefix}secondary-color);
-          font-weight: $font-weight-medium;
+          color: var(--#{$prefix}gray-600);
+          font-weight: $fw-medium;
 
           background-color: rgba($primary, 0.1);
         }
@@ -66,7 +66,7 @@
     .current {
       a, a:active, a:hover {
         background-color: rgba($primary, 0.2);
-        color: var(--#{$prefix}emphasis-color);
+        color: var(--#{$prefix}gray-700);
         .number {
           background-color: $primary;
           color: $white;

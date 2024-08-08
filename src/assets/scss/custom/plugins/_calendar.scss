@@ -20,7 +20,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
 
 .tui-full-calendar-layout,
 .tui-full-calendar-timegrid-timezone {
-    background-color: var(--#{$prefix}secondary-bg) !important;
+    background-color: var(--#{$prefix}custom-white) !important;
 }
 
 .tui-full-calendar-dayname-container,
@@ -30,7 +30,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
 .tui-full-calendar-weekday-grid-line,
 .tui-full-calendar-timegrid-timezone,
 .tui-full-calendar-timegrid-gridline {
-    border-color: var(--#{$prefix}border-color) !important;
+    border-color: var(--#{$prefix}gray-300) !important;
 }
 
 .tui-full-calendar-weekday-exceed-in-week {
@@ -49,7 +49,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
 }
 
 .tui-full-calendar-weekday-schedule-title {
-    color: var(--#{$prefix}emphasis-color) !important;
+    color: var(--#{$prefix}gray-900) !important;
 
     .tui-full-calendar-time-schedule {
         font-weight: $font-weight-semibold;
@@ -136,7 +136,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
 
 .tui-full-calendar-month-dayname-item {
     span {
-        color: var(--#{$prefix}emphasis-color) !important;
+        color: var(--#{$prefix}gray-900) !important;
     }
 }
 
@@ -145,7 +145,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
         &.tui-full-calendar-extra-date {
             .tui-full-calendar-weekday-grid-header {
                 .tui-full-calendar-weekday-grid-date {
-                    color: var(--#{$prefix}secondary-color) !important;
+                    color: var(--#{$prefix}gray-400) !important;
                 }
             }
         }
@@ -157,7 +157,7 @@ input[type="checkbox"].tui-full-calendar-checkbox-round+span {
     &.tui-full-calendar-near-month-day {
         .tui-full-calendar-weekday-grid-header {
             .tui-full-calendar-weekday-grid-date {
-                color: var(--#{$prefix}emphasis-color) !important;
+                color: var(--#{$prefix}gray-800) !important;
             }
         }
     }

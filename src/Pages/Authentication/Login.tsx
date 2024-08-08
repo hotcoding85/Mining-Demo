@@ -23,7 +23,7 @@ const LoginPage = (props: any) => {
   const [passwordShow, setPasswordShow] = useState<boolean>(false);
 
   //meta title
-  document.title = "Login";
+  document.title = "Login | FMS Live";
 
   const selectProperties = createSelector(
     (state: any) => state.Auth,

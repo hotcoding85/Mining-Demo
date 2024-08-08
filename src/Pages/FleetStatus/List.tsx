@@ -1,10 +1,6 @@
 import React from 'react';
 import { Card, CardBody, Col, Row } from 'reactstrap';
-import PC2000 from 'assets/images/PC2000.png';
-import PC1250 from 'assets/images/PC1250.png';
-import HD1500 from 'assets/images/HD1500.png';
-import HD785 from 'assets/images/HD785.png';
-import WA600 from "assets/images/WA600.png";
+import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
 import { round } from 'lodash';
 
 const stateConfig = [
@@ -46,18 +42,18 @@ const List = ({ data = [] }: any) => {
     }
 
     const getImage = (category: string) => {
-        
-        if(containsCaseInsensitive(category, "hd785")) {
-            return HD785;
-        } else if(containsCaseInsensitive(category, "hd1500")) {
-            return HD1500;
-        } else if(containsCaseInsensitive(category, "pc1250")) {
-            return PC1250;
-        }else if(containsCaseInsensitive(category, "pc2000")) {
-            return PC2000;
-        } else if(containsCaseInsensitive(category, "wa600")) {
-            return WA600;
-        } 
+
+        if (containsCaseInsensitive(category, "hd785")) {
+            return hd785;
+        } else if (containsCaseInsensitive(category, "hd1500")) {
+            return hd1500;
+        } else if (containsCaseInsensitive(category, "pc1250")) {
+            return pc1250;
+        } else if (containsCaseInsensitive(category, "pc2000")) {
+            return pc2000;
+        } else if (containsCaseInsensitive(category, "wa600")) {
+            return wa600;
+        }
     }
 
     const imageStyle: React.CSSProperties = {
@@ -72,17 +68,17 @@ const List = ({ data = [] }: any) => {
     const statusColor = "#F7B31A"
     return (
         <React.Fragment>
-            <Row>
+            <Row className="row d-flex">
                 {data.map((item: any, key: number) => (
-                    <Col xl={2} lg={3} md={4} sm={6} key={key}>
-                        <Card style={{border: statusColor+' 1px solid'}}>
+                    <Col className="col-lg-2 col-md-6" key={key}>
+                        <Card>
                             <CardBody>
                                 <div className="d-flex align-start mb-3">
                                     <div className="flex-grow-1 card-body__header">
-                                        <h4 style={{color: statusColor}}>
+                                        <h4 style={{ color: statusColor }}>
                                             {item.name}
                                         </h4>
-                                        <h6 style={{color: statusColor}}>
+                                        <h6 style={{ color: statusColor }}>
                                             {item?.data?.operator || 'Unassiged'}
                                         </h6>
                                     </div>
@@ -92,15 +88,15 @@ const List = ({ data = [] }: any) => {
                                 </div>
                                 <div className="d-flex justify-content-center mb-2 gap-2 text-muted text-center">
                                     <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color:'white' }}>{item?.data?.tripCount || 0}</span>
+                                        <span style={{ fontSize: '18px', color: 'white' }}>{item?.data?.tripCount || 0}</span>
                                         <span style={{ fontSize: '9px' }}>Total Loads</span>
                                     </div>
                                     <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color:'white' }}>{round(item?.data?.payload || 0.0, 2)}</span>
+                                        <span style={{ fontSize: '18px', color: 'white' }}>{round(item?.data?.payload || 0.0, 2)}</span>
                                         <span style={{ fontSize: '9px' }}>Total Tonnes Moved</span>
                                     </div>
                                     <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color:'white' }}>{round(item?.data?.tripCount ? item.data.payload / item.data.tripCount : 0.0, 2)}</span>
+                                        <span style={{ fontSize: '18px', color: 'white' }}>{round(item?.data?.tripCount ? item.data.payload / item.data.tripCount : 0.0, 2)}</span>
                                         <span style={{ fontSize: '9px' }}>Avg. Load</span>
                                     </div>
                                 </div>

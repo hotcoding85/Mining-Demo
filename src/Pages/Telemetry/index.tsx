@@ -4,13 +4,10 @@ import Chart from 'react-apexcharts';
 import ProgressChart from './ProgressChart';
 import PerformanceIndicator from './PerformanceIndicator';
 import OperationalDelays from './OperationalDelays'; // palitan ito ng tamang path
-
-import PC2000 from 'assets/images/PC2000.png'
-import PC1250 from 'assets/images/PC1250.png'
-import HD1500 from 'assets/images/HD1500.png'
-import HD785 from 'assets/images/HD785.png'
+import { hd1500 } from 'assets/images/equipment';
 
 const Telemetry = () => {
+    document.title = 'Telemetry | FMS Live';
   const [progress, setProgress] = useState(52); // Initial progress value
   const [currentTruckingProgress, setCurrenTruckingProgress] = useState(52); // Initial progress value
   const [annualProgress, setAnnualProgress] = useState(52); // Initial progress value
@@ -73,7 +70,7 @@ const Telemetry = () => {
                         <Card>
                             <CardBody>
                                 <CardTitle>TRUCKING PERFORMANCE</CardTitle>
-                                <img src={HD1500} alt="Selected Truck" width={300} height={200} />
+                                <img src={hd1500} alt="Selected Truck" width={300} height={200} />
                                 <div style={{border: '2px solid white', borderRadius: '5px', padding: '20px'}}>
                                     <PerformanceIndicator title="Waste Material" moved="135,855T" target={15500} />
                                     <PerformanceIndicator title="Total ROM Ore" moved="11,223T" target={15500} />

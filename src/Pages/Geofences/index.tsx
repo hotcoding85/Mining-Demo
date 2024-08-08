@@ -7,10 +7,10 @@ import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
 import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'slices/thunk';
-import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import Select from 'react-select';
+import { truckStandby } from 'assets/images/map';
 
 interface EquipmentLocation {
     id: string;
@@ -199,7 +199,7 @@ const equipments: EquipmentLocation[] = [
 
 const MapGeofence = ({ socket }) => {
 
-    document.title = "Geofences";
+    document.title = "Geofences | FMS Live";
     const dispatch: any = useDispatch();
     const geoFenceProperties = createSelector(
         (state: any) => state.GeoFence,
@@ -268,7 +268,7 @@ const MapGeofence = ({ socket }) => {
         const isNotActive: boolean = eq.status.toLowerCase() != 'active';
         const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
             <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${standbyDT}" alt="Description of the image">
+              <img src="${truckStandby}" alt="Description of the image">
             </div>`
 
         const icon = Leaflet.divIcon({

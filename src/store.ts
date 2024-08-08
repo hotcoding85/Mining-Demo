@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import rootReducer, { RootState } from './slices';
+import rootReducer from './slices';
 import { decryptData, encryptData } from "utils/cryptoUtils";
 
 
@@ -35,17 +35,3 @@ export const persistor = persistStore(Store);
 
 export type AppState = ReturnType<typeof Store.getState>;
 export type AppDispatch = typeof Store.dispatch;
-
-
-// export const Store = configureStore({
-//     reducer: rememberReducer(rootReducer),
-//     // devTools: true,
-//     enhancers: (getDefaultEnhancers) => getDefaultEnhancers().concat(
-//         rememberEnhancer(
-//             window.localStorage, // or window.sessionStorage, or AsyncStorage, or your own custom storage driver
-//             rememberedKeys
-//         )
-//     )
-// });
-
-// export type AppState = ReturnType<typeof Store.getState>;

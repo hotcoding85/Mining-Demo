@@ -1,4 +1,4 @@
-import { getTrackers, postTracker, putTracker, deleteTracker } from "Helpers/api_devices_helper";
+import { getTrackers, postTracker, putTracker, deleteTracker } from "Helpers/api_trackers_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
 import { toast } from "react-toastify";
 

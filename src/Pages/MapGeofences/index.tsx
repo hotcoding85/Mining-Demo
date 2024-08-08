@@ -5,8 +5,8 @@ import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
 
-import standbyDT from '../../assets/images/standby_dump_truck_marker.png'
 import { ExtendedMarker } from './leaflet-extensions';
+import { truckStandby } from 'assets/images/map';
 
 interface EquipmentLocation {
     id: string;
@@ -189,7 +189,7 @@ const geojsons: any[] = [
 
 const MapGeofence = () => {
 
-    document.title = "Map";
+    document.title = "Map | FMS Live";
 
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     const [selectedFence, setSelectedFence]: any = useState({});
@@ -231,7 +231,7 @@ const MapGeofence = () => {
         const isNotActive: boolean = eq.status.toLowerCase() != 'active';
         const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
             <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${standbyDT}" alt="Description of the image">
+              <img src="${truckStandby}" alt="Description of the image">
             </div>`
 
         const icon = Leaflet.divIcon({

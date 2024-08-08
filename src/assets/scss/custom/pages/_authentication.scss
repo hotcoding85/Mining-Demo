@@ -14,15 +14,15 @@
 
 .auth-logo{
     .auth-logo-dark{
-        display: var(--#{$prefix}display-block);
+        display: $display-block;
     }
     .auth-logo-light{
-        display: var(--#{$prefix}display-none);
+        display: $display-none;
     }
 }
 
 .auth-body-bg{
-    background-color: var(--#{$prefix}secondary-bg);
+    background-color: $card-bg;
 }
 
 
@@ -56,10 +56,10 @@
     }
 
     .bg-overlay{
-        // background: url("../../../images/bg-auth-overlay.png");
+        background: url("../../../images/bg-auth-overlay.jpg");
         background-size: cover;
         background-repeat: no-repeat;
-        background-position: center;
+        background-position: left;
     }
 }
 

@@ -14,7 +14,7 @@ import axios from 'axios';
 import { createSelector } from 'reselect';
 
 const Users = (props: any) => {
-  document.title = "Users";
+  document.title = "Users | FMS Live";
 
   const dispatch: any = useDispatch();
 
@@ -389,7 +389,7 @@ const Users = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={data || []}
-                    total={total || 0}
+                    // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
                     isPagination={true}

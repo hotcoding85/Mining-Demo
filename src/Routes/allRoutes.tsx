@@ -25,7 +25,10 @@ import FleetTimeline from "Pages/FleetTimeline";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
-const socket = socketIO("http://localhost:3000");
+import Replay from "Pages/Replay";
+import Maintenance from "Pages/Maintenance";
+
+const socket = socketIO(process.env.REACT_APP_API_URL!);
 
 socket.on("connect_error", (err) => {
   console.log(`connect_error due to ${err.message}`);
@@ -51,8 +54,10 @@ const authProtectedRoutes = [
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
-  { path: "/reports", exact: true, component: <Reports /> }
-
+  { path: "/reports", exact: true, component: <Reports /> },
+  { path: "/route-replay", exact: true, component: <Replay /> },
+  { path: "/maintenance", exact: true, component: <Maintenance /> },
+  { path: "/material-inventory", exact: true, component: <MaterialStock /> }
 ];
 
 const publicRoutes = [

@@ -7,7 +7,7 @@
   &[href] {
     &:hover,
     &:focus {
-      color: var(--#{$prefix}secondary-bg);
+      color: var(--#{$prefix}custom-white);
     }
   }
 }
@@ -57,6 +57,11 @@
   }
   
 }
+
+// .badge.badge-soft-dark {
+//   background-color: var(--#{$prefix}gray-200);
+//   color: var(--#{$prefix}gray-300);
+// }
 
 .rounded-pill{
    padding-right: .6em;

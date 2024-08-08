@@ -12,11 +12,10 @@ File: Custom Bootstrap Css File
 @import "./node_modules/bootstrap/scss/functions";
 @import "./node_modules/bootstrap/scss/variables";
 @import "variables";
-@import "variables-dark";
 @import "./node_modules/bootstrap/scss/bootstrap";
 
-@import "custom/components/root";
 @import "custom/components/reboot";
+@import "custom/components/backgrounds";
 @import "custom/components/badge";
 @import "custom/components/buttons";
 @import "custom/components/breadcrumb";
