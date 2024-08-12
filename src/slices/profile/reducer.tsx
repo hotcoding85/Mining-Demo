@@ -17,7 +17,7 @@ export const initialState: ProfileState = {
     error: false,// for error msg
     loading: false,
     isUserLogout: false,
-    errorMsg: "false",// for error
+    errorMsg: null,// for error
 };
 
 const profileSlice = createSlice({
@@ -33,22 +33,25 @@ const profileSlice = createSlice({
             state.user = user
             state.loading = false;
             state.error = false;
-            state.errorMsg = "";
+            state.errorMsg = null;
         },
         apiError(state, action) {
-            const error = action.payload
-            state.errorMsg = error && error.message || '';
+            const error = action.payload;
+            console.log("apiError >> ", error)
+            state.error = true;
+            state.errorMsg = error && error.data.message || '';
             state.loading = true;
             state.isUserLogout = false;
-            state.error = true;
         },
         resetLoginFlag(state) {
             // state.error = null;
             state.error = false;
             state.loading = false;
-            state.errorMsg = "";
+            state.errorMsg = null;
         },
         logoutUserSuccess(state, action) {
+            state.error = false;
+            state.errorMsg = null;
             state.user = null;
             state.token = null;
             state.isUserLogout = true

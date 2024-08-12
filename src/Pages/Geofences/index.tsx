@@ -10,7 +10,7 @@ import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenche
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import Select from 'react-select';
-import { truckStandby } from 'assets/images/map';
+import { standbyTruck } from 'assets/images/map';
 
 interface EquipmentLocation {
     id: string;
@@ -268,7 +268,7 @@ const MapGeofence = ({ socket }) => {
         const isNotActive: boolean = eq.status.toLowerCase() != 'active';
         const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
             <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${truckStandby}" alt="Description of the image">
+              <img src="${standbyTruck}" alt="Description of the image">
             </div>`
 
         const icon = Leaflet.divIcon({

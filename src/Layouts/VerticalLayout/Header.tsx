@@ -19,8 +19,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { changeLayoutMode } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { Switch } from "antd";
 
 const Header = (props: any) => {
+
+  const [fullscreen, setFullScreen] = useState<string>("bx bx-fullscreen");
+  const [theme, setTheme] = useState<boolean>(false);
 
   const toggleFullscreen = () => {
     let document: any = window.document;
@@ -30,6 +34,7 @@ const Header = (props: any) => {
       /* alternative standard method */ !document.mozFullScreenElement &&
       !document.webkitFullscreenElement
     ) {
+      setFullScreen("bx bx-exit-fullscreen")
       // current working methods
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -39,6 +44,7 @@ const Header = (props: any) => {
         document.documentElement.webkitRequestFullscreen();
       }
     } else {
+      setFullScreen("bx bx-fullscreen")
       if (document.cancelFullScreen) {
         document.cancelFullScreen();
       } else if (document.mozCancelFullScreen) {
@@ -118,24 +124,24 @@ const Header = (props: any) => {
             >
               <i className="fa fa-fw fa-bars" />
             </button>
-          
+
           </div>
           <div className="d-flex">
 
             <LanguageDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
-              <FormGroup switch>
-                <Input type="switch" className="border border-primary" checked={layoutModeType === LAYOUT_MODE_TYPES.DARK} role="switch" onClick={(e:any) => {
-                    if (e.target.checked) {
-                      dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
-                    } else {
-                      dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.LIGHT));
-                    }
-                }} />
-              </FormGroup>
+              <Switch checkedChildren="DARK" unCheckedChildren="LIGHT" value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
+                if (checked) {
+                  dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
+                } else {
+                  dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.LIGHT));
+                }
+              }} />
             </div>
-            
+
+
+
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button
                 type="button"
@@ -145,7 +151,7 @@ const Header = (props: any) => {
                 className="btn header-item noti-icon "
                 data-toggle="fullscreen"
               >
-                <i className="bx bx-fullscreen" />
+                <i className={fullscreen} />
               </button>
             </div>
 

@@ -8,7 +8,8 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import dayjs from "dayjs";
-import { truckStandby } from 'assets/images/map';
+import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import { Radio, Segmented } from 'antd';
 
 interface EquipmentLocation {
     id: string;
@@ -153,6 +154,7 @@ const equipments: EquipmentLocation[] = [
 const Map = ({ socket }) => {
 
     document.title = "Real-time positioning | FMS Live";
+
     const dispatch: any = useDispatch();
     const geoFenceProperties = createSelector(
         (state: any) => state.GeoFence,
@@ -193,6 +195,8 @@ const Map = ({ socket }) => {
     const { geofenceFromDB } = useSelector(geoFenceProperties);
     const { fleet } = useSelector(fleetProperties);
     const { benches } = useSelector(benchesProperties);
+    const [filter, setFilter] = useState<string>('All');
+
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     var [geofences, setGeofences] = useState<any[]>([]);
 
@@ -232,10 +236,12 @@ const Map = ({ socket }) => {
             width: 100px;
             text-align: center;`;
 
+
+
         const isNotActive: boolean = eq.status.toLowerCase() != 'ACTIVE';
         const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
             <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${truckStandby}" alt="Description of the image">
+              <img src="${getEquipmentStatusIcon(eq)}" alt="Description of the image">
             </div>`
 
         const icon = Leaflet.divIcon({
@@ -243,6 +249,33 @@ const Map = ({ socket }) => {
             html: isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate,
         });
         return icon
+    }
+
+    const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
+        if (eq.vehicleType == 'EXCAVATOR') {
+            switch (eq.status) {
+                case 'ACTIVE':
+                    return activeExcavator;
+                case 'STANDBY':
+                    return standbyExcavator;
+                case 'DOWN':
+                    return downExcavator;
+                case 'DELAY':
+                    return delayExcavator;
+            }
+
+        } else if (eq.vehicleType == 'DUMP_TRUCK') {
+            switch (eq.status) {
+                case 'ACTIVE':
+                    return activeTruck;
+                case 'STANDBY':
+                    return standbyTruck;
+                case 'DOWN':
+                    return downTruck;
+                case 'DELAY':
+                    return delayTruck;
+            }
+        }
     }
 
     // Function to update marker position
@@ -261,7 +294,7 @@ const Map = ({ socket }) => {
         if (!mapRef.current) {
             mapRef.current = Leaflet.map('map', {
                 center: origin,
-                zoom: 13,
+                zoom: 18,
                 attributionControl: true,
                 zoomControl: false,
             });
@@ -323,6 +356,30 @@ const Map = ({ socket }) => {
             drawFeature(json);
         })
     }, [geofenceFromDB]);
+
+    const clearMarkers = () => {
+        markers.map(item => {
+            mapRef.current?.removeLayer(item.marker)
+        })
+        setMarkers([]);
+    }
+
+    useEffect(() => {
+        clearMarkers();
+        const markersData: MarkerData[] = [];
+        let filteredEquipment: EquipmentLocation[] = []
+        if (filter == 'All') {
+            filteredEquipment = equipments
+        } else {
+            filteredEquipment = equipments.filter(item => item.vehicleType == filter)
+        }
+        filteredEquipment.map(eq => {
+            const marker = new ExtendedMarker(eq.position as Leaflet.LatLngExpression, { icon: rippleIcon(eq) }).addTo(mapRef.current!)
+            markersData.push({ id: eq['name'], marker: marker })
+        })
+        // markersLayer.
+        setMarkers(markersData);
+    }, [filter]);
 
     const drawFeature = (geoFenceData: any) => {
         let layer;
@@ -401,11 +458,10 @@ const Map = ({ socket }) => {
         //     markersData.push({ id: equip['name'], marker: marker })
         // })
 
-        equipments.map(item => {
-            const marker = new ExtendedMarker(item.position as Leaflet.LatLngExpression, { icon: rippleIcon(item) }).addTo(mapRef.current!)
-            markersData.push({ id: item['name'], marker: marker })
-        })
-        setMarkers(markersData);
+    }
+
+    const onFilterChange = (filter) => {
+        setFilter(filter.target.value)
     }
 
     return (
@@ -414,6 +470,17 @@ const Map = ({ socket }) => {
                 <Container fluid>
                     <Breadcrumb title="Dashboards" breadcrumbItem="Real-time Positioning" />
                     <Row>
+                        <Col md="12" className='mb-4 d-flex flex-row-reverse'>
+                            {/* <Segmented options={['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']} /> */}
+                            <Radio.Group
+                                options={['All', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]}
+                                size='large'
+                                value={filter}
+                                onChange={onFilterChange}
+                                optionType='button'
+                                buttonStyle='solid'
+                            />
+                        </Col>
                         <Col md="12">
                             <div id="map" style={{ height: '80vh', width: '100%' }}></div>
                         </Col>

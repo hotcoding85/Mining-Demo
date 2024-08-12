@@ -153,10 +153,16 @@ const SidebarContent = (props: any) => {
                   <Link to="/map">{props.t("Map")}</Link>
                 </li>
                 <li>
+                  <Link to="/">{props.t("Manager KPI's")}</Link>
+                </li>
+                <li>
                   <Link to="/">{props.t("Trucking Summary")}</Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Digging Summary")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Manager TUM Report")}</Link>
                 </li>
               </ul>
             </li>
@@ -213,6 +219,9 @@ const SidebarContent = (props: any) => {
                   <Link to="/benches">{props.t("Benches")}</Link>
                 </li>
                 <li>
+                  <Link to="/benches">{props.t("Dig Blocks")}</Link>
+                </li>
+                <li>
                   <Link to="/materials">{props.t("Materials")}</Link>
                 </li>
                 <li>
@@ -249,10 +258,21 @@ const SidebarContent = (props: any) => {
               </Link>
             </li>
             <li>
-              <Link to="/maintenance" >
+              <Link to="/" >
                 <i className="bx bx-cog"></i>
                 <span>{props.t("Fleet Maintenance")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/maintenance">{props.t("Maintenance Status")}</Link>
+                </li>
+                <li>
+                  <Link to="/maintenance">{props.t("Scheduler")}</Link>
+                </li>
+                <li>
+                  <Link to="/maintenance">{props.t("Fuel Status")}</Link>
+                </li>
+              </ul>
             </li>
 
             <li>

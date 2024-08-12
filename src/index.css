@@ -24,3 +24,7 @@ code {
     opacity: 0;
   }
 }
+
+.ant-radio-button .ant-radio-button-disabled {
+  background-color: blue !important;
+}

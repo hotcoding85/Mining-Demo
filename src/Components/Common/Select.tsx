@@ -50,7 +50,9 @@ const CustomSelect = ({
       style={{ width: '100%' }}
       options={options}
       value={options.find((option) => option.value === formValues[name])} // set selected value
-      onChange={(option) => setFieldValue(name, option?.value)}
+      onChange={(option) => {
+        setFieldValue(name, option)
+      }}
       onBlur={onBlur}
     />
   );

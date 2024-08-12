@@ -181,6 +181,12 @@ const Materials = (props: any) => {
         },
       },
       {
+        header: 'Grade',
+        accessorKey: 'grade',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
         header: 'Color',
         accessorKey: 'color',
         enableColumnFilter: false,

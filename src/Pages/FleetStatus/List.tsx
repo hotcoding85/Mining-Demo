@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardBody, Col, Row } from 'reactstrap';
 import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
 import { round } from 'lodash';
+import './index.scss';
 
 const stateConfig = [
     {
@@ -75,10 +76,10 @@ const List = ({ data = [] }: any) => {
                             <CardBody>
                                 <div className="d-flex align-start mb-3">
                                     <div className="flex-grow-1 card-body__header">
-                                        <h4 style={{ color: statusColor }}>
+                                        <h4>
                                             {item.name}
                                         </h4>
-                                        <h6 style={{ color: statusColor }}>
+                                        <h6>
                                             {item?.data?.operator || 'Unassiged'}
                                         </h6>
                                     </div>
@@ -86,26 +87,34 @@ const List = ({ data = [] }: any) => {
                                 <div className="text-center mb-3">
                                     <img src={getImage(item.model)} alt="" style={imageStyle} />
                                 </div>
-                                <div className="d-flex justify-content-center mb-2 gap-2 text-muted text-center">
-                                    <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color: 'white' }}>{item?.data?.tripCount || 0}</span>
-                                        <span style={{ fontSize: '9px' }}>Total Loads</span>
-                                    </div>
-                                    <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color: 'white' }}>{round(item?.data?.payload || 0.0, 2)}</span>
-                                        <span style={{ fontSize: '9px' }}>Total Tonnes Moved</span>
-                                    </div>
-                                    <div className='d-flex flex-column'>
-                                        <span style={{ fontSize: '18px', color: 'white' }}>{round(item?.data?.tripCount ? item.data.payload / item.data.tripCount : 0.0, 2)}</span>
-                                        <span style={{ fontSize: '9px' }}>Avg. Load</span>
+                                <div className="container">
+                                    <div className="row">
+                                        <div className="col-sm-6 d-flex justify-content-center">
+                                            <span className='itemActual'>{item?.data?.tripCount || 0}</span>
+                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? 175 : 35}</span>
+                                        </div>
+                                        <div className="col-sm-6 d-flex justify-content-center">
+                                            <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
+                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? '15,000' : 35 * item.capacity}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="d-flex mb-3 justify-content-around gap-2 text-muted">
+                                <div className="container">
+                                    <div className="row">
+                                        <div className="col-sm-6 d-flex justify-content-center">
+                                            <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>
+                                        </div>
+                                        <div className="col-sm-6 d-flex justify-content-center" style={{paddingLeft: 0}}>
+                                            <span style={{ fontSize: '8px' }}>Total Tonnes Moved</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-between mt-2 gap-2 text-muted">
                                     {stateConfig.map((config) => {
                                         return (
                                             <div className='d-flex align-items-center'>
-                                                <i className='bx bxs-circle font-size-12' style={{ color: config.color }}></i>
-                                                <p style={{ margin: '0 0 0 1px', fontSize: '12px' }}>{item?.data?.stateInfo ? getStateValue(item?.data?.stateInfo, config.key) : '00:00'}</p>
+                                                {/* <i className='bx bxs-circle font-size-12' style={{ color: config.color }}></i> */}
+                                                <span style={{ margin: '0 0 0 1px', fontSize: '12px', color: config.color }}>{item?.data?.stateInfo ? getStateValue(item?.data?.stateInfo, config.key) : '00:00'}</span>
                                             </div>
                                         )
                                     })}

@@ -6,6 +6,8 @@ import avatar5 from "./users/avatar-5.jpg"
 import avatar6 from "./users/avatar-6.jpg"
 import avatar7 from "./users/avatar-7.jpg"
 import avatar8 from "./users/avatar-8.jpg"
+import maleAvatar from "./users/m-avatar.png"
+import femaleAvatar from "./users/f-avatar.png"
 import img1 from "./product/img-1.png"
 import img2 from "./product/img-2.png"
 import img3 from "./product/img-3.png"
@@ -15,6 +17,8 @@ import img6 from "./product/img-6.png"
 import img7 from "./product/img-7.png"
 
 const index = {
+  maleAvatar,
+  femaleAvatar,
   avatar1,
   avatar2,
   avatar3,

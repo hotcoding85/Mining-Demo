@@ -11,7 +11,7 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import CarouselPage from "./CarouselPage";
 
-import { loginuser } from "slices/thunk";
+import { loginuser, resetLoginFlagState } from "slices/thunk";
 
 import withRouter from "Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,6 +51,10 @@ const LoginPage = (props: any) => {
     }),
     onSubmit: (values: any) => {
       dispatch(loginuser(values, props.router.navigate));
+
+      setTimeout(() => {
+        dispatch(resetLoginFlagState());
+      }, 5000)
     }
   });
 

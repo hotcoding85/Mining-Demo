@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
-
+import { Avatar } from "antd";
 //i18n
 import { withTranslation } from "react-i18next";
 // Redux
@@ -9,7 +9,8 @@ import withRouter from "../../Common/withRouter";
 import { createSelector } from 'reselect';
 
 // users
-import user1 from "assets/images/users/avatar-1.jpg";
+import maleAvatar from "assets/images/users/m-avatar.png";
+import femaleAvatar from "assets/images/users/f-avatar.png";
 
 import { useSelector } from "react-redux";
 
@@ -49,11 +50,12 @@ const ProfileMenu = (props: any) => {
           id="page-header-user-dropdown"
           tag="button"
         >
-          <img
+          {/* <img
             className="rounded-circle header-profile-user"
             src={user1}
             alt="Header Avatar"
-          />
+          /> */}
+          <Avatar src={maleAvatar} style={{ backgroundColor: '#aaa' }} />
           <span className="d-none d-xl-inline-block ms-2 me-1">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>

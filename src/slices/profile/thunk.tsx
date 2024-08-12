@@ -1,5 +1,5 @@
 import { postLogin } from "Helpers/api_auth_helper";
-import { loginSuccess, apiError, logoutUserSuccess } from "./reducer";
+import { loginSuccess, apiError, logoutUserSuccess, resetLoginFlag } from "./reducer";
 
 export const loginuser = (user: any, history: any) => async (dispatch: any) => {
     try {
@@ -15,11 +15,19 @@ export const loginuser = (user: any, history: any) => async (dispatch: any) => {
     }
 }
 
+export const resetLoginFlagState = () => async (dispatch: any) => {
+    try {
+        dispatch(resetLoginFlag())    
+    } catch (error) {
+        console.log(error)
+    }
+};
+
 export const logoutUser = () => async (dispatch: any) => {
     try {
         localStorage.removeItem("token");
         dispatch(logoutUserSuccess(true));
-        
+
     } catch (error) {
         dispatch(apiError(error));
     }

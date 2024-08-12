@@ -9,7 +9,7 @@ import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import Select from 'react-select';
 import { format } from 'date-fns';
 import type { DatePickerProps, RadioChangeEvent } from 'antd';
-import { DatePicker, Space, Radio } from 'antd';
+import { DatePicker, Space, Radio, Switch } from 'antd';
 import dayjs from "dayjs";
 
 import { pick } from 'lodash';
@@ -183,8 +183,6 @@ const ShiftRoster = (props: any) => {
     return filterOperators;
   }
 
-
-
   const getShiftTimings = () => {
     let currentTime = dayjs();
     let previousDay = dayjs().subtract(1, 'day');
@@ -240,7 +238,20 @@ const ShiftRoster = (props: any) => {
               >
 
                 <Row>
-                  <Col xs={8}></Col>
+                  <Col className='d-flex flex-row-reverse'>
+                    <Space>
+                      <DatePicker style={{ fontSize: '18px' }} size='large' allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
+
+                      <Radio.Group
+                        options={shifts}
+                        size='large'
+                        onChange={onShiftChange}
+                        value={shift}
+                        optionType="button"
+                        buttonStyle="solid"
+                      />
+                    </Space>
+                  </Col>
                   {/* <Col xs={2}>
                     <Select
                       className="basic-single"
@@ -255,19 +266,10 @@ const ShiftRoster = (props: any) => {
                       options={crews}
                     />
                   </Col> */}
-                  <Col xs={2} content='right'>
-                      <DatePicker style={{ width: '100%', fontSize: '18px' }} size='large' allowClear={false} variant={'outlined'} value={dayjs(startDate)} onChange={onDateChange} />
-                  </Col>
-                  <Col content='right'>
-                    <Radio.Group
-                      options={shifts}
-                      size='large' 
-                      onChange={onShiftChange}
-                      value={shift}
-                      optionType="button"
-                      buttonStyle="solid"
-                    />
-                    {/* <Select
+
+
+
+                  {/* <Select
                       className="basic-single"
                       classNamePrefix="Shifts"
                       defaultValue={shifts[0]}
@@ -281,7 +283,6 @@ const ShiftRoster = (props: any) => {
                       options={shifts}
                       onChange={onShiftChange}
                     /> */}
-                  </Col>
                 </Row>
 
                 <Label>  </Label>
