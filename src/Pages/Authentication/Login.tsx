@@ -73,14 +73,14 @@ const LoginPage = (props: any) => {
                         <img
                           src={logodark}
                           alt=""
-                          height="50"
+                          height="100"
                           style={{ margin: 'auto' }}
                           className="auth-logo-dark"
                         />
                         <img
                           src={logolight}
                           alt=""
-                          height="50"
+                          height="100"
                           style={{ margin: 'auto' }}
                           className="auth-logo-light"
                         />

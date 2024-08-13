@@ -17,19 +17,19 @@ const Sidebar = (props: any) => {
         <div className="navbar-brand-box">
           <Link to="/" className="logo logo-dark">
             <span className="logo-sm">
-              <img src={logo} alt="" height="22" />
+              <img src={logo} alt="" height="32" />
             </span>
             <span className="logo-lg">
-              <img src={logoDark} alt="" height="32" />
+              <img src={logoDark} alt="" height="60" />
             </span>
           </Link>
 
           <Link to="/" className="logo logo-light">
             <span className="logo-sm">
-              <img src={logoLightSvg} alt="" height="22" />
+              <img src={logoLightSvg} alt="" height="32" />
             </span>
             <span className="logo-lg">
-              <img src={logoLightPng} alt="" height="32" />
+              <img src={logoLightPng} alt="" height="60" />
             </span>
           </Link>
         </div>
