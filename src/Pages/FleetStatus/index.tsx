@@ -6,7 +6,7 @@ import { getAllFleet } from 'slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import _, { cloneDeep, groupBy } from 'lodash';
-import { Radio } from 'antd';
+import { Radio, Segmented } from 'antd';
 
 const FMS = () => {
     document.title = "Fleet Status | FMS Live";
@@ -21,7 +21,7 @@ const FMS = () => {
         })
     );
 
-    const [filter, setFilter] = useState<string>('All');
+    const [filter, setFilter] = useState<string>('All Equipment');
     const { fleetList, loading } = useSelector(selectProperties);
     const [isLoading, setLoading] = useState<boolean>(loading);
 
@@ -44,11 +44,6 @@ const FMS = () => {
         return _.sortBy(filteredData, 'name')
     }
 
-    const onFilterChange = (filter) => {
-        setFilter(filter.target.value)
-    }
-
-
     return (
         <React.Fragment>
             <div className="page-content">
@@ -56,19 +51,11 @@ const FMS = () => {
                     <Breadcrumb title="Dashboards" breadcrumbItem="Fleet Status" />
                     <Row>
                         <Col md="12" className='mb-4 d-flex flex-row-reverse'>
-                            {/* <Segmented options={['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']} /> */}
-                            <Radio.Group
-                                options={['All', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]}
-                                size='large'
-                                value={filter}
-                                onChange={onFilterChange}
-                                optionType='button'
-                                buttonStyle='solid'
-                            />
+                            <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]}/>
                         </Col>
                     </Row>
                     {
-                        (filter == 'All') && (
+                        (filter == 'All Equipment') && (
                             <>
                                 <List data={getFleet("EXCAVATOR")} />
                                 <List data={getFleet("DUMP_TRUCK")} />

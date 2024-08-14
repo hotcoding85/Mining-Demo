@@ -47,7 +47,7 @@ function App() {
       <Routes>
         {publicRoutes.map((route, idx) => (
           <Route path={route.path} key={idx}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>} />
+            element={<NonAuthLayout>{route.component}</NonAuthLayout>}></Route>
         ))}
         {authProtectedRoutes.map((route, idx) => (
           <Route

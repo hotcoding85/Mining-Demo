@@ -31,17 +31,6 @@ interface Geofence {
     layer: Leaflet.Layer | null;  // Make layer nullable
 }
 
-const data = [
-    {
-        "status": "ACTIVE",
-        "truckId": "70992b30-2f86-4a14-9ee3-f7d40abb4fae",
-        "position": [
-            -24.65675678,
-            129.65675678
-        ]
-    }
-]
-
 const equipments: EquipmentLocation[] = [
     {
         id: "DT101",
@@ -195,7 +184,7 @@ const Map = ({ socket }) => {
     const { geofenceFromDB } = useSelector(geoFenceProperties);
     const { fleet } = useSelector(fleetProperties);
     const { benches } = useSelector(benchesProperties);
-    const [filter, setFilter] = useState<string>('All');
+    const [filter, setFilter] = useState<string>('All Equipment');
 
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     var [geofences, setGeofences] = useState<any[]>([]);
@@ -368,7 +357,7 @@ const Map = ({ socket }) => {
         clearMarkers();
         const markersData: MarkerData[] = [];
         let filteredEquipment: EquipmentLocation[] = []
-        if (filter == 'All') {
+        if (filter == 'All Equipment') {
             filteredEquipment = equipments
         } else {
             filteredEquipment = equipments.filter(item => item.vehicleType == filter)
@@ -460,10 +449,6 @@ const Map = ({ socket }) => {
 
     }
 
-    const onFilterChange = (filter) => {
-        setFilter(filter.target.value)
-    }
-
     return (
         <React.Fragment>
             <div className="page-content">
@@ -471,15 +456,7 @@ const Map = ({ socket }) => {
                     <Breadcrumb title="Dashboards" breadcrumbItem="Real-time Positioning" />
                     <Row>
                         <Col md="12" className='mb-4 d-flex flex-row-reverse'>
-                            {/* <Segmented options={['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']} /> */}
-                            <Radio.Group
-                                options={['All', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]}
-                                size='large'
-                                value={filter}
-                                onChange={onFilterChange}
-                                optionType='button'
-                                buttonStyle='solid'
-                            />
+                            <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} />
                         </Col>
                         <Col md="12">
                             <div id="map" style={{ height: '80vh', width: '100%' }}></div>

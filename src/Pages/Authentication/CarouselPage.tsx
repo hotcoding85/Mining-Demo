@@ -13,12 +13,13 @@ const CarouselPage = () => {
             <div className="d-flex h-100 flex-column">
               <div className="p-4 mt-auto">
                 <div className="row justify-content-center">
-                  <div className="col-lg-7">
+                  <div className="col-lg-12">
                     <div className="text-center">
-                      <h4 className="mb-3">
+                      <h1 className="mb-3">
                         <i className="bx bxs-quote-alt-left text-primary h1 align-middle me-3"></i>
-                        Next Gen FMS
-                      </h4>
+                        Next-Gen Automated Fleet Management Software
+                        <i className="bx bxs-quote-alt-right text-primary h1 align-middle ms-3"></i>
+                      </h1>
                       
                     </div>
                   </div>

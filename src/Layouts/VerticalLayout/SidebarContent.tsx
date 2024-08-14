@@ -230,6 +230,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/material-inventory">{props.t("Material Inventory")}</Link>
                 </li>
+                <li>
+                  <Link to="/material-movement">{props.t("Material Movement")}</Link>
+                </li>
               </ul>
             </li>
 

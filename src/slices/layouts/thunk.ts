@@ -26,6 +26,9 @@ export const changeLayout = (layout: any) => async (dispatch: any) => {
             case "vertical":
                 // dispatch(changeTopbarThemeAction('light'));
                 break;
+                default:
+                    
+                    break
         }
         changeBodyAttribute("data-layout", layout);
         dispatch(changeLayoutAction(layout));

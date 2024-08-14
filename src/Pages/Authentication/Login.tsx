@@ -11,7 +11,7 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import CarouselPage from "./CarouselPage";
 
-import { loginuser, resetLoginFlagState } from "slices/thunk";
+import { changeLayoutMode, loginuser, resetLoginFlagState } from "slices/thunk";
 
 import withRouter from "Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +33,9 @@ const LoginPage = (props: any) => {
       errorMsg: profile.errorMsg,
     })
   );
+
+  const layout = useSelector((state: any) => state.Layout)
+  dispatch(changeLayoutMode(layout.layoutModeTypes))
 
   const { error, errorMsg } = useSelector(selectProperties);
 
@@ -60,7 +63,7 @@ const LoginPage = (props: any) => {
 
   return (
     <React.Fragment>
-      <div>
+      <div id="layout-wrapper">
         <Container fluid className="p-0">
           <Row className="g-0">
             <CarouselPage />

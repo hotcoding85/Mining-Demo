@@ -13,7 +13,7 @@ import Trackers from "Pages/Trackers";
 import Map from "Pages/Map";
 import Dispatch from "Pages/Dispatch";
 import Dashboard from "Pages/Dashboard";
-import MaterialStock from "Pages/MaterialStock";
+import MaterialInventory from "Pages/MaterialInventory";
 import Geofences from "Pages/Geofences";
 import DailyProduction from "../Pages/DailyProduction";
 import DiggingPerformance from "Pages/DiggingPerformance";
@@ -27,6 +27,7 @@ import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
 import Replay from "Pages/Replay";
 import Maintenance from "Pages/Maintenance";
+import MaterialMovement from "Pages/MaterialMovement";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -46,7 +47,6 @@ const authProtectedRoutes = [
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
   { path: "/dispatch", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
-  { path: "/stock", exact: true, component: <MaterialStock /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
   { path: "/daily-production", exact: true, component: <DailyProduction /> },
   { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
@@ -57,7 +57,8 @@ const authProtectedRoutes = [
   { path: "/reports", exact: true, component: <Reports /> },
   { path: "/route-replay", exact: true, component: <Replay /> },
   { path: "/maintenance", exact: true, component: <Maintenance /> },
-  { path: "/material-inventory", exact: true, component: <MaterialStock /> }
+  { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
+  { path: "/material-movement", exact: true, component: <MaterialMovement /> }
 ];
 
 const publicRoutes = [

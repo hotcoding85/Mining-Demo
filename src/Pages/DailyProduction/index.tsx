@@ -10,6 +10,9 @@ import { createSelector } from '@reduxjs/toolkit';
 import ForecastProgressBar from './ForecastProgressBar';
 
 import {hd1500} from 'assets/images/equipment'
+import { DatePicker, Segmented, Space } from 'antd';
+
+const { RangePicker } = DatePicker;
 
 const DailyProduction = () => {
   document.title = "Daily Production | FMS Live";
@@ -52,7 +55,7 @@ const DailyProduction = () => {
   );
 
   const { fleetList, loading } = useSelector(selectProperties);
-
+  const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
   const [diggers, setDiggers] = useState<any>();
   const [trucks, setTrucks] = useState<any>();
 
@@ -203,6 +206,16 @@ const DailyProduction = () => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Dashboards" breadcrumbItem="Daily Production" />
+          <Row className="mb-3">
+                        <Col className='d-flex flex-row-reverse'>
+                            <Space>
+                                {
+                                    timeRange == 'CUSTOM' && <RangePicker />
+                                }
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={timeRange} onChange={(e) => setTimeRange(e)} options={[{ value: 'CUSTOM', label: 'Custom' }, { value: 'PREVIOUS_SHIFT', label: 'Previous Shift' }, { value: 'CURRENT_SHIFT', label: 'Current Shift' }]}/>
+                            </Space>
+                        </Col>
+                    </Row>
           <Row>
             <Col md={4}>
               <Card>
