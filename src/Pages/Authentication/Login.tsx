@@ -166,7 +166,7 @@ const LoginPage = (props: any) => {
                               className="btn btn-primary btn-block "
                               type="submit"
                             >
-                              Log In
+                              Sign In
                             </button>
                           </div>
 
@@ -176,7 +176,7 @@ const LoginPage = (props: any) => {
 
                     <div className="mt-4 mt-md-5 text-center">
                       <p className="mb-0">
-                        © {new Date().getFullYear()}
+                       OP v{process.env.REACT_APP_VERSION} © {new Date().getFullYear()}
                       </p>
                     </div>
                   </div>

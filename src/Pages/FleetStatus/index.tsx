@@ -51,7 +51,7 @@ const FMS = () => {
                     <Breadcrumb title="Dashboards" breadcrumbItem="Fleet Status" />
                     <Row>
                         <Col md="12" className='mb-4 d-flex flex-row-reverse'>
-                            <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]}/>
+                            <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]}/>
                         </Col>
                     </Row>
                     {
@@ -69,13 +69,7 @@ const FMS = () => {
 
                     }
                     {
-                        (filter == 'EXCAVATOR') && (<List data={getFleet("EXCAVATOR")} />)
-                    }
-                    {
-                        (filter == 'DUMP_TRUCK') && (<List data={getFleet("DUMP_TRUCK")} />)
-                    }
-                    {
-                        (filter == 'LOADER') && (<List data={getFleet("LOADER")} />)
+                        (filter != 'All Equipment') && (<List data={getFleet(filter)} />)
                     }
 
                 </Container>

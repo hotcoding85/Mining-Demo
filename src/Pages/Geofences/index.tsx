@@ -1,561 +1,241 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Row, Col, Card, CardBody, ListGroup, ListGroupItem, Label } from 'reactstrap';
-import { createSelector } from 'reselect';
-import { useDispatch, useSelector } from 'react-redux';
-import * as Leaflet from 'leaflet';
-import 'leaflet/dist/leaflet.css'; // Ensure Leaflet's CSS is loaded
-import 'leaflet-draw/dist/leaflet.draw.css';
-import 'leaflet-draw';
-import { getGeoFences, addGeoFence, removeGeoFence, updateGeoFence, getAllBenches } from 'slices/thunk';
-import { ExtendedMarker } from './leaflet-extensions';
+import { Container, Row, Col } from 'reactstrap';
 import _ from 'lodash';
-import Select from 'react-select';
-import { standbyTruck } from 'assets/images/map';
 
-interface EquipmentLocation {
-    id: string;
-    name: string;
-    color: string;
-    status: string;
-    position: Leaflet.LatLngExpression;
-    vehicleType: string;
-}
+import geojson from './output.json';
 
-interface MarkerData {
-    id: string;
-    marker: ExtendedMarker;
-}
+import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import { Feature, FeatureCollection, GeoJsonObject, LineString } from 'geojson';
+import { features } from 'process';
 
-interface Geofence {
-    id: number,
-    name: string;
-    layer: Leaflet.Layer | null;  // Make layer nullable
-}
-
-const equipments: EquipmentLocation[] = [
-    {
-        id: "DT101",
-        name: "DT101",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.160331938574046, 120.44974338024406]
-    },
-    {
-        id: "DT102",
-        name: "DT102",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.15837078907635, 120.44899479387436]
-    },
-    {
-        id: "DT103",
-        name: "DT103",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.156594353219155, 120.44783936708842]
-    },
-    {
-        id: "DT104",
-        name: "DT104",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.1576602184213, 120.44871814239025]
-    },
-    {
-        id: "DT105",
-        name: "DT105",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.156594353219155, 120.44783936708842]
-    },
-    {
-        id: "DT106",
-        name: "DT106",
-        status: "STANDBY",
-        color: "#F08B00",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.1540788674843, 120.44678158200134]
-    },
-    {
-        id: "DT121",
-        name: "DT121",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.15389411186601, 120.44697686540144]
-    },
-    {
-        id: "DT122",
-        name: "DT122",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.155798499987924, 120.44743252666956]
-    },
-    {
-        id: "DT123",
-        name: "DT123",
-        status: "DELAY",
-        color: "#BC00FF",
-        vehicleType: "DUMP_TRUCK",
-        position: [-29.155798499987924, 120.44743252666956]
-    },
-    {
-        id: "EX201",
-        name: "EX201",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "EXCAVATOR",
-        position: [
-            -29.15837078907635,
-            120.44899479387436
-        ]
-    },
-    {
-        id: "EX202",
-        name: "EX202",
-        status: "ACTIVE",
-        color: "#009D10",
-        vehicleType: "EXCAVATOR",
-        position: [
-            -29.159081354815896,
-            120.44951554960937
-        ]
-    },
-    {
-        id: "EX205",
-        name: "EX205",
-        status: "DELAY",
-        color: "#BC00FF",
-        vehicleType: "EXCAVATOR",
-        position: [
-            -29.15456207291446,
-            120.44756271560425
-
-        ]
-    }
-]
-
-// var geojsons: any[] = [
-//     {
-//         "id": "uyfygvkgub",
-//         "name": "Polygon",
-//         "geoJson": {
-//             "type": "Feature",
-//             "properties": {
-//             },
-//             "geometry": {
-//                 "type": "Polygon",
-//                 "coordinates": [
-//                     [
-//                         [
-//                             -29.164788,
-//                             120.404994
-//                         ],
-//                         [
-//                             -29.143632,
-//                             120.404994
-//                         ],
-//                         [
-//                             -29.143632,
-//                             120.431421
-//                         ],
-//                         [
-//                             -29.164788,
-//                             120.431421
-//                         ],
-//                         [
-//                             -29.164788,
-//                             120.404994
-//                         ]
-//                     ]
-//                 ]
-//             }
-//         }
-//     },
-//     {
-//         "id": "kgubuyfygv",
-//         "name": "Circle",
-//         "geoJson": {
-//             "type": "Feature",
-//             "properties": {
-//                 "radius": 1803
-//             },
-//             "geometry": {
-//                 "type": "Point",
-//                 "coordinates": [
-//                     -29.172268,
-//                     120.465569
-//                 ]
-//             }
-//         }
-//     }
-// ];
-
-const MapGeofence = ({ socket }) => {
+const Geofences = ({ socket }) => {
 
     document.title = "Geofences | FMS Live";
-    const dispatch: any = useDispatch();
-    const geoFenceProperties = createSelector(
-        (state: any) => state.GeoFence,
-        (geofenceState) => ({
-            geofenceFromDB: geofenceState.data
-        })
-    );
 
-    const benchesProperties = createSelector(
-        (state: any) => state.Benches,
-        (benchesState) => ({
-            benches: benchesState.data
-        })
-    );
+    const mapContainer = useRef(null);
+    const mapRef = useRef<any>(null);
+    const [lng, setLng] = useState(120.44463458272295,);
+    const [lat, setLat] = useState(-29.146790943732764);
+    const [zoom, setZoom] = useState(18);
 
-    socket.on("TRACKER_LOCATION", data => {
-        console.log(data);
-        updateMarkerPosition(data.id, data.position);
-    });
 
-    const { geofenceFromDB } = useSelector(geoFenceProperties);
-    const { benches } = useSelector(benchesProperties);
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
-    const [selectedFence, setSelectedFence]: any = useState({});
-    var [geofences, setGeofences] = useState<any[]>([]);
-    const [modal, setModal] = useState(false);
-    const [newGeofenceName, setNewGeofenceName] = useState("");
-    const [newSelectedBench, setNewSelectedBench] = useState("");
+    function buildGraticule(): FeatureCollection {
+        const METERS_PER_DEGREE_LATITUDE = 111320; // Approximate meters per degree of latitude
+        const METERS_PER_DEGREE_LONGITUDE = (latitude: number) => METERS_PER_DEGREE_LATITUDE * Math.cos(latitude * Math.PI / 180);
 
-    const mapRef = useRef<Leaflet.Map | null>(null);
-    const drawItems = new Leaflet.FeatureGroup();
-    const origin: Leaflet.LatLngExpression = [-29.160331938574046, 120.44974338024406];
+        const DISTANCE_METERS = 5;
+        const DEGREE_DISTANCE_LAT = DISTANCE_METERS / METERS_PER_DEGREE_LATITUDE;
+        const DEGREE_DISTANCE_LNG = (latitude: number) => DISTANCE_METERS / METERS_PER_DEGREE_LONGITUDE(latitude);
 
-    var locations: any = {};
-    locations = benches.map(option => {
-        return { value: option.id, "label": option?.name }
-    });
+        // Define bounding box: [minLng, minLat, maxLng, maxLat]
+        const BOUNDING_BOX = [120.211908, -29.219094, 120.508539, -29.070215];
+        const [minLng, minLat, maxLng, maxLat] = BOUNDING_BOX;
 
-    const rippleIcon = (eq) => {
-        const rippleStyles = `
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            background-color: ${eq.color};
-            animation: ripple 1s infinite;`;
+        const graticule: FeatureCollection = {
+            type: 'FeatureCollection',
+            features: []
+        };
 
-        const textStyle = `
-            background-color: white;
-            position: absolute;
-            top: -96px;
-            left: -46px;
-            border: 4px solid ${eq.color};
-            border-radius: 20px;
-            font-size: 20px;
-            color: ${eq.color};
-            font-weight: 600;
-            padding-left: 12px;
-            padding-right: 12px;
-            width: 100px;
-            text-align: center;`;
-
-        const isNotActive: boolean = eq.status.toLowerCase() != 'active';
-        const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
-            <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-              <img src="${standbyTruck}" alt="Description of the image">
-            </div>`
-
-        const icon = Leaflet.divIcon({
-            className: 'marker',
-            html: isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate,
-        });
-        return icon
-    }
-
-    // Function to update marker position
-    const updateMarkerPosition = (markerId: string, newPosition: Leaflet.LatLngExpression, duration: number = 1000) => {
-        setMarkers(prevMarkers =>
-            prevMarkers.map(markerData => {
-                if (markerData.id === markerId) {
-                    markerData.marker.slideTo(newPosition, { duration });
-                }
-                return markerData;
-            })
-        );
-    };
-
-    useEffect(() => {
-        if (!mapRef.current) {
-            mapRef.current = Leaflet.map('map', {
-                center: origin,
-                zoom: 13,
-                attributionControl: true,
-                zoomControl: false
-            });
-
-            Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
-
-            Leaflet.control.zoom({
-                position: 'bottomright'
-            }).addTo(mapRef.current);
-
-            mapRef.current.addLayer(drawItems);
-            const drawControl = new Leaflet.Control.Draw({
-                edit: {
-                    featureGroup: drawItems
-                },
-                draw: {
-                    polyline: false,
-                    circlemarker: false,
-                    marker: false,
-                    circle: false
-                },
-                position: 'topright'
-            });
-
-            mapRef.current.addControl(drawControl);
-            mapRef.current.tap?.enable();
-            mapRef.current.on('draw:created', function (event: Leaflet.LeafletEvent) {
-                let type = (event as Leaflet.DrawEvents.Created).layerType;
-                let layer = (event as Leaflet.DrawEvents.Created).layer;
-                updateGeoFences(type, layer);
-                toggle();
-                drawItems.addLayer(layer);
-            });
-
-            drawItems.on('click', function (event: Leaflet.LeafletEvent) {
-                handleEditGeofence(event, event.propagatedFrom.id);
-            });
-        }
-
-        addMarkers();
-    }, []);
-
-    useEffect(() => {
-        dispatch(getGeoFences());
-    }, [dispatch]);
-
-    useEffect(() => {
-        geofences = [];
-        geofenceFromDB.forEach((json) => {
-            drawFeature(json);
-        })
-    }, [geofenceFromDB]);
-
-    const drawFeature = (geoFenceData: any) => {
-        let layer;
-        if (geoFenceData && geoFenceData.geoJson && geoFenceData.geoJson.properties && geoFenceData.geoJson.properties.radius) {
-            layer = Leaflet.geoJson(geoFenceData.geoJson, {
-                pointToLayer: function (feature, latlng) {
-                    console.log('latlng', latlng);
-                    return Leaflet.circle(latlng, { radius: geoFenceData.geoJson.properties.radius });
-                }
-            }).addTo(mapRef.current!);
-            layer.id = geoFenceData.id;
-            drawItems.addLayer(layer);
-        } else {
-            // layer = Leaflet.polygon(geoFenceData.geoJson.geometry.coordinates).addTo(mapRef.current!);
-            layer = Leaflet.geoJson(geoFenceData.geoJson).addTo(mapRef.current!);
-            layer.id = geoFenceData.id;
-            //layer.bindPopup("Name of the GeoFence");
-            drawItems.addLayer(layer);
-        }
-        geofences.push({ id: layer.id, layer: layer, name: geoFenceData.name, bench: { value: geoFenceData.locationId, label: (geoFenceData && geoFenceData.location) ? geoFenceData.location.name : '' } })
-        setGeofences([...geofences]);
-    }
-
-    const updateGeoFences = (type: string, layer: any) => {
-        layer.id = Date.now();
-        let geofence = { layer: layer, type: type };
-        geofences.push(geofence)
-        setGeofences([...geofences]);
-        setSelectedFence(geofence);
-        console.log(geofence.layer.toGeoJSON());
-    }
-
-    const addMarkers = () => {
-        // const markersData: MarkerData[] = [];
-        // equipments.forEach(eq => {
-        //     const marker = new ExtendedMarker(eq.position, { icon: rippleIcon(eq) }).addTo(mapRef.current!)
-        //     markersData.push({ id: eq.id, marker: marker })
-        // })
-        // setMarkers(markersData);
-    }
-
-    const zoomToGeofence = (id) => {
-        let geofence = geofences.find((fence) => fence.layer.id === id);
-        mapRef.current?.fitBounds(geofence.layer.getBounds());
-    }
-
-    const toggle = () => setModal(!modal);
-
-    const handleAddGeofence = () => {
-        setNewGeofenceName("");
-        toggle();
-    };
-
-    const handleSaveGeofence = () => {
-        let fenceIndex = geofences.findIndex((fence) => fence.layer.id === selectedFence.layer.id);
-        geofences[fenceIndex].name = newGeofenceName;
-        geofences[fenceIndex].bench = newSelectedBench;
-        createGeofence(geofences[fenceIndex]);
-        setGeofences([...geofences]);
-        toggle();
-        setNewGeofenceName("");
-    };
-
-    const handleCancel = () => {
-        toggle();
-        setNewGeofenceName("");
-    };
-
-    const handleEditGeofence = (event, id) => {
-        const editGeofence = geofences.find(geofence => geofence.layer.id == id);
-        if (editGeofence && !editGeofence.name) {
-            setSelectedFence(editGeofence);
-            setNewGeofenceName("");
-            setNewSelectedBench("");
-        } else {
-            setSelectedFence(editGeofence);
-            setNewGeofenceName(editGeofence.name);
-            setNewSelectedBench(editGeofence.bench);
-        }
-        toggle();
-    }
-    const handleDeleteGeofence = (event, id) => {
-        event.stopPropagation();
-        if (mapRef.current) {
-            const deletedGeofence = geofences.find(geofence => geofence.layer.id == id);
-            if (deletedGeofence) {
-                mapRef.current.removeLayer(deletedGeofence.layer!);
+        // Draw latitude lines within the bounding box
+        for (let lat = minLat; lat <= maxLat; lat += DEGREE_DISTANCE_LAT) {
+            if (lat >= minLat && lat <= maxLat) { // Ensure lat is within the bounding box
+                graticule.features.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [
+                            [minLng, lat],
+                            [maxLng, lat]
+                        ]
+                    },
+                    properties: { value: lat }
+                });
             }
         }
-        dispatch(removeGeoFence(id));
-        geofences = geofences.filter(geofence => geofence.layer.id !== id);
-        setGeofences([...geofences])
-    };
 
-    const createGeofence = (geoFence) => {
-        var geojson = {};
-        if (geoFence.type === 'circle') {
-            geojson = (geoFence.layer as Leaflet.Circle<any>).toGeoJSON();
-            geojson['properties']['radius'] = (geoFence.layer as Leaflet.Circle<any>).getRadius();
-        } else {
-            geojson = (geoFence.layer as Leaflet.Circle<any>).toGeoJSON();
+        // Draw longitude lines within the bounding box
+        for (let lng = minLng; lng <= maxLng; lng += DEGREE_DISTANCE_LNG((minLat + maxLat) / 2)) { // Average latitude for conversion
+            if (lng >= minLng && lng <= maxLng) { // Ensure lng is within the bounding box
+                graticule.features.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [
+                            [lng, minLat],
+                            [lng, maxLat]
+                        ]
+                    },
+                    properties: { value: lng }
+                });
+            }
         }
-        var geoFenceSave = {
-            name: geoFence.name,
-            geoJson: geojson,
-            locationId: geoFence.bench ? geoFence.bench.value : ""
-        };
-        if (geoFence.id) {
-            // geoFenceSave['id'] = geoFence.id;
-            dispatch(updateGeoFence(geoFence.id, geoFenceSave));
-        } else {
-            dispatch(addGeoFence(geoFenceSave));
-        }
-        // console.log('createGeofence', geoFenceSave);
-    }
-    const onChange = (op) => {
-        setNewSelectedBench(op);
+        return graticule;
     }
 
-    const getBenchName = () => {
-        return newSelectedBench;
+    function getBlockColor(blockId: string): string {
+        switch (blockId) {
+            case 'WS01':
+                return "#514937";
+            case 'WS02':
+                return "#645631";
+            case 'WS03':
+                return "#78622B";
+            case 'IG01':
+                return "#C49312";
+            case 'IG02':
+                return "#B18618";
+            case 'IG03':
+                return "#9E7A1E";
+            case 'LG01':
+                return "#8B6E25";
+            case 'HG01':
+                return "#FFB800";
+            case 'HG02':
+                return "#EBAB06";
+            case 'HG03':
+                return "#D89F0C";
+            default:
+                return "#000000"; // Default color if blockId doesn't match any case
+        }
     }
+
+    useEffect(() => {
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaG1lc3VwcG9ydCIsImEiOiJjbHp1eTRibDAwMG05MmpvczE1ZHdham5qIn0.ZoE3pSipzwdf-0TkY3ezzw';
+
+        if (mapRef.current) return; // initialize map only once
+
+        mapRef.current = new mapboxgl.Map({
+            container: mapContainer.current!,
+            style: 'mapbox://styles/mapbox/light-v11',
+            center: [lng, lat],
+            zoom: zoom,
+            pitch: 0,
+            minZoom: 15
+        });
+
+        mapRef.current.addControl(new mapboxgl.NavigationControl());
+
+        const graticule = buildGraticule();
+
+        mapRef.current.on('load', () => {
+
+            const dat = _.groupBy(geojson.features, "properties.block_id")
+            Object.keys(dat).map((block) => {
+                mapRef.current.addSource(block, {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: dat[block]
+                    }
+                });
+
+                mapRef.current.addLayer({
+                    id: block+'fill',
+                    type: 'fill',
+                    source: block,
+                    layout: {},
+                    paint: {
+                        'fill-color': getBlockColor(block),
+                        'fill-opacity': 1
+                    }
+                });
+
+                mapRef.current.addLayer({
+                    id: block+'line',
+                    type: 'line',
+                    source: block,
+                    layout: {},
+                    paint: {
+                        'line-color': '#fff',
+                        'line-width': 2
+                    }
+                });
+            })
+
+            mapRef.current.addSource('graticule', {
+                type: 'geojson',
+                data: graticule
+            });
+
+            mapRef.current.addLayer({
+                id: 'graticule',
+                type: 'line',
+                source: 'graticule',
+                layout: {},
+                paint: {
+                    'line-color': 'gray',
+                    'line-width': 1
+                }
+            });
+
+            mapRef.current.loadImage(
+                'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+                (error, image) => {
+                    if (error) throw error;
+                    mapRef.current.addImage('custom-marker', image);
+
+                    mapRef.current.addSource('points', {
+                        type: 'geojson',
+                        data: {
+                            type: 'FeatureCollection',
+                            features: [
+                                {
+                                    type: 'Feature',
+                                    geometry: {
+                                        type: 'Point',
+                                        coordinates: [-29.160331938574046, 120.44974338024406]
+                                    },
+                                    properties: {
+                                        title: 'Mapbox DC'
+                                    }
+                                },
+                                {
+                                    type: 'Feature',
+                                    geometry: {
+                                        type: 'Point',
+                                        coordinates: [-29.156594353219155, 120.44783936708842]
+                                    },
+                                    properties: {
+                                        title: 'Mapbox SF'
+                                    }
+                                }
+                            ]
+                        }
+                    });
+
+                    mapRef.current.addLayer({
+                        id: 'points',
+                        type: 'symbol',
+                        source: 'points',
+                        layout: {
+                            'icon-image': 'custom-marker',
+                            'text-field': ['get', 'title'],
+                            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                            'text-offset': [0, 1.25],
+                            'text-anchor': 'top'
+                        }
+                    });
+                }
+            );
+
+        });
+
+        return () => mapRef.current.remove();
+    }, []);
 
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
                     <Row>
-                        <Col md="8">
-                            <div id="map" style={{ height: '80vh', width: '100%' }}></div>
-                        </Col>
-                        <Col md="4">
-                            <Card>
-                                <CardBody>
-                                    <Row className="mb-3 d-flex justify-content-between">
-                                        <Col xs="6">
-                                            <h4>Geofences</h4>
-                                        </Col>
-                                        {/* <Col xs="6" className="d-flex justify-content-end">
-                                            <Button color="primary" onClick={handleAddGeofence}>Add</Button>
-                                        </Col> */}
-                                    </Row>
-                                    <ListGroup>
-                                        {geofences.map(geofence => {
-                                            if (geofence.name) {
-                                                return (
-                                                    <ListGroupItem key={geofence.layer.id} onClick={() => zoomToGeofence(geofence.layer.id)} className="d-flex justify-content-between align-items-center" style={{ 'cursor': 'pointer' }}>
-                                                        {geofence.name}
-                                                        <span >
-                                                            <Button color="success" size="sm" onClick={(event) => handleEditGeofence(event, geofence.layer.id)}>Edit</Button>
-                                                            <Button color="danger" size="sm" onClick={(event) => handleDeleteGeofence(event, geofence.layer.id)}>Delete</Button>
-                                                        </span>
-                                                    </ListGroupItem>
-                                                )
-                                            }
-                                        })}
-                                    </ListGroup>
-                                </CardBody>
-                            </Card>
+                        <Col md="12">
+                            <div ref={mapContainer} className="map-container" style={{ height: 800, width: '100%' }} />
                         </Col>
                     </Row>
                 </Container>
             </div>
-
-            <Modal isOpen={modal} toggle={toggle}>
-                <ModalHeader toggle={toggle}>Add Geofence</ModalHeader>
-                <ModalBody>
-                    <Row>
-                        <Col xs={5}>
-                            <Label style={{ fontSize: '15px', verticalAlign: 'center', display: 'flex' }}>{"Fence Name"}</Label>
-                        </Col>
-                        <Col xs={5}>
-                            <Input
-                                type="text"
-                                value={newGeofenceName}
-                                onChange={(e) => setNewGeofenceName(e.target.value)}
-                                placeholder="Enter geofence name"
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={5}>
-                            <Label style={{ fontSize: '15px', verticalAlign: 'center', display: 'flex' }}>{"Bench"}</Label>
-                        </Col>
-                        <Col xs={5}>
-                            <Select
-                                className="basic-single"
-                                classNamePrefix="select"
-                                defaultValue={getBenchName()}
-                                value={getBenchName()}
-                                isDisabled={false}
-                                isLoading={false}
-                                isClearable={true}
-                                isRtl={false}
-                                isSearchable={true}
-                                name="Benches"
-                                options={locations}
-                                onChange={(selectedOption) => onChange(selectedOption)}
-                            />
-                        </Col>
-                    </Row>
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={handleCancel}>Cancel</Button>
-                    <Button color="primary" onClick={handleSaveGeofence}>Save</Button>
-                </ModalFooter>
-            </Modal>
         </React.Fragment>
     );
 }
 
-export default MapGeofence;
+export default Geofences;

@@ -9,7 +9,7 @@ import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import Select from 'react-select';
 import { format } from 'date-fns';
 import type { DatePickerProps, RadioChangeEvent } from 'antd';
-import { DatePicker, Space, Radio, Switch } from 'antd';
+import { DatePicker, Space, Radio, Switch, Segmented } from 'antd';
 import dayjs from "dayjs";
 
 import { pick } from 'lodash';
@@ -109,8 +109,8 @@ const ShiftRoster = (props: any) => {
 
   const onShiftChange = (shiftInfo) => {
     // alert(JSON.stringify(shiftInfo))
-    setShift(shiftInfo.target.value);
-    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo.target.value, date: format(startDate, 'yyyy-MM-dd') });
+    setShift(shiftInfo);
+    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo, date: format(startDate, 'yyyy-MM-dd') });
     setSearchParams(params);
   }
 
@@ -227,7 +227,14 @@ const ShiftRoster = (props: any) => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb breadcrumbItem="Shift Roster" title="Operations" />
-
+          <Row className='mb-3'>
+            <Col className='d-flex flex-row-reverse'>
+              <Space>
+                <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
+                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]}/>
+              </Space>
+            </Col>
+          </Row>
           <Row>
             <Col lg="12">
               <Form
@@ -236,57 +243,6 @@ const ShiftRoster = (props: any) => {
                   return false;
                 }}
               >
-
-                <Row>
-                  <Col className='d-flex flex-row-reverse'>
-                    <Space>
-                      <DatePicker style={{ fontSize: '18px' }} size='large' allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-
-                      <Radio.Group
-                        options={shifts}
-                        size='large'
-                        onChange={onShiftChange}
-                        value={shift}
-                        optionType="button"
-                        buttonStyle="solid"
-                      />
-                    </Space>
-                  </Col>
-                  {/* <Col xs={2}>
-                    <Select
-                      className="basic-single"
-                      classNamePrefix="Crew"
-                      defaultValue={crews[0]}
-                      isDisabled={false}
-                      isLoading={false}
-                      isClearable={false}
-                      isRtl={false}
-                      isSearchable={true}
-                      name="Crew"
-                      options={crews}
-                    />
-                  </Col> */}
-
-
-
-                  {/* <Select
-                      className="basic-single"
-                      classNamePrefix="Shifts"
-                      defaultValue={shifts[0]}
-                      value={shifts.filter(shiftInfo => shiftInfo.value === shift)}
-                      isDisabled={false}
-                      isLoading={false}
-                      isClearable={false}
-                      isRtl={false}
-                      isSearchable={true}
-                      name="Shifts"
-                      options={shifts}
-                      onChange={onShiftChange}
-                    /> */}
-                </Row>
-
-                <Label>  </Label>
-
                 <Row>
                   <Col id={"excavators"} xs={6}>
                     <Card>

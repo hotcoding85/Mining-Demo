@@ -1,4 +1,5 @@
 import React from "react";
+import 'mapbox-gl/dist/mapbox-gl.css';
 import "./App.css";
 import { authProtectedRoutes, publicRoutes } from "./Routes/allRoutes";
 import { Route, Routes } from "react-router-dom";

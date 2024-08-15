@@ -43,12 +43,28 @@ body[data-layout-mode="dark"] {
       color: #232323;
     }
   }
+
+  /* .leaflet-layer,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out,
+  .leaflet-control-attribution {
+    filter: invert(10%) hue-rotate(180deg) brightness(95%) contrast(90%);
+  } */
+
 }
 
 body[data-layout-mode="light"] {
   .customSegmentBackground {
     background-color: #c3c3c3;
   }
+
+  /* .leaflet-layer,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out,
+  .leaflet-control-attribution {
+    filter: invert(80%) hue-rotate(180deg) brightness(95%) contrast(50%);
+  } */
+
 }
 
 .customSegmentLabel {

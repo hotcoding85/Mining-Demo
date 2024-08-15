@@ -7,11 +7,12 @@ import { getAllFleet, addVehicle, updateVehicle, removeVehicle, } from "slices/t
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
-import { StatusOptions, VehicleCategories, VehicleMakes, VehicleModels } from "common/options";
+import { StateOptions, StatusOptions, VehicleCategories, VehicleMakes, VehicleModels } from "common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
+import { Tag } from "antd";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -57,11 +58,12 @@ const Fleet = (props: any) => {
     return {
       id: (doc && doc.id) || "",
       name: (doc && doc.name) || "",
-      serial: (doc && doc.serial) || "",
-      make: (doc && doc.make) || "",
-      model: (doc && doc.model) || "",
-      category: (doc && doc.category) || "",
-      capacity: (doc && doc.capacity) || "",
+      serial: (doc && doc.serial) || undefined,
+      make: (doc && doc.make) || undefined,
+      model: (doc && doc.model) || undefined,
+      category: (doc && doc.category) || undefined,
+      capacity: (doc && doc.capacity) || undefined,
+      state: (doc && doc.state) || "STANDBY",
       status: (doc && doc.status) || "ACTIVE"
     }
   }
@@ -146,6 +148,14 @@ const Fleet = (props: any) => {
       inputType: 'text'
     },
     {
+      id: 'state',
+      name: 'state',
+      label: 'State',
+      type: 'select',
+      editable: true,
+      options: StateOptions
+    },
+    {
       id: 'b_status',
       name: 'status',
       label: 'Status',
@@ -179,8 +189,39 @@ const Fleet = (props: any) => {
     model: Yup.string(),
     category: Yup.string().required("Please select the category"),
     capacity: Yup.number(),
+    state: Yup.string(),
     status: Yup.string(),
   });
+
+  const getStateColor = (state) => {
+    switch (state) {
+      case "ACTIVE":
+        return "#009D10";
+      case "STANDBY":
+        return "#F7B31A";
+      case "DELAY":
+        return "#9143DE";
+      case "DOWN":
+        return "#ED3A0F";
+      default:
+        return "#F7B31A";
+    }
+  }
+
+  const getVehicleCategoryColor = (category) => {
+    switch (category) {
+      case "DUMP_TRUCK":
+        return "orange";
+      case "EXCAVATOR":
+        return "green";
+      case "LOADER":
+        return "cyan";
+      case "DRILLER":
+        return "blue";
+      default:
+        return "gold";
+    }
+  }
 
   const columns: TableColumn[] = useMemo(
     () => [
@@ -214,10 +255,9 @@ const Fleet = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
+          const category = cellProps.row.original.category
           return (
-            <div className="badge badge-soft-primary font-size-11 m-1">
-              {cellProps.row.original.category}
-            </div>
+            <Tag color={getVehicleCategoryColor(category)}>{category}</Tag>
           );
         },
       },
@@ -226,6 +266,18 @@ const Fleet = (props: any) => {
         accessorKey: "capacity",
         enableColumnFilter: false,
         enableSorting: true,
+      },
+      {
+        header: "State",
+        accessorKey: "state",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cellProps: any) => {
+          const state = cellProps.row.original.state
+          return (
+            <Tag color={getStateColor(state)}>{state}</Tag>
+          );
+        },
       },
       {
         header: "Actions",

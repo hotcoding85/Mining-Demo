@@ -10,6 +10,13 @@ export const StatusOptions = [
   { key: 3, value: "ARCHIVE", label: "Archive" },
 ];
 
+export const StateOptions = [
+  { key: 1, value: "ACTIVE", label: "ACTIVE" },
+  { key: 2, value: "STANDBY", label: "STANDBY" },
+  { key: 3, value: "DELAY", label: "DELAY" },
+  { key: 4, value: "DOWN", label: "DOWN" },
+];
+
 export const VehicleMakes = [
   { key: 1, value: "KOMATSU", label: "KOMATSU" },
   { key: 2, value: "CATERPILLAR", label: "CATERPILLAR" },

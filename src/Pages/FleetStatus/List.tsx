@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardBody, Col, Row } from 'reactstrap';
-import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
+import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images/equipment';
 import { round } from 'lodash';
 import './index.scss';
 import { Badge } from 'antd';
@@ -28,7 +28,23 @@ const stateConfig = [
     }
 ]
 
+
 const List = ({ data = [] }: any) => {
+
+    const getStateColor = (state) => {
+        switch (state) {
+            case "ACTIVE":
+                return "#009D10";
+            case "STANDBY":
+                return "#F7B31A";
+            case "DELAY":
+                return "#9143DE";
+            case "DOWN":
+                return "#ED3A0F";
+            default:
+                return "#F7B31A";
+        }
+    }
 
     console.log(data);
     const activeBtn = (ele: any) => {
@@ -44,6 +60,9 @@ const List = ({ data = [] }: any) => {
     }
 
     const getImage = (category: string) => {
+        if (!category) {
+            return placeHolder;
+        }
 
         if (containsCaseInsensitive(category, "hd785")) {
             return hd785;
@@ -55,6 +74,8 @@ const List = ({ data = [] }: any) => {
             return pc2000;
         } else if (containsCaseInsensitive(category, "wa600")) {
             return wa600;
+        } else {
+            return placeHolder;
         }
     }
 
@@ -72,7 +93,7 @@ const List = ({ data = [] }: any) => {
             <Row className="row d-flex">
                 {data.map((item: any, key: number) => (
                     <Col className="col-lg-2 col-md-6" key={key}>
-                        <Badge.Ribbon text="DOWN" color='#ED3A0F'>
+                        <Badge.Ribbon text={item.state ? item.state : "STANDBY"} color={getStateColor(item.state)}>
                             <Card>
                                 <CardBody>
                                     <div className="d-flex align-start mb-3">
@@ -88,28 +109,35 @@ const List = ({ data = [] }: any) => {
                                     <div className="text-center mb-3">
                                         <img src={getImage(item.model)} alt="" style={imageStyle} />
                                     </div>
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col-sm-6 d-flex justify-content-center">
-                                                <span className='itemActual'>{item?.data?.tripCount || 0}</span>
-                                                <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? 175 : 35}</span>
-                                            </div>
-                                            <div className="col-sm-6 d-flex justify-content-center">
-                                                <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
-                                                <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? '15,000' : 35 * item.capacity}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col-sm-6 d-flex justify-content-center">
-                                                <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>
-                                            </div>
-                                            <div className="col-sm-6 d-flex justify-content-center" style={{ paddingLeft: 0 }}>
-                                                <span style={{ fontSize: '8px' }}>Total Tonnes Moved</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {
+                                        ['DUMP_TRUCK', 'EXCAVATOR'].includes(item.category) && (
+                                            <>
+                                                <div className="container">
+                                                    <div className="row">
+                                                        <div className="col-sm-6 d-flex justify-content-center">
+                                                            <span className='itemActual'>{item?.data?.tripCount || 0}</span>
+                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? 175 : 35}</span>
+                                                        </div>
+                                                        <div className="col-sm-6 d-flex justify-content-center">
+                                                            <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
+                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? '15,000' : 35 * item.capacity}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="container">
+                                                    <div className="row">
+                                                        <div className="col-sm-6 d-flex justify-content-center">
+                                                            <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>
+                                                        </div>
+                                                        <div className="col-sm-6 d-flex justify-content-center" style={{ paddingLeft: 0 }}>
+                                                            <span style={{ fontSize: '8px' }}>Total Tonnes Moved</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )
+                                    }
+
                                     <div className="d-flex justify-content-between mt-2 gap-2 text-muted">
                                         {stateConfig.map((config) => {
                                             return (

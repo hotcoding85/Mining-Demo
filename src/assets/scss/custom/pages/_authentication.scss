@@ -12,25 +12,26 @@
 
 // auth 2
 
-.auth-logo{
-    .auth-logo-dark{
+.auth-logo {
+    .auth-logo-dark {
         display: $display-block;
     }
-    .auth-logo-light{
+
+    .auth-logo-light {
         display: $display-none;
     }
 }
 
-.auth-body-bg{
+.auth-body-bg {
     background-color: $card-bg;
 }
 
 
 // auth-pass-inputgroup
 
-.auth-pass-inputgroup{
-    input[type="input"] + .btn .mdi-eye-outline{
-        &:before{
+.auth-pass-inputgroup {
+    input[type="input"]+.btn .mdi-eye-outline {
+        &:before {
             content: "\F06D1";
         }
     }
@@ -38,16 +39,18 @@
 
 // authentication full page
 
-.auth-full-bg{
-    background-color: rgba($primary, 0.25);
+.auth-full-bg {
+
+    background: url("../../../images/bg-overlay.png");
+    background-size: cover;
+    background-repeat: no-repeat;
     display: flex;
 
-    @media (min-width: 1200px){
+    @media (min-width: 1200px) {
         height: 100vh;
     }
-    
 
-    &::before{
+    &::before {
         content: "";
         position: absolute;
         width: 300px;
@@ -55,31 +58,27 @@
         border-radius: 50%;
     }
 
-    .bg-overlay{
-        background: url("../../../images/background.jpg");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: left;
-    }
 }
 
-.auth-full-page-content{
+.auth-full-page-content {
     display: flex;
 
-    @media (min-width: 1200px){
+    @media (min-width: 1200px) {
         min-height: 100vh;
     }
 }
 
-.auth-review-carousel{
+.auth-review-carousel {
     &.owl-theme {
         .owl-dots {
-            .owl-dot{
-                span{
+            .owl-dot {
+                span {
                     background-color: rgba($primary, 0.25);
                 }
-                &.active, &:hover{
-                    span{
+
+                &.active,
+                &:hover {
+                    span {
                         background-color: $primary;
                     }
                 }
