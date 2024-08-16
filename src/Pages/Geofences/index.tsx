@@ -48,7 +48,7 @@ const Geofences = ({ socket }) => {
                             [maxLng, lat]
                         ]
                     },
-                    properties: { value: lat }
+                    properties: { value: lat + '' + lng }
                 });
             }
         }
@@ -65,7 +65,7 @@ const Geofences = ({ socket }) => {
                             [lng, maxLat]
                         ]
                     },
-                    properties: { value: lng }
+                    properties: { value: lat + '' + lng }
                 });
             }
         }
@@ -99,6 +99,20 @@ const Geofences = ({ socket }) => {
         }
     }
 
+    function addActiveMarker(lngLat) {
+        const el = document.createElement('div');
+        el.className = 'activemarker';
+
+        new mapboxgl.Marker(el).setLngLat(lngLat).addTo(mapRef.current);
+    }
+
+    function addDelayMarker(lngLat) {
+        const el = document.createElement('div');
+        el.className = 'delaymarker';
+
+        new mapboxgl.Marker(el).setLngLat(lngLat).addTo(mapRef.current);
+    }
+
     useEffect(() => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaG1lc3VwcG9ydCIsImEiOiJjbHp1eTRibDAwMG05MmpvczE1ZHdham5qIn0.ZoE3pSipzwdf-0TkY3ezzw';
 
@@ -106,16 +120,36 @@ const Geofences = ({ socket }) => {
 
         mapRef.current = new mapboxgl.Map({
             container: mapContainer.current!,
-            style: 'mapbox://styles/mapbox/light-v11',
+            style: 'mapbox://styles/mapbox/dark-v11',
             center: [lng, lat],
             zoom: zoom,
-            pitch: 0,
+            pitch: 90,
             minZoom: 15
         });
 
+        addActiveMarker([
+            120.44463458272295,
+            -29.146790943732764
+        ])
+
+        addDelayMarker([
+            120.44506272943079,
+          -29.147310837480894
+        ])
+
+        addActiveMarker([
+            120.44516509787695,
+            -29.147993875066938
+          ])
+        
+
+        mapRef.current.addControl(new mapboxgl.ScaleControl());
         mapRef.current.addControl(new mapboxgl.NavigationControl());
 
+
+
         const graticule = buildGraticule();
+        let hoveredPolygonId = null;
 
         mapRef.current.on('load', () => {
 
@@ -130,18 +164,23 @@ const Geofences = ({ socket }) => {
                 });
 
                 mapRef.current.addLayer({
-                    id: block+'fill',
+                    id: block + 'fill',
                     type: 'fill',
                     source: block,
                     layout: {},
                     paint: {
                         'fill-color': getBlockColor(block),
-                        'fill-opacity': 1
+                        'fill-opacity': [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            1,
+                            .5
+                        ]
                     }
                 });
 
                 mapRef.current.addLayer({
-                    id: block+'line',
+                    id: block + 'line',
                     type: 'line',
                     source: block,
                     layout: {},
@@ -149,6 +188,35 @@ const Geofences = ({ socket }) => {
                         'line-color': '#fff',
                         'line-width': 2
                     }
+                });
+
+                mapRef.current.on('mouseenter', block + 'fill', (e) => {
+                    mapRef.current.getCanvas().style.cursor = 'pointer';
+                    console.log(e.features)
+                    if (e.features.length > 0) {
+                        if (hoveredPolygonId !== null) {
+                            mapRef.current.setFeatureState(
+                                { source: block, id: hoveredPolygonId },
+                                { hover: false }
+                            );
+                        }
+                        hoveredPolygonId = e.features[0].source;
+                        mapRef.current.setFeatureState(
+                            { source: block, id: hoveredPolygonId },
+                            { hover: true }
+                        );
+                    }
+                });
+
+                mapRef.current.on('mouseleave', block + 'fill', () => {
+                    mapRef.current.getCanvas().style.cursor = '';
+                    if (hoveredPolygonId !== null) {
+                        mapRef.current.setFeatureState(
+                            { source: block, id: hoveredPolygonId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredPolygonId = null;
                 });
             })
 
@@ -217,6 +285,8 @@ const Geofences = ({ socket }) => {
                     });
                 }
             );
+
+
 
         });
 

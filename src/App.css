@@ -67,6 +67,22 @@ body[data-layout-mode="light"] {
 
 }
 
+.activemarker {
+  background-image: url('./assets/images/equipment/check_active.png');
+  background-size: cover;
+  width: 86px;
+  height: 60px;
+  cursor: pointer;
+}
+
+.delaymarker {
+  background-image: url('./assets/images/equipment/check_delay.png');
+  background-size: cover;
+  width: 86px;
+  height: 60px;
+  cursor: pointer;
+}
+
 .customSegmentLabel {
   label {
     margin-bottom: 0;
