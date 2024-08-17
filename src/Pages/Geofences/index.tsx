@@ -120,12 +120,13 @@ const Geofences = ({ socket }) => {
 
         mapRef.current = new mapboxgl.Map({
             container: mapContainer.current!,
-            style: 'mapbox://styles/mapbox/dark-v11',
+            style: 'mapbox://styles/mapbox/satellite-v9',
             center: [lng, lat],
             zoom: zoom,
             pitch: 90,
             minZoom: 15
         });
+
 
         addActiveMarker([
             120.44463458272295,
@@ -134,14 +135,14 @@ const Geofences = ({ socket }) => {
 
         addDelayMarker([
             120.44506272943079,
-          -29.147310837480894
+            -29.147310837480894
         ])
 
         addActiveMarker([
             120.44516509787695,
             -29.147993875066938
-          ])
-        
+        ])
+
 
         mapRef.current.addControl(new mapboxgl.ScaleControl());
         mapRef.current.addControl(new mapboxgl.NavigationControl());
@@ -152,6 +153,14 @@ const Geofences = ({ socket }) => {
         let hoveredPolygonId = null;
 
         mapRef.current.on('load', () => {
+
+
+            mapRef.current.addSource('mapbox-dem', {
+                'type': 'raster-dem',
+                'url': 'mapbox://mapbox.terrain-rgb',
+                'tileSize': 512,
+            });
+            mapRef.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 3 });
 
             const dat = _.groupBy(geojson.features, "properties.block_id")
             Object.keys(dat).map((block) => {

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
     "@nivo/sankey": "^0.87.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@tanstack/match-sorter-utils": "^8.8.4",

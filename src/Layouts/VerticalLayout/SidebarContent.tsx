@@ -150,7 +150,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/fleet-status">{props.t("Fleet Status")}</Link>
                 </li>
                 <li>
-                  <Link to="/map">{props.t("Map")}</Link>
+                  <Link to="/map">{props.t("Real-time Positioning")}</Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Manager KPI's")}</Link>
@@ -177,6 +177,9 @@ const SidebarContent = (props: any) => {
                   <Link to="/daily-production">{props.t("Daily Production")}</Link>
                 </li>
                 <li>
+                  <Link to="/">{props.t("Production Summary")}</Link>
+                </li>
+                <li>
                   <Link to="/digging-performance">{props.t("Digging Performance")}</Link>
                 </li>
                 <li>
@@ -201,10 +204,13 @@ const SidebarContent = (props: any) => {
                   <Link to="/shiftrosters">{props.t("Shift Roster")}</Link>
                 </li>
                 <li>
-                  <Link to="/fleet-timeline">{props.t("Time Utilization Model")}</Link>
+                  <Link to="/fleet-timeline">{props.t("Fleet Timeline")}</Link>
                 </li>
                 <li>
-                  <Link to="/route-replay">{props.t("Route Replay")}</Link>
+                  <Link to="/route-replay">{props.t("GPS Replay")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Production Targets")}</Link>
                 </li>
               </ul>
             </li>
@@ -219,7 +225,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/benches">{props.t("Benches")}</Link>
                 </li>
                 <li>
-                  <Link to="/benches">{props.t("Dig Blocks")}</Link>
+                  <Link to="/benches">{props.t("Dig Block Layout")}</Link>
                 </li>
                 <li>
                   <Link to="/materials">{props.t("Materials")}</Link>
@@ -237,7 +243,7 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="/" >
+              <Link to="/" className="has-arrow">
                 <i className="bx bx-checkbox-square"></i>
                 <span>{props.t("Dynamic Dispatch")}</span>
               </Link>
@@ -251,17 +257,20 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/">{props.t("Auto Routing")}</Link>
                 </li>
+                <li>
+                  <Link to="/">{props.t("Haul Road Intelligence")}</Link>
+                </li>
               </ul>
             </li>
 
             <li>
               <Link to="/" >
                 <i className="bx bx-checkbox-square"></i>
-                <span>{props.t("Telemetry ")}</span>
+                <span>{props.t("Telemetry Live")}</span>
               </Link>
             </li>
             <li>
-              <Link to="/" >
+              <Link to="/" className="has-arrow">
                 <i className="bx bx-cog"></i>
                 <span>{props.t("Fleet Maintenance")}</span>
               </Link>
@@ -275,6 +284,12 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/maintenance">{props.t("Fuel Status")}</Link>
                 </li>
+                <li>
+                  <Link to="/">{props.t("Oil Analysis")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Pre Starts")}</Link>
+                </li>
               </ul>
             </li>
 
@@ -286,7 +301,7 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="/reports">
+              <Link to="/reports" className="has-arrow">
                 <i className="bx bx-bar-chart-square"></i>
                 <span>{props.t("Reports")}</span>
               </Link>

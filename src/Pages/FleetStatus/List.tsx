@@ -130,7 +130,7 @@ const List = ({ data = [] }: any) => {
                                                             <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>
                                                         </div>
                                                         <div className="col-sm-6 d-flex justify-content-center" style={{ paddingLeft: 0 }}>
-                                                            <span style={{ fontSize: '8px' }}>Total Tonnes Moved</span>
+                                                            <span style={{ fontSize: '8px' }}>Total Tonnes</span>
                                                         </div>
                                                     </div>
                                                 </div>
