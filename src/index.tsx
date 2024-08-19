@@ -13,7 +13,6 @@ const root = ReactDOM.createRoot(
 );
 
 root.render(
-
   <Provider store={Store}>
     <React.Fragment>
       <BrowserRouter basename={process.env.PUBLIC_URL}>

@@ -10,19 +10,20 @@ import _ from 'lodash';
 import dayjs from "dayjs";
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
 import { Radio, Segmented } from 'antd';
+import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 
 interface EquipmentLocation {
     id: string;
     name: string;
     color: string;
     status: string;
-    position: Leaflet.LatLngExpression;
+    position: LngLatLike;
     vehicleType: string;
 }
 
 interface MarkerData {
     id: string;
-    marker: ExtendedMarker;
+    marker: Marker;
 }
 
 interface Geofence {
@@ -38,7 +39,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.160331938574046, 120.44974338024406]
+        position: [120.44974338024406, -29.160331938574046]
     },
     {
         id: "DT102",
@@ -46,7 +47,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.15837078907635, 120.44899479387436]
+        position: [120.44899479387436, -29.15837078907635]
     },
     {
         id: "DT103",
@@ -54,7 +55,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.156594353219155, 120.44783936708842]
+        position: [120.44783936708842, -29.156594353219155]
     },
     {
         id: "DT104",
@@ -62,7 +63,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.1576602184213, 120.44871814239025]
+        position: [120.44871814239025, -29.1576602184213]
     },
     {
         id: "DT105",
@@ -70,7 +71,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.156594353219155, 120.44783936708842]
+        position: [120.44783936708842, -29.156594353219155]
     },
     {
         id: "DT106",
@@ -78,7 +79,7 @@ const equipments: EquipmentLocation[] = [
         status: "STANDBY",
         color: "#F08B00",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.1540788674843, 120.44678158200134]
+        position: [120.44678158200134, -29.1540788674843]
     },
     {
         id: "DT121",
@@ -86,7 +87,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.15389411186601, 120.44697686540144]
+        position: [120.44697686540144, -29.15389411186601]
     },
     {
         id: "DT122",
@@ -94,7 +95,7 @@ const equipments: EquipmentLocation[] = [
         status: "ACTIVE",
         color: "#009D10",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.155798499987924, 120.44743252666956]
+        position: [120.44743252666956, -29.155798499987924]
     },
     {
         id: "DT123",
@@ -102,7 +103,7 @@ const equipments: EquipmentLocation[] = [
         status: "DELAY",
         color: "#BC00FF",
         vehicleType: "DUMP_TRUCK",
-        position: [-29.155798499987924, 120.44743252666956]
+        position: [120.44743252666956, -29.155798499987924]
     },
     {
         id: "EX201",
@@ -111,8 +112,8 @@ const equipments: EquipmentLocation[] = [
         color: "#009D10",
         vehicleType: "EXCAVATOR",
         position: [
-            -29.15837078907635,
-            120.44899479387436
+            120.44463458272295,
+            -29.146790943732764
         ]
     },
     {
@@ -122,8 +123,8 @@ const equipments: EquipmentLocation[] = [
         color: "#009D10",
         vehicleType: "EXCAVATOR",
         position: [
-            -29.159081354815896,
-            120.44951554960937
+            120.44506272943079,
+            -29.147310837480894
         ]
     },
     {
@@ -133,9 +134,8 @@ const equipments: EquipmentLocation[] = [
         color: "#BC00FF",
         vehicleType: "EXCAVATOR",
         position: [
-            -29.15456207291446,
-            120.44756271560425
-
+            120.44516509787695,
+            -29.147993875066938
         ]
     }
 ]
@@ -178,7 +178,7 @@ const Map = ({ socket }) => {
 
     socket.on("TRACKER_LOCATION", data => {
         console.log(data);
-        updateMarkerPosition(data.id, data.position);
+        // updateMarkerPosition(data.id, data.position);
     });
 
     const { geofenceFromDB } = useSelector(geoFenceProperties);
@@ -189,7 +189,13 @@ const Map = ({ socket }) => {
     const [markers, setMarkers] = useState<MarkerData[]>([]);
     var [geofences, setGeofences] = useState<any[]>([]);
 
-    const mapRef = useRef<Leaflet.Map | null>(null);
+    const mapContainer = useRef(null);
+    const mapRef = useRef<any>(null);
+    const [lng, setLng] = useState(120.44871814239025);
+    const [lat, setLat] = useState(-29.1576602184213);
+    const [zoom, setZoom] = useState(18);
+
+    // const mapRef = useRef<Leaflet.Map | null>(null);
     const drawItems = new Leaflet.FeatureGroup();
     const origin: Leaflet.LatLngExpression = [-29.160331938574046, 120.44974338024406];
 
@@ -233,10 +239,12 @@ const Map = ({ socket }) => {
               <img src="${getEquipmentStatusIcon(eq)}" alt="Description of the image">
             </div>`
 
-        const icon = Leaflet.divIcon({
-            className: 'marker',
-            html: isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate,
-        });
+        const icon = document.createElement('div');
+        icon.innerHTML = standardIconTemplate//isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate
+        // const icon = Leaflet.divIcon({
+        //     className: 'marker',
+        //     html: isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate,
+        // });
         return icon
     }
 
@@ -268,35 +276,51 @@ const Map = ({ socket }) => {
     }
 
     // Function to update marker position
-    const updateMarkerPosition = (markerId: string, newPosition: Leaflet.LatLngExpression, duration: number = 1000) => {
-        setMarkers(prevMarkers =>
-            prevMarkers.map(markerData => {
-                if (markerData.id === markerId) {
-                    markerData.marker.slideTo(newPosition, { duration });
-                }
-                return markerData;
-            })
-        );
-    };
+    // const updateMarkerPosition = (markerId: string, newPosition: Leaflet.LatLngExpression, duration: number = 1000) => {
+    //     setMarkers(prevMarkers =>
+    //         prevMarkers.map(markerData => {
+    //             if (markerData.id === markerId) {
+    //                 markerData.marker.slideTo(newPosition, { duration });
+    //             }
+    //             return markerData;
+    //         })
+    //     );
+    // };
 
     useEffect(() => {
-        if (!mapRef.current) {
-            mapRef.current = Leaflet.map('map', {
-                center: origin,
-                zoom: 18,
-                attributionControl: true,
-                zoomControl: false,
-            });
 
-            Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
-            mapRef.current.addLayer(drawItems);
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaG1lc3VwcG9ydCIsImEiOiJjbHp1eTRibDAwMG05MmpvczE1ZHdham5qIn0.ZoE3pSipzwdf-0TkY3ezzw';
 
-            Leaflet.control.zoom({
-                position: 'bottomright'
-            }).addTo(mapRef.current);
+        if (mapRef.current) return; // initialize map only once
 
-            addMarkers();
-        }
+        mapRef.current = new mapboxgl.Map({
+            container: mapContainer.current!,
+            style: 'mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m',
+            center: [lng, lat],
+            zoom: zoom,
+            pitch: 75,
+            minZoom: 15
+        });
+
+        addMarkers();
+
+        // if (!mapRef.current) {
+        //     mapRef.current = Leaflet.map('map', {
+        //         center: origin,
+        //         zoom: 18,
+        //         attributionControl: true,
+        //         zoomControl: false,
+        //     });
+
+        //     Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
+        //     mapRef.current.addLayer(drawItems);
+
+        //     Leaflet.control.zoom({
+        //         position: 'bottomright'
+        //     }).addTo(mapRef.current);
+
+        //     addMarkers();
+        // }
     }, []);
 
     const shifts: any = [
@@ -348,7 +372,8 @@ const Map = ({ socket }) => {
 
     const clearMarkers = () => {
         markers.map(item => {
-            mapRef.current?.removeLayer(item.marker)
+            // mapRef.current?.removeLayer(item.marker)
+            item.marker.remove()
         })
         setMarkers([]);
     }
@@ -363,7 +388,11 @@ const Map = ({ socket }) => {
             filteredEquipment = equipments.filter(item => item.vehicleType == filter)
         }
         filteredEquipment.map(eq => {
-            const marker = new ExtendedMarker(eq.position as Leaflet.LatLngExpression, { icon: rippleIcon(eq) }).addTo(mapRef.current!)
+            // const marker = new ExtendedMarker(eq.position as Leaflet.LatLngExpression, { icon: rippleIcon(eq) }).addTo(mapRef.current!)
+            // const el = document.createElement('div');
+            // el.className = 'activemarker';
+            const el = rippleIcon(eq)
+            const marker = new mapboxgl.Marker(el).setLngLat(eq.position).addTo(mapRef.current);
             markersData.push({ id: eq['name'], marker: marker })
         })
         // markersLayer.
@@ -459,7 +488,7 @@ const Map = ({ socket }) => {
                             <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} />
                         </Col>
                         <Col md="12">
-                            <div id="map" style={{ height: '80vh', width: '100%' }}></div>
+                            <div id="map" ref={mapContainer} className="map-container" style={{ height: '80vh', width: '100%' }}></div>
                         </Col>
                     </Row>
                 </Container>

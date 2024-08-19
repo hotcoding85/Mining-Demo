@@ -120,10 +120,10 @@ const Geofences = ({ socket }) => {
 
         mapRef.current = new mapboxgl.Map({
             container: mapContainer.current!,
-            style: 'mapbox://styles/mapbox/satellite-v9',
+            style: 'mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m',
             center: [lng, lat],
             zoom: zoom,
-            pitch: 90,
+            pitch: 75,
             minZoom: 15
         });
 
@@ -147,6 +147,19 @@ const Geofences = ({ socket }) => {
         mapRef.current.addControl(new mapboxgl.ScaleControl());
         mapRef.current.addControl(new mapboxgl.NavigationControl());
 
+        // mapRef.current.on('load', () => {
+        //     mapRef.current.addSource('mapbox-terrain', {
+        //         type: 'vector',
+        //         url: 'mapbox://hmesupport.a746i9ur'
+        //     });
+        //     mapRef.current.addLayer(
+        //         {
+        //             source: 'mapbox-terrain',
+        //             'source-layer': '240801-a2ik8t',
+        //         },
+        //         'terrain-data-simple'
+        //     );
+        // });
 
 
         const graticule = buildGraticule();
@@ -154,148 +167,104 @@ const Geofences = ({ socket }) => {
 
         mapRef.current.on('load', () => {
 
+            // mapRef.current.addSource('tileset_data', {
+            //     url: 'mapbox://hmesupport.cbb8vfk7',
+            //     type: 'raster-dem',
+            // });
+            // mapRef.current.addLayer(
+            //     {
+            //         'id': 'tileset',
+            //         'type': 'raster-dem',
+            //         'source': 'tileset_data',
+            //         'source-layer': '240801-a2ik8t',
+            //     }
+            // );
 
-            mapRef.current.addSource('mapbox-dem', {
-                'type': 'raster-dem',
-                'url': 'mapbox://mapbox.terrain-rgb',
-                'tileSize': 512,
-            });
-            mapRef.current.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 3 });
+            // mapRef.current.addSource('mapbox-dem', {
+            //     'type': 'raster-dem',
+            //     'url': 'mapbox://hmesupport.cbb8vfk7',
+            //     'tileSize': 512,
+            // });
+            // mapRef.current.setTerrain({ 'exaggeration': 3 });
 
-            const dat = _.groupBy(geojson.features, "properties.block_id")
-            Object.keys(dat).map((block) => {
-                mapRef.current.addSource(block, {
-                    type: 'geojson',
-                    data: {
-                        type: 'FeatureCollection',
-                        features: dat[block]
-                    }
-                });
+            // const dat = _.groupBy(geojson.features, "properties.block_id")
+            // Object.keys(dat).map((block) => {
+            //     mapRef.current.addSource(block, {
+            //         type: 'geojson',
+            //         data: {
+            //             type: 'FeatureCollection',
+            //             features: dat[block]
+            //         }
+            //     });
 
-                mapRef.current.addLayer({
-                    id: block + 'fill',
-                    type: 'fill',
-                    source: block,
-                    layout: {},
-                    paint: {
-                        'fill-color': getBlockColor(block),
-                        'fill-opacity': [
-                            'case',
-                            ['boolean', ['feature-state', 'hover'], false],
-                            1,
-                            .5
-                        ]
-                    }
-                });
+            //     mapRef.current.addLayer({
+            //         id: block + 'fill',
+            //         type: 'fill',
+            //         source: block,
+            //         layout: {},
+            //         paint: {
+            //             'fill-color': getBlockColor(block),
+            //         }
+            //     });
 
-                mapRef.current.addLayer({
-                    id: block + 'line',
-                    type: 'line',
-                    source: block,
-                    layout: {},
-                    paint: {
-                        'line-color': '#fff',
-                        'line-width': 2
-                    }
-                });
+            //     mapRef.current.addLayer({
+            //         id: block + 'line',
+            //         type: 'line',
+            //         source: block,
+            //         layout: {},
+            //         paint: {
+            //             'line-color': '#fff',
+            //             'line-width': 1
+            //         }
+            //     });
 
-                mapRef.current.on('mouseenter', block + 'fill', (e) => {
-                    mapRef.current.getCanvas().style.cursor = 'pointer';
-                    console.log(e.features)
-                    if (e.features.length > 0) {
-                        if (hoveredPolygonId !== null) {
-                            mapRef.current.setFeatureState(
-                                { source: block, id: hoveredPolygonId },
-                                { hover: false }
-                            );
-                        }
-                        hoveredPolygonId = e.features[0].source;
-                        mapRef.current.setFeatureState(
-                            { source: block, id: hoveredPolygonId },
-                            { hover: true }
-                        );
-                    }
-                });
 
-                mapRef.current.on('mouseleave', block + 'fill', () => {
-                    mapRef.current.getCanvas().style.cursor = '';
+            // })
+
+            mapRef.current.on('mouseenter', 'HG01fill', (e) => {
+                mapRef.current.getCanvas().style.cursor = 'pointer';
+                console.log(e.features)
+                if (e.features.length > 0) {
                     if (hoveredPolygonId !== null) {
                         mapRef.current.setFeatureState(
-                            { source: block, id: hoveredPolygonId },
+                            { source: 'HG01', id: hoveredPolygonId },
                             { hover: false }
                         );
                     }
-                    hoveredPolygonId = null;
-                });
-            })
+                    hoveredPolygonId = e.features[0].source;
+                    mapRef.current.setFeatureState(
+                        { source: 'HG01', id: hoveredPolygonId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            mapRef.current.on('mouseleave', 'HG01fill', () => {
+                mapRef.current.getCanvas().style.cursor = '';
+                if (hoveredPolygonId !== null) {
+                    mapRef.current.setFeatureState(
+                        { source: 'HG01', id: hoveredPolygonId },
+                        { hover: false }
+                    );
+                }
+                hoveredPolygonId = null;
+            });
 
             mapRef.current.addSource('graticule', {
                 type: 'geojson',
                 data: graticule
             });
 
-            mapRef.current.addLayer({
-                id: 'graticule',
-                type: 'line',
-                source: 'graticule',
-                layout: {},
-                paint: {
-                    'line-color': 'gray',
-                    'line-width': 1
-                }
-            });
-
-            mapRef.current.loadImage(
-                'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
-                (error, image) => {
-                    if (error) throw error;
-                    mapRef.current.addImage('custom-marker', image);
-
-                    mapRef.current.addSource('points', {
-                        type: 'geojson',
-                        data: {
-                            type: 'FeatureCollection',
-                            features: [
-                                {
-                                    type: 'Feature',
-                                    geometry: {
-                                        type: 'Point',
-                                        coordinates: [-29.160331938574046, 120.44974338024406]
-                                    },
-                                    properties: {
-                                        title: 'Mapbox DC'
-                                    }
-                                },
-                                {
-                                    type: 'Feature',
-                                    geometry: {
-                                        type: 'Point',
-                                        coordinates: [-29.156594353219155, 120.44783936708842]
-                                    },
-                                    properties: {
-                                        title: 'Mapbox SF'
-                                    }
-                                }
-                            ]
-                        }
-                    });
-
-                    mapRef.current.addLayer({
-                        id: 'points',
-                        type: 'symbol',
-                        source: 'points',
-                        layout: {
-                            'icon-image': 'custom-marker',
-                            'text-field': ['get', 'title'],
-                            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-                            'text-offset': [0, 1.25],
-                            'text-anchor': 'top'
-                        }
-                    });
-                }
-            );
-
-
+            // mapRef.current.addLayer({
+            //     id: 'graticule',
+            //     type: 'line',
+            //     source: 'graticule',
+            //     layout: {},
+            //     paint: {
+            //         'line-color': 'gray',
+            //         'line-width': 1
+            //     }
+            // });
 
         });
 
