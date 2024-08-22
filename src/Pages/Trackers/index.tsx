@@ -1,0 +1,372 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import Breadcrumb from 'Components/Common/Breadcrumb';
+import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
+import { AppState } from 'store';
+import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'slices/thunk';
+import { useDispatch, useSelector } from 'react-redux';
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import { Link } from 'react-router-dom';
+import DeleteModal from 'Components/Common/DeleteModal';
+import QRCodeModal from 'Components/Common/QRCodeModal';
+import { v4 as uuidv4 } from "uuid";
+import DeleteButton from "Components/Common/DeleteButton";
+import { createSelector } from 'reselect';
+import FormModal from 'Components/Common/FormModal';
+import { StatusOptions } from "common/options";
+import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
+
+const Trackers = (props: any) => {
+  document.title = "Trackers | FMS Live";
+
+  const dispatch: any = useDispatch();
+  const [tracker, setTracker] = useState<any>();
+
+  const [modal, setModal] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  const devicesProperties = createSelector(
+    (state: any) => state.Trackers,
+    (devices) => ({
+      data: devices.data,
+      total: devices.total,
+    })
+  );
+
+  const fleetProperties = createSelector(
+    (state: any) => state.Fleet,
+    (fleet) => ({
+      fleet: fleet.data,
+    })
+  );
+
+  const { data, total } = useSelector(devicesProperties);
+
+  const { fleet } = useSelector(fleetProperties);
+
+  //delete customer
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+  const [qRCodeModal, setQRCodeModal] = useState<boolean>(false);
+
+  var vehicles: any = {};
+  vehicles = fleet.map(option => {
+    return { value: option.name, "label": option.name }
+  });
+
+  useEffect(() => {
+    dispatch(getAllTrackers()); // Dispatch action to fetch data on component mount
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getAllFleet()); // Dispatch action to fetch data on component mount
+  }, [dispatch]);
+
+  const toggle = useCallback(() => {
+    setModal(!modal);
+  }, [modal]);
+
+  const handleUserClick = useCallback((arg: any) => {
+    const tracker = arg;
+    setTracker({
+      id: tracker.id,
+      vehicle: tracker.vehicle,
+      name: tracker.name,
+      type: tracker.type
+    });
+    // vehicles = fleet.map(option => {
+    //   return { value: option.name, "label": option.name }
+    // });
+    setIsEdit(true);
+
+    toggle();
+  }, [toggle]);
+
+  const onClickDelete = (deviceData: any) => {
+    setTracker(deviceData);
+    setDeleteModal(true);
+  };
+
+  const onQRCodeView = (deviceData: any) => {
+    setTracker(deviceData);
+    setQRCodeModal(true);
+  };
+
+  var node: any = useRef();
+  const onPaginationPageChange = (page: any) => {
+    if (
+      node &&
+      node.current &&
+      node.current.props &&
+      node.current.props.pagination &&
+      node.current.props.pagination.options
+    ) {
+      node.current.props.pagination.options.onPageChange(page);
+    }
+  };
+
+  const handleDeleteUser = () => {
+    dispatch(removeTracker(tracker.id));
+    onPaginationPageChange(1);
+    setDeleteModal(false);
+  };
+
+  const parseTrackerData = (doc) => {
+    return {
+      id: (doc && doc.id) || uuidv4(),
+      name: (doc && doc.name) || "",
+      vehicle: (doc && doc.vehicle) || "",
+      status: (doc && doc.status) || "ACTIVE"
+    }
+  }
+
+  const initialValues = parseTrackerData(tracker);
+
+  const handleOnAdd = () => {
+    // setting as it is not edit
+    setIsEdit(false);
+    // clearing the resource state if previous value is set
+    setTracker("");
+    // show dialog
+    toggle();
+  };
+
+  const handleOnEdit = useCallback(
+    (arg: any) => {
+      // reading the row data from table
+      const tracker = parseTrackerData(arg)
+      // saving to state
+      setTracker(tracker);
+      // setting the dialog to show as edit
+      setIsEdit(true);
+      // show dialog
+      toggle();
+    },
+    [toggle]
+  );
+
+  const handleOnDelete = useCallback((arg: string) => {
+    dispatch(removeTracker(arg));
+    onPaginationPageChange(1);
+  }, [dispatch]);
+
+
+  const handleOnSubmit = ((values, { resetForm }) => {
+    if (isEdit) {
+      var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
+      var updateDoc: any = {};
+      updateDoc.id = tracker.id;
+      updateDoc.name = values.name;
+      updateDoc.status = values.status;
+
+      if (selectedVehicle && selectedVehicle.length > 0) {
+        updateDoc.vehicleId = selectedVehicle[0].id;
+        delete updateDoc.vehicle;
+      } else {
+        delete updateDoc.vehicle;
+        delete updateDoc.vehicleId;
+        delete updateDoc.type;
+      }
+
+      delete updateDoc.id;
+      // update tracker
+      dispatch(updateTracker(tracker.id, updateDoc));
+      setIsEdit(false);
+    } else {
+      var selectedVehicle = fleet.filter(item => item.name === values.vehicle);
+      var newTracker: any = {};
+      newTracker.id = tracker.id;
+      newTracker.name = values.name;
+      newTracker.status = values.status;
+
+      if (selectedVehicle && selectedVehicle.length > 0) {
+        newTracker.vehicleId = selectedVehicle[0].id;
+        delete newTracker.vehicle;
+      } else {
+        delete newTracker.vehicle;
+        delete newTracker.vehicleId;
+        delete newTracker.type;
+      }
+      // save new tracker
+      dispatch(addTracker(newTracker));
+    }
+    resetForm();
+    toggle();
+  });
+
+  const fields = [
+    {
+      id: 'id',
+      name: 'id',
+      label: 'ID',
+      type: 'input',
+      editable: false,
+      inputType: 'text'
+    },
+    {
+      id: 'name',
+      name: 'name',
+      label: 'Tracker Name',
+      type: 'input',
+      editable: true,
+      inputType: 'text'
+    },
+    {
+      id: 'vehicle',
+      name: 'vehicle',
+      label: 'Vehicle',
+      type: 'select',
+      options: vehicles
+    },
+    {
+      id: 'b_status',
+      name: 'status',
+      label: 'Status',
+      type: 'select',
+      editable: true,
+      options: StatusOptions
+    }
+  ]
+
+  const validationSchema = Yup.object().shape({
+    name: isEdit ? Yup.string() : Yup.string()
+      .min(2, 'Tracker name must be at least 2 characters')
+      .required("Please enter tracker name")
+      .test('unique', 'Tracker with this name already exists', async function (value) {
+        if (value && value.length >= 2) {
+          try {
+            const response = await isTrackerNameUnique(value);
+            return response.available; // assuming your API returns { available: true } if username is unique
+          } catch (error) {
+            console.error('Error checking name uniqueness:', error);
+            if (error && error['data'] && error['data']['available']) {
+              return true;
+            }
+            return false; // treat as not unique on error
+          }
+        }
+        return true;
+      }),
+    vehicle: Yup.string(),
+    status: Yup.string()
+  });
+
+  const columns: TableColumn[] = useMemo(
+    () => [
+      {
+        header: 'Tracker Name',
+        accessorKey: 'name',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: 'Vehicle',
+        accessorKey: 'vehicle.name',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: 'AppVersion',
+        accessorKey: 'appVersion',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: 'Status',
+        accessorKey: 'status',
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Actions",
+        enableColumnFilter: false,
+        accessorKey: '',
+        enableSorting: false,
+        cell: (cellProps: any) => {
+          const name = `${cellProps.row.original.name}`
+          const id = cellProps.row.original.id
+          return (
+            <div className="d-flex gap-3">
+              {/* <Link to="#!" className="text-success"
+                onClick={(event: any) => {
+                  event.preventDefault();
+                  const deviceData = cellProps.row.original;
+                  handleUserClick(deviceData);
+                }} >
+                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+              </Link> */}
+              <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
+              <Link to="#!" className="text-view"
+                onClick={(event: any) => {
+                  event.preventDefault();
+                  const deviceData = cellProps.row.original;
+                  onQRCodeView(deviceData);
+                }}  >
+                <i className="mdi mdi-qrcode font-size-18" id="qrcode" />
+              </Link>
+            </div>
+          );
+        },
+      }
+    ],
+    [handleUserClick]
+  );
+
+  const handleUserClicks = () => {
+    setIsEdit(false);
+    setTracker({ id: uuidv4() });
+    // vehicles = fleet.map(option => {
+    //   return { value: option.name, "label": option.name }
+    // });
+    toggle();
+  };
+
+  return (
+    <React.Fragment>
+      {/* <DeleteModal
+        show={deleteModal}
+        onDeleteClick={handleDeleteUser}
+        onCloseClick={() => setDeleteModal(false)}
+      /> */}
+      <div className="page-content">
+        <Container fluid>
+          <Breadcrumb title="Resources" breadcrumbItem="Trackers" />
+          <Row>
+            <Col lg="12">
+              <Card>
+                <CardBody>
+                  <TableContainer
+                    columns={columns}
+                    data={data || []}
+                    // total={total || 0}
+                    isGlobalFilter={true}
+                    handleOnAddClick={handleUserClicks}
+                    isPagination={true}
+                    isAddButton={true}
+                    buttonName="New Tracker"
+                  />
+                </CardBody>
+              </Card>
+              <FormModal fields={fields}
+                modalOpen={modal}
+                isEdit={isEdit}
+                resource={"Tracker"}
+                initialValues={initialValues}
+                schema={validationSchema}
+                handleOnSubmit={handleOnSubmit}
+                handleOnCancel={toggle} />
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      <QRCodeModal
+        show={qRCodeModal}
+        data={tracker}
+        onCloseClick={() => setQRCodeModal(false)}
+      />
+    </React.Fragment >
+  );
+}
+
+export default Trackers;

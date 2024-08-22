@@ -1,0 +1,10 @@
+.treeview-container li {
+    background-color: white;
+    border: 1px solid black;
+    text-align: left;
+}
+
+.dragme {
+    width: 20;
+    background-image: url('../../assets/images/grab.svg');
+}

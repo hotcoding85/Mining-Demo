@@ -1,0 +1,26 @@
+@import "../../assets/scss/app.scss";
+
+
+body[data-layout-mode="dark"] {
+    .itemActual {
+        font-size: 18px;
+        color: #fff;
+        font-weight: 500;
+    }
+    .itemPlanned {
+        font-size: 18px;
+        color: #b3b3b3;
+    }
+}
+
+body[data-layout-mode="light"] {
+    .itemActual {
+        font-size: 18px;
+        color: #2a3042;
+        font-weight: 500;
+    }
+    .itemPlanned {
+        font-size: 18px;
+        color: #4c4c4c;
+    }
+}

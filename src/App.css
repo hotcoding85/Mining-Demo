@@ -1,0 +1,100 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+
+body[data-layout-mode="dark"] {
+  .customSegmentBackground {
+    background-color: #32394e;
+  }
+
+  .ant-segmented-item-label {
+    color: #c3cbe4;
+  }
+
+  .ant-segmented-item-selected {
+    .ant-segmented-item-label {
+      color: #232323;
+    }
+  }
+
+  /* .leaflet-layer,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out,
+  .leaflet-control-attribution {
+    filter: invert(10%) hue-rotate(180deg) brightness(95%) contrast(90%);
+  } */
+
+}
+
+body[data-layout-mode="light"] {
+  .customSegmentBackground {
+    background-color: #c3c3c3;
+  }
+
+  /* .leaflet-layer,
+  .leaflet-control-zoom-in,
+  .leaflet-control-zoom-out,
+  .leaflet-control-attribution {
+    filter: invert(80%) hue-rotate(180deg) brightness(95%) contrast(50%);
+  } */
+
+}
+
+.activemarker {
+  background-image: url('./assets/images/equipment/check_active.png');
+  background-size: cover;
+  width: 86px;
+  height: 60px;
+  cursor: pointer;
+}
+
+.delaymarker {
+  background-image: url('./assets/images/equipment/check_delay.png');
+  background-size: cover;
+  width: 86px;
+  height: 60px;
+  cursor: pointer;
+}
+
+.customSegmentLabel {
+  label {
+    margin-bottom: 0;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
