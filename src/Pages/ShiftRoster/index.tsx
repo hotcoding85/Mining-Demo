@@ -257,9 +257,9 @@ const ShiftRoster = (props: any) => {
               <Space>
                 <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
                 <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
-              </Space>
-            </Col>
-          </Row>
+              </Space >
+            </Col >
+          </Row >
           <Row>
             <Col lg="12">
               <Form
@@ -355,8 +355,8 @@ const ShiftRoster = (props: any) => {
               </Form>
             </Col>
           </Row>
-        </Container>
-      </div>
+        </Container >
+      </div >
     </React.Fragment >
   );
 }
