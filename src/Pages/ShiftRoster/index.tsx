@@ -66,8 +66,14 @@ const ShiftRoster = (props: any) => {
   ];
 
   var operators: any = {};
-  let filteredUsers = _.filter(users, (user) => { return user.role === 'OPERATOR' })
-  operators = filteredUsers.map(option => {
+  let filteredOperators = _.filter(users, (user) => { return user.role === 'OPERATOR' })
+  operators = filteredOperators.map(option => {
+    return { value: option.id, "label": option?.['firstName'] + ' ' + option?.['lastName'] }
+  });
+
+  var trainers: any = {};
+  let filteredTrainers = _.filter(users, (user) => { return user.role === 'OPERATOR' })
+  trainers = filteredTrainers.map(option => {
     return { value: option.id, "label": option?.['firstName'] + ' ' + option?.['lastName'] }
   });
 
@@ -114,7 +120,15 @@ const ShiftRoster = (props: any) => {
     setSearchParams(params);
   }
 
-  const onChange = (operator, vehicle) => {
+  const onOperatorChange = (operator, vehicle) => {
+    onChange(operator, vehicle, operator);
+  }
+
+  const onTrainerChange = (trainer, vehicle) => {
+    onChange(undefined, vehicle, trainer);
+  }
+
+  const onChange = (operator, vehicle, trainer) => {
     const rosterInfo: any = shiftrosters.filter(roster => {
       if (roster['vehicle'] && roster['vehicle'].id) {
         return roster['vehicle'].id === vehicle.id;
@@ -127,6 +141,12 @@ const ShiftRoster = (props: any) => {
       }
     });
 
+    const trainerInfo: any = users.filter(op => {
+      if (trainer && trainer.value) {
+        return op.id === trainer.value;
+      }
+    });
+
     var roster: any = {};
     if (rosterInfo && rosterInfo.length > 0) {
       roster = Object.assign({}, rosterInfo[0]);
@@ -135,9 +155,14 @@ const ShiftRoster = (props: any) => {
     roster.vehicle = vehicle;
     if (operatorInfo && operatorInfo[0]) {
       roster.operators = [pick(operatorInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
-    }
-    if (!operator) {
+    } else {
       roster.operators = [];
+    }
+
+    if (trainerInfo && trainerInfo[0]) {
+      roster.trainers = [pick(trainerInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
+    } else {
+      roster.trainers = [];
     }
     roster.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
 
@@ -231,7 +256,7 @@ const ShiftRoster = (props: any) => {
             <Col className='d-flex flex-row-reverse'>
               <Space>
                 <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]}/>
+                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
               </Space>
             </Col>
           </Row>
@@ -268,7 +293,7 @@ const ShiftRoster = (props: any) => {
                                   isSearchable={true}
                                   name="Operators"
                                   options={getOperatorsWithoutRoster(vehicle.id)}
-                                  onChange={(selectedOption) => onChange(selectedOption, vehicle)}
+                                  onChange={(selectedOption) => onOperatorChange(selectedOption, vehicle)}
                                 />
                               </Col>
                               <Label></Label>
@@ -305,7 +330,7 @@ const ShiftRoster = (props: any) => {
                                   isSearchable={true}
                                   name="Operators"
                                   options={getOperatorsWithoutRoster(vehicle.id)}
-                                  onChange={(selectedOption) => onChange(selectedOption, vehicle)}
+                                  onChange={(selectedOption) => onOperatorChange(selectedOption, vehicle)}
                                 />
                               </Col>
                               <Label></Label>
