@@ -22,6 +22,7 @@ import OreTracker from "Pages/OreTracker";
 import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
 import FleetTimeline from "Pages/FleetTimeline";
+import Target from "Pages/Targets";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -58,7 +59,8 @@ const authProtectedRoutes = [
   { path: "/route-replay", exact: true, component: <Replay /> },
   { path: "/maintenance", exact: true, component: <Maintenance /> },
   { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
-  { path: "/material-movement", exact: true, component: <MaterialMovement /> }
+  { path: "/material-movement", exact: true, component: <MaterialMovement /> },
+  { path: "/targets", exact: true, component: <Target /> }
 ];
 
 const publicRoutes = [

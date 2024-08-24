@@ -239,6 +239,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/material-movement">{props.t("Material Movement")}</Link>
                 </li>
+                <li>
+                  <Link to="/targets" >{props.t("Targets")}</Link>
+                </li>
               </ul>
             </li>
 
