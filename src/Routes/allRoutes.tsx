@@ -62,11 +62,7 @@ const authProtectedRoutes = [
   { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
-  {
-    path: "/reports/shift-report",
-    exact: true,
-    component: <ShiftReport />
-  }
+  { path: "/reports/shift-report", exact: true, component: <ShiftReport /> }
 ];
 
 const publicRoutes = [
