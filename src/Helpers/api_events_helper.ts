@@ -19,3 +19,7 @@ export const putEvents = (id: string, device: any) => {
 export const deleteEvents = (id: string) => {
   return api.delete(`${url.EVENTS}/${id}`, {});
 }
+
+export const getShiftReportData = (roster: string) => {
+  return api.get(`${url.EVENTS}/reports/shift-report/${roster}`, {});
+}

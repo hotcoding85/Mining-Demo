@@ -95,11 +95,6 @@ const Dispatch = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const shifts: any = [
-        { value: 'DS', label: 'DS', startTime: "06:00", endTime: "18:00" },
-        { value: 'NS', label: 'NS', startTime: "18:00", endTime: "06:00" }
-    ];
-
     useEffect(() => {
         dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
         dispatch(getAllFleet()); // Dispatch action to fetch fleet data on component mount
@@ -351,6 +346,7 @@ const Dispatch = () => {
                             delete shiftRoster.id;
                             delete shiftRoster._id;
                             delete shiftRoster.vehicle;
+                            if (!shiftRoster['trucks']) { shiftRoster['trucks'] = [] }
                             shiftRoster['trucks'].push(truck);
                             dispatch(updateShiftRoster(rosterId, shiftRoster));
                         } else {

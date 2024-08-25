@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { pick } from 'lodash';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
+import { shiftTimings, shifts } from 'utils/common';
 
 const ShiftRoster = (props: any) => {
   document.title = "Shift Roster | FMS Live";
@@ -58,11 +59,6 @@ const ShiftRoster = (props: any) => {
     { value: 'crewa', label: 'Crew A' },
     { value: 'crewb', label: 'Crew B' },
     { value: 'crewc', label: 'Crew C' }
-  ];
-
-  const shifts: any = [
-    { value: 'DS', label: 'DS', startTime: "06:00", endTime: "18:00" },
-    { value: 'NS', label: 'NS', startTime: "18:00", endTime: "06:00" }
   ];
 
   var operators: any = {};
@@ -208,35 +204,9 @@ const ShiftRoster = (props: any) => {
     return filterOperators;
   }
 
-  const getShiftTimings = () => {
-    let currentTime = dayjs();
-    let previousDay = dayjs().subtract(1, 'day');
-    let shifTimings;
-    for (let i = 0; i < shifts.length; i++) {
-      let shift = shifts[i];
-      let startTime = shift.startTime.split(":");
-      let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-      let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-
-      let endTime = shift.endTime.split(":");
-      let end = dayjs().add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-      let endPrev = previousDay.add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-
-      if ((currentTime.isSame(start) || currentTime.isAfter(start)) && (currentTime.isBefore(end) || currentTime.isSame(end))) {
-        shifTimings = { start, end, shift: shift.value, shiftDate: start.format('YYYY-MM-DD') };
-        break;
-      }
-      if ((currentTime.isSame(startPrev) || currentTime.isAfter(startPrev)) && (currentTime.isBefore(endPrev) || currentTime.isSame(endPrev))) {
-        shifTimings = { start: startPrev, end: endPrev, shift: shift.value, shiftDate: startPrev.format('YYYY-MM-DD') };
-        break;
-      }
-    }
-
-    return shifTimings;
-  }
 
   const shiftBeforeCurrentDate = () => {
-    const { shift, shiftDate } = getShiftTimings()
+    const { shift, shiftDate } = shiftTimings()
 
     //TODO: Need to support at previous shifts level
     if (dayjs(startDate).isBefore(shiftDate)) {

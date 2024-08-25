@@ -28,3 +28,10 @@ export const GEO_FENCE = "/fences";
 
 // EVENTS
 export const EVENTS = "/events";
+
+// TARGETS
+export const TARGET = "/targets";
+
+
+// REPROTS
+export const REPORTS = "/reports";
