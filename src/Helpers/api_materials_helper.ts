@@ -6,13 +6,13 @@ const api = new APIClient();
 
 // All Materials
 export const getMaterials = (page = 1, limit = 10, sortBy, sortOrder, name?, category?) => {
-  var options = {page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder}
+  var options = { page: page, limit: limit, sortBy: sortBy, sortOrder: sortOrder }
 
-  if(name) {
+  if (name) {
     options['name'] = name
   }
 
-  if(category) {
+  if (category) {
     options['category'] = category
   }
   return api.get(url.MATERIALS, options)
@@ -33,4 +33,16 @@ export const deleteMaterial = (id: string) => {
 
 export const isMaterialNameUnique = (name: string) => {
   return api.get(`${url.MATERIALS}/unique/${name}`, {})
+}
+
+export const getROMStatus = (roster: string) => {
+  return api.get(`${url.MATERIALS}/inventory/rom-status/${roster}`, {});
+}
+
+export const getMaterialMoved = (roster: string) => {
+  return api.get(`${url.MATERIALS}/material-moved/${roster}`, {});
+}
+
+export const getPitStatusByCategory = (roster: string) => {
+  return api.get(`${url.MATERIALS}/pit-status/${roster}`, {});
 }

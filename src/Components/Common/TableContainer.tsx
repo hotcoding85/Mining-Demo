@@ -33,7 +33,7 @@ const Filter = ({
         type="text"
         value={(columnFilterValue ?? '') as string}
         onChange={value => column.setFilterValue(value)}
-        placeholder="Search..."
+        placeholder="Search"
         className="w-36 border shadow rounded"
         list={column.id + 'list'}
       />
@@ -78,6 +78,7 @@ const DebouncedInput = ({
 interface TableContainerProps {
   columns?: any;
   data?: any;
+  total?: number;
   divClassName?: any;
   tableClass?: any;
   theadClass?: any;
@@ -98,6 +99,7 @@ interface TableContainerProps {
 const TableContainer = ({
   columns,
   data,
+  total,
   tableClass = "table-bordered dt-responsive nowrap w-100 dataTable no-footer dtr-inline table-striped",
   theadClass,
   divClassName,
@@ -105,8 +107,8 @@ const TableContainer = ({
   isPagination,
   isGlobalFilter,
   paginationWrapper = "dataTables_paginate paging_simple_numbers pagination-rounded",
-  SearchPlaceholder,
-  pagination= "pagination",
+  SearchPlaceholder = "Search",
+  pagination = "pagination",
   buttonClass,
   buttonName,
   isAddButton,
@@ -200,7 +202,7 @@ const TableContainer = ({
       </Row>
 
       <div className={divClassName ? divClassName : "table-responsive"}>
-        <Table hover className={tableClass} bordered={isBordered}>
+        <Table hover className={tableClass} bordered={isBordered} >
           <thead className={theadClass}>
             {getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
@@ -268,7 +270,8 @@ const TableContainer = ({
         isPagination && (
           <Row>
             <Col sm={12} md={5}>
-              <div className="dataTables_info">Showing {getState().pagination.pageSize} of {data.length} Results</div>
+              {(getState().pagination.pageSize < Number({ total })) ? (<div className="dataTables_info">Showing {getState().pagination.pageSize} of {total} Results</div>) : (<div className="dataTables_info">Showing {total} of {total} Results</div>)
+              }
             </Col>
             <Col sm={12} md={7}>
               <div className={paginationWrapper}>

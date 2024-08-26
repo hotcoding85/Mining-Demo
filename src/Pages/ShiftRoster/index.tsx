@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { pick } from 'lodash';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
+import { shiftTimings, shifts } from 'utils/common';
 
 const ShiftRoster = (props: any) => {
   document.title = "Shift Roster | FMS Live";
@@ -60,14 +61,15 @@ const ShiftRoster = (props: any) => {
     { value: 'crewc', label: 'Crew C' }
   ];
 
-  const shifts: any = [
-    { value: 'DS', label: 'DS', startTime: "06:00", endTime: "18:00" },
-    { value: 'NS', label: 'NS', startTime: "18:00", endTime: "06:00" }
-  ];
-
   var operators: any = {};
-  let filteredUsers = _.filter(users, (user) => { return user.role === 'OPERATOR' })
-  operators = filteredUsers.map(option => {
+  let filteredOperators = _.filter(users, (user) => { return user.role === 'OPERATOR' })
+  operators = filteredOperators.map(option => {
+    return { value: option.id, "label": option?.['firstName'] + ' ' + option?.['lastName'] }
+  });
+
+  var trainers: any = {};
+  let filteredTrainers = _.filter(users, (user) => { return user.role === 'OPERATOR' })
+  trainers = filteredTrainers.map(option => {
     return { value: option.id, "label": option?.['firstName'] + ' ' + option?.['lastName'] }
   });
 
@@ -114,7 +116,15 @@ const ShiftRoster = (props: any) => {
     setSearchParams(params);
   }
 
-  const onChange = (operator, vehicle) => {
+  const onOperatorChange = (operator, vehicle) => {
+    onChange(operator, vehicle, operator);
+  }
+
+  const onTrainerChange = (trainer, vehicle) => {
+    onChange(undefined, vehicle, trainer);
+  }
+
+  const onChange = (operator, vehicle, trainer) => {
     const rosterInfo: any = shiftrosters.filter(roster => {
       if (roster['vehicle'] && roster['vehicle'].id) {
         return roster['vehicle'].id === vehicle.id;
@@ -127,6 +137,12 @@ const ShiftRoster = (props: any) => {
       }
     });
 
+    const trainerInfo: any = users.filter(op => {
+      if (trainer && trainer.value) {
+        return op.id === trainer.value;
+      }
+    });
+
     var roster: any = {};
     if (rosterInfo && rosterInfo.length > 0) {
       roster = Object.assign({}, rosterInfo[0]);
@@ -135,9 +151,14 @@ const ShiftRoster = (props: any) => {
     roster.vehicle = vehicle;
     if (operatorInfo && operatorInfo[0]) {
       roster.operators = [pick(operatorInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
-    }
-    if (!operator) {
+    } else {
       roster.operators = [];
+    }
+
+    if (trainerInfo && trainerInfo[0]) {
+      roster.trainers = [pick(trainerInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
+    } else {
+      roster.trainers = [];
     }
     roster.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
 
@@ -183,35 +204,9 @@ const ShiftRoster = (props: any) => {
     return filterOperators;
   }
 
-  const getShiftTimings = () => {
-    let currentTime = dayjs();
-    let previousDay = dayjs().subtract(1, 'day');
-    let shifTimings;
-    for (let i = 0; i < shifts.length; i++) {
-      let shift = shifts[i];
-      let startTime = shift.startTime.split(":");
-      let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-      let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-
-      let endTime = shift.endTime.split(":");
-      let end = dayjs().add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-      let endPrev = previousDay.add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-
-      if ((currentTime.isSame(start) || currentTime.isAfter(start)) && (currentTime.isBefore(end) || currentTime.isSame(end))) {
-        shifTimings = { start, end, shift: shift.value, shiftDate: start.format('YYYY-MM-DD') };
-        break;
-      }
-      if ((currentTime.isSame(startPrev) || currentTime.isAfter(startPrev)) && (currentTime.isBefore(endPrev) || currentTime.isSame(endPrev))) {
-        shifTimings = { start: startPrev, end: endPrev, shift: shift.value, shiftDate: startPrev.format('YYYY-MM-DD') };
-        break;
-      }
-    }
-
-    return shifTimings;
-  }
 
   const shiftBeforeCurrentDate = () => {
-    const { shift, shiftDate } = getShiftTimings()
+    const { shift, shiftDate } = shiftTimings()
 
     //TODO: Need to support at previous shifts level
     if (dayjs(startDate).isBefore(shiftDate)) {
@@ -231,10 +226,10 @@ const ShiftRoster = (props: any) => {
             <Col className='d-flex flex-row-reverse'>
               <Space>
                 <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]}/>
-              </Space>
-            </Col>
-          </Row>
+                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
+              </Space >
+            </Col >
+          </Row >
           <Row>
             <Col lg="12">
               <Form
@@ -268,7 +263,7 @@ const ShiftRoster = (props: any) => {
                                   isSearchable={true}
                                   name="Operators"
                                   options={getOperatorsWithoutRoster(vehicle.id)}
-                                  onChange={(selectedOption) => onChange(selectedOption, vehicle)}
+                                  onChange={(selectedOption) => onOperatorChange(selectedOption, vehicle)}
                                 />
                               </Col>
                               <Label></Label>
@@ -305,7 +300,7 @@ const ShiftRoster = (props: any) => {
                                   isSearchable={true}
                                   name="Operators"
                                   options={getOperatorsWithoutRoster(vehicle.id)}
-                                  onChange={(selectedOption) => onChange(selectedOption, vehicle)}
+                                  onChange={(selectedOption) => onOperatorChange(selectedOption, vehicle)}
                                 />
                               </Col>
                               <Label></Label>
@@ -330,8 +325,8 @@ const ShiftRoster = (props: any) => {
               </Form>
             </Col>
           </Row>
-        </Container>
-      </div>
+        </Container >
+      </div >
     </React.Fragment >
   );
 }

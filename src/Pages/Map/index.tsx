@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
 import { Radio, Segmented } from 'antd';
 import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import { shiftTimings } from 'utils/common';
 
 interface EquipmentLocation {
     id: string;
@@ -901,43 +902,11 @@ const Map = ({ socket }) => {
         // }
     }, []);
 
-    const shifts: any = [
-        { value: 'DS', label: 'Day Shift', startTime: "06:00", endTime: "18:00" },
-        { value: 'NS', label: 'Night Shift', startTime: "18:00", endTime: "06:00" }
-    ];
-
-    const getShiftTimings = () => {
-        let currentTime = dayjs();
-        let previousDay = dayjs().subtract(1, 'day');
-        let shifTimings;
-        for (let i = 0; i < shifts.length; i++) {
-            let shift = shifts[i];
-            let startTime = shift.startTime.split(":");
-            let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-            let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
-
-            let endTime = shift.endTime.split(":");
-            let end = dayjs().add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-            let endPrev = previousDay.add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
-
-            if ((currentTime.isSame(start) || currentTime.isAfter(start)) && (currentTime.isBefore(end) || currentTime.isSame(end))) {
-                shifTimings = { start, end, shift: shift.value, shiftDate: start.format('YYYY-MM-DD') };
-                break;
-            }
-            if ((currentTime.isSame(startPrev) || currentTime.isAfter(startPrev)) && (currentTime.isBefore(endPrev) || currentTime.isSame(endPrev))) {
-                shifTimings = { start: startPrev, end: endPrev, shift: shift.value, shiftDate: startPrev.format('YYYY-MM-DD') };
-                break;
-            }
-        }
-
-        return shifTimings;
-    }
-
     useEffect(() => {
         dispatch(getGeoFences());
         dispatch(getAllFleet());
 
-        const { shift, shiftDate } = getShiftTimings();
+        const { shift, shiftDate } = shiftTimings();
         dispatch(getAllEvents(shiftDate + ':' + shift));
     }, [dispatch]);
 

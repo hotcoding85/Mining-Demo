@@ -1,19 +1,68 @@
-import React from "react";
+import TableContainer from "Components/Common/TableContainer";
+import { getPitStatusByCategory } from "Helpers/api_materials_helper";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardBody, CardTitle, Table } from "reactstrap";
 
-const PitStatus = (props: any) => {
+const PitStatus = ({ shiftDate, shift }) => {
 
-    const data = [
-        {
-            name: "440_HG01",
-            planMaterial: "HG01",
-            planOre: 6772883.9,
-            planWaste: 211.5,
-            actualMaterial: "HG01",
-            actualOre: 6000678.4,
-            actualWaste: 23876.3
-        }
-    ]
+    const [data, setData] = useState([]);
+    const [materialCategories, setMaterialCategories] = useState([]);
+
+    const columns = useMemo(() => {
+        return [
+            {
+                header: "Pit",
+                accessorKey: 'locationName',
+                enableColumnFilter: false,
+                enableSorting: true
+            },
+            {
+                header: "Material",
+                columns: [
+                    {
+                        header: 'Target',
+                        accessorKey: 'target',
+                        enableColumnFilter: false,
+                        enableSorting: true
+                    },
+                    {
+                        header: 'Actual',
+                        accessorKey: 'materialName',
+                        enableColumnFilter: false,
+                        enableSorting: true
+                    }
+                ]
+            },
+            ...materialCategories.map((category) => {
+                return {
+                    header: category,
+                    columns: [
+                        {
+                            header: 'Target',
+                            accessorKey: 'target',
+                            enableColumnFilter: false,
+                            enableSorting: true
+                        },
+                        {
+                            header: 'Actual',
+                            accessorKey: category,
+                            enableColumnFilter: false,
+                            enableSorting: true
+                        }
+                    ]
+                }
+            })
+        ]
+    }, [materialCategories]);
+
+    useEffect(() => {
+        getPitStatusByCategory(`${shiftDate}:${shift}`)
+            // getPitStatusByCategory("2024-08-05:NS")
+            .then((response) => {
+                setMaterialCategories(response.materialCategories);
+                setData(response.data);
+            })
+    }, [shiftDate, shift]);
 
     return (
         <React.Fragment>
@@ -21,55 +70,10 @@ const PitStatus = (props: any) => {
                 <CardBody>
                     <CardTitle className="h4">Pit Status</CardTitle>
                     <div className="table-responsive">
-                        <Table className="table mb-0 table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style={{ verticalAlign:'middle' }} rowSpan={2} >#</th>
-                                    <th style={{ textAlign: 'center' }} colSpan={2}>Material</th>
-                                    <th style={{ textAlign: 'center' }} colSpan={2}>Ore</th>
-                                    <th style={{ textAlign: 'center' }} colSpan={2}>Waste</th>
-                                </tr>
-                                <tr>
-                                    <th style={{ textAlign: 'right' }}>Target</th>
-                                    <th style={{ textAlign: 'right' }}>Actual</th>
-                                    <th style={{ textAlign: 'right' }}>Target</th>
-                                    <th style={{ textAlign: 'right' }}>Actual</th>
-                                    <th style={{ textAlign: 'right' }}>Target</th>
-                                    <th style={{ textAlign: 'right' }}>Actual</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    data.map(item => {
-                                        return (
-                                            <tr>
-                                                <th scope="row">{item.name}</th>
-                                                <td>{item.planMaterial}</td>
-                                                <td>{item.actualMaterial}</td>
-                                                <td style={{ textAlign: 'right' }}>{item.planOre}</td>
-                                                <td style={{ textAlign: 'right' }}>{item.actualOre}</td>
-                                                <td style={{ textAlign: 'right' }}>{item.planWaste}</td>
-                                                <td style={{ textAlign: 'right' }}>{item.actualWaste}</td>
-                                                {/* {
-                                                    map.fromPit > 0 ?
-                                                    <td style={{ textAlign: 'right', color: '#0f0' }}>+{map.fromPit}</td>
-                                                    :
-                                                    <td style={{ textAlign: 'right', color: '#fff' }}>{map.fromPit}</td>    
-                                                }
-                                                {
-                                                    map.toCrusher > 0 ?
-                                                    <td style={{ textAlign: 'right', color: '#f00' }}>-{map.toCrusher}</td>
-                                                    :
-                                                    <td style={{ textAlign: 'right', color: '#fff' }}>{map.toCrusher}</td>
-                                                }
-                                                
-                                                <td style={{ textAlign: 'right' }}>{map.stock}</td> */}
-                                            </tr>
-                                        )
-                                    })
-                                }
-                            </tbody>
-                        </Table>
+                        <TableContainer
+                            columns={columns}
+                            data={data || []}
+                        />
                     </div>
                 </CardBody>
             </Card>

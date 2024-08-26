@@ -1,73 +1,55 @@
-import React from "react";
-import { Card, CardBody, CardTitle, Table } from "reactstrap";
+import TableContainer from "Components/Common/TableContainer";
+import { getROMStatus } from "Helpers/api_materials_helper";
+import React, { useEffect, useState } from "react";
+import { Card, CardBody, CardTitle } from "reactstrap";
 
-const RomStatus = (props: any) => {
+const columns = [
+    {
+        header: "Name",
+        accessorKey: "materialName",
+        enableColumnFilter: false,
+        enableSorting: true
+    },
+    {
+        header: "Grade",
+        accessorKey: "materialGrade",
+        enableColumnFilter: false,
+        enableSorting: true
+    },
+    {
+        header: "From Pit",
+        accessorKey: "fromPit",
+        enableColumnFilter: false,
+        enableSorting: true
+    },
+    {
+        header: "Into Crusher",
+        accessorKey: "intoCrusher",
+        enableColumnFilter: false,
+        enableSorting: true
+    },
+    {
+        header: "Current Stock",
+        accessorKey: "currentStock",
+        enableColumnFilter: false,
+        enableSorting: true
+    }
+]
 
-    const data = [
-        {
-            name: "HG01",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "HG02",
-            grade: "1.9%",
-            fromPit: 0,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "HG03",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "MG01",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "MG02",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 0,
-            stock: 23876.3
-        },
-        {
-            name: "LG01",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "LG02",
-            grade: "1.9%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "Waste",
-            grade: "0%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        },
-        {
-            name: "Waste",
-            grade: "0%",
-            fromPit: 862.1,
-            toCrusher: 211.5,
-            stock: 23876.3
-        }
-    ]
+const RomStatus = ({ shiftDate, shift }) => {
+
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        getROMStatus(`${shiftDate}:${shift}`)
+            // getROMStatus("2024-08-05:NS")
+            .then((response) => {
+                setData(response.data);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    }, [shiftDate, shift]);
 
     return (
         <React.Fragment>
@@ -75,43 +57,10 @@ const RomStatus = (props: any) => {
                 <CardBody>
                     <CardTitle className="h4">ROM Status</CardTitle>
                     <div className="table-responsive">
-                        <Table className="table mb-0 table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th style={{ textAlign: 'right' }}>Grade</th>
-                                    <th style={{ textAlign: 'right' }}>From Pit</th>
-                                    <th style={{ textAlign: 'right' }}>Into Crusher</th>
-                                    <th style={{ textAlign: 'right' }}>Current Stock</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    data.map(map => {
-                                        return (
-                                            <tr>
-                                                <th scope="row">{map.name}</th>
-                                                <td style={{ textAlign: 'right' }}>{map.grade}</td>
-                                                {
-                                                    map.fromPit > 0 ?
-                                                    <td style={{ textAlign: 'right', color: '#0f0' }}>+{map.fromPit}</td>
-                                                    :
-                                                    <td style={{ textAlign: 'right', color: '#fff' }}>{map.fromPit}</td>    
-                                                }
-                                                {
-                                                    map.toCrusher > 0 ?
-                                                    <td style={{ textAlign: 'right', color: '#f00' }}>-{map.toCrusher}</td>
-                                                    :
-                                                    <td style={{ textAlign: 'right', color: '#fff' }}>{map.toCrusher}</td>
-                                                }
-                                                
-                                                <td style={{ textAlign: 'right' }}>{map.stock}</td>
-                                            </tr>
-                                        )
-                                    })
-                                }
-                            </tbody>
-                        </Table>
+                        <TableContainer
+                            columns={columns}
+                            data={data || []}
+                        />
                     </div>
                 </CardBody>
             </Card>

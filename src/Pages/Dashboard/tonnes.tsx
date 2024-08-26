@@ -9,11 +9,8 @@ import { format } from 'date-fns';
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import _ from "lodash";
+import { shifts } from "utils/common";
 
-const shifts: any = [
-    { value: 'DS', label: 'Day Shift', startTime: "06:00", endTime: "18:00" },
-    { value: 'NS', label: 'Night Shift', startTime: "18:00", endTime: "06:00" }
-];
 
 const data = [
     {

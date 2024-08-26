@@ -239,6 +239,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/material-movement">{props.t("Material Movement")}</Link>
                 </li>
+                <li>
+                  <Link to="/targets" >{props.t("Targets")}</Link>
+                </li>
               </ul>
             </li>
 
@@ -305,6 +308,11 @@ const SidebarContent = (props: any) => {
                 <i className="bx bx-bar-chart-square"></i>
                 <span>{props.t("Reports")}</span>
               </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/reports/shift-report">{props.t("Shift Report")}</Link>
+                </li>
+              </ul>
             </li>
 
           </ul>
