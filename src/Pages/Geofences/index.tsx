@@ -4,9 +4,14 @@ import _ from 'lodash';
 
 import geojson from './output.json';
 
-import mapboxgl from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import mapboxgl, { LngLatLike } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Feature, FeatureCollection, GeoJsonObject, LineString } from 'geojson';
-import { features } from 'process';
+import { Threebox } from "threebox-plugin";
+import { mapGLB, surfaceGLB } from '../../assets/images/map'
+
+import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 
 const Geofences = ({ socket }) => {
 
@@ -102,14 +107,12 @@ const Geofences = ({ socket }) => {
     function addActiveMarker(lngLat) {
         const el = document.createElement('div');
         el.className = 'activemarker';
-
-        new mapboxgl.Marker(el).setLngLat(lngLat).addTo(mapRef.current);
+        new mapboxgl.Marker({ element: el }).setLngLat(lngLat).addTo(mapRef.current);
     }
 
     function addDelayMarker(lngLat) {
         const el = document.createElement('div');
         el.className = 'delaymarker';
-
         new mapboxgl.Marker(el).setLngLat(lngLat).addTo(mapRef.current);
     }
 
@@ -120,12 +123,40 @@ const Geofences = ({ socket }) => {
 
         mapRef.current = new mapboxgl.Map({
             container: mapContainer.current!,
-            style: 'mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m',
+            style: 'mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m', //'mapbox://styles/mapbox/standard-satellite',
             center: [lng, lat],
             zoom: zoom,
-            pitch: 75,
-            minZoom: 15
+            pitch: 60,
+            antialias: true, // create the gl context with MSAA antialiasing, so custom layers are antialiased
+            minZoom: 0,
+
         });
+
+        // parameters to ensure the model is georeferenced correctly on the map
+        const modelOrigin: LngLatLike = [lng, lat];
+        const modelAltitude = 0;
+        const modelRotate = [Math.PI / 2, 0, 0];
+
+        const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+            modelOrigin,
+            modelAltitude
+        );
+
+        // transformation parameters to position, rotate and scale the 3D model onto the map
+        const modelTransform = {
+            translateX: modelAsMercatorCoordinate.x,
+            translateY: modelAsMercatorCoordinate.y,
+            translateZ: modelAsMercatorCoordinate.z,
+            rotateX: modelRotate[0],
+            rotateY: modelRotate[1],
+            rotateZ: modelRotate[2],
+            /* Since the 3D model is in real world meters, a scale transform needs to be
+             * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+             */
+            scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+        };
+
+        // const THREE = window.THREE;
 
 
         addActiveMarker([
@@ -145,27 +176,70 @@ const Geofences = ({ socket }) => {
 
 
         mapRef.current.addControl(new mapboxgl.ScaleControl());
-        mapRef.current.addControl(new mapboxgl.NavigationControl());
+        mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
+        mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-        // mapRef.current.on('load', () => {
-        //     mapRef.current.addSource('mapbox-terrain', {
-        //         type: 'vector',
-        //         url: 'mapbox://hmesupport.a746i9ur'
-        //     });
-        //     mapRef.current.addLayer(
-        //         {
-        //             source: 'mapbox-terrain',
-        //             'source-layer': '240801-a2ik8t',
-        //         },
-        //         'terrain-data-simple'
-        //     );
-        // });
+        const drawControl = new MapboxDraw({ defaultMode: 'draw_polygon' })
+        mapRef.current.addControl(drawControl);
+        mapRef.current.on('draw.create', updateArea);
+        function updateArea(e) {
+            console.log(e)
+        }
+
+        mapRef.current.on('style.load', () => {
+            mapRef.current.addLayer({
+                id: 'custom-threebox-model',
+                type: 'custom',
+                renderingMode: '3d',
+                onAdd: function () {
+                    window.tb = new Threebox(
+                        mapRef.current,
+                        mapRef.current.getCanvas().getContext('webgl'),
+                        { defaultLights: true }
+                    );
+                    const scale = 1;
+                    const options = {
+                        obj: surfaceGLB,
+                        type: 'gltf',
+                        scale: 0.75,
+                        units: 'meters',
+                        // rotation: { x: 90, y: -90, z: 0 }
+                    };
+
+                    window.tb.loadObj(options, (model) => {
+                        console.log('loadObj', options, model)
+                        model.setCoords([120.452246,
+                            -29.160889]);
+                        // model.setRotation({ x: 0, y: 0, z: 0 });
+                        window.tb.add(model);
+                        window.tb.createTerrainLayer()
+                    });
+                },
+
+                render: function () {
+                    window.tb.update();
+                }
+            });
+        });
+
+        mapRef.current.on('zoom', () => {
+            // const scale = (mapRef.current.getZoom()) * 0.4;
+
+        });
 
 
         const graticule = buildGraticule();
         let hoveredPolygonId = null;
 
         mapRef.current.on('load', () => {
+
+            // mapRef.current.addSource('my-dem', {
+            //     'type': 'raster-dem',
+            //     'url': 'mapbox://hmesupport.cbb8vfk7',
+            //     'tileSize': 512,
+            //     'maxzoom': 22
+            // });
+            // mapRef.current.setTerrain({ 'source': 'my-dem', 'exaggeration': 5 });
 
             // mapRef.current.addSource('tileset_data', {
             //     url: 'mapbox://hmesupport.cbb8vfk7',
@@ -250,10 +324,10 @@ const Geofences = ({ socket }) => {
                 hoveredPolygonId = null;
             });
 
-            mapRef.current.addSource('graticule', {
-                type: 'geojson',
-                data: graticule
-            });
+            // mapRef.current.addSource('graticule', {
+            //     type: 'geojson',
+            //     data: graticule
+            // });
 
             // mapRef.current.addLayer({
             //     id: 'graticule',

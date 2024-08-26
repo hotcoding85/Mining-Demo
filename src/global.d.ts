@@ -23,3 +23,13 @@ declare module 'react-draft-wysiwyg';
 declare module 'moment';
 declare module 'typescript';
 declare module 'google-maps-react';
+
+interface Window {
+    tb?: any; // Use the appropriate type instead of `any` if you know it
+}
+
+// src/declarations.d.ts
+declare module '*.glb' {
+    const value: string;
+    export default value;
+}

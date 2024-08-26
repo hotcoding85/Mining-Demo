@@ -1,0 +1,197 @@
+{
+    "asset": {
+        "version": "2.0",
+        "generator": "Open Asset Import Library (assimp v5.4.0)"
+    },
+    "extensionsUsed": [
+        "KHR_materials_volume",
+        "FB_ngon_encoding"
+    ],
+    "accessors": [
+        {
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 207138,
+            "type": "VEC3",
+            "max": [
+                252248.140625,
+                6773840.5,
+                505.6584777832031
+            ],
+            "min": [
+                251010.765625,
+                6771155.5,
+                417.0700378417969
+            ]
+        },
+        {
+            "bufferView": 1,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 207138,
+            "type": "VEC3",
+            "max": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "min": [
+                1.0,
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5125,
+            "count": 821852,
+            "type": "SCALAR",
+            "max": [
+                207137
+            ],
+            "min": [
+                0
+            ]
+        },
+        {
+            "bufferView": 3,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 1232484,
+            "type": "VEC3",
+            "max": [
+                252248.140625,
+                6773840.5,
+                505.6584777832031
+            ],
+            "min": [
+                251010.46875,
+                6771155.5,
+                417.0700378417969
+            ]
+        },
+        {
+            "bufferView": 4,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 1232484,
+            "type": "VEC3",
+            "max": [
+                0.9999067783355713,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -0.9999151825904846,
+                -1.0,
+                -0.9999781847000122
+            ]
+        },
+        {
+            "bufferView": 5,
+            "byteOffset": 0,
+            "componentType": 5125,
+            "count": 1232784,
+            "type": "SCALAR",
+            "max": [
+                1232483
+            ],
+            "min": [
+                0
+            ]
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 42769472,
+            "uri": "gltf_0.bin"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 2485656,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 2485656,
+            "byteLength": 2485656,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 4971312,
+            "byteLength": 3287408,
+            "target": 34963
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 8258720,
+            "byteLength": 14789808,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 23048528,
+            "byteLength": 14789808,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 37838336,
+            "byteLength": 4931136,
+            "target": 34963
+        }
+    ],
+    "materials": [
+        {
+            "name": "Mat_1",
+            "pbrMetallicRoughness": {
+                "metallicFactor": 0.0
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "meshes[0].meshes[0].meshes[0]",
+            "primitives": [
+                {
+                    "mode": 1,
+                    "material": 0,
+                    "indices": 2,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1
+                    }
+                },
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 5,
+                    "attributes": {
+                        "POSITION": 3,
+                        "NORMAL": 4
+                    }
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "gltf",
+            "mesh": 0
+        }
+    ],
+    "scenes": [
+        {
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0
+}
