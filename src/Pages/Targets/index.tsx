@@ -3,7 +3,7 @@ import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Labe
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
-import { getTargetsByRoster, getTargetsByRosterAndCategory, updateTarget, getAllFleet, getAllUsers, addTarget } from 'slices/thunk';
+import { getAllFleet, getAllUsers, } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import Select from 'react-select';
@@ -70,7 +70,7 @@ const Target = (props: any) => {
 
 
   useEffect(() => {
-    dispatch(getTargetsByRoster(format(startDate, 'yyyy-MM-dd') + ':' + shift)); // Dispatch action to fetch data on component mount
+    // dispatch(getTargetsByRoster(format(startDate, 'yyyy-MM-dd') + ':' + shift)); // Dispatch action to fetch data on component mount
 
   }, [dispatch, shift, startDate]);
 
@@ -161,11 +161,11 @@ const Target = (props: any) => {
       delete target._id;
       target.vehicleId = _.cloneDeep(target.vehicle.id);
       delete target.vehicle;
-      dispatch(updateTarget(rosterId, target));
+      // dispatch(updateTarget(rosterId, target));
     } else {
       target.vehicleId = _.cloneDeep(target.vehicle.id);
       delete target.vehicle;
-      dispatch(addTarget(target));
+      // dispatch(addTarget(target));
     }
   }
 
