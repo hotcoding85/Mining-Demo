@@ -53,7 +53,7 @@ const VerticalLayout = (props: any) => {
     leftSideBarThemeTypes,
     leftSidebarImageTypes]);
 
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   useEffect(() => {
     if (open) {
       document.body.classList.add("right-bar-enabled")
@@ -66,7 +66,7 @@ const VerticalLayout = (props: any) => {
   return (
     <React.Fragment>
       <div id="layout-wrapper">
-        <Header toggleCanvas={() => setOpen(!open)} />
+        <Header />
         <Sidebar />
         <div className="main-content">
           {props.children}

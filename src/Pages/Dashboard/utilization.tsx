@@ -2,18 +2,21 @@ import React from "react";
 import { Col, Card, CardBody, CardImg, CardImgOverlay, CardTitle, Row } from "reactstrap";
 import Chart from "react-apexcharts";
 
-import { hd785, hd1500, pc1250, pc2000 } from "assets/images/equipment";
+import PC2000 from 'assets/images/equipment/PC2000.png'
+import PC1250 from 'assets/images/equipment/PC1250.png'
+import HD1500 from 'assets/images/equipment/HD1500.png'
+import HD785 from 'assets/images/equipment/HD785.png'
 
 const Utilization = (props: any) => {
 
     const utilizationByModel: { model: string, utilPercent: number }[] = [
         {
-            "model": "H270",
-            "utilPercent": 75.55
+            "model": "YIYY",
+            "utilPercent": 2.55
         },
         {
             "model": "785-7",
-            "utilPercent": 55.52
+            "utilPercent": 5.52
         }
 
     ];
@@ -27,19 +30,19 @@ const Utilization = (props: any) => {
     }
 
     const getFleetImage = (model: string) => {
-        let image = hd785
+        let image = HD785
         switch (model) {
             case "PC1250":
-                image = pc1250;
+                image = PC1250;
                 break;
             case "PC2000":
-                image = pc2000;
+                image = PC2000;
                 break;
             case "HD785":
-                image = hd785;
+                image = HD785;
                 break;
             case "HD1500":
-                image = hd1500;
+                image = HD1500;
                 break;
         }
 

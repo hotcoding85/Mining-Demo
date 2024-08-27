@@ -32,4 +32,4 @@ export * from "./geofences/thunk";
 export * from "./events/thunk";
 
 // Events
-// export * from "./target/thunk";
+export * from "./target/thunk";

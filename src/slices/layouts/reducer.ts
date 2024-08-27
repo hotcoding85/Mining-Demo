@@ -11,6 +11,7 @@ import {
 } from "../../Components/constants/layout";
 
 export interface LayoutState {
+  sideMenuOpen: Boolean,
   layoutTypes: LAYOUT_TYPES.VERTICAL | LAYOUT_TYPES.HORIZONTAL,
   layoutModeTypes: LAYOUT_MODE_TYPES.DARK | LAYOUT_MODE_TYPES.LIGHT,
   layoutWidthTypes: LAYOUT_WIDTH_TYPES.FLUID | LAYOUT_WIDTH_TYPES.BOXED | LAYOUT_WIDTH_TYPES.SCROLLABLE,
@@ -21,6 +22,7 @@ export interface LayoutState {
 }
 
 export const initialState: LayoutState = {
+  sideMenuOpen: true,
   layoutTypes: LAYOUT_TYPES.VERTICAL,
   layoutModeTypes: LAYOUT_MODE_TYPES.DARK,
   layoutWidthTypes: LAYOUT_WIDTH_TYPES.FLUID,
@@ -34,6 +36,9 @@ const LayoutSlice = createSlice({
   name: 'LayoutSlice',
   initialState,
   reducers: {
+    sideMenuOpenAction(state: any, action:any) {
+      state.sideMenuOpen = action.payload
+    },
     changeLayoutAction(state: any, action: any) {
       state.layoutTypes = action.payload;
     },
@@ -62,6 +67,7 @@ const LayoutSlice = createSlice({
 });
 
 export const {
+  sideMenuOpenAction,
   changeLayoutAction,
   changeLayoutModeAction,
   changeSidebarThemeAction,

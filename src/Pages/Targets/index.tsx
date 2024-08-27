@@ -1,23 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Card, CardBody, Col, Container, Form, Input, Label, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
-import { AppState } from 'store';
-import { getAllFleet, getAllUsers, } from 'slices/thunk';
+import { getTargetsByRosterAndCategory, updateTarget, getAllFleet } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Select from 'react-select';
 import { format } from 'date-fns';
 import type { DatePickerProps } from 'antd';
 import { DatePicker, Segmented, Space } from 'antd';
-import dayjs, { Dayjs } from "dayjs";
-import { shifts, shiftTimings } from "../../utils/common";
+import dayjs from "dayjs";
+import { shiftDuration, shifts, shiftTimings } from "../../utils/common";
 
-import { pick } from 'lodash';
+// import { pick } from 'lodash';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import FormModal from 'Components/Common/FormModal';
-import DeleteButton from 'Components/Common/DeleteButton';
+// import DeleteButton from 'Components/Common/DeleteButton';
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -44,10 +42,6 @@ const Target = (props: any) => {
   const [diggers, setDiggers] = useState<any>();
   const [trucks, setTrucks] = useState<any>();
 
-
-  const [modal, setModal] = useState<boolean>(false);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
   const [hideShiftSelect, setHideShiftSelect] = useState<any>(false);
@@ -56,9 +50,45 @@ const Target = (props: any) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const toggle = useCallback(() => {
-    setModal(!modal);
-  }, [modal]);
+  const [data, setData] = useState<any>([]);
+  const [selectedTargetType, setSelectedTargetType] = useState<any>({ value: 'SHIFT', label: 'SHIFT' });
+
+  const avgTripTime: number = 15;
+  const targetsConfig = {
+
+    SHIFT: {
+      availablePer: 80,
+      availability: 9.6,
+      standby: 1,
+      utilization: 0,
+      loads: 0,
+      tonnes: 0
+    },
+    DAILY: {
+      availablePer: 80,
+      availability: 19.2,
+      standby: 2,
+      utilization: 0,
+      loads: 0,
+      tonnes: 0
+    },
+    WEEKLY: {
+      availablePer: 80,
+      availability: 134.4,
+      standby: 14,
+      utilization: 0,
+      loads: 0,
+      tonnes: 0
+    },
+    MONTHLY: {
+      availablePer: 80,
+      availability: 576,
+      standby: 30,
+      utilization: 0,
+      loads: 0,
+      tonnes: 0
+    }
+  }
 
   const targetTypes = [
     { value: 'SHIFT', label: 'SHIFT' },
@@ -66,10 +96,9 @@ const Target = (props: any) => {
     { value: 'WEEKLY', label: 'WEEKLY' },
     { value: 'MONTHLY', label: 'MONTHLY' }];
 
-  var selectedTargetType = { value: 'SHIFT', label: 'SHIFT' };
-
 
   useEffect(() => {
+    dispatch(getTargetsByRosterAndCategory(JSON.stringify([format(startDate, 'yyyy-MM-dd') + ':' + shift]), selectedTargetType.value));
     // dispatch(getTargetsByRoster(format(startDate, 'yyyy-MM-dd') + ':' + shift)); // Dispatch action to fetch data on component mount
 
   }, [dispatch, shift, startDate]);
@@ -95,6 +124,10 @@ const Target = (props: any) => {
   }, [dispatch]);
 
 
+  useEffect(() => {
+    setData(generateData());
+  }, [targets])
+
   const onDateChange: DatePickerProps['onChange'] = (date, dateString) => {
     if (date) {
       setStartDate(date.toDate());
@@ -104,24 +137,37 @@ const Target = (props: any) => {
   };
 
   const onShiftChange = (shiftInfo) => {
-    setShift(shiftInfo.value);
-    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo.value, date: format(startDate, 'yyyy-MM-dd') });
+    setShift(shiftInfo);
+    var params: URLSearchParams = new URLSearchParams({ shift: shiftInfo, date: format(startDate, 'yyyy-MM-dd') });
     setSearchParams(params);
   }
 
   const onTargetTypeChange = (targetType) => {
-    selectedTargetType = targetType;
+    setSelectedTargetType(targetType);
 
-    switch (selectedTargetType.value) {
+    updateView(targetType.value);
+  };
+
+  const updateView = (targetType) => {
+    switch (targetType) {
       case 'SHIFT':
         setHideShiftSelect(false);
         setPickerType('date')
         setPickerFormat('YYYY-MM-DD')
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify([format(startDate, 'yyyy-MM-dd') + ':' + shift]), targetType));
         break;
       case 'DAILY':
         setHideShiftSelect(true);
         setPickerType('date')
         setPickerFormat('YYYY-MM-DD')
+
+        let rosters: any[] = [];
+        shifts.map((shift) => {
+          rosters.push(format(startDate, 'yyyy-MM-dd') + ':' + shift.value)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(rosters), targetType));
         break;
       case 'WEEKLY':
         setHideShiftSelect(true);
@@ -137,33 +183,38 @@ const Target = (props: any) => {
       default:
         break;
     }
+  }
 
-  };
 
-
-  const onChange = (operator, vehicle) => {
-    const targetsInfo: any = targets.filter(roster => {
-      if (roster['vehicle'] && roster['vehicle'].id) {
-        return roster['vehicle'].id === vehicle.id;
+  const onChange = (targetData) => {
+    const targetsInfo: any = targets.filter(target => {
+      if (target && target['vehicleId']) {
+        return target['vehicleId'] === targetData.truckId;
       }
     });
 
     var target: any = {};
 
+    if (targetsInfo && targetsInfo[0]) {
+      target = targetsInfo[0];
+    }
+
+    target.data = _.pick(targetData, ['availablePer', 'availability', 'standby', 'utilization', 'loads', 'tonnes']);
     target.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
+    target.category = selectedTargetType.value;
 
     if (target.id) {
-      const rosterId = target.id;
+      const targetId = target.id;
       delete target._type;
       delete target.createdAt;
       delete target.updatedAt;
       delete target.id;
       delete target._id;
-      target.vehicleId = _.cloneDeep(target.vehicle.id);
       delete target.vehicle;
+      dispatch(updateTarget(targetId, target));
       // dispatch(updateTarget(rosterId, target));
     } else {
-      target.vehicleId = _.cloneDeep(target.vehicle.id);
+      target.vehicleId = _.cloneDeep(targetData.truckId);
       delete target.vehicle;
       // dispatch(addTarget(target));
     }
@@ -180,78 +231,96 @@ const Target = (props: any) => {
     return false;
   }
 
-  const handleOnAdd = () => {
-    // setting as it is not edit
-    // setIsEdit(false);
-    // // clearing the resource state if previous value is set
-    // setBench("");
-    // // show dialog
-    // toggle();
+  const generateData = () => {
+
+    let targetsData: [any] = [{
+      truckId: undefined,
+      truckModel: undefined,
+      availablePer: undefined,
+      availability: undefined,
+      standby: undefined,
+      utilization: undefined,
+      loads: undefined,
+      tonnes: undefined
+    }];
+    trucks && trucks.map((truck) => {
+      let vehicleTargetData = _.filter(targets, (target) => { return target && target.vehicleId === truck.id });
+      var target = targetsConfig[selectedTargetType.value];
+      if (vehicleTargetData && vehicleTargetData[0] && vehicleTargetData[0].data) target = _.cloneDeep(vehicleTargetData[0].data);
+
+      if (target.availability && target.availability != 0) {
+        if (selectedTargetType.value === 'SHIFT') {
+          target['availablePer'] = (target.availability / shiftDuration(shifts, shift)) * 100
+        } else {
+          target['availablePer'] = (target.availability / 24) * 100
+        }
+      }
+
+      if (target.standby && target.standby != 0 && (!target.utilization || target.utilization === 0)) {
+        target.utilization = _.round(target.availability - target.standby, 2);
+      }
+
+      if (!target.tonnes || target.tonnes == 0) {
+        target.tonnes = _.round((target.utilization / avgTripTime) * truck.capacity, 2);
+      }
+
+      if (!targetsData || !targetsData[0] || !targetsData[0].truckId) {
+        targetsData = [{ truckId: truck.id, truckModel: truck.name, availablePer: target.availablePer, availability: target.availability, standby: target.standby, utilization: target.utilization, loads: target.loads, tonnes: target.tonnes }]
+      } else {
+        targetsData.push({ truckId: truck.id, truckModel: truck.name, availablePer: target.availablePer, availability: target.availability, standby: target.standby, utilization: target.utilization, loads: target.loads, tonnes: target.tonnes })
+      }
+
+    })
+
+    return targetsData;
   };
 
-  const handleOnEdit = useCallback(
-    (arg: any) => {
-      // reading the row data from table
-      //     const bench = parseBenchData(arg)
-      //     // saving to state
-      //     setBench(bench);
-      //     // setting the dialog to show as edit
-      //     setIsEdit(true);
-      //     // show dialog
-      //     toggle();
-    },
-    [toggle]
-  );
-
-  const handleOnDelete = useCallback((arg: string) => {
-    // dispatch(removeBench(arg));
-    // onPaginationPageChange(1);
-  }, [dispatch]);
-
-  const handleOnSubmit = ((values, { resetForm }) => {
-
-    // const _bench = parseBenchData(values)
-
-    // if (isEdit) {
-    //   _bench['id'] = bench.id
-    //   delete _bench.id;
-    //   dispatch(updateBench(bench.id, _bench));
-    //   setIsEdit(false);
-    // } else {
-    //   delete _bench.id;
-    //   dispatch(addBench(_bench));
-    // }
-    // // reset form after saving
-    // resetForm();
-    // // toggle the dialog
-    // toggle();
-  })
-
-  const [data, setData] = useState([{
-    truckModel: 'DT101',
-    availablePer: 30,
-    availableHrs: 7,
-    standbyHrs: 3,
-    utilizeHrs: 2,
-    loads: 23,
-    tonnes: 2455
-
-  }]);
-
   const onFieldChange = (rowIndex, columnId, value) => {
-    // const value = event.target.value.replace(/\+|-/ig, '');
-    // console.log(value, event);
-    // data[0].availableHrs = value
-    // event.preventDefault();
+
     setData((prevState) => {
       const newData = [...prevState];
       newData[rowIndex] = {
         ...newData[rowIndex],
-        [columnId]: value,
+        [columnId]: parseInt(value)
       };
+
+      if (columnId === 'availablePer') {
+
+        if (selectedTargetType.value === 'SHIFT') {
+          newData[rowIndex]['availability'] = (shiftDuration(shifts, shift) * parseInt(value)) / 100;
+        } else {
+          newData[rowIndex]['availability'] = (24 * parseInt(value)) / 100;
+        }
+      }
+
+      if (columnId === 'availablePer' || columnId === 'standby') {
+        if (newData[rowIndex].standby && newData[rowIndex].standby != 0) {
+          newData[rowIndex].utilization = _.round(newData[rowIndex].availability - newData[rowIndex].standby, 2);
+        }
+      }
+      if (columnId === 'availablePer' || columnId === 'utilization') {
+        if (newData[rowIndex].utilization && newData[rowIndex].utilization != 0) {
+          newData[rowIndex].standby = _.round(newData[rowIndex].availability - newData[rowIndex].utilization, 2);
+        }
+      }
+
       return newData;
     })
   };
+
+  const handleKeyPress = (event, rowIndex, columnId) => {
+    if (event.key === "Enter" || event.type === "blur") {
+      setData((prevState) => {
+        const newData = [...prevState];
+        // let vehicleTargetData = _.filter(targets, (target) => { return target && newData && newData[rowIndex] && target.vehicleId === newData[rowIndex]['truckId'] });
+        // vehicleTargetData = vehicleTargetData[0];
+        // if (!vehicleTargetData || (vehicleTargetData && vehicleTargetData['data'] && vehicleTargetData['data'][columnId] !== value)) {
+        onChange(newData[rowIndex]);
+        // }
+        return newData;
+      });
+    }
+  }
 
   const columns: TableColumn[] = useMemo(
     () => [
@@ -268,54 +337,54 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} onKeyDown={(event) => handleKeyPress(event, row.index, column.id)} onBlur={(event) => handleKeyPress(event, row.index, column.id)} value={getValue()}> </Input>
           );
         }
       },
       {
         header: "Available (Hrs)",
-        accessorKey: "availableHrs",
+        accessorKey: "availability",
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} onKeyDown={(event) => handleKeyPress(event, row.index, column.id)} value={getValue()}> </Input>
           );
         }
       },
       {
         header: "Standby (Hrs)",
-        accessorKey: "standbyHrs",
+        accessorKey: "standby",
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} onKeyDown={(event) => handleKeyPress(event, row.index, column.id)} value={getValue()}> </Input>
           );
         }
       },
       {
         header: "Utilisation (Hrs)",
-        accessorKey: "utilizeHrs",
+        accessorKey: "utilization",
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} onKeyDown={(event) => handleKeyPress(event, row.index, column.id)} value={getValue()}> </Input>
           );
         }
       },
-      {
-        header: "Total Loads",
-        accessorKey: "loads",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
-          );
-        }
-      },
+      // {
+      //   header: "Total Loads",
+      //   accessorKey: "loads",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: ({ getValue, row, column }) => {
+      //     return (
+      //       <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+      //     );
+      //   }
+      // },
       {
         header: "Total Tonnes",
         accessorKey: "tonnes",
@@ -323,38 +392,38 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} value={getValue()}> </Input>
+            <Input type='number' onChange={(event) => onFieldChange(row.index, column.id, event.target.value)} onKeyDown={(event) => handleKeyPress(event, row.index, column.id)} value={getValue()}> </Input>
           );
         }
       },
-      {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: "",
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`
-          const id = cellProps.row.original.id
-          return (
-            <div className="d-flex gap-3">
-              <Link
-                to="#!"
-                className="text-success"
-                onClick={(event: any) => {
-                  event.preventDefault();
-                  const benchData = cellProps.row.original;
-                  handleOnEdit(benchData);
-                }}
-              >
-                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
-              <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
-            </div>
-          );
-        },
-      },
+      // {
+      //   header: "Actions",
+      //   enableColumnFilter: false,
+      //   accessorKey: "",
+      //   enableSorting: false,
+      //   cell: (cellProps: any) => {
+      //     const name = `${cellProps.row.original.name}`
+      //     const id = cellProps.row.original.id
+      //     return (
+      //       <div className="d-flex gap-3">
+      //         <Link
+      //           to="#!"
+      //           className="text-success"
+      //           onClick={(event: any) => {
+      //             event.preventDefault();
+      //             const benchData = cellProps.row.original;
+      //             handleOnEdit(benchData);
+      //           }}
+      //         >
+      //           <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+      //         </Link>
+      //         <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
+      //       </div>
+      //     );
+      //   },
+      // },
     ],
-    [handleOnEdit, handleOnDelete]
+    []
   );
 
   return (
@@ -366,10 +435,10 @@ const Target = (props: any) => {
           <Row>
             <Col lg="12">
               <Form
-                onSubmit={e => {
-                  e.preventDefault();
-                  return false;
-                }}
+              // onSubmit={e => {
+              //   e.preventDefault();
+              //   return false;
+              // }}
               >
                 <Row>
 
@@ -389,8 +458,8 @@ const Target = (props: any) => {
                         options={targetTypes}
                         onChange={onTargetTypeChange}
                       />
-                      <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-                      <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
+                      <DatePicker allowClear={false} value={dayjs(startDate)} format={pickerFormat} type={pickerType} onChange={onDateChange} />
+                      <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
                     </Space>
                   </Col>
 
@@ -419,21 +488,12 @@ const Target = (props: any) => {
                     data={data || []}
                     total={data.length}
                     isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
                     isPagination={true}
                     isAddButton={false}
-                    buttonName="New Bench"
                   />
                 </CardBody>
               </Card>
-              <FormModal fields={[]}
-                modalOpen={modal}
-                isEdit={isEdit}
-                resource={"Bench"}
-                initialValues={""}
-                schema={""}
-                handleOnSubmit={handleOnSubmit}
-                handleOnCancel={toggle} />
+
             </Col>
           </Row>
         </Container>

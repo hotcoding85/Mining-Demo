@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -17,7 +17,7 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { changeLayoutMode } from "slices/thunk";
+import { changeLayoutMode, changeSideMenuState } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { Switch } from "antd";
 
@@ -83,6 +83,7 @@ const Header = (props: any) => {
   const selectProperties = createSelector(
     selectLayoutState,
     (layout) => ({
+      isSideMenuOpen: layout.sideMenuOpen,
       layoutType: layout.layoutTypes,
       layoutModeType: layout.layoutModeTypes,
       layoutWidthType: layout.layoutWidthTypes,
@@ -92,11 +93,12 @@ const Header = (props: any) => {
       leftSidebarTypes: layout.leftSidebarTypes
     })
   );
+  
   const {
-    layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
+    isSideMenuOpen, layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
   } = useSelector(selectProperties);
-
-
+  
+  
   return (
     <React.Fragment>
       <header id="page-topbar">
