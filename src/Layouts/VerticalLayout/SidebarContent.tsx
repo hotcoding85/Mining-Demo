@@ -162,7 +162,25 @@ const SidebarContent = (props: any) => {
                   <Link to="/">{props.t("Digging Summary")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Manager TUM Report")}</Link>
+                  <Link to="/">{props.t("Equipment Activity Gantt")}</Link>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-pulse"></i>
+                <span>{props.t("Dispatch Centre")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/dispatch">{props.t("Dispatch Live")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Fuel Status")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Scheduler")}</Link>
                 </li>
               </ul>
             </li>
@@ -207,7 +225,10 @@ const SidebarContent = (props: any) => {
                   <Link to="/fleet-timeline">{props.t("Fleet Timeline")}</Link>
                 </li>
                 <li>
-                  <Link to="/route-replay">{props.t("GPS Replay")}</Link>
+                  <Link to="/route-replay">{props.t("GPS Fleet Tracking")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Pit View")}</Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Production Targets")}</Link>
@@ -301,6 +322,18 @@ const SidebarContent = (props: any) => {
                 <i className="bx bx-chip"></i>
                 <span>{props.t("Asset Insights")}</span>
               </Link>
+            </li>
+
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-pulse"></i>
+                <span>{props.t("Managers Centre")}</span>
+              </Link>
+              <ul className="sub-menu">
+              <li>
+                  <Link to="/">{props.t("Equipment Activity Gantt")}</Link>
+                </li>
+              </ul>
             </li>
 
             <li>

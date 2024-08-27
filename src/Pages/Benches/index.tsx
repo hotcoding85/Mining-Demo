@@ -1,9 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, } from "react";
-import { Card, CardBody, Col, Container, Row, } from "reactstrap";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, { TableColumn, } from "../../Components/Common/TableContainer";
-import { AppState } from "store";
-import { getAllBenches, addBench, updateBench, removeBench, } from "slices/thunk";
+import TableContainer, {
+  TableColumn,
+} from "../../Components/Common/TableContainer";
+import {
+  getAllBenches,
+  addBench,
+  updateBench,
+  removeBench,
+  upsertBenches,
+} from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
@@ -12,6 +25,7 @@ import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
+import ImportCsvModal from "Components/Common/ImportCsvModal";
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
@@ -21,16 +35,18 @@ const Benches = (props: any) => {
 
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [importCsvModal, setImportCsvModal] = useState<boolean>(false);
 
   const selectProperties = createSelector(
     (state: any) => state.Benches,
     (benches) => ({
       data: benches.data,
       total: benches.total,
+      loading: benches.loading,
     })
   );
 
-  const { data, total } = useSelector(selectProperties);
+  const { data } = useSelector(selectProperties);
 
   useEffect(() => {
     dispatch(getAllBenches()); // Dispatch action to fetch data on component mount
@@ -40,15 +56,19 @@ const Benches = (props: any) => {
     setModal(!modal);
   }, [modal]);
 
+  const importCsvModalToggle = useCallback(() => {
+    setImportCsvModal(!importCsvModal);
+  }, [importCsvModal]);
+
   const parseBenchData = (doc) => {
     return {
       id: (doc && doc.id) || "",
       name: (doc && doc.name) || "",
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
-      status: (doc && doc.status) || "ACTIVE"
-    }
-  }
+      status: (doc && doc.status) || "ACTIVE",
+    };
+  };
 
   var node: any = useRef();
   const onPaginationPageChange = (page: any) => {
@@ -66,24 +86,30 @@ const Benches = (props: any) => {
   const initialValues = parseBenchData(bench);
 
   const validationSchema = Yup.object().shape({
-    name: isEdit ? Yup.string() : Yup.string()
-      .min(2, 'Bench name must be at least 2 characters')
-      .required("Please enter bench name")
-      .test('unique', 'Bench with this name already exists', async function (value) {
-        if (value && value.length >= 2) {
-          try {
-            const response = await isBenchNameUnique(value);
-            return response.available; // assuming your API returns { available: true } if username is unique
-          } catch (error) {
-            console.error('Error checking name uniqueness:', error);
-            if (error && error['data'] && error['data']['available']) {
+    name: isEdit
+      ? Yup.string()
+      : Yup.string()
+          .min(2, "Bench name must be at least 2 characters")
+          .required("Please enter bench name")
+          .test(
+            "unique",
+            "Bench with this name already exists",
+            async function (value) {
+              if (value && value.length >= 2) {
+                try {
+                  const response = await isBenchNameUnique(value);
+                  return response.available; // assuming your API returns { available: true } if username is unique
+                } catch (error) {
+                  console.error("Error checking name uniqueness:", error);
+                  if (error && error["data"] && error["data"]["available"]) {
+                    return true;
+                  }
+                  return false; // treat as not unique on error
+                }
+              }
               return true;
             }
-            return false; // treat as not unique on error
-          }
-        }
-        return true;
-      }),
+          ),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
     status: Yup.string(),
@@ -91,36 +117,36 @@ const Benches = (props: any) => {
 
   const fields = [
     {
-      id: 'name',
-      name: 'name',
-      label: 'Name',
-      type: 'input',
+      id: "name",
+      name: "name",
+      label: "Name",
+      type: "input",
       editable: true,
-      inputType: 'text'
+      inputType: "text",
     },
     {
-      id: 'category',
-      name: 'category',
-      label: 'Category',
-      type: 'select',
-      options: BenchCategories
+      id: "category",
+      name: "category",
+      label: "Category",
+      type: "select",
+      options: BenchCategories,
     },
     {
-      id: 'elevation',
-      name: 'elevation',
-      label: 'Elevation',
-      type: 'input',
+      id: "elevation",
+      name: "elevation",
+      label: "Elevation",
+      type: "input",
       editable: true,
-      inputType: 'number'
+      inputType: "number",
     },
     {
-      id: 'b_status',
-      name: 'status',
-      label: 'Status',
-      type: 'select',
-      options: StatusOptions
-    }
-  ]
+      id: "b_status",
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: StatusOptions,
+    },
+  ];
 
   const handleOnAdd = () => {
     // setting as it is not edit
@@ -131,10 +157,19 @@ const Benches = (props: any) => {
     toggle();
   };
 
+  const handleOnImport = () => {
+    // setting as it is not edit
+    setIsEdit(false);
+    // clearing the resource state if previous value is set
+    setBench("");
+    // show import csv dialog
+    importCsvModalToggle();
+  };
+
   const handleOnEdit = useCallback(
     (arg: any) => {
       // reading the row data from table
-      const bench = parseBenchData(arg)
+      const bench = parseBenchData(arg);
       // saving to state
       setBench(bench);
       // setting the dialog to show as edit
@@ -145,16 +180,31 @@ const Benches = (props: any) => {
     [toggle]
   );
 
-  const handleOnDelete = useCallback((arg: string) => {
-    dispatch(removeBench(arg));
-    onPaginationPageChange(1);
-  }, [dispatch]);
+  const handleOnDelete = useCallback(
+    (arg: string) => {
+      dispatch(removeBench(arg));
+      onPaginationPageChange(1);
+    },
+    [dispatch]
+  );
 
   const columns: TableColumn[] = useMemo(
     () => [
       {
         header: "Name",
         accessorKey: "name",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Block ID",
+        accessorKey: "blockId",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Source",
+        accessorKey: "source",
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -170,6 +220,30 @@ const Benches = (props: any) => {
             </div>
           );
         },
+      },
+      {
+        header: "Au g/t",
+        accessorKey: "augt",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Density",
+        accessorKey: "density",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Tonnes",
+        accessorKey: "tonnes",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Volume",
+        accessorKey: "volume",
+        enableColumnFilter: false,
+        enableSorting: true,
       },
       {
         header: "Elevation",
@@ -196,8 +270,8 @@ const Benches = (props: any) => {
         accessorKey: "",
         enableSorting: false,
         cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`
-          const id = cellProps.row.original.id
+          const name = `${cellProps.row.original.name}`;
+          const id = cellProps.row.original.id;
           return (
             <div className="d-flex gap-3">
               <Link
@@ -220,12 +294,11 @@ const Benches = (props: any) => {
     [handleOnEdit, handleOnDelete]
   );
 
-  const handleOnSubmit = ((values, { resetForm }) => {
-
-    const _bench = parseBenchData(values)
+  const handleOnSubmit = (values, { resetForm }) => {
+    const _bench = parseBenchData(values);
 
     if (isEdit) {
-      _bench['id'] = bench.id
+      _bench["id"] = bench.id;
       delete _bench.id;
       dispatch(updateBench(bench.id, _bench));
       setIsEdit(false);
@@ -237,7 +310,25 @@ const Benches = (props: any) => {
     resetForm();
     // toggle the dialog
     toggle();
-  })
+  };
+
+  const handleUploadBenches = async (data) => {
+    const benchData = data.map((item) => ({
+      name: item.source,
+      source: item["source_type"],
+      augt: item["au_g/t"],
+      blockId: item["block_id"],
+      density: item["digblock_density"],
+      tonnes: item["digblock_tonnes"],
+      volume: item["digblock_volume"],
+      status: "ACTIVE",
+    }));
+    try {
+      await dispatch(upsertBenches({ data: benchData }));
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -254,20 +345,31 @@ const Benches = (props: any) => {
                     // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
+                    handleOnImportClick={handleOnImport}
                     isPagination={true}
                     isAddButton={true}
                     buttonName="New Bench"
+                    isImportButton={true}
+                    importButtonName="Import"
                   />
                 </CardBody>
               </Card>
-              <FormModal fields={fields}
+              <FormModal
+                fields={fields}
                 modalOpen={modal}
                 isEdit={isEdit}
                 resource={"Bench"}
                 initialValues={initialValues}
                 schema={validationSchema}
                 handleOnSubmit={handleOnSubmit}
-                handleOnCancel={toggle} />
+                handleOnCancel={toggle}
+              />
+              <ImportCsvModal
+                title="Upload benches"
+                isOpen={importCsvModal}
+                onClose={importCsvModalToggle}
+                onUpload={handleUploadBenches}
+              />
             </Col>
           </Row>
         </Container>

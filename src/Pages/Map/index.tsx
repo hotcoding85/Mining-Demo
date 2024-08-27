@@ -925,6 +925,8 @@ const Map = ({ socket }) => {
         setMarkers([]);
     }
 
+    let animationRequestId: number;
+
     useEffect(() => {
         clearMarkers();
         const markersData: MarkerData[] = [];
@@ -948,6 +950,7 @@ const Map = ({ socket }) => {
         }
 
         if (mapRef.current && (filter == 'DUMP_TRUCK' || filter == 'All Equipment')) {
+            
             if (mapRef.current.isStyleLoaded()) {
                 mapRef.current.addSource('line', {
                     type: 'geojson',

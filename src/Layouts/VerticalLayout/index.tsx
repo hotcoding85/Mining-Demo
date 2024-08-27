@@ -53,7 +53,7 @@ const VerticalLayout = (props: any) => {
     leftSideBarThemeTypes,
     leftSidebarImageTypes]);
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   useEffect(() => {
     if (open) {
       document.body.classList.add("right-bar-enabled")

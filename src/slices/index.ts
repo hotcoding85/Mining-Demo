@@ -13,7 +13,7 @@ import ShiftRosterReducer, { ShiftRosterState } from './shiftroster/reducer';
 import GeoFenceReducer, { GeoFenceState } from './geofences/reducer';
 import DispatchReducer, { DispatchState } from './dispatch/reducer';
 import EventsReducer, { EventsState } from './events/reducer';
-import TargetReducer, { TargetState } from './target/reducer';
+// import TargetReducer, { TargetState } from './target/reducer';
 
 export interface RootState {
   Layout: Reducer<LayoutState> | undefined;
@@ -27,7 +27,7 @@ export interface RootState {
   GeoFence: Reducer<GeoFenceState> | undefined;
   Dispatch: Reducer<DispatchState> | undefined;
   Events: Reducer<DispatchState> | undefined;
-  Target: Reducer<TargetState> | undefined;
+  // Target: Reducer<TargetState> | undefined;
   // Add other slices as needed
 }
 
@@ -43,7 +43,7 @@ const rootReducer = combineReducers<Partial<RootState>>({
   GeoFence: GeoFenceReducer,
   Dispatch: DispatchReducer,
   Events: EventsReducer,
-  Target: TargetReducer
+  // Target: TargetReducer
 });
 
 export default rootReducer;
