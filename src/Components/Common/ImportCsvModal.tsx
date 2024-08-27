@@ -33,7 +33,7 @@ const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
 
   const stepsContent = [
     {
-      title: "Upload Benchs",
+      title: "Upload Benches",
       content: (
         <Dragger
           name="benchUpload"

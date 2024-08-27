@@ -49,7 +49,7 @@ const Benches = (props: any) => {
   const { data } = useSelector(selectProperties);
 
   useEffect(() => {
-    dispatch(getAllBenches()); // Dispatch action to fetch data on component mount
+    dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   const toggle = useCallback(() => {

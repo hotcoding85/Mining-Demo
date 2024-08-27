@@ -3,7 +3,6 @@ export const csvFileToJson = (file, callback) => {
     
     reader.onload = (e) => {
       const text = e.target?.result;
-      console.log(text)
       const json = csvToJson(text);
       callback(json);
     };

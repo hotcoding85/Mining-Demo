@@ -60,7 +60,7 @@ const benchesSlice = createSlice({
       var benches = action.payload.data;
       var data: Bench[] = [];
       state.data.forEach((bench) => {
-        var foundData = benches.find((item) => item.id !== bench.id);
+        var foundData = benches.find((item) => item.id === bench.id);
         !!foundData ? data.push(foundData) : data.push(bench);
       });
       state.data = data;
