@@ -73,7 +73,7 @@ const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
         tag="h4"
         close={<button className="close" onClick={onClose} type="button" />}
       >
-        {title}
+        <h4 className="text-black">{title}</h4>
       </ModalHeader>
       <ModalBody>
         <Steps current={isUploading ? 1 : 0} items={renderSteps()} />

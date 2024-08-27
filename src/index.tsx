@@ -1,34 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import { Store } from './store';
-import { ConfigProvider, theme } from 'antd';
+import { Store } from "./store";
+import { ConfigProvider, theme } from "antd";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 
 root.render(
   <Provider store={Store}>
     <React.Fragment>
       <BrowserRouter basename={process.env.PUBLIC_URL}>
-        <ConfigProvider theme={{
-          token: {
-            colorPrimary: '#343a40',
-            colorBgContainerDisabled: '#f6f6f6',
-            colorTextDisabled: 'gray'
-          }
-        }}>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorPrimary: "#343a40",
+              colorBgContainerDisabled: "#f6f6f6",
+              colorTextDisabled: "gray",
+            },
+          }}
+        >
           <App />
         </ConfigProvider>
       </BrowserRouter>
     </React.Fragment>
   </Provider>
-
 );
 
 // If you want to start measuring performance in your app, pass a function
