@@ -22,6 +22,17 @@ export const shifts: any = [
   { value: 'NS', label: 'Night Shift', startTime: "18:00:00", endTime: "05:59:59" }
 ];
 
+export const shiftDuration = (shifts, shift) => {
+
+  let currentShiftData = shifts.filter(shiftData => { return shiftData.value === shift });
+  if (currentShiftData && currentShiftData[0]) {
+    currentShiftData = currentShiftData[0];
+    const shiftDurationData = calculateHours(currentShiftData.startTime, currentShiftData.endTime)
+    return shiftDurationData.hours
+  };
+  return 12;
+}
+
 export const crews: any = [
   { value: 'crewa', label: 'Crew A' },
   { value: 'crewb', label: 'Crew B' },
@@ -79,6 +90,34 @@ export const msToTime = (duration: number, isFormat: boolean = false) => {
     hours,
     minutes
   }
+}
+
+const calculateHours = (startTime, endTime) => {
+  // Define a date object to use today's date
+  const today = new Date();
+
+  // Create Date objects for the start and end times
+  const [startHours, startMinutes, startSeconds] = startTime.split(':').map(Number);
+  const [endHours, endMinutes, endSeconds] = endTime.split(':').map(Number);
+
+  // Set the time for the start and end time on today's date
+  const startDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHours, startMinutes, startSeconds);
+  const endDateTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHours, endMinutes + 1, endSeconds);
+
+  // Calculate the difference in milliseconds
+  const differenceMs: number = endDateTime.getTime() - startDateTime.getTime();
+
+  // Convert milliseconds to hours, minutes, and seconds
+  const totalSeconds = Math.floor(differenceMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    hours: hours,
+    minutes: minutes,
+    seconds: seconds
+  };
 }
 
 export const saveFile = (blob: Blob, fileName: string): void => {

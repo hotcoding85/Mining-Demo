@@ -47,7 +47,7 @@ const authProtectedRoutes = [
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
-  { path: "/dispatch", exact: true, component: <Dispatch /> },
+  { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
   { path: "/daily-production", exact: true, component: <DailyProduction /> },

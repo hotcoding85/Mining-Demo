@@ -9,6 +9,18 @@ const Materials = (props: any) => {
             "payload": 214.5,
             "badgeValue": 0,
             "isBadgeNegative": false
+        },
+        {
+            category: "Ore",
+            payload: 8869134.39,
+            badgeValue: 8.6,
+            "isBadgeNegative": false
+        },
+        {
+            category: "Waste",
+            payload: 9679134.39,
+            badgeValue: 12.2,
+            "isBadgeNegative": true
         }
     ]
 

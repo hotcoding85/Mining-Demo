@@ -66,7 +66,7 @@ const VerticalLayout = (props: any) => {
   return (
     <React.Fragment>
       <div id="layout-wrapper">
-        <Header toggleCanvas={() => setOpen(!open)} />
+        <Header />
         <Sidebar />
         <div className="main-content">
           {props.children}
