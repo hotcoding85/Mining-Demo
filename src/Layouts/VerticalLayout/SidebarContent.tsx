@@ -241,7 +241,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/">{props.t("3D Pit View")}</Link>
                 </li>
                 <li>
-                  <Link to="/route-replay">{props.t("GPS Replay")}</Link>
+                  <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Fuel Status")}</Link>
@@ -341,6 +341,22 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Asset Insights")}</span>
               </Link>
             </li>
+
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bxs-user-badge"></i>
+                <span>{props.t("Managers Centre")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/">{props.t("Manager KPI's")}</Link>
+                </li>
+                <li>
+                  <Link to="/">{props.t("Equipment Activity Gantt")}</Link>
+                </li>
+              </ul>
+            </li>
+
 
             <li>
               <Link to="/reports" className="has-arrow">
