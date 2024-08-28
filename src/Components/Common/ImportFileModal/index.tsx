@@ -2,6 +2,7 @@ import React from "react";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { InboxOutlined } from "@ant-design/icons";
 import { Steps, Upload, Spin } from "antd";
+import "./index.css";
 
 const { Dragger } = Upload;
 

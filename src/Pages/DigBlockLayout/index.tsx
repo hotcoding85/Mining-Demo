@@ -26,38 +26,26 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
-import { csvFileToJson } from "utils/csvConverter";
-import { message } from "antd";
 
-const Benches = (props: any) => {
-  document.title = "Benches | FMS Live";
+const DigBlockLayout = (props: any) => {
+  document.title = "Dig Block Layout | FMS Live";
 
   const dispatch: any = useDispatch();
   const [bench, setBench] = useState<any>();
 
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [importCsvModal, setImportFileModal] = useState<boolean>(false);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [importStrModal, setImportCsvModal] = useState<boolean>(false);
 
   const selectProperties = createSelector(
     (state: any) => state.Benches,
     (benches) => ({
       data: benches.data,
       total: benches.total,
-      loading: benches.loading,
-      error: benches.error,
-      errorMsg: benches.errorMsg
     })
   );
 
-  const { data, error, errorMsg } = useSelector(selectProperties);
-
-  useEffect(() => {
-    if (error) {
-      message.error(errorMsg)
-    }
-  }, [error])
+  const { data } = useSelector(selectProperties);
 
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
@@ -67,9 +55,9 @@ const Benches = (props: any) => {
     setModal(!modal);
   }, [modal]);
 
-  const importCsvModalToggle = useCallback(() => {
-    setImportFileModal(!importCsvModal);
-  }, [importCsvModal]);
+  const importStrModalToggle = useCallback(() => {
+    setImportCsvModal(!importStrModal);
+  }, [importStrModal]);
 
   const parseBenchData = (doc) => {
     return {
@@ -174,7 +162,7 @@ const Benches = (props: any) => {
     // clearing the resource state if previous value is set
     setBench("");
     // show import csv dialog
-    importCsvModalToggle();
+    importStrModalToggle();
   };
 
   const handleOnEdit = useCallback(
@@ -323,41 +311,30 @@ const Benches = (props: any) => {
     toggle();
   };
 
-  const handleUploadBenches = async (file) => {
-    csvFileToJson(file, async (data: any) => {
-      setIsUploading(true);
+  const handleUploadBenches = async (data) => {
+    const benchData = data.map((item) => ({
+      name: item.source,
+      source: item["source_type"],
+      augt: item["au_g/t"],
+      blockId: item["block_id"],
+      density: item["digblock_density"],
+      tonnes: item["digblock_tonnes"],
+      volume: item["digblock_volume"],
+      status: "ACTIVE",
+    }));
 
-      const benchData = data.map((item) => ({
-        name: item.source,
-        source: item["source_type"],
-        augt: item["au_g/t"],
-        blockId: item["block_id"],
-        density: item["digblock_density"],
-        tonnes: item["digblock_tonnes"],
-        volume: item["digblock_volume"],
-        status: "ACTIVE",
-      }));
-
-      try {
-        const success = await dispatch(upsertBenches({ data: benchData }));
-        if (success) {
-          message.success("Successfully uploaded!")
-        }
-      } catch (e) {
-        console.log(e);
-      }
-
-      importCsvModalToggle();
-
-      setIsUploading(false);
-    });
+    try {
+      await dispatch(upsertBenches({ data: benchData }));
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Resources" breadcrumbItem="Benches" />
+          <Breadcrumb title="Resources" breadcrumbItem="Dig Block Layout" />
           <Row>
             <Col lg="12">
               <Card>
@@ -370,10 +347,10 @@ const Benches = (props: any) => {
                     handleOnAddClick={handleOnAdd}
                     handleOnImportClick={handleOnImport}
                     isPagination={true}
-                    isAddButton={true}
-                    buttonName="New Bench"
+                    isAddButton={false}
+                    buttonName="New Dig Block"
                     isImportButton={true}
-                    importButtonName="Import Benches"
+                    importButtonName="Import Dig Block Data"
                   />
                 </CardBody>
               </Card>
@@ -381,18 +358,17 @@ const Benches = (props: any) => {
                 fields={fields}
                 modalOpen={modal}
                 isEdit={isEdit}
-                resource={"Bench"}
+                resource={"Block"}
                 initialValues={initialValues}
                 schema={validationSchema}
                 handleOnSubmit={handleOnSubmit}
                 handleOnCancel={toggle}
               />
               <ImportFileModal
-                title="Upload benches"
-                isOpen={importCsvModal}
-                onClose={importCsvModalToggle}
+                title="Upload Dig Block Data"
+                isOpen={importStrModal}
+                onClose={importStrModalToggle}
                 onUpload={handleUploadBenches}
-                isUploading={isUploading}
               />
             </Col>
           </Row>
@@ -402,4 +378,4 @@ const Benches = (props: any) => {
   );
 };
 
-export default Benches;
+export default DigBlockLayout;

@@ -30,6 +30,7 @@ import Replay from "Pages/Replay";
 import Maintenance from "Pages/Maintenance";
 import MaterialMovement from "Pages/MaterialMovement";
 import ShiftReport from "Pages/Reports/ShiftReport";
+import DigBlockLayout from "Pages/DigBlockLayout";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -62,7 +63,8 @@ const authProtectedRoutes = [
   { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
-  { path: "/reports/shift-report", exact: true, component: <ShiftReport /> }
+  { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
+  { path: "/digblock", exact: true, component: <DigBlockLayout /> }
 ];
 
 const publicRoutes = [
