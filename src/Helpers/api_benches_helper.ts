@@ -21,6 +21,9 @@ export const getBenches = (page, limit, sortBy, sortOrder, name?, category?) => 
 // Create Bench
 export const postBench = (bench: any) => api.create(url.BENCHES, bench);
 
+// Create Bench
+export const postUpsertBenches = (benches: any) => api.create(`${url.BENCHES}/upsert`, benches);
+
 // Update Bench
 export const putBench = (id: string, bench: any) => {
   return api.put(`${url.BENCHES}/${id}`, bench);
