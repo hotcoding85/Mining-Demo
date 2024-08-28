@@ -25,7 +25,9 @@ import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
-import ImportCsvModal from "Components/Common/ImportCsvModal";
+import ImportFileModal from "Components/Common/ImportFileModal";
+import { csvFileToJson } from "utils/csvConverter";
+import { message } from "antd";
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
@@ -35,7 +37,8 @@ const Benches = (props: any) => {
 
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [importCsvModal, setImportCsvModal] = useState<boolean>(false);
+  const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const selectProperties = createSelector(
     (state: any) => state.Benches,
@@ -43,10 +46,18 @@ const Benches = (props: any) => {
       data: benches.data,
       total: benches.total,
       loading: benches.loading,
+      error: benches.error,
+      errorMsg: benches.errorMsg
     })
   );
 
-  const { data } = useSelector(selectProperties);
+  const { data, error, errorMsg } = useSelector(selectProperties);
+
+  useEffect(() => {
+    if (error) {
+      message.error(errorMsg)
+    }
+  }, [error])
 
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
@@ -57,7 +68,7 @@ const Benches = (props: any) => {
   }, [modal]);
 
   const importCsvModalToggle = useCallback(() => {
-    setImportCsvModal(!importCsvModal);
+    setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
   const parseBenchData = (doc) => {
@@ -312,22 +323,34 @@ const Benches = (props: any) => {
     toggle();
   };
 
-  const handleUploadBenches = async (data) => {
-    const benchData = data.map((item) => ({
-      name: item.source,
-      source: item["source_type"],
-      augt: item["au_g/t"],
-      blockId: item["block_id"],
-      density: item["digblock_density"],
-      tonnes: item["digblock_tonnes"],
-      volume: item["digblock_volume"],
-      status: "ACTIVE",
-    }));
-    try {
-      await dispatch(upsertBenches({ data: benchData }));
-    } catch (e) {
-      console.log(e);
-    }
+  const handleUploadBenches = async (file) => {
+    csvFileToJson(file, async (data: any) => {
+      setIsUploading(true);
+
+      const benchData = data.map((item) => ({
+        name: item.source,
+        source: item["source_type"],
+        augt: item["au_g/t"],
+        blockId: item["block_id"],
+        density: item["digblock_density"],
+        tonnes: item["digblock_tonnes"],
+        volume: item["digblock_volume"],
+        status: "ACTIVE",
+      }));
+
+      try {
+        const success = await dispatch(upsertBenches({ data: benchData }));
+        if (success) {
+          message.success("Successfully uploaded!")
+        }
+      } catch (e) {
+        console.log(e);
+      }
+
+      importCsvModalToggle();
+
+      setIsUploading(false);
+    });
   };
 
   return (
@@ -350,7 +373,7 @@ const Benches = (props: any) => {
                     isAddButton={true}
                     buttonName="New Bench"
                     isImportButton={true}
-                    importButtonName="Import"
+                    importButtonName="Import Benches"
                   />
                 </CardBody>
               </Card>
@@ -364,11 +387,12 @@ const Benches = (props: any) => {
                 handleOnSubmit={handleOnSubmit}
                 handleOnCancel={toggle}
               />
-              <ImportCsvModal
+              <ImportFileModal
                 title="Upload benches"
                 isOpen={importCsvModal}
                 onClose={importCsvModalToggle}
                 onUpload={handleUploadBenches}
+                isUploading={isUploading}
               />
             </Col>
           </Row>

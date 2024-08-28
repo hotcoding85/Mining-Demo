@@ -81,6 +81,7 @@ const benchesSlice = createSlice({
     apiError(state, action) {
       state.loading = true;
       state.error = true;
+      state.errorMsg = action.payload?.data?.message;
     },
   },
 });

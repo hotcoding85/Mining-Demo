@@ -55,8 +55,10 @@ export const upsertBenches = (benches: any) => async (dispatch: any) => {
     let response: any;
     response = await postUpsertBenches(benches);
     dispatch(upsertSuccess(response));
+    return true;
   } catch (error) {
     dispatch(apiError(error));
+    return false;
   }
 };
 

@@ -6,28 +6,24 @@ import { csvFileToJson } from "utils/csvConverter";
 
 const { Dragger } = Upload;
 
-interface ImportCsvModalProps {
+interface ImportFileModalProps {
   title: string;
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (data: any) => void;
+  onUpload: (file: any) => void;
+  isUploading?: boolean;
 }
 
-const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
+const ImportFileModal: React.FC<ImportFileModalProps> = ({
   title,
   isOpen,
   onClose,
   onUpload,
+  isUploading = false
 }) => {
-  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const handleCsvFileDrop = (file) => {
-    csvFileToJson(file, async (data: any) => {
-      setIsUploading(true);
-      await onUpload(data);
-      onClose();
-      setIsUploading(false);
-    });
+    onUpload(file);
     return false;
   };
 
@@ -88,4 +84,4 @@ const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
   );
 };
 
-export default ImportCsvModal;
+export default ImportFileModal;
