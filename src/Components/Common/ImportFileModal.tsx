@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { InboxOutlined } from "@ant-design/icons";
 import { Steps, Upload, Spin } from "antd";
-import { csvFileToJson } from "utils/csvConverter";
 
 const { Dragger } = Upload;
 
@@ -64,12 +63,12 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
     }));
 
   return (
-    <Modal isOpen={isOpen}>
+    <Modal isOpen={isOpen} className="import-file-modal">
       <ModalHeader
         tag="h4"
-        close={<button className="close" onClick={onClose} type="button" />}
+        close={<span className="mdi mdi-close noti-icon" onClick={onClose} />}
       >
-        <h4 className="text-black">{title}</h4>
+        <h4 className="modal-title">{title}</h4>
       </ModalHeader>
       <ModalBody>
         <Steps current={isUploading ? 1 : 0} items={renderSteps()} />

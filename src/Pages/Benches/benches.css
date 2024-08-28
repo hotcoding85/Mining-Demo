@@ -1,0 +1,31 @@
+.import-file-modal {
+    .ant-steps-item-title {
+        color: #a6b0cf!important;
+    }
+    
+    .ant-steps-icon {
+        color: white!important;
+    }
+    
+    .ant-steps-item-wait .ant-steps-icon{
+        color: #a6b0cf!important;
+    }
+    
+    .ant-upload-drag-icon svg {
+        fill: #a6b0cf!important;
+    }
+    
+    .ant-upload-text {
+        color: #a6b0cf!important;
+    }
+    
+    .ant-spin-dot-item {
+        color: #a6b0cf!important;
+    }
+
+    .mdi-close {
+        background: transparent;
+        cursor: pointer;
+        font-size: 16px;
+    }
+}

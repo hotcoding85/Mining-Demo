@@ -28,6 +28,7 @@ import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { csvFileToJson } from "utils/csvConverter";
 import { message } from "antd";
+import "./benches.css";
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
