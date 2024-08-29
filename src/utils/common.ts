@@ -18,17 +18,21 @@ export const getDateInFormat = (timestamp, format) => {
 }
 
 export const shifts: any = [
-  { value: 'DS', label: 'Day Shift', startTime: "06:00:00", endTime: "17:59:59" },
-  { value: 'NS', label: 'Night Shift', startTime: "18:00:00", endTime: "05:59:59" }
+  { name: 'DS', description: 'Day Shift', startTime: "06:00:00", endTime: "17:59:59", duration: 720 },
+  { name: 'NS', description: 'Night Shift', startTime: "18:00:00", endTime: "05:59:59", duration: 720 }
 ];
+
+export const shiftsInFormat: any = (shifts) => {
+  return shifts.map((shift) => { return { value: shift.name, label: shift.name } })
+}
 
 export const shiftDuration = (shifts, shift) => {
 
-  let currentShiftData = shifts.filter(shiftData => { return shiftData.value === shift });
+  let currentShiftData = shifts.filter(shiftData => { return shiftData.name === shift });
   if (currentShiftData && currentShiftData[0]) {
     currentShiftData = currentShiftData[0];
     const shiftDurationData = calculateHours(currentShiftData.startTime, currentShiftData.endTime)
-    return shiftDurationData.hours
+    return Math.abs(shiftDurationData.hours)
   };
   return 12;
 }
@@ -54,11 +58,11 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
     let endPrev = previousDay.add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
 
     if ((currentTime.isSame(start) || currentTime.isAfter(start)) && (currentTime.isBefore(end) || currentTime.isSame(end))) {
-      shifTimings = { start, end, shift: shift.value, shiftDate: start.format('YYYY-MM-DD') };
+      shifTimings = { start, end, shift: shift.name, shiftDate: start.format('YYYY-MM-DD') };
       break;
     }
     if ((currentTime.isSame(startPrev) || currentTime.isAfter(startPrev)) && (currentTime.isBefore(endPrev) || currentTime.isSame(endPrev))) {
-      shifTimings = { start: startPrev, end: endPrev, shift: shift.value, shiftDate: startPrev.format('YYYY-MM-DD') };
+      shifTimings = { start: startPrev, end: endPrev, shift: shift.name, shiftDate: startPrev.format('YYYY-MM-DD') };
       break;
     }
   }
@@ -67,7 +71,7 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
 }
 
 export const shiftTimingsByDateandShift = (shiftDate: string, shift: string): ShiftTimingsInfo => {
-  let shiftInfo: Shift = shifts.find((s: Shift) => s.value === shift);
+  let shiftInfo: Shift = shifts.find((s: Shift) => s['name'] === shift);
 
   let startTime: string[] = shiftInfo.startTime.split(":");
   let start: Dayjs = dayjs(shiftDate).set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1])).set('second', parseInt(startTime[2]));

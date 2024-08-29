@@ -26,7 +26,7 @@ export interface RootState {
   ShiftRosters: Reducer<ShiftRosterState> | undefined;
   GeoFence: Reducer<GeoFenceState> | undefined;
   Dispatch: Reducer<DispatchState> | undefined;
-  Events: Reducer<DispatchState> | undefined;
+  Events: Reducer<EventsState> | undefined;
   // Target: Reducer<TargetState> | undefined;
   // Add other slices as needed
 }

@@ -6,7 +6,9 @@ import { getAllFleet } from 'slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import _, { cloneDeep, groupBy } from 'lodash';
-import { Radio, Segmented, Space } from 'antd';
+import { Segmented, Space } from 'antd';
+import { fleetInfo } from 'slices/thunk';
+import { shiftTimings } from 'utils/common';
 
 const FMS = () => {
     document.title = "Fleet Status | FMS Live";
@@ -21,21 +23,33 @@ const FMS = () => {
         })
     );
 
+    const fleetInfoSelect = createSelector(
+        (state: any) => state.Events,
+        (info: any) => ({
+            fleetUtilInfo: info.fleetUtilInfo
+        })
+    )
+
     const [filter, setFilter] = useState<string>('All Equipment');
     const { fleetList, loading } = useSelector(selectProperties);
+    const { fleetUtilInfo } = useSelector(fleetInfoSelect);
     const [isLoading, setLoading] = useState<boolean>(loading);
 
     useEffect(() => {
         dispatch(getAllFleet(1, 50)); // Dispatch action to fetch data on component mount
+
+        const shiftDetails = shiftTimings();
+        dispatch(fleetInfo(`${shiftDetails.shiftDate}:${shiftDetails.shift}`))
     }, [dispatch]);
 
     const getFleet = (type: string) => {
-        // const groupedData: any = groupBy(data, 'fleet');
+        const groupData = groupBy(fleetUtilInfo, 'fleet');
         const filteredData = (cloneDeep(fleetList)).filter((fl) => {
             if (fl.category === type) {
-                if (fleetList[fl.name]) {
-                    fl.data = fleetList[fl.name][0];
+                if (groupData[fl.name]) {
+                    fl.data = groupData[fl.name][0];
                 }
+
                 return true;
             } else {
                 return false;

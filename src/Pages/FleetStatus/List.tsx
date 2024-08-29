@@ -31,6 +31,8 @@ const stateConfig = [
 
 const List = ({ data = [] }: any) => {
 
+    console.log(data);
+
     const getStateColor = (state) => {
         switch (state) {
             case "ACTIVE":
@@ -46,7 +48,6 @@ const List = ({ data = [] }: any) => {
         }
     }
 
-    console.log(data);
     const activeBtn = (ele: any) => {
         if (ele.closest("button").classList.contains("active")) {
             ele.closest("button").classList.remove("active");
