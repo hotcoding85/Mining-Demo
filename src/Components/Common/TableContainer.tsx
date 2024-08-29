@@ -161,7 +161,7 @@ const TableContainer = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getSubRows: row => row.subRows,
+    getSubRows: row => row ? row.subRows : [],
     getExpandedRowModel: getExpandedRowModel(),
   });
 
