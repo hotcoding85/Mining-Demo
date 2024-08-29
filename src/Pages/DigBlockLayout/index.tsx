@@ -51,7 +51,7 @@ const DigBlockLayout = (props: any) => {
 
   const { data: geoJsonData } = useSelector(selectProperties);
 
-  const data = geoJsonData?.map(item => item.properties)
+  const data = geoJsonData?.map((item) => item.properties);
 
   useEffect(() => {
     dispatch(getGeoFences());
@@ -319,18 +319,18 @@ const DigBlockLayout = (props: any) => {
 
   const handleUploadBenches = async (file) => {
     strFileToGeoJSON(file, async ({ features }) => {
-        setIsUploading(true);
+      setIsUploading(true);
 
-        const data = features.map((item) => ({
-          name: item.properties.name,
-          blockId: item.properties.blockId,
-          geoJson: item,
-        }));
+      const data = features.map((item) => ({
+        name: item.properties.name,
+        blockId: item.properties.blockId,
+        geoJson: item,
+      }));
 
-        await dispatch(upsertGeoFence({data: data}));
+      await dispatch(upsertGeoFence({data: data}));
 
-        setIsUploading(false);
-        importStrModalToggle();
+      setIsUploading(false);
+      importStrModalToggle();
     });
   };
 
