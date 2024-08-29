@@ -44,8 +44,8 @@ const DigBlockLayout = (props: any) => {
   const selectProperties = createSelector(
     (state: any) => state.GeoFence,
     (GeoFence) => ({
-      data: GeoFence.data,
-      total: GeoFence.total,
+      data: GeoFence ? GeoFence.data : [],
+      total: GeoFence ? GeoFence.total : 0,
     })
   );
 
@@ -94,27 +94,27 @@ const DigBlockLayout = (props: any) => {
     name: isEdit
       ? Yup.string()
       : Yup.string()
-          .min(2, "Bench name must be at least 2 characters")
-          .required("Please enter bench name")
-          .test(
-            "unique",
-            "Bench with this name already exists",
-            async function (value) {
-              if (value && value.length >= 2) {
-                try {
-                  const response = await isBenchNameUnique(value);
-                  return response.available; // assuming your API returns { available: true } if username is unique
-                } catch (error) {
-                  console.error("Error checking name uniqueness:", error);
-                  if (error && error["data"] && error["data"]["available"]) {
-                    return true;
-                  }
-                  return false; // treat as not unique on error
+        .min(2, "Bench name must be at least 2 characters")
+        .required("Please enter bench name")
+        .test(
+          "unique",
+          "Bench with this name already exists",
+          async function (value) {
+            if (value && value.length >= 2) {
+              try {
+                const response = await isBenchNameUnique(value);
+                return response.available; // assuming your API returns { available: true } if username is unique
+              } catch (error) {
+                console.error("Error checking name uniqueness:", error);
+                if (error && error["data"] && error["data"]["available"]) {
+                  return true;
                 }
+                return false; // treat as not unique on error
               }
-              return true;
             }
-          ),
+            return true;
+          }
+        ),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
     status: Yup.string(),
@@ -319,18 +319,18 @@ const DigBlockLayout = (props: any) => {
 
   const handleUploadBenches = async (file) => {
     strFileToGeoJSON(file, async ({ features }) => {
-        setIsUploading(true);
+      setIsUploading(true);
 
-        const data = features.map((item) => ({
-          name: item.properties.name,
-          blockId: item.properties.blockId,
-          geoJson: item,
-        }));
+      const data = features.map((item) => ({
+        name: item.properties.name,
+        blockId: item.properties.blockId,
+        geoJson: item,
+      }));
 
-        await dispatch(upsertGeoFence({data: data}));
+      await dispatch(upsertGeoFence({ data: data }));
 
-        setIsUploading(false);
-        importStrModalToggle();
+      setIsUploading(false);
+      importStrModalToggle();
     });
   };
 
