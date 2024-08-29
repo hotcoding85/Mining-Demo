@@ -1,57 +1,58 @@
-import React, { useState } from "react";
+import React from "react";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import { InboxOutlined } from "@ant-design/icons";
 import { Steps, Upload, Spin } from "antd";
-import { csvFileToJson } from "utils/csvConverter";
+import "./index.css";
 
 const { Dragger } = Upload;
 
-interface ImportCsvModalProps {
+interface ImportFileModalProps {
   title: string;
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (data: any) => void;
+  onUpload: (file: any) => void;
+  stepOneTitle?: string;
+  stepSecTitle?: string;
+  isUploading?: boolean;
+  accept?: string;
 }
 
-const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
+const ImportFileModal: React.FC<ImportFileModalProps> = ({
   title,
   isOpen,
   onClose,
   onUpload,
+  stepOneTitle,
+  stepSecTitle,
+  isUploading = false,
+  accept,
 }) => {
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-
   const handleCsvFileDrop = (file) => {
-    csvFileToJson(file, async (data: any) => {
-      setIsUploading(true);
-      await onUpload(data);
-      onClose();
-      setIsUploading(false);
-    });
+    onUpload(file);
     return false;
   };
 
   const stepsContent = [
     {
-      title: "Upload Benches",
+      title: stepOneTitle || "Upload Benches",
       content: (
         <Dragger
           name="benchUpload"
           multiple={false}
-          accept=".csv,.str"
+          accept={accept || ".csv"}
           beforeUpload={handleCsvFileDrop}
         >
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Click or drag file to this area to upload benches CSV file
+            Click or drag file to this area to upload benches {accept || ".csv"} file
           </p>
         </Dragger>
       ),
     },
     {
-      title: "Validate File",
+      title: stepSecTitle || "Validate File",
       content: (
         <div className="d-flex flex-column align-items-center gap-2">
           <Spin size="large" />
@@ -68,12 +69,12 @@ const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
     }));
 
   return (
-    <Modal isOpen={isOpen}>
+    <Modal isOpen={isOpen} className="import-file-modal">
       <ModalHeader
         tag="h4"
-        close={<button className="close" onClick={onClose} type="button" />}
+        close={<span className="mdi mdi-close noti-icon" onClick={onClose} />}
       >
-        <h4 className="text-black">{title}</h4>
+        <h4 className="modal-title">{title}</h4>
       </ModalHeader>
       <ModalBody>
         <Steps current={isUploading ? 1 : 0} items={renderSteps()} />
@@ -88,4 +89,4 @@ const ImportCsvModal: React.FC<ImportCsvModalProps> = ({
   );
 };
 
-export default ImportCsvModal;
+export default ImportFileModal;
