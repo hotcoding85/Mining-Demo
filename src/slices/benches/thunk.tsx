@@ -13,6 +13,7 @@ import {
   deleteSuccess,
   upsertSuccess,
 } from "./reducer";
+import { toast } from "react-toastify";
 
 export const getAllBenches =
   (
@@ -55,10 +56,10 @@ export const upsertBenches = (benches: any) => async (dispatch: any) => {
     let response: any;
     response = await postUpsertBenches(benches);
     dispatch(upsertSuccess(response));
-    return true;
-  } catch (error) {
+    toast.success("Successfully uploaded!", {autoClose: 2000})
+  } catch (error: any) {
+    toast.error(error?.data?.message || "Server Error!" , { autoClose: 2000 });
     dispatch(apiError(error));
-    return false;
   }
 };
 

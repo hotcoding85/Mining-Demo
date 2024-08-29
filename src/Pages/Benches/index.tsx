@@ -46,18 +46,10 @@ const Benches = (props: any) => {
       data: benches.data,
       total: benches.total,
       loading: benches.loading,
-      error: benches.error,
-      errorMsg: benches.errorMsg
     })
   );
 
-  const { data, error, errorMsg } = useSelector(selectProperties);
-
-  useEffect(() => {
-    if (error) {
-      message.error(errorMsg)
-    }
-  }, [error])
+  const { data } = useSelector(selectProperties);
 
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
@@ -338,17 +330,9 @@ const Benches = (props: any) => {
         status: "ACTIVE",
       }));
 
-      try {
-        const success = await dispatch(upsertBenches({ data: benchData }));
-        if (success) {
-          message.success("Successfully uploaded!")
-        }
-      } catch (e) {
-        console.log(e);
-      }
+      await dispatch(upsertBenches({ data: benchData }));
 
       importCsvModalToggle();
-
       setIsUploading(false);
     });
   };

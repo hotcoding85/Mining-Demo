@@ -11,7 +11,10 @@ interface ImportFileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpload: (file: any) => void;
+  stepOneTitle?: string;
+  stepSecTitle?: string;
   isUploading?: boolean;
+  accept?: string;
 }
 
 const ImportFileModal: React.FC<ImportFileModalProps> = ({
@@ -19,9 +22,11 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
   isOpen,
   onClose,
   onUpload,
-  isUploading = false
+  stepOneTitle,
+  stepSecTitle,
+  isUploading = false,
+  accept,
 }) => {
-
   const handleCsvFileDrop = (file) => {
     onUpload(file);
     return false;
@@ -29,25 +34,25 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
 
   const stepsContent = [
     {
-      title: "Upload Benches",
+      title: stepOneTitle || "Upload Benches",
       content: (
         <Dragger
           name="benchUpload"
           multiple={false}
-          accept=".csv,.str"
+          accept={accept || ".csv"}
           beforeUpload={handleCsvFileDrop}
         >
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Click or drag file to this area to upload benches CSV file
+            Click or drag file to this area to upload benches {accept || ".csv"} file
           </p>
         </Dragger>
       ),
     },
     {
-      title: "Validate File",
+      title: stepSecTitle || "Validate File",
       content: (
         <div className="d-flex flex-column align-items-center gap-2">
           <Spin size="large" />

@@ -1,5 +1,5 @@
-import { getGeoFence, postGeoFence, putGeoFence, deleteGeoFence } from "Helpers/api_geofence_helper";
-import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
+import { getGeoFence, postGeoFence, putGeoFence, deleteGeoFence, postUpsertGeoFence } from "Helpers/api_geofence_helper";
+import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, upsertSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
 
@@ -20,6 +20,18 @@ export const addGeoFence = (GeoFence: any) => async (geoFence: any) => {
         toast.success("GeoFence added successfully", { autoClose: 2000 });
         geoFence(createSuccess(response));
     } catch (error) {
+        geoFence(apiError(error));
+    }
+}
+
+export const upsertGeoFence = (GeoFences: any) => async (geoFence: any) => {
+    try {
+        let response: any;
+        response = await postUpsertGeoFence(GeoFences)
+        toast.success("GeoFences uploaded successfully", { autoClose: 2000 });
+        geoFence(upsertSuccess(response));
+    } catch (error: any) {
+        toast.error(error?.data?.message || "Server Error!" , { autoClose: 2000 });
         geoFence(apiError(error));
     }
 }

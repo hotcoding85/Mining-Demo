@@ -1,21 +1,21 @@
 import React from "react";
-import 'mapbox-gl/dist/mapbox-gl.css';
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 import { authProtectedRoutes, publicRoutes } from "./Routes/allRoutes";
 import { Route, Routes } from "react-router-dom";
 import VerticalLayout from "./Layouts/VerticalLayout";
 import HorizontalLayout from "./Layouts/HorizontalLayout/index";
 import "./assets/scss/theme.scss";
+import "react-toastify/dist/ReactToastify.css";
 import NonAuthLayout from "./Layouts/NonLayout";
 
 //constants
-import {
-  LAYOUT_TYPES,
-} from "./Components/constants/layout";
+import { LAYOUT_TYPES } from "./Components/constants/layout";
 
 import { useSelector } from "react-redux";
-import { createSelector } from 'reselect';
+import { createSelector } from "reselect";
 import AuthProtected from "./Routes/AuthProtected";
+import { ToastContainer } from "react-toastify";
 
 const getLayout = (layoutType: any) => {
   let Layout = VerticalLayout;
@@ -33,11 +33,10 @@ const getLayout = (layoutType: any) => {
 };
 
 function App() {
-
   const selectLeadData = createSelector(
     (state: any) => state.Layout,
     (layout) => ({
-      layoutTypes: layout.layoutTypes
+      layoutTypes: layout.layoutTypes,
     })
   );
   const { layoutTypes } = useSelector(selectLeadData);
@@ -47,8 +46,11 @@ function App() {
     <React.Fragment>
       <Routes>
         {publicRoutes.map((route, idx) => (
-          <Route path={route.path} key={idx}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>}></Route>
+          <Route
+            path={route.path}
+            key={idx}
+            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+          ></Route>
         ))}
         {authProtectedRoutes.map((route, idx) => (
           <Route
@@ -57,15 +59,14 @@ function App() {
             element={
               <React.Fragment>
                 <AuthProtected>
-                  <Layout>
-                    {route.component}
-                  </Layout>
+                  <Layout>{route.component}</Layout>
                 </AuthProtected>
               </React.Fragment>
             }
           />
         ))}
       </Routes>
+      <ToastContainer />
     </React.Fragment>
   );
 }

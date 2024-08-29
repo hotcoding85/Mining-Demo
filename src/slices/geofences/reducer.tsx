@@ -2,75 +2,102 @@ import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
 import { User } from "slices/users/reducer";
 import { Vehicle } from "slices/fleet/reducer";
 
-
 interface CreateResponse {
-    code: number,
-    type: string,
-    success: boolean,
-    data: GeoFence,
+  code: number;
+  type: string;
+  success: boolean;
+  data: GeoFence;
+}
+
+interface UpsertResponse {
+  data: object[];
 }
 
 interface GeoFence {
-    id: string,
-    name: string,
-    locationId: string,
-    geoJson: object
+  id: string;
+  name: string;
+  locationId: string;
+  geoJson: object;
 }
 
 export interface GeoFenceState {
-    data: GeoFence[];
-    page: number;
-    limit: number;
-    total: number;
-    loading: boolean;
-    error: boolean | null;
-    errorMsg: string | null;
+  data: GeoFence[];
+  page: number;
+  limit: number;
+  total: number;
+  loading: boolean;
+  error: boolean | null;
+  errorMsg: string | null;
 }
 
 export const initialState: GeoFenceState = {
-    data: [],
-    page: 1,
-    limit: 10,// for error msg
-    total: 0,
-    loading: false,
-    error: false,// for error
-    errorMsg: null
+  data: [],
+  page: 1,
+  limit: 10, // for error msg
+  total: 0,
+  loading: false,
+  error: false, // for error
+  errorMsg: null,
 };
 
 const geoFenceSlice = createSlice({
-    name: "geoFence",
-    initialState,
-    reducers: {
-        allSuccess(state, action) {
-            state.data = action.payload
-            state.total = action.payload.length
-            state.loading = false;
-            state.error = false;
-        },
-        createSuccess(state, action: PayloadAction<CreateResponse>) {
-            var newFence = action.payload.data
-            state.data = [...state.data, newFence]
-            state.loading = false;
-            state.error = false;
-        },
-        updateSuccess(state, action: PayloadAction<CreateResponse>) {
-            var newFence = action.payload.data
-            var data = state.data.filter(item => item.id !== newFence.id)
-            state.data = [...data, newFence]
-            state.loading = false;
-            state.error = false;
-        },
-        deleteSuccess(state, action) {
-            var deletedId = action.payload.data as string
-            state.data = state.data.filter(item => item.id !== deletedId);
-            state.loading = false;
-            state.error = false;
-        },
-        apiError(state, action) {
-            state.loading = true;
-            state.error = true;
-        },
-    }
+  name: "geoFence",
+  initialState,
+  reducers: {
+    allSuccess(state, action) {
+      state.data = action.payload;
+      state.total = action.payload.length;
+      state.loading = false;
+      state.error = false;
+    },
+    createSuccess(state, action: PayloadAction<CreateResponse>) {
+      var newFence = action.payload.data;
+      state.data = [...state.data, newFence];
+      state.loading = false;
+      state.error = false;
+    },
+    upsertSuccess(state, action: PayloadAction<UpsertResponse>) {
+      var newFences = action.payload.data;
+      var existingData = state.data.filter(
+        (fence: any) =>
+          !newFences.find(
+            (item: any) =>
+              item.name === fence?.properties?.name &&
+              item.blockId === fence?.properties?.blockId
+          )
+      );
+      state.data = [
+        ...existingData,
+        ...newFences.map((item: any) => item.geoJson),
+      ];
+      state.loading = false;
+      state.error = false;
+    },
+    updateSuccess(state, action: PayloadAction<CreateResponse>) {
+      var newFence = action.payload.data;
+      var data = state.data.filter((item) => item.id !== newFence.id);
+      state.data = [...data, newFence];
+      state.loading = false;
+      state.error = false;
+    },
+    deleteSuccess(state, action) {
+      var deletedId = action.payload.data as string;
+      state.data = state.data.filter((item) => item.id !== deletedId);
+      state.loading = false;
+      state.error = false;
+    },
+    apiError(state, action) {
+      state.loading = true;
+      state.error = true;
+    },
+  },
 });
-export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } = geoFenceSlice.actions;
+export const {
+  allSuccess,
+  apiError,
+  createSuccess,
+  updateSuccess,
+  deleteSuccess,
+  upsertSuccess,
+} = geoFenceSlice.actions;
 export default geoFenceSlice.reducer as Reducer<GeoFenceState>;

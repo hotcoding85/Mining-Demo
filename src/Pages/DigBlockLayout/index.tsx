@@ -16,6 +16,8 @@ import {
   updateBench,
   removeBench,
   upsertBenches,
+  upsertGeoFence,
+  getGeoFences,
 } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
@@ -26,6 +28,7 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
+import { strFileToGeoJSON } from "utils/strConverter";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -36,19 +39,22 @@ const DigBlockLayout = (props: any) => {
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [importStrModal, setImportCsvModal] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const selectProperties = createSelector(
-    (state: any) => state.Benches,
-    (benches) => ({
-      data: benches.data,
-      total: benches.total,
+    (state: any) => state.GeoFence,
+    (GeoFence) => ({
+      data: GeoFence.data,
+      total: GeoFence.total,
     })
   );
 
-  const { data } = useSelector(selectProperties);
+  const { data: geoJsonData } = useSelector(selectProperties);
+
+  const data = geoJsonData?.map(item => item.properties)
 
   useEffect(() => {
-    dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
+    dispatch(getGeoFences());
   }, [dispatch]);
 
   const toggle = useCallback(() => {
@@ -311,23 +317,21 @@ const DigBlockLayout = (props: any) => {
     toggle();
   };
 
-  const handleUploadBenches = async (data) => {
-    const benchData = data.map((item) => ({
-      name: item.source,
-      source: item["source_type"],
-      augt: item["au_g/t"],
-      blockId: item["block_id"],
-      density: item["digblock_density"],
-      tonnes: item["digblock_tonnes"],
-      volume: item["digblock_volume"],
-      status: "ACTIVE",
-    }));
+  const handleUploadBenches = async (file) => {
+    strFileToGeoJSON(file, async ({ features }) => {
+        setIsUploading(true);
 
-    try {
-      await dispatch(upsertBenches({ data: benchData }));
-    } catch (e) {
-      console.log(e);
-    }
+        const data = features.map((item) => ({
+          name: item.properties.name,
+          blockId: item.properties.blockId,
+          geoJson: item,
+        }));
+
+        await dispatch(upsertGeoFence({data: data}));
+
+        setIsUploading(false);
+        importStrModalToggle();
+    });
   };
 
   return (
@@ -366,9 +370,12 @@ const DigBlockLayout = (props: any) => {
               />
               <ImportFileModal
                 title="Upload Dig Block Data"
+                accept=".str"
                 isOpen={importStrModal}
                 onClose={importStrModalToggle}
                 onUpload={handleUploadBenches}
+                isUploading={isUploading}
+                stepOneTitle="Upload Dig Block"
               />
             </Col>
           </Row>
