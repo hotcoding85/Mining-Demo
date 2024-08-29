@@ -11,6 +11,8 @@ import { Button, DatePicker, DatePickerProps, Segmented, Space } from 'antd';
 import dayjs from "dayjs";
 import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
+import ConfirmModal from 'Components/Common/ConfirmModal';
+import { shifts, shiftsInFormat } from 'utils/common';
 
 function DraggablePerson({ id, name, disabled, onDragStart }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -92,6 +94,7 @@ const Dispatch = () => {
 
     const [startDate, setStartDate] = useState(new Date());
     const [shift, setShift] = useState<any>('DS');
+    const [confirmModal, setConfirmModal] = useState<any>({ isOpen: false, info: {} });
 
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -266,28 +269,100 @@ const Dispatch = () => {
             // Check if the person is already dropped
             const person = operators.find(p => p.id === activeId);
             const truck = trucks.find(p => p.id === activeId);
-            // Add person to the new excavator 
-            const userData = overId.split('::');
 
             if (person && !person.disabled) {
+                setConfirmModal((prevState) => {
+                    return {
+                        ...prevState,
+                        info: { active, over },
+                        isOpen: true
+                    }
+                })
+            }
 
-                let userType;
+            if (truck && !truck.disabled) {
+                setConfirmModal((prevState) => {
+                    return {
+                        ...prevState,
+                        info: { active, over },
+                        isOpen: true
+                    }
+                })
+            }
+        }
+    };
 
-                if (userData[1] === 'operator') {
-                    userType = 'operators';
-                } else if (userData[1] === 'trainer') {
-                    userType = 'trainers';
+    const handleReplaceDrag = () => {
+        const { active, over } = confirmModal.info;
+        const activeId = active.id as string;
+        const overId = over.id as string;
+        const person = operators.find(p => p.id === activeId);
+        const truck = trucks.find(p => p.id === activeId);
+        // Add person to the new excavator 
+        const userData = overId.split('::');
+
+        userData.push('operator');
+        if (person && !person.disabled) {
+
+            let userType;
+
+            if (userData[1] === 'operator') {
+                userType = 'operators';
+            } else if (userData[1] === 'trainer') {
+                userType = 'trainers';
+            }
+
+            // Disable the person after being dropped
+            const updatedPersons = operators.map(p =>
+                p.id === activeId ? { ...p, disabled: true } : p
+            );
+
+            let excavator = diggers.find(key => key.id === userData[0]);
+
+            if (excavator) {
+
+                // Update the person in shiftRoster
+                let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
+                // let updatedShiftRosters;
+
+                if (shiftRoster && shiftRoster.id) {
+
+                    // updatedShiftRosters = shiftrosters.map(roster =>
+                    //     roster.vehicleId === userData[0] ? roster[userType] = [person] : roster
+                    // );
+                    const rosterId = shiftRoster.id;
+                    delete shiftRoster._type;
+                    delete shiftRoster.createdAt;
+                    delete shiftRoster.updatedAt;
+                    delete shiftRoster.id;
+                    delete shiftRoster._id;
+                    delete shiftRoster.vehicle;
+                    shiftRoster[userType] = [person];
+                    dispatch(updateShiftRoster(rosterId, shiftRoster));
+                } else {
+                    var newShiftRoster: any = {};
+                    newShiftRoster[userType] = [person];
+                    newShiftRoster.vehicleId = userData[0];
+                    newShiftRoster.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
+                    dispatch(addShiftRoster(newShiftRoster));
                 }
 
-                // Disable the person after being dropped
-                const updatedPersons = operators.map(p =>
+                // setS(updatedShiftRosters);
+                setOperators(updatedPersons);
+            }
+
+        }
+
+        if (truck && !truck.disabled) {
+            if (userData[1] === 'truck') {
+
+                // Disable the truck after being dropped
+                const updatedTrucks = trucks.map(p =>
                     p.id === activeId ? { ...p, disabled: true } : p
                 );
 
                 let excavator = diggers.find(key => key.id === userData[0]);
-
                 if (excavator) {
-
                     // Update the person in shiftRoster
                     let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
                     // let updatedShiftRosters;
@@ -295,7 +370,7 @@ const Dispatch = () => {
                     if (shiftRoster && shiftRoster.id) {
 
                         // updatedShiftRosters = shiftrosters.map(roster =>
-                        //     roster.vehicleId === userData[0] ? roster[userType] = [person] : roster
+                        //     roster.vehicleId === userData[0] ? roster['trucks'] = [truck] : roster
                         // );
                         const rosterId = shiftRoster.id;
                         delete shiftRoster._type;
@@ -304,65 +379,22 @@ const Dispatch = () => {
                         delete shiftRoster.id;
                         delete shiftRoster._id;
                         delete shiftRoster.vehicle;
-                        shiftRoster[userType] = [person];
+                        if (!shiftRoster['trucks']) { shiftRoster['trucks'] = [] }
+                        shiftRoster['trucks'].push(truck);
                         dispatch(updateShiftRoster(rosterId, shiftRoster));
                     } else {
                         var newShiftRoster: any = {};
-                        newShiftRoster[userType] = [person];
+                        newShiftRoster['trucks'] = [truck];
                         newShiftRoster.vehicleId = userData[0];
-                        newShiftRoster.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
                         dispatch(addShiftRoster(newShiftRoster));
                     }
 
-                    // setS(updatedShiftRosters);
-                    setOperators(updatedPersons);
-                }
-
-            }
-
-            if (truck && !truck.disabled) {
-                if (userData[1] === 'truck') {
-
-                    // Disable the truck after being dropped
-                    const updatedTrucks = trucks.map(p =>
-                        p.id === activeId ? { ...p, disabled: true } : p
-                    );
-
-                    let excavator = diggers.find(key => key.id === userData[0]);
-                    if (excavator) {
-                        // Update the person in shiftRoster
-                        let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
-                        // let updatedShiftRosters;
-
-                        if (shiftRoster && shiftRoster.id) {
-
-                            // updatedShiftRosters = shiftrosters.map(roster =>
-                            //     roster.vehicleId === userData[0] ? roster['trucks'] = [truck] : roster
-                            // );
-                            const rosterId = shiftRoster.id;
-                            delete shiftRoster._type;
-                            delete shiftRoster.createdAt;
-                            delete shiftRoster.updatedAt;
-                            delete shiftRoster.id;
-                            delete shiftRoster._id;
-                            delete shiftRoster.vehicle;
-                            if (!shiftRoster['trucks']) { shiftRoster['trucks'] = [] }
-                            shiftRoster['trucks'].push(truck);
-                            dispatch(updateShiftRoster(rosterId, shiftRoster));
-                        } else {
-                            var newShiftRoster: any = {};
-                            newShiftRoster['trucks'] = [truck];
-                            newShiftRoster.vehicleId = userData[0];
-                            dispatch(addShiftRoster(newShiftRoster));
-                        }
-
-                        //setShiftRosters(updatedShiftRosters);
-                        setTrucks(updatedTrucks);
-                    }
+                    //setShiftRosters(updatedShiftRosters);
+                    setTrucks(updatedTrucks);
                 }
             }
         }
-    };
+    }
 
     return (
         < React.Fragment >
@@ -373,7 +405,7 @@ const Dispatch = () => {
                         <Col className='d-flex flex-row-reverse'>
                             <Space>
                                 <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-                                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
                             </Space>
                         </Col>
                     </Row>
@@ -396,17 +428,17 @@ const Dispatch = () => {
                             <Col xs={6}>
                                 <h3>EXCAVATORS</h3>
                                 {diggers.map(excavator => (
-                                    <div style={{
-                                        width: '100%', backgroundColor: '', padding: '8px',
-                                        margin: '4px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '4px',
-                                    }}>
-                                        <h3>{excavator.name}</h3>
-                                        <Row>
-                                            <Col xs={1}></Col>
-                                            <Col xs={3}>
-                                                <DropTarget key={excavator.id} id={excavator.id + '::operator'}>
+                                    <DropTarget key={excavator.id} id={excavator.id}>
+                                        <div style={{
+                                            width: '100%', backgroundColor: '', padding: '8px',
+                                            margin: '4px',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '4px',
+                                        }}>
+                                            <h3>{excavator.name}</h3>
+                                            <Row>
+                                                <Col xs={1}></Col>
+                                                <Col xs={3}>
                                                     {getOperators(excavator.id).map(person => (
                                                         <><div
                                                             key={person.id}
@@ -429,38 +461,37 @@ const Dispatch = () => {
                                                         </div>
                                                         </>
                                                     ))}
-                                                </DropTarget>
-                                            </Col>
-                                            <Col xs={1}></Col>
-                                            <Col xs={3}>
-                                                <DropTarget key={excavator.id} id={excavator.id + '::trainer'}>
-                                                    {getTrainers(excavator.id).map(person => (
-                                                        <><div
-                                                            key={person.id}
-                                                            style={{
-                                                                padding: '8px',
-                                                                margin: '4px',
-                                                                backgroundColor: '#e0e0e0',
-                                                                border: '1px solid #ddd',
-                                                                borderRadius: '4px',
-                                                            }}
-                                                        >
-                                                            <Row>
-                                                                <Col xs={10}>
-                                                                    {person.firstName + " " + person.lastName}
-                                                                </Col>
-                                                                <Col xs={2}>
-                                                                    <Button color="danger" id={excavator.id + '::' + person.id} onClick={removeTrainer} className="save-device"> {"X"}  </Button>
-                                                                </Col>
-                                                            </Row>
-                                                        </div>
-                                                        </>
-                                                    ))}
-                                                </DropTarget>
-                                            </Col>
-                                            <Col xs={1}></Col>
-                                            <Col xs={3}>
-                                                <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
+                                                </Col>
+                                                <Col xs={1}></Col>
+                                                <Col xs={3}>
+                                                    <DropTarget key={excavator.id} id={excavator.id + '::trainer'}>
+                                                        {getTrainers(excavator.id).map(person => (
+                                                            <><div
+                                                                key={person.id}
+                                                                style={{
+                                                                    padding: '8px',
+                                                                    margin: '4px',
+                                                                    backgroundColor: '#e0e0e0',
+                                                                    border: '1px solid #ddd',
+                                                                    borderRadius: '4px',
+                                                                }}
+                                                            >
+                                                                <Row>
+                                                                    <Col xs={10}>
+                                                                        {person.firstName + " " + person.lastName}
+                                                                    </Col>
+                                                                    <Col xs={2}>
+                                                                        <Button color="danger" id={excavator.id + '::' + person.id} onClick={removeTrainer} className="save-device"> {"X"}  </Button>
+                                                                    </Col>
+                                                                </Row>
+                                                            </div>
+                                                            </>
+                                                        ))}
+                                                    </DropTarget>
+                                                </Col>
+                                                <Col xs={1}></Col>
+                                                <Col xs={3}>
+                                                    {/* <DropTarget key={excavator.id} id={excavator.id + '::truck'}> */}
                                                     {getTrucks(excavator.id).map(truck => (
                                                         <><div
                                                             key={truck.id}
@@ -483,12 +514,13 @@ const Dispatch = () => {
                                                         </div>
                                                         </>
                                                     ))}
-                                                </DropTarget>
-                                            </Col>
-                                        </Row>
+                                                    {/* </DropTarget> */}
+                                                </Col>
+                                            </Row>
 
 
-                                    </div>
+                                        </div>
+                                    </DropTarget>
                                 ))}
                             </Col>
                             <Col xs={2}>
@@ -508,7 +540,15 @@ const Dispatch = () => {
                         </div>
                     </DndContext>
                 </Container>
-            </div >
+                <ConfirmModal
+                    isOpen={confirmModal.isOpen}
+                    setIsOpen={setConfirmModal}
+                    title={'Alert'}
+                    text={'The resource is already assigned. Do you want to replace it?'}
+                    onOK={handleReplaceDrag}
+                    onCancel={() => { }}
+                />
+            </div>
         </React.Fragment >
     );
 }

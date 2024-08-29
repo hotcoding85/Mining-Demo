@@ -9,7 +9,7 @@ export const getTargetByRoster = (roster: any) => api.get(`${url.TARGET}/${roste
 export const getTargetByRosterAndCategory = (roster: any, category: any) => api.get(`${url.TARGET}/${roster}/${category}`, {});
 
 // Create Target
-export const postTarget = (Target: any) => api.create(url.TARGET, Target);
+export const postTarget = (targets: any) => api.create(url.TARGET, targets);
 
 // Update Target
 export const putTarget = (id: string, Target: any) => {
