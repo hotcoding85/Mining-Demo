@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
-import { getTargetsByRoster, getTargetsByRosterAndCategory, updateTarget, getAllFleet, getAllUsers, addTarget } from 'slices/thunk';
+import { getTargetsByRoster, getTargetsByRosterAndCategory, updateTarget, getAllFleet, getAllUsers, addTargets } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -35,9 +35,6 @@ const Target = (props: any) => {
 
   const { targets } = useSelector(targetsProperties);
   const { fleet } = useSelector(fleetProperties);
-
-  const [diggers, setDiggers] = useState<any>();
-  const [trucks, setTrucks] = useState<any>();
 
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
@@ -96,19 +93,13 @@ const Target = (props: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    setDiggers(fleet.filter(vehicle => vehicle.category === "EXCAVATOR"))
-    setTrucks(fleet.filter(vehicle => vehicle.category === "DUMP_TRUCK"))
-  }, [fleet]);
-
-  useEffect(() => {
     dispatch(getAllFleet()); // Dispatch action to fetch fleet data on component mount
   }, [dispatch]);
-
 
   useEffect(() => {
     setData(generateData());
     updateSummary();
-  }, [targets])
+  }, [targets]);
 
   const onDateChange: DatePickerProps['onChange'] = (date, dateString) => {
     if (date) {
@@ -155,11 +146,27 @@ const Target = (props: any) => {
         setHideShiftSelect(true);
         setPickerType('week')
         setPickerFormat('wo MMM YYYY')
+
+        let weekRosters: any[] = [];
+        shifts.map((shift) => {
+          const date = dayjs(startDate).startOf('week').format('yyyy-MM-dd');
+          weekRosters.push(date + ':' + shift.name)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(weekRosters), targetType));
         break;
       case 'MONTHLY':
         setHideShiftSelect(true);
         setPickerType('month')
         setPickerFormat('MMM YYYY')
+
+        let monthRosters: any[] = [];
+        shifts.map((shift) => {
+          const date = dayjs(startDate).startOf('month').format('yyyy-MM-dd');
+          monthRosters.push(date + ':' + shift.name)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(monthRosters), targetType));
         break;
 
       default:
@@ -184,20 +191,26 @@ const Target = (props: any) => {
       let vehicleTargetData = _.filter(targets, (target) => { return target && target.vehicleId === truck.id });
       var target = _.cloneDeep(targetsConfig[selectedTargetType]);
       if (vehicleTargetData && vehicleTargetData[0] && vehicleTargetData[0].data) target = _.cloneDeep(vehicleTargetData[0].data);
+      if (vehicleTargetData && vehicleTargetData[0] && vehicleTargetData[0].id) target.id = (vehicleTargetData[0]).id;
+
 
       if (target.availability) {
         if (selectedTargetType === 'SHIFT') {
           const duration = shiftDuration(shifts, shift);
-          target['availablePer'] = (target.availability / (duration * 60)) * 100
+          target['availablePer'] = (target.availability / (duration * 60)) * 100;
+          target['standbyPer'] = (target.standby / target.availability) * 100;
         } else if (selectedTargetType === 'DAILY') {
-          target['availablePer'] = (target.availability / 24) * 100
+          target['availablePer'] = (target.availability / (24 * 60)) * 100
+          target['standbyPer'] = (target.standby / target.availability) * 100;
         } else if (selectedTargetType === 'WEEKLY') {
-          target['availablePer'] = (target.availability / (7 * 24)) * 100
+          target['availablePer'] = (target.availability / (7 * 24 * 60)) * 100
+          target['standbyPer'] = (target.standby / target.availability) * 100;
         } else if (selectedTargetType === 'MONTHLY') {
           const daysInMonth = dayjs(startDate).daysInMonth();
-          target.standby = 2 * daysInMonth; //2h a day
-          target.availability = target.availability ? target.availability : (target.availablePer * daysInMonth) / 100
-          // target['availablePer'] = (target.availability / (daysInMonth * 24)) * 100
+          // target.standby = 2 * daysInMonth; //2h a day
+          // target.availability = target.availability ? target.availability : (target.availablePer * daysInMonth) / 100
+          target['availablePer'] = (target.availability / (daysInMonth * 24 * 60)) * 100
+          target['standbyPer'] = (target.standby / target.availability) * 100;
         }
       } else if (target.availablePer) {
         if (selectedTargetType === 'SHIFT') {
@@ -215,25 +228,24 @@ const Target = (props: any) => {
           target.availability = (target['availablePer'] * daysInMonth) / 100;
           target.standby = (target['standbyPer'] * target.availability) / 100;
         }
-        target.utilization = _.round(target.availability - target.standby, 2);
-        target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
-        target.avgLoad = truck.capacity;
-        target.avgTime = truck.category === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;
       }
+
+      target.utilization = _.round(target.availability - target.standby, 2);
+      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+      target.avgLoad = target.avgLoad ? target.avgLoad : truck.capacity;
+      target.avgTime = target.avgTime ? target.avgTime : truck.category === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;
 
       if (target.standby && target.standby != 0 && (!target.utilization || target.utilization === 0)) {
         target.utilization = _.round(target.availability - target.standby, 2);
       }
 
-
       target.loads = _.round((target.utilization / target.avgTime), 0);
-
       target.tonnes = _.round(target.loads * target.avgLoad, 2);
 
       if (!targetsData || !targetsData[0] || !targetsData[0].truckId) {
-        targetsData = [{ truckId: truck.id, truckName: truck.name, truckModel: truck.name, truckCategory: truck.category, groupModel: truck.model, availablePer: target.availablePer, availability: target.availability, standby: target.standby, standbyPer: target.standbyPer, utilization: target.utilization, utilizationPer: target.utilizationPer, loads: target.loads, tonnes: target.tonnes, avgLoad: target.avgLoad, avgTime: target.avgTime }]
+        targetsData = [{ truckId: truck.id, truckName: truck.name, truckModel: truck.name, truckCategory: truck.category, groupModel: truck.model, availablePer: target.availablePer, availability: target.availability, standby: target.standby, standbyPer: target.standbyPer, utilization: target.utilization, utilizationPer: target.utilizationPer, loads: target.loads, tonnes: target.tonnes, avgLoad: target.avgLoad, avgTime: target.avgTime, id: target.id }]
       } else {
-        targetsData.push({ truckId: truck.id, truckName: truck.name, truckModel: truck.name, truckCategory: truck.category, groupModel: truck.model, availablePer: target.availablePer, availability: target.availability, standby: target.standby, standbyPer: target.standbyPer, utilization: target.utilization, utilizationPer: target.utilizationPer, loads: target.loads, tonnes: target.tonnes, avgLoad: target.avgLoad, avgTime: target.avgTime })
+        targetsData.push({ truckId: truck.id, truckName: truck.name, truckModel: truck.name, truckCategory: truck.category, groupModel: truck.model, availablePer: target.availablePer, availability: target.availability, standby: target.standby, standbyPer: target.standbyPer, utilization: target.utilization, utilizationPer: target.utilizationPer, loads: target.loads, tonnes: target.tonnes, avgLoad: target.avgLoad, avgTime: target.avgTime, id: target.id })
       }
 
     })
@@ -263,11 +275,11 @@ const Target = (props: any) => {
         target.availability = (target['availablePer'] * 24 * 60) / 100;
         target.standby = (target['standbyPer'] * target.availability) / 100;
       } else if (selectedTargetType === 'WEEKLY') {
-        target.availability = (target['availablePer'] * (7 * 24)) / 100;
+        target.availability = (target['availablePer'] * (7 * 24 * 60)) / 100;
         target.standby = (target['standbyPer'] * target.availability) / 100;
       } else if (selectedTargetType === 'MONTHLY') {
         const daysInMonth = dayjs(startDate).daysInMonth();
-        target.availability = (target['availablePer'] * daysInMonth) / 100;
+        target.availability = (target['availablePer'] * daysInMonth * 24 * 60) / 100;
         target.standby = (target['standbyPer'] * target.availability) / 100;
       }
       target.utilization = _.round(target.availability - target.standby, 2);
@@ -439,6 +451,9 @@ const Target = (props: any) => {
 
   const submit = () => {
     const productionData = getProductionData();
+
+    console.log(productionData);
+    dispatch(addTargets(productionData))
   }
 
   const getProductionData = () => {
@@ -453,31 +468,25 @@ const Target = (props: any) => {
 
         var target: any = {};
 
+        if (targetData.id) target.id = targetData.id;
         target.data = _.pick(targetData, ['availability', 'standby', 'utilization', 'loads', 'tonnes', 'avgTime', 'avgLoad']);
         target.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
         target.category = selectedTargetType;
 
-        if (target.id) {
-          const targetId = target.id;
-          delete target._type;
-          delete target.createdAt;
-          delete target.updatedAt;
-          delete target.id;
-          delete target._id;
-          delete target.vehicle;
-          // dispatch(updateTarget(targetId, target));
-        } else {
-          target.vehicleId = _.cloneDeep(targetData.truckId);
-          delete target.vehicle;
-          // dispatch(addTarget(target));
-        }
+        delete target._type;
+        delete target.createdAt;
+        delete target.updatedAt;
+        delete target._id;
+        delete target.vehicle;
+        target.vehicleId = _.cloneDeep(targetData.truckId);
+
         productionData.push(target);
 
       })
       return data
     })
 
-    console.log(productionData);
+    return productionData;
   }
 
   const truckColumns: TableColumn[] = useMemo(
