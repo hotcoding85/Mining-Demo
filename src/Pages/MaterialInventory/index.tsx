@@ -6,7 +6,9 @@ import RomStatus from "./romStatus";
 import RomGraph from "./romGraph";
 import PitStatus from "./pitStatus";
 import { DatePicker, Radio, Segmented, Space } from "antd";
-import { shiftTimings } from "utils/common";
+import { shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
+import { ShiftTimingsInfo } from "Models/Shift";
+import { Dayjs } from "dayjs";
 
 const { RangePicker } = DatePicker;
 
@@ -25,7 +27,7 @@ const MaterialInventory = () => {
                     ...currentShiftInfo
                 }
             })
-        } else {
+        } else if (timeRange === 'PREVIOUS_SHIFT') {
             let prevShiftInfo = shiftTimings(shiftInfo.start.subtract(2, 'hours'));
             setShiftInfo((prevState) => {
                 return {
@@ -36,6 +38,26 @@ const MaterialInventory = () => {
         }
     }, [timeRange]);
 
+    const onShiftDateChange = (date: Dayjs): void => {
+        const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(date.format('YYYY-MM-DD'), shiftInfo.shift);
+        setShiftInfo((prevState: ShiftTimingsInfo) => {
+            return {
+                ...prevState,
+                ...newShiftTimings
+            }
+        })
+    }
+
+    const onShiftChange = (shift: string): void => {
+        const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(shiftInfo.shiftDate, shift);
+        setShiftInfo((prevState: ShiftTimingsInfo) => {
+            return {
+                ...prevState,
+                ...newShiftTimings
+            }
+        })
+    }
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -45,9 +67,13 @@ const MaterialInventory = () => {
                         <Col className='d-flex flex-row-reverse'>
                             <Space>
                                 {
-                                    timeRange == 'CUSTOM' && <RangePicker />
+                                    timeRange == 'CUSTOM' &&
+                                    <>
+                                        <DatePicker allowClear={false} value={shiftInfo.start} onChange={onShiftDateChange} />
+                                        <Segmented className="customSegmentLabel customSegmentBackground" value={shiftInfo.shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
+                                    </>
                                 }
-                                <Segmented className="customSegmentLabel customSegmentBackground" value={timeRange} onChange={(e) => setTimeRange(e)} options={[{ value: 'PREVIOUS_SHIFT', label: 'Previous Shift' }, { value: 'CURRENT_SHIFT', label: 'Current Shift' }]} />
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={timeRange} onChange={(e) => setTimeRange(e)} options={[{ value: 'CUSTOM', label: 'Custom' }, { value: 'PREVIOUS_SHIFT', label: 'Previous Shift' }, { value: 'CURRENT_SHIFT', label: 'Current Shift' }]} />
                             </Space>
                         </Col>
                     </Row>
