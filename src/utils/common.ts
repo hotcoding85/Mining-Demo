@@ -2,6 +2,7 @@
 
 import { Shift, ShiftTimingsInfo } from "Models/Shift";
 import dayjs, { Dayjs } from "dayjs";
+import _ from "lodash";
 
 export const dateFormats: any = {
   FULL_DATE: 'YYYY-MM-DDTHH:mm:ss.000Z'
@@ -135,4 +136,55 @@ export const saveFile = (blob: Blob, fileName: string): void => {
     }, 30 * 1000);
   });
   htmlElement.click();
+}
+
+
+export const getTarget = (vehicleType, capacity, targetType, date, shift) => {
+
+  const targetsConfig = {
+    SHIFT: {
+      availablePer: 80,
+      standbyPer: 10
+    },
+    DAILY: {
+      availablePer: 80,
+      standbyPer: 10
+    },
+    WEEKLY: {
+      availablePer: 80,
+      standbyPer: 10
+    },
+    MONTHLY: {
+      availablePer: 80,
+      standbyPer: 10
+    }
+  }
+
+  var target = _.cloneDeep(targetsConfig[targetType]);
+
+  if (targetType === 'SHIFT') {
+    const duration = shiftDuration(shifts, shift);
+    target.availability = _.round((target['availablePer'] * duration) * 60 / 100, 0);
+    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+  } else if (targetType === 'DAILY') {
+    target.availability = _.round((target['availablePer'] * 24 * 60) / 100, 0);
+    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+  } else if (targetType === 'WEEKLY') {
+    target.availability = _.round((target['availablePer'] * (7 * 24 * 60)) / 100, 0);
+    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+  } else if (targetType === 'MONTHLY') {
+    const daysInMonth = dayjs(date).daysInMonth();
+    target.availability = _.round((target['availablePer'] * daysInMonth * 24 * 60) / 100, 0);
+    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+  }
+
+  target.utilization = _.round(target.availability - target.standby, 0);
+  target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
+  target.avgLoad = capacity;
+  target.avgTime = vehicleType === 'DUMP_TRUCK' ? 15 : 3;
+
+  target.loads = _.round((target.utilization / target.avgTime), 0);
+  target.tonnes = _.round(target.loads * target.avgLoad, 2);
+
+  return target;
 }

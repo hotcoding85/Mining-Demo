@@ -117,11 +117,11 @@ const List = ({ data = [] }: any) => {
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
                                                             <span className='itemActual'>{item?.data?.tripCount || 0}</span>
-                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? 175 : 35}</span>
+                                                            <span className='itemPlanned'>/{item.plannedLoads}</span>
                                                         </div>
                                                         <div className="col-sm-6 d-flex justify-content-center">
                                                             <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
-                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? '15,000' : 35 * item.capacity}</span>
+                                                            <span className='itemPlanned'>/{item.plannedTonnes}</span>
                                                         </div>
                                                     </div>
                                                 </div>
