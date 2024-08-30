@@ -327,7 +327,7 @@ const DigBlockLayout = (props: any) => {
         geoJson: item,
       }));
 
-      await dispatch(upsertGeoFence({data: data}));
+      await dispatch(upsertGeoFence({ data: data }));
 
       setIsUploading(false);
       importStrModalToggle();
