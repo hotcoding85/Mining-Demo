@@ -149,7 +149,8 @@ const Target = (props: any) => {
 
         let weekRosters: any[] = [];
         shifts.map((shift) => {
-          const date = dayjs(startDate).startOf('week').format('yyyy-MM-dd');
+          const startOfWeek = dayjs(startDate).startOf('week');
+          const date = startOfWeek.format('YYYY-MM-DD');
           weekRosters.push(date + ':' + shift.name)
         })
 
@@ -162,7 +163,8 @@ const Target = (props: any) => {
 
         let monthRosters: any[] = [];
         shifts.map((shift) => {
-          const date = dayjs(startDate).startOf('month').format('yyyy-MM-dd');
+          const startOfMonth = dayjs(startDate).startOf('month');
+          const date = startOfMonth.format('YYYY-MM-DD');
           monthRosters.push(date + ':' + shift.name)
         })
 
@@ -207,8 +209,6 @@ const Target = (props: any) => {
           target['standbyPer'] = (target.standby / target.availability) * 100;
         } else if (selectedTargetType === 'MONTHLY') {
           const daysInMonth = dayjs(startDate).daysInMonth();
-          // target.standby = 2 * daysInMonth; //2h a day
-          // target.availability = target.availability ? target.availability : (target.availablePer * daysInMonth) / 100
           target['availablePer'] = (target.availability / (daysInMonth * 24 * 60)) * 100
           target['standbyPer'] = (target.standby / target.availability) * 100;
         }
@@ -221,11 +221,11 @@ const Target = (props: any) => {
           target.availability = (target['availablePer'] * 24 * 60) / 100;
           target.standby = (target['standbyPer'] * target.availability) / 100;
         } else if (selectedTargetType === 'WEEKLY') {
-          target.availability = (target['availablePer'] * (7 * 24)) / 100;
+          target.availability = (target['availablePer'] * (7 * 24 * 60)) / 100;
           target.standby = (target['standbyPer'] * target.availability) / 100;
         } else if (selectedTargetType === 'MONTHLY') {
           const daysInMonth = dayjs(startDate).daysInMonth();
-          target.availability = (target['availablePer'] * daysInMonth) / 100;
+          target.availability = (target['availablePer'] * daysInMonth * 24 * 60) / 100;
           target.standby = (target['standbyPer'] * target.availability) / 100;
         }
       }
@@ -303,60 +303,46 @@ const Target = (props: any) => {
     return _.groupBy(targetsByModel, 'truckCategory');
   };
 
-  const updateTargetData = (columnId, target, depth) => {
-    if (selectedTargetType === 'SHIFT') {
-      if (columnId === 'availablePer' || columnId === 'availability' || columnId === 'standbyPer' || columnId === 'standby') {
+  const updateTargetData = (columnId, target, depth, duration) => {
 
-        if (columnId === 'availablePer') {
-          const duration = shiftDuration(shifts, shift);
-          target.availability = (target['availablePer'] * duration) * 60 / 100;
-        }
-        if (columnId === 'availability') {
-          const duration = shiftDuration(shifts, shift);
-          target.availablePer = (target.availability / (duration * 60)) * 100
-        }
+    if (columnId === 'availablePer' || columnId === 'availability' || columnId === 'standbyPer' || columnId === 'standby') {
 
-        if (columnId === 'standby') {
-          target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
-        } else {
-          target.standby = (target['standbyPer'] * target.availability) / 100;
-        }
-
-        target.utilization = _.round(target.availability - target.standby, 2);
-        target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
-
-        target.loads = _.round((target.utilization / target.avgTime), 0);
-        target.tonnes = _.round(target.loads * target.avgLoad, 2);
-      } else if (columnId === 'utilizationPer' || columnId === 'utilization') {
-
-        if (columnId === 'utilizationPer') {
-          target.utilization = (target['utilizationPer'] * target.availability) / 100;
-        }
-        if (columnId === 'utilization') {
-          target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
-        }
-
-        target.standby = _.round(target.availability - target.utilization, 2);
-        target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
-
-        target.loads = _.round((target.utilization / target.avgTime), 0);
-        target.tonnes = _.round(target.loads * target.avgLoad, 2);
-      } else {
-        target.loads = _.round((target.utilization / target.avgTime), 0);
-        target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      if (columnId === 'availablePer') {
+        target.availability = (target['availablePer'] * duration) / 100;
       }
-    } else if (selectedTargetType === 'DAILY') {
-      target.availability = (target['availablePer'] * 24 * 60) / 100;
-      target.standby = (target['standbyPer'] * target.availability) / 100;
-    } else if (selectedTargetType === 'WEEKLY') {
-      target.availability = (target['availablePer'] * (7 * 24)) / 100;
-      target.standby = (target['standbyPer'] * target.availability) / 100;
-    } else if (selectedTargetType === 'MONTHLY') {
-      const daysInMonth = dayjs(startDate).daysInMonth();
-      target.availability = (target['availablePer'] * daysInMonth) / 100;
-      target.standby = (target['standbyPer'] * target.availability) / 100;
-    }
+      if (columnId === 'availability') {
+        target.availablePer = (target.availability / duration) * 100
+      }
 
+      if (columnId === 'standby') {
+        target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
+      } else {
+        target.standby = (target['standbyPer'] * target.availability) / 100;
+      }
+
+      target.utilization = _.round(target.availability - target.standby, 2);
+      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+
+      target.loads = _.round((target.utilization / target.avgTime), 0);
+      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+    } else if (columnId === 'utilizationPer' || columnId === 'utilization') {
+
+      if (columnId === 'utilizationPer') {
+        target.utilization = (target['utilizationPer'] * target.availability) / 100;
+      }
+      if (columnId === 'utilization') {
+        target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+      }
+
+      target.standby = _.round(target.availability - target.utilization, 2);
+      target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
+
+      target.loads = _.round((target.utilization / target.avgTime), 0);
+      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+    } else {
+      target.loads = _.round((target.utilization / target.avgTime), 0);
+      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+    }
 
     if (depth === 0) {
       let updatedSubTargets: any = [];
@@ -377,7 +363,6 @@ const Target = (props: any) => {
       target.subRows = updatedSubTargets;
     }
     return target;
-
   }
 
   const getCapacity = (model) => {
@@ -402,8 +387,32 @@ const Target = (props: any) => {
       }
     }
 
+    let duration: number;
+    setSelectedTargetType((prevState) => {
+      const targetType = _.cloneDeep(prevState);
+      switch (targetType) {
+        case 'SHIFT':
+          duration = shiftDuration(shifts, shift) * 60;
+          break;
+        case 'DAILY':
+          duration = 24 * 60;
+          break;
+        case 'WEEKLY':
+          duration = 7 * 24 * 60;
+          break;
+        case 'MONTHLY':
+          const daysInMonth = dayjs(startDate).daysInMonth();
+          duration = daysInMonth * 24 * 60;
+          break;
+        default:
+          break;
+      }
+      return targetType;
+    })
+
     setData((prevState) => {
       const newData = _.cloneDeep(prevState);
+
 
       let tempData = newData[rowData.truckCategory]
       if (row.depth === 0) {
@@ -411,14 +420,14 @@ const Target = (props: any) => {
           ...tempData[rowIndex],
           [columnId]: parseInt(value)
         };
-        newData[rowData.truckCategory][rowIndex] = updateTargetData(columnId, tempData[rowIndex], row.depth);
+        newData[rowData.truckCategory][rowIndex] = updateTargetData(columnId, tempData[rowIndex], row.depth, duration);
 
       } else {
         tempData[row.parentId].subRows[rowIndex] = {
           ...tempData[row.parentId].subRows[rowIndex],
           [columnId]: parseInt(value)
         };
-        newData[rowData.truckCategory][row.parentId].subRows[rowIndex] = updateTargetData(columnId, tempData[row.parentId].subRows[rowIndex], row.depth);
+        newData[rowData.truckCategory][row.parentId].subRows[rowIndex] = updateTargetData(columnId, tempData[row.parentId].subRows[rowIndex], row.depth, duration);
       }
       return newData;
     })
@@ -458,6 +467,32 @@ const Target = (props: any) => {
 
   const getProductionData = () => {
     var productionData: any = [];
+
+    let roster: string;
+    setSelectedTargetType((prevState) => {
+      const targetType = _.cloneDeep(prevState);
+      switch (targetType) {
+        case 'SHIFT':
+          roster = format(startDate, 'yyyy-MM-dd') + ':' + shift;
+          break;
+        case 'DAILY':
+          roster = format(startDate, 'yyyy-MM-dd') + ':' + shifts[0].name;
+          break;
+        case 'WEEKLY':
+          const startOfWeek = dayjs(startDate).startOf('month');
+          roster = startOfWeek.format('YYYY-MM-DD') + ':' + shifts[0].name;
+          break;
+        case 'MONTHLY':
+          const startOfMonth = dayjs(startDate).startOf('month');
+          roster = startOfMonth.format('YYYY-MM-DD') + ':' + shifts[0].name;
+          break;
+        default:
+          break;
+      }
+      return targetType;
+    })
+
+
     setData((prevState) => {
       const data = _.cloneDeep(prevState);
 
@@ -470,7 +505,7 @@ const Target = (props: any) => {
 
         if (targetData.id) target.id = targetData.id;
         target.data = _.pick(targetData, ['availability', 'standby', 'utilization', 'loads', 'tonnes', 'avgTime', 'avgLoad']);
-        target.roster = format(startDate, 'yyyy-MM-dd') + ':' + shift
+        target.roster = roster;
         target.category = selectedTargetType;
 
         delete target._type;
