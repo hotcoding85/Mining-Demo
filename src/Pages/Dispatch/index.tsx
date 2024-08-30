@@ -7,14 +7,13 @@ import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import { getShiftRosters, updateShiftRoster, getAllFleet, getAllUsers, addShiftRoster } from 'slices/thunk';
 import _ from 'lodash';
-import { Button, DatePicker, DatePickerProps, Segmented, Space } from 'antd';
+import { Button, DatePicker, DatePickerProps, Segmented, Select, Space } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import dayjs from "dayjs";
 import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import ConfirmModal from 'Components/Common/ConfirmModal';
 import { shifts, shiftsInFormat } from 'utils/common';
-import { title } from 'process';
 
 function Draggable({ id, name, disabled, onDragStart }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -94,6 +93,7 @@ const Dispatch = () => {
     const { fleet } = useSelector(fleetProperties);
 
     const [operators, setOperators] = useState<any>([]);
+    const [filteredOperators, setFilteredOperators] = useState<any>([]);
     const [trucks, setTrucks] = useState<any>([]);
     const [diggers, setDiggers] = useState<any>([]);
 
@@ -102,6 +102,8 @@ const Dispatch = () => {
     const [confirmModal, setConfirmModal] = useState<any>({ isOpen: false, info: {}, title: '' });
 
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const [selectedCrew, setSelectedCrew] = useState<any>();
 
     useEffect(() => {
         dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
@@ -128,20 +130,21 @@ const Dispatch = () => {
         setTrucks(fleet.filter(vehicle => vehicle.category === "DUMP_TRUCK"))
         // setTimeout(() => {
         updateUsedOperatorsAndTrucks();
-        // }, 1000);
+        // }, 2000);
     }, [fleet]);
 
     useEffect(() => {
         setOperators(_.filter(users, (user) => { return user.role === 'OPERATOR' }));
+        setFilteredOperators(_.filter(users, (user) => { return user.role === 'OPERATOR' }));
         // setTimeout(() => {
         updateUsedOperatorsAndTrucks();
-        // }, 1000);
+        // }, 2000);
     }, [users]);
 
     useEffect(() => {
         // setTimeout(() => {
         updateUsedOperatorsAndTrucks();
-        // }, 1000);
+        // }, 2000);
     }, [shiftrosters]);
 
     const getOperators = (excavatorId: string) => {
@@ -178,6 +181,23 @@ const Dispatch = () => {
         setSearchParams(params);
     }
 
+    const getCrews = () => {
+
+        let crews = operators.map(op => { return { value: op.crew, label: op.crew } });
+        crews = _.uniqBy(crews, 'value');
+
+        return crews;
+    }
+
+    const onCrewChange = (crew) => {
+
+        setSelectedCrew((prevState) => {
+            return crew;
+        });
+        setFilteredOperators(_.filter(users, (user) => { return user.role === 'OPERATOR' && user.crew === crew }));
+        updateUsedOperatorsAndTrucks();
+    }
+
     const updateUsedOperatorsAndTrucks = () => {
 
         var updatedPersons: Array<any> = [];
@@ -208,6 +228,16 @@ const Dispatch = () => {
 
         if (updatedPersons && updatedPersons[0] && updatedPersons[0].id) {
             setOperators(updatedPersons)
+            setSelectedCrew((prevState) => {
+                const crew = prevState;
+                if (crew) {
+                    setFilteredOperators(_.filter(updatedPersons, (user) => { return user.crew === crew }));
+                } else {
+                    setFilteredOperators(updatedPersons);
+                }
+                return crew;
+            });
+
         };
         if (updatedTrucks && updatedTrucks[0] && updatedTrucks[0].id) {
             setTrucks(updatedTrucks)
@@ -311,18 +341,7 @@ const Dispatch = () => {
             }
 
             if (truck && !truck.disabled) {
-                // if (shiftRoster && shiftRoster.trucks && shiftRoster.trucks[0]) {
-                //     setConfirmModal((prevState) => {
-                //         return {
-                //             ...prevState,
-                //             info: { active, over },
-                //             isOpen: true,
-                //             title: 'Truck is already assigned. Do you want to replace it?'
-                //         }
-                //     })
-                // } else {
                 processDroppedData(active, over);
-                // }
             }
         }
     };
@@ -445,6 +464,17 @@ const Dispatch = () => {
                     <Row className='mb-3'>
                         <Col className='d-flex flex-row-reverse'>
                             <Space>
+                                <Select
+                                    className="basic-single"
+                                    id="Crew"
+                                    showSearch
+                                    allowClear
+                                    placeholder="Crew"
+                                    style={{ width: '100px' }}
+                                    options={getCrews()}
+                                    value={selectedCrew}
+                                    onChange={onCrewChange}
+                                />
                                 <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
                                 <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
                             </Space>
@@ -455,7 +485,7 @@ const Dispatch = () => {
                             <Col xs={2}>
                                 <h3>OPERATORS</h3>
                                 <div style={{ border: '1px solid #ccc', padding: '10px' }}>
-                                    {operators.map(person => (
+                                    {filteredOperators.map(person => (
                                         < Draggable
                                             key={person.id}
                                             id={person.id}

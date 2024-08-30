@@ -38,12 +38,6 @@ export const shiftDuration = (shifts, shift) => {
   return 12;
 }
 
-export const crews: any = [
-  { value: 'crewa', label: 'Crew A' },
-  { value: 'crewb', label: 'Crew B' },
-  { value: 'crewc', label: 'Crew C' }
-];
-
 export const shiftTimings = (date: Dayjs = dayjs()) => {
   let currentTime = typeof date === 'string' ? dayjs(date) : date;
   let previousDay = dayjs().subtract(1, 'day');
