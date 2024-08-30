@@ -78,7 +78,7 @@ const Target = (props: any) => {
 
 
   useEffect(() => {
-    dispatch(getTargetsByRosterAndCategory(JSON.stringify([format(startDate, 'yyyy-MM-dd') + ':' + shift]), selectedTargetType));
+    updateDataOnDateChange(selectedTargetType);
   }, [dispatch, shift, startDate]);
 
   useEffect(() => {
@@ -120,6 +120,47 @@ const Target = (props: any) => {
 
     updateView(targetType);
   };
+
+  const updateDataOnDateChange = (targetType) => {
+    switch (targetType) {
+      case 'SHIFT':
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify([format(startDate, 'yyyy-MM-dd') + ':' + shift]), targetType));
+        break;
+      case 'DAILY':
+        let rosters: any[] = [];
+        shifts.map((shift) => {
+          rosters.push(format(startDate, 'yyyy-MM-dd') + ':' + shift.name)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(rosters), targetType));
+        break;
+      case 'WEEKLY':
+
+        let weekRosters: any[] = [];
+        shifts.map((shift) => {
+          const startOfWeek = dayjs(startDate).startOf('week');
+          const date = startOfWeek.format('YYYY-MM-DD');
+          weekRosters.push(date + ':' + shift.name)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(weekRosters), targetType));
+        break;
+      case 'MONTHLY':
+
+        let monthRosters: any[] = [];
+        shifts.map((shift) => {
+          const startOfMonth = dayjs(startDate).startOf('month');
+          const date = startOfMonth.format('YYYY-MM-DD');
+          monthRosters.push(date + ':' + shift.name)
+        })
+
+        dispatch(getTargetsByRosterAndCategory(JSON.stringify(monthRosters), targetType));
+        break;
+
+      default:
+        break;
+    }
+  }
 
   const updateView = (targetType) => {
     switch (targetType) {
@@ -199,44 +240,44 @@ const Target = (props: any) => {
       if (target.availability) {
         if (selectedTargetType === 'SHIFT') {
           const duration = shiftDuration(shifts, shift);
-          target['availablePer'] = (target.availability / (duration * 60)) * 100;
-          target['standbyPer'] = (target.standby / target.availability) * 100;
+          target['availablePer'] = _.round((target.availability / (duration * 60)) * 100, 0);
+          target['standbyPer'] = _.round((target.standby / target.availability) * 100, 0);
         } else if (selectedTargetType === 'DAILY') {
-          target['availablePer'] = (target.availability / (24 * 60)) * 100
-          target['standbyPer'] = (target.standby / target.availability) * 100;
+          target['availablePer'] = _.round((target.availability / (24 * 60)) * 100, 0);
+          target['standbyPer'] = _.round((target.standby / target.availability) * 100, 0);
         } else if (selectedTargetType === 'WEEKLY') {
-          target['availablePer'] = (target.availability / (7 * 24 * 60)) * 100
-          target['standbyPer'] = (target.standby / target.availability) * 100;
+          target['availablePer'] = _.round((target.availability / (7 * 24 * 60)) * 100, 0);
+          target['standbyPer'] = _.round((target.standby / target.availability) * 100, 0);
         } else if (selectedTargetType === 'MONTHLY') {
           const daysInMonth = dayjs(startDate).daysInMonth();
-          target['availablePer'] = (target.availability / (daysInMonth * 24 * 60)) * 100
-          target['standbyPer'] = (target.standby / target.availability) * 100;
+          target['availablePer'] = _.round((target.availability / (daysInMonth * 24 * 60)) * 100, 0);
+          target['standbyPer'] = _.round((target.standby / target.availability) * 100, 0);
         }
       } else if (target.availablePer) {
         if (selectedTargetType === 'SHIFT') {
           const duration = shiftDuration(shifts, shift);
-          target.availability = (target['availablePer'] * duration) * 60 / 100;
-          target.standby = (target['standbyPer'] * target.availability) / 100;
+          target.availability = _.round((target['availablePer'] * duration) * 60 / 100, 0);
+          target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
         } else if (selectedTargetType === 'DAILY') {
-          target.availability = (target['availablePer'] * 24 * 60) / 100;
-          target.standby = (target['standbyPer'] * target.availability) / 100;
+          target.availability = _.round((target['availablePer'] * 24 * 60) / 100, 0);
+          target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
         } else if (selectedTargetType === 'WEEKLY') {
-          target.availability = (target['availablePer'] * (7 * 24 * 60)) / 100;
-          target.standby = (target['standbyPer'] * target.availability) / 100;
+          target.availability = _.round((target['availablePer'] * (7 * 24 * 60)) / 100, 0);
+          target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
         } else if (selectedTargetType === 'MONTHLY') {
           const daysInMonth = dayjs(startDate).daysInMonth();
-          target.availability = (target['availablePer'] * daysInMonth * 24 * 60) / 100;
-          target.standby = (target['standbyPer'] * target.availability) / 100;
+          target.availability = _.round((target['availablePer'] * daysInMonth * 24 * 60) / 100, 0);
+          target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
         }
       }
 
-      target.utilization = _.round(target.availability - target.standby, 2);
-      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+      target.utilization = _.round(target.availability - target.standby, 0);
+      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
       target.avgLoad = target.avgLoad ? target.avgLoad : truck.capacity;
       target.avgTime = target.avgTime ? target.avgTime : truck.category === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;
 
       if (target.standby && target.standby != 0 && (!target.utilization || target.utilization === 0)) {
-        target.utilization = _.round(target.availability - target.standby, 2);
+        target.utilization = _.round(target.availability - target.standby, 0);
       }
 
       target.loads = _.round((target.utilization / target.avgTime), 0);
@@ -269,24 +310,24 @@ const Target = (props: any) => {
       var target = _.cloneDeep(targetsConfig[selectedTargetType]);
       if (selectedTargetType === 'SHIFT') {
         const duration = shiftDuration(shifts, shift);
-        target.availability = (target['availablePer'] * duration) * 60 / 100;
-        target.standby = (target['standbyPer'] * target.availability) / 100;
+        target.availability = _.round((target['availablePer'] * duration) * 60 / 100, 0);
+        target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
       } else if (selectedTargetType === 'DAILY') {
-        target.availability = (target['availablePer'] * 24 * 60) / 100;
-        target.standby = (target['standbyPer'] * target.availability) / 100;
+        target.availability = _.round((target['availablePer'] * 24 * 60) / 100, 0);
+        target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
       } else if (selectedTargetType === 'WEEKLY') {
-        target.availability = (target['availablePer'] * (7 * 24 * 60)) / 100;
-        target.standby = (target['standbyPer'] * target.availability) / 100;
+        target.availability = _.round((target['availablePer'] * (7 * 24 * 60)) / 100, 0);
+        target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
       } else if (selectedTargetType === 'MONTHLY') {
         const daysInMonth = dayjs(startDate).daysInMonth();
-        target.availability = (target['availablePer'] * daysInMonth * 24 * 60) / 100;
-        target.standby = (target['standbyPer'] * target.availability) / 100;
+        target.availability = _.round((target['availablePer'] * daysInMonth * 24 * 60) / 100, 0);
+        target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
       }
-      target.utilization = _.round(target.availability - target.standby, 2);
-      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
-      target.avgLoad = targets[0].avgLoad;
+      target.utilization = _.round(target.availability - target.standby, 0);
+      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
+      target.avgLoad = getCapacity(targets[0].groupModel);
 
-      target.avgTime = targets[0].truckCategory === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;;
+      target.avgTime = targets[0].truckCategory === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;
 
       target.loads = _.round((target.utilization / target.avgTime), 0);
       target.tonnes = _.round(target.loads * target.avgLoad, 2);
@@ -308,34 +349,34 @@ const Target = (props: any) => {
     if (columnId === 'availablePer' || columnId === 'availability' || columnId === 'standbyPer' || columnId === 'standby') {
 
       if (columnId === 'availablePer') {
-        target.availability = (target['availablePer'] * duration) / 100;
+        target.availability = _.round((target['availablePer'] * duration) / 100, 0);
       }
       if (columnId === 'availability') {
-        target.availablePer = (target.availability / duration) * 100
+        target.availablePer = _.round((target.availability / duration) * 100, 2)
       }
 
       if (columnId === 'standby') {
-        target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
+        target.standbyPer = _.round((target.standby / target.availability) * 100, 0);
       } else {
-        target.standby = (target['standbyPer'] * target.availability) / 100;
+        target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
       }
 
-      target.utilization = _.round(target.availability - target.standby, 2);
-      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+      target.utilization = _.round(target.availability - target.standby, 0);
+      target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
 
       target.loads = _.round((target.utilization / target.avgTime), 0);
       target.tonnes = _.round(target.loads * target.avgLoad, 2);
     } else if (columnId === 'utilizationPer' || columnId === 'utilization') {
 
       if (columnId === 'utilizationPer') {
-        target.utilization = (target['utilizationPer'] * target.availability) / 100;
+        target.utilization = _.round((target['utilizationPer'] * target.availability) / 100, 0);
       }
       if (columnId === 'utilization') {
-        target.utilizationPer = _.round((target.utilization / target.availability) * 100, 2);
+        target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
       }
 
-      target.standby = _.round(target.availability - target.utilization, 2);
-      target.standbyPer = _.round((target.standby / target.availability) * 100, 2);
+      target.standby = _.round(target.availability - target.utilization, 0);
+      target.standbyPer = _.round((target.standby / target.availability) * 100, 0);
 
       target.loads = _.round((target.utilization / target.avgTime), 0);
       target.tonnes = _.round(target.loads * target.avgLoad, 2);
@@ -479,7 +520,7 @@ const Target = (props: any) => {
           roster = format(startDate, 'yyyy-MM-dd') + ':' + shifts[0].name;
           break;
         case 'WEEKLY':
-          const startOfWeek = dayjs(startDate).startOf('month');
+          const startOfWeek = dayjs(startDate).startOf('week');
           roster = startOfWeek.format('YYYY-MM-DD') + ':' + shifts[0].name;
           break;
         case 'MONTHLY':
