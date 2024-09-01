@@ -1,5 +1,5 @@
-import { getEvents, postEvents, putEvents, deleteEvents, getDashboardTruckingInfo, getMaterialTons, getUtilInfo, getFleetInfo } from "Helpers/api_events_helper";
-import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess } from "./reducer";
+import { getEvents, postEvents, putEvents, deleteEvents, getDashboardTruckingInfo, getMaterialTons, getUtilInfo, getFleetInfo, getVehicleLatestState } from "Helpers/api_events_helper";
+import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess, vehicleLatestStateSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
 
@@ -79,6 +79,16 @@ export const fleetInfo = (roster: string) => async (dispatch: any) => {
         let response: any;
         response = await getFleetInfo(roster);
         dispatch(fleetInfoSuccess(response));
+    } catch (error) {
+        dispatch(apiError(error));
+    }
+}
+
+export const vehicleLatestState = () => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getVehicleLatestState();
+        dispatch(vehicleLatestStateSuccess(response.data));
     } catch (error) {
         dispatch(apiError(error));
     }

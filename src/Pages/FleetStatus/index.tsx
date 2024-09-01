@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import List from './List';
-import { getAllFleet, getTargetsByRoster } from 'slices/thunk';
+import { getAllFleet, getTargetsByRoster, vehicleLatestState } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
 import _, { cloneDeep, groupBy } from 'lodash';
 import { Segmented, Space } from 'antd';
 import { fleetInfo } from 'slices/thunk';
 import { getTarget, shiftTimings } from 'utils/common';
+import { EventsState } from 'slices/events/reducer';
 
 const FMS = () => {
     document.title = "Fleet Status | FMS Live";
@@ -37,10 +38,19 @@ const FMS = () => {
             loading: targetState.loading
         })
     );
+
+    const vehicleLatestStateProperties = createSelector(
+        (state: any) => state.Events,
+        (info: EventsState) => ({
+            groupVehicleState: groupBy(info.vehicleLatestState, 'truckId')
+        })
+    )
+
     const [filter, setFilter] = useState<string>('All Equipment');
     const { fleetList, loading } = useSelector(selectProperties);
     const { fleetUtilInfo } = useSelector(fleetInfoSelect);
     const { targets } = useSelector(targetProperties);
+    const { groupVehicleState } = useSelector(vehicleLatestStateProperties);
     const [isLoading, setLoading] = useState<boolean>(loading);
 
     useEffect(() => {
@@ -49,6 +59,7 @@ const FMS = () => {
         const shiftDetails = shiftTimings();
         dispatch(fleetInfo(`${shiftDetails.shiftDate}:${shiftDetails.shift}`));
         dispatch(getTargetsByRoster(`${shiftDetails.shiftDate}:${shiftDetails.shift}`));
+        dispatch(vehicleLatestState())
     }, [dispatch]);
 
     const getLoadsAndTonnes = (id, category, capacity) => {
@@ -79,9 +90,10 @@ const FMS = () => {
             if (fl.category === type) {
                 if (groupData[fl.name]) {
                     fl.data = _.cloneDeep(groupData[fl.name][0]);
+                }
 
-                    //TODO:Need to update with actual latest state of vehicle
-                    fl.state = fl.status;
+                if (groupVehicleState[fl.id]) {
+                    fl.latestState = groupVehicleState[fl.id][0].state;
                 }
 
                 return true;
@@ -106,21 +118,12 @@ const FMS = () => {
                         </Col>
                     </Row>
                     {
-                        (filter == 'All Equipment') && (
-                            <>
-                                <List data={getFleet("EXCAVATOR")} />
-                                <List data={getFleet("DUMP_TRUCK")} />
-                                <List data={getFleet("LOADER")} />
-                                <List data={getFleet("DOZER")} />
-                                <List data={getFleet("DRILLER")} />
-                                <List data={getFleet("WATER CART")} />
-                                <List data={getFleet("LV")} />
-                            </>
-                        )
-
+                        filter === 'All Equipment' && ["EXCAVATOR", "DUMP_TRUCK", "LOADER", "DOZER", "DRILLER", "WATER CART", "LV"].map((model: string) => (
+                            <List data={getFleet(model)} key={model} />
+                        ))
                     }
                     {
-                        (filter != 'All Equipment') && (<List data={getFleet(filter)} />)
+                        (filter != 'All Equipment') && (<List data={getFleet(filter)} key={"ALL_EQUIPMENT"} />)
                     }
 
                 </Container>

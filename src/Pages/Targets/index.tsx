@@ -1033,8 +1033,8 @@ const Target = (props: any) => {
             </Col>
           </Row>
           <Row className="flex-grow-1 scrollable-rows">
-            <Col lg="12">
-              <Card>
+            <Col lg="12" style={{ height: '60vh' }}>
+              <Card style={{ height: '100%', overflow: 'auto' }}>
                 <CardBody>
                   <h2>Trucks</h2>
                   <TableContainer

@@ -94,7 +94,7 @@ const List = ({ data = [] }: any) => {
             <Row className="row d-flex">
                 {data.map((item: any, key: number) => (
                     <Col className="col-lg-2 col-md-6" key={key}>
-                        <Badge.Ribbon text={item.state ? item.state : "STANDBY"} color={getStateColor(item.state)}>
+                        <Badge.Ribbon text={item.latestState ? item.latestState : "STANDBY"} color={getStateColor(item.latestState)}>
                             <Card>
                                 <CardBody>
                                     <div className="d-flex align-start mb-3">

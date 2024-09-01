@@ -324,8 +324,8 @@ const Dispatch = () => {
                     } else {
                         processDroppedData(active, over);
                     }
-                } else if (shiftRoster && (!userData[1] || userData[1] === 'operator')) {
-                    if (shiftRoster.operators && shiftRoster.operators[0]) {
+                } else if ((!userData[1] || userData[1] === 'operator')) {
+                    if (shiftRoster && shiftRoster.operators && shiftRoster.operators[0]) {
                         setConfirmModal((prevState) => {
                             return {
                                 ...prevState,

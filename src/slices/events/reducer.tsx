@@ -29,7 +29,8 @@ export interface EventsState {
     dashboardMaterialTons: any[];
     dashboardFMSUtilPercent: any[];
     dashboardUtilPercent: any[];
-    fleetUtilInfo: any[]
+    fleetUtilInfo: any[];
+    vehicleLatestState: any[];
 }
 
 export const initialState: EventsState = {
@@ -44,7 +45,8 @@ export const initialState: EventsState = {
     dashboardMaterialTons: [],
     dashboardFMSUtilPercent: [],
     dashboardUtilPercent: [],
-    fleetUtilInfo: []
+    fleetUtilInfo: [],
+    vehicleLatestState: []
 };
 
 const EventsSlice = createSlice({
@@ -90,11 +92,14 @@ const EventsSlice = createSlice({
         fleetInfoSuccess(state, action) {
             state.fleetUtilInfo = action.payload;
         },
+        vehicleLatestStateSuccess(state, action) {
+            state.vehicleLatestState = action.payload;
+        },
         apiError(state, action) {
             state.loading = true;
             state.error = true;
         },
     }
 });
-export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess } = EventsSlice.actions;
+export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess, vehicleLatestStateSuccess } = EventsSlice.actions;
 export default EventsSlice.reducer as Reducer<EventsState>;

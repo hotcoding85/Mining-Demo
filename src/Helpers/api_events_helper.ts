@@ -43,3 +43,7 @@ export const getFleetInfo = (roster: string) => {
 export const getUtilInfo = (roster: string) => {
   return api.get(`${url.EVENTS}/util/${roster}`, {});
 }
+
+export const getVehicleLatestState = () => {
+  return api.get(`${url.EVENTS}/vehicle/latest-state`, {});
+}
