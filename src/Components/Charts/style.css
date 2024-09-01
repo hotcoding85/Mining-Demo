@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+/* 
+.trucking-header{
+    background-color: '#283655';
+    padding: 15px;
+    margin:1.5%;
+    background-color: #283655;
+    border-radius: 15px;
+    width: 95.5%;
+}
+ */
+
+.trucking-header h2{
+    text-align: left;
+}
+
+
+.performance-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap:5%;
+    width: 100%;
+
+  }
+  
+  .header-1, .header-2 {
+    background-color: #24314D;
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;
+    border-radius: 10px;
+    padding-right: 0;
+    margin-right: 0;
+  }
+  
+  .header-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap:1%;
+  }
+  
+  .label-1 {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+
+  }
+  
+  .label-2 {
+    font-size:medium;
+    text-align: right;
+    background-color: #389E0D; 
+    color: white;
+    padding: 0px 10px;
+    border-radius: 15px 0 0 15px;
+  }
+  
+  .value {
+    font-size: xx-large;
+    color: #73D13D; 
+    text-align: left;
+  }
+  
+  .total-value {
+    font-size: 14px;
+    text-align: left;
+    color: #9CA3B1;
+  }
+  
+  .bar-progress{
+    width:70%
+  }
+
+  .pie{
+  background-color: #2b3a5e;
+  border-radius: 15px;
+  margin-top: 20px;
+  width:30%;
+  }
+
+  .progress-header{
+    font-size: x-large;
+    text-align: left;
+    padding: 20px 0;
+    font-weight: bold;
+  }
+
+  .DashboardContainer{
+    /* background-color: #1f2a44; */
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  }
+
+  .BarAndProgressContainer{
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+  padding: 0;
+  margin: 0; 
+  box-sizing: border-box; 
+  }
+  
+  .BarGraphContainer{
+    width: 90%;
+  background-color: #2b3a5e;
+  padding: 20px;
+  border-radius: 0 0 15px 15px;
+  }
+
+  .ChartContainer{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .PieChartContainer{
+    width: 80%;
+    text-align: center;
+    margin-bottom: 20%;  
+  }
+
+  .LegendContainer{
+    display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  }
+
+  .LegendItem{
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+  }
+
+  .LegendCircle{
+    width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  }
+
+  .LegendText{ 
+    /* span */
+    color: white;
+    font-size: 13px;
+  }
+
+  .ProgressBarContainer{
+    padding: 20px;
+    position: relative;
+    background-color: #2b3a5e;
+    width: 90%;
+    border-radius: 15px 15px 0 0;
+  }
+
+  .ProgressText{
+    color: white;
+    font-size: 13px;
+    margin-bottom: 6px;
+    text-align: left;
+    padding-left: 3px;
+  }
+
+  .ProgressBarOuter{
+    background-color: #4a5568;
+    height: 20px;
+    border-radius: 10px;
+    /* overflow: hidden; */
+    position: relative;
+  }
+  
+  .ProgressPercent{
+    /* span */
+    color: white;
+  font-size: 10px;
+  }
+
+  .ForecastBubble{
+    position: absolute;
+    top: 80px;
+    background-color: #cf1322;
+    color: white;
+    padding: 5px 5px;
+    font-size: 11px;
+    border-radius: 5px 5px 0 5px;
+}
+
+.truck-prog{
+    right: 15px;
+}
+
+.prod-prog{
+  top:28%
+}
+  
+ .ForecastBubble::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      right: 0px;
+      margin-left: -5px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: #cf1322 transparent transparent transparent;
+    }
+
+    .TargetBubble {
+      position: absolute;
+      top:150%;
+      /* right: 15px; */
+      background-color: #2A2A2A;
+      color: white;
+      padding: 2.5px 2.5px;
+      font-size: 11px;
+      border-radius: 5px 0px 5px 0;
+  }
+  
+  .TargetBubble::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      right: 30%;
+      margin-left: -5px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent transparent #2A2A2A transparent;
+  }
+  
+
+    .LegendContainer2{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-left: 10px;
+    }
+
+    .LegendItem2{
+        display: flex;
+        align-items: center;
+        flex: 1 1 calc(50% - 10px);
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        max-width: calc(50% - 10px);
+    }
+
+    .labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top:35px;
+      padding: 0px 5px;
+  }
+  
+  .labels span {
+      font-size: 12px;
+  }
+
+  .ProductionText{
+    font-weight: bold;
+    color: #9CA3B1;
+  }
+  
+  .ProgressProduction{
+    width:100%;
+    border-radius: 15px;
+    font-size: 14px;
+    padding-bottom: 3.5%;
+  }
+
+  .header-production{
+    font-family: 'Montserrat';
+    font-size: large;
+    font-weight:500;
+    color: 'FFFFFF';
+    padding-top: 0%;
+    background-color: '#283655';
+    font-weight: bold;
+  }
+
+  .label-2.below-target {
+    background-color: #CF1322;
+  }
+  
+  .value.below-target {
+    color: #CF1322;
+  }
