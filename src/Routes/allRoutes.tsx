@@ -15,9 +15,7 @@ import Dispatch from "Pages/Dispatch";
 import Dashboard from "Pages/Dashboard";
 import MaterialInventory from "Pages/MaterialInventory";
 import Geofences from "Pages/Geofences";
-import DailyProduction from "../Pages/DailyProduction";
 import DiggingPerformance from "Pages/DiggingPerformance";
-import Telemetry from "Pages/Telemetry";
 import OreTracker from "Pages/OreTracker";
 import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
@@ -31,6 +29,9 @@ import Maintenance from "Pages/Maintenance";
 import MaterialMovement from "Pages/MaterialMovement";
 import ShiftReport from "Pages/Reports/ShiftReport";
 import DigBlockLayout from "Pages/DigBlockLayout";
+import DailyProductionDahboard from "Pages/Daily Production";
+import TruckingDashboard from "Pages/Trucking";
+import FuelStatusDashboard from "Pages/Fuel Status";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -51,15 +52,16 @@ const authProtectedRoutes = [
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
-  { path: "/daily-production", exact: true, component: <DailyProduction /> },
+  { path: "/daily-production", exact: true, component: <DailyProductionDahboard /> },
   { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
-  { path: "/telemetry", exact: true, component: <Telemetry /> },
+  { path: "/telemetry", exact: true, component: <TruckingDashboard /> },
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
   { path: "/reports", exact: true, component: <Reports /> },
   { path: "/route-replay", exact: true, component: <Replay /> },
   { path: "/maintenance", exact: true, component: <Maintenance /> },
+  { path: "/fuel-status", exact: true, component: <FuelStatusDashboard /> },
   { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
