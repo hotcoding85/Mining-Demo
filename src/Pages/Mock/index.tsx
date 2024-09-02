@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import "./mock.css";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { getAllUsers } from "slices/thunk";
+import { addUsers, getAllUsers } from "slices/thunk";
 import { useDispatch } from "react-redux";
 import { getMockResources } from "Helpers/api_mock_helper";
 import { generateMockTargetData } from "_mock/target";
@@ -21,6 +21,8 @@ import AutoTable from "Components/Common/AutoTable";
 
 const Mock = () => {
   document.title = "Mock | FMS Live";
+
+  const dispatch: any = useDispatch();
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -94,6 +96,10 @@ const Mock = () => {
     }
   };
 
+  const onSaveUsers = () => {
+    dispatch(addUsers(users));
+  };
+
   return (
     <React.Fragment>
       {(isGenerating || isLoading) && (
@@ -148,41 +154,13 @@ const Mock = () => {
             </Col>
           </Row>
           {users && (
-            <div className="">
-              <h4>Users</h4>
-              <AutoTable data={users} />
-            </div>
+            <AutoTable data={users} title="Users" onSave={onSaveUsers} />
           )}
-          {rosters && (
-            <div>
-              <h4>Rosters</h4>
-              <AutoTable data={rosters} />
-            </div>
-          )}
-          {targets && (
-            <div>
-              <h4>Targets</h4>
-              <AutoTable data={targets} />
-            </div>
-          )}
-          {plans && (
-            <div>
-              <h4>Plans</h4>
-              <AutoTable data={plans} />
-            </div>
-          )}
-          {eventMetas && (
-            <div>
-              <h4>Event Metas</h4>
-              <AutoTable data={eventMetas} />
-            </div>
-          )}
-          {events && (
-            <div>
-              <h4>Events</h4>
-              <AutoTable data={events} />
-            </div>
-          )}
+          {rosters && <AutoTable data={rosters} title="Rosters" />}
+          {targets && <AutoTable data={targets} title="Targets" />}
+          {plans && <AutoTable data={plans} title="Plans" />}
+          {eventMetas && <AutoTable data={eventMetas} title="Event Metas" />}
+          {events && <AutoTable data={events} title="Events" />}
         </Container>
       </div>
     </React.Fragment>

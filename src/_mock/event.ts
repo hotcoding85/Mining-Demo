@@ -3,15 +3,13 @@ import { formatTime, getShiftTimes } from "./common";
 export const generateMockEventMetaData = (plans: any[]) => {
   return plans.flatMap((plan) =>
     plan.supporting.map((support) => ({
-      planId: plan.id,
+      planId: plan.planId,
       roster: plan.roster,
       materialId: plan.materialId,
       sourceId: plan.sourceId,
       destinationId: plan.destinationId,
       truckId: support,
       excavatorId: plan.vehicleId,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
     }))
   );
 };
@@ -36,14 +34,12 @@ export const generateEventData = (eventMetas: any[]) => {
           sourceId: eventMeta.sourceId,
           destinationId: eventMeta.destinationId,
           truckId: eventMeta.truckId,
-          excavatorId: eventMeta.excavatorId,
-          status: "ACTIVE",
+          vehicleId: eventMeta.excavatorId,
+          state: "ACTIVE",
           reason: reason,
           payload: 90,
-          startTime: formatTime(eventStartTime),
-          endTime: formatTime(eventEndTime),
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          startTime: eventStartTime.getTime(),
+          endTime: eventEndTime.getTime(),
         });
 
         currentTime = eventEndTime;

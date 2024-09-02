@@ -71,7 +71,7 @@ const getLocationAndMaterial = (
 
   return {
     sourceId: source.id,
-    material: material?.id || "",
+    materialId: material?.id || "",
     destinationId: destination.id,
   };
 };
@@ -91,25 +91,27 @@ export const generateMockPlanData = (
   const admins = users.filter((user) => user.role === "ADMIN");
 
   const plans = targets.map((target) => {
-    const { sourceId, material, destinationId } = getLocationAndMaterial(
+    const { sourceId, materialId, destinationId } = getLocationAndMaterial(
       locations,
       normalizedMaterials
     );
-    const { startTime, endTime } = getShiftTimes(target.roster);
-    const createdBy = getRandomElement(admins).id;
+    const { startDateTime, endDateTime } = getShiftTimes(target.roster);
 
     return {
       roster: target.roster,
       tonnes: target.data.tonnes,
       vehicleId: target.vehicleId,
-      createdBy,
       sourceId,
-      material,
+      materialId,
       destinationId,
-      startTime,
-      endTime,
-      supporting: normalizeRosters[target.roster].trucks,
-      id: `${target.roster}:${normalizedVehicles[target.vehicleId].name}:PLAN`,
+      startTime: startDateTime.getTime(),
+      endTime: endDateTime.getTime(),
+      supporting: normalizeRosters[target.roster].trucks.map(
+        (truck) => truck.id
+      ),
+      planId: `${target.roster}:${
+        normalizedVehicles[target.vehicleId].name
+      }:PLAN`,
     };
   });
 

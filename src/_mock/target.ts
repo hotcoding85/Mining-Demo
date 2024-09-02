@@ -3,8 +3,6 @@ export interface ITarget {
   roster: string;
   data: IData;
   vehicleId: string;
-  createdAt: number;
-  updatedAt: number;
 }
 
 export interface IData {
@@ -41,8 +39,6 @@ export const generateMockTargetData = (
     category: normalizedVehicles[item.vehicleId]?.category || "Unknown",
     vehicleId: item.vehicleId,
     roster: item.roster,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
     data: generateRandomIData(),
   }));
 

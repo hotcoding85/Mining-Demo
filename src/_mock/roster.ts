@@ -88,12 +88,8 @@ const generateShiftRoster = (
       rosterList.push({
         vehicleId: digger.id,
         operators: currentOperators,
-        trucks: trucks
-          .slice(index * 4, (index + 1) * 4)
-          .map((truck) => truck.id),
+        trucks: trucks.slice(index * 4, (index + 1) * 4),
         roster: rosterName,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
       });
     }
   });
