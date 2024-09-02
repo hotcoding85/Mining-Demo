@@ -3,10 +3,11 @@ import { BarGraph } from "../../Components/Charts/BarChart";
 import { TextColor } from "../../Components/Charts/interfaces/general";
 import { PieChart } from "../../Components/Charts/PieChart";
 import { TripProgressBar } from "../Trucking/TripProgressBar";
+import { hd785, pc1250 } from "assets/images/equipment";
 import BarHeader from "./BarHeader";
 import "./style.css";
 
-const DailyProductionDahboard = () => {
+const DailyProductionDashboard = () => {
   const barData = {
     labels: [
       "DT01",
@@ -112,7 +113,7 @@ const DailyProductionDahboard = () => {
         backgroundColor: "rgba(24, 144, 255, 0.2)",
         fill: true,
         tension: 0,
-        pointRadius: 0,
+        pointRadius: 4,
       },
       {
         label: "Actual",
@@ -121,7 +122,7 @@ const DailyProductionDahboard = () => {
         backgroundColor: "rgba(0, 80, 179, 0.2)",
         fill: true,
         tension: 0,
-        pointRadius: 0,
+        pointRadius: 4,
       },
     ],
   };
@@ -139,7 +140,9 @@ const DailyProductionDahboard = () => {
     scales: {
       x: {
         grid: {
-          display: false,
+          display: true,
+          color: "#9CA3B1",
+          lineWidth: 0.2,
         },
       },
       y: {
@@ -181,7 +184,7 @@ const DailyProductionDahboard = () => {
         <TripProgressBar
           completed={200}
           planned={140}
-          forecast={700}
+          forecast={600}
           total={1000}
           type={"Production"}
           subHeader={`${200} of ${700} completed`}
@@ -192,7 +195,7 @@ const DailyProductionDahboard = () => {
           completed={120}
           planned={650}
           total={1000}
-          forecast={540}
+          forecast={500}
           subHeader={`${200} of ${700} completed`}
           type={"Production"}
           header={"Overall Load Target (Planned vs. Actual vs. Forecast)"}
@@ -202,7 +205,7 @@ const DailyProductionDahboard = () => {
       <div className="ChartContainer prod-chart">
         <div className="bar-progress prod-bar-progress">
           <div style={{ marginBottom: "5%" }}>
-            <BarHeader />
+            <BarHeader image={pc1250} title={'Diggers'} total={3} />
             <BarGraph
               data={barData}
               options={barOptions}
@@ -212,7 +215,7 @@ const DailyProductionDahboard = () => {
             />
           </div>
           <div style={{ marginBottom: "5%" }}>
-            <BarHeader />
+            <BarHeader image={hd785} title={'Trucks'} total={10} />
             <BarGraph
               data={barData}
               options={barOptions}
@@ -292,4 +295,4 @@ const DailyProductionDahboard = () => {
   );
 };
 
-export default DailyProductionDahboard;
+export default DailyProductionDashboard;

@@ -29,8 +29,8 @@ import Maintenance from "Pages/Maintenance";
 import MaterialMovement from "Pages/MaterialMovement";
 import ShiftReport from "Pages/Reports/ShiftReport";
 import DigBlockLayout from "Pages/DigBlockLayout";
-import DailyProductionDahboard from "Pages/Daily Production";
-import TruckingDashboard from "Pages/Trucking";
+import DailyProductionDashboard from "Pages/Daily Production";
+import TruckingPerformance from "Pages/Trucking";
 import FuelStatusDashboard from "Pages/Fuel Status";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
@@ -52,9 +52,9 @@ const authProtectedRoutes = [
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
-  { path: "/daily-production", exact: true, component: <DailyProductionDahboard /> },
+  { path: "/daily-production", exact: true, component: <DailyProductionDashboard /> },
   { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
-  { path: "/telemetry", exact: true, component: <TruckingDashboard /> },
+  { path: "/trucking-performance", exact: true, component: <TruckingPerformance /> },
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },

@@ -20,6 +20,7 @@ import { createSelector } from "reselect";
 import { changeLayoutMode, changeSideMenuState } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { Switch } from "antd";
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 const Header = (props: any) => {
 
@@ -93,12 +94,12 @@ const Header = (props: any) => {
       leftSidebarTypes: layout.leftSidebarTypes
     })
   );
-  
+
   const {
     isSideMenuOpen, layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
   } = useSelector(selectProperties);
-  
-  
+
+
   return (
     <React.Fragment>
       <header id="page-topbar">
@@ -133,7 +134,7 @@ const Header = (props: any) => {
             <LanguageDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
-              <Switch checkedChildren="DARK" unCheckedChildren="LIGHT" value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
+              <Switch checkedChildren={<MoonOutlined />} unCheckedChildren={<SunOutlined />} value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
                 if (checked) {
                   dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
                 } else {

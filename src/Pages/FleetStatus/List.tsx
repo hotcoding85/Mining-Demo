@@ -81,7 +81,10 @@ const List = ({ data = [] }: any) => {
     }
 
     const imageStyle: React.CSSProperties = {
-        height: '7.5rem',
+        'width': '100%',
+        'height': 'auto',
+        'maxHeight': '100%',
+        'objectFit': 'cover'
     };
 
     const getStateValue = (stateInfo, key: string) => {
@@ -93,7 +96,7 @@ const List = ({ data = [] }: any) => {
         <React.Fragment>
             <Row className="row d-flex">
                 {data.map((item: any, key: number) => (
-                    <Col className="col-lg-2 col-md-6" key={key}>
+                    <Col className="col-lg-3 col-md-6" key={key}>
                         <Badge.Ribbon text={item.latestState ? item.latestState : "STANDBY"} color={getStateColor(item.latestState)}>
                             <Card>
                                 <CardBody>

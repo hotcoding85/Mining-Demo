@@ -28,7 +28,7 @@ ChartJS.register(
   ArcElement
 );
 
-const TruckingDashboard = () => {
+const TruckingPerformance = () => {
   const operationalDelaysData = {
     labels: [
       "Fueling",
@@ -197,4 +197,4 @@ const TruckingDashboard = () => {
   );
 };
 
-export default TruckingDashboard;
+export default TruckingPerformance;

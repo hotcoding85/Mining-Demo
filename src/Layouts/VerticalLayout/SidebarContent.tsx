@@ -211,8 +211,8 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/telemetry">
-                    {props.t("Trucking Trip Summary")}
+                  <Link to="/trucking-performance">
+                    {props.t("Trucking Performance")}
                   </Link>
                 </li>
                 <li>

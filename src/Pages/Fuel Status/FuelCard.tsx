@@ -1,6 +1,7 @@
 import { useState, FC } from "react";
 import { FuelData } from "./interfaces/FuelData";
 import "./style.css";
+import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -58,6 +59,8 @@ const FuelCard: FC<FuelData> = ({
     }
   };
 
+  
+
   return (
     <div className="fuel-card">
       <div className="fuel-card-header">
@@ -92,7 +95,7 @@ const FuelCard: FC<FuelData> = ({
       <div className="fuel-card-details">
         <p className="fuel-card-props">
           <span className="fuel-label">SMU</span>
-          <span className="fuel-value">{smu.toLocaleString()}</span>
+          <span className="fuel-value">{smu}</span>
         </p>
         <p className="fuel-card-props">
           <span className="fuel-label">Fuel Level</span>
