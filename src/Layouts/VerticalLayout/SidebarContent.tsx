@@ -291,7 +291,7 @@ const SidebarContent = (props: any) => {
                   */}
                 </li>
                 <li>
-                  <Link to="/">{props.t("Auto Routing")}</Link>
+                  <Link to="/auto-routing">{props.t("Auto Routing")}</Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Haul Road Intelligence")}</Link>

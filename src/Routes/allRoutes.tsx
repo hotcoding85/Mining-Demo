@@ -32,6 +32,7 @@ import DigBlockLayout from "Pages/DigBlockLayout";
 import DailyProductionDashboard from "Pages/Daily Production";
 import TruckingPerformance from "Pages/Trucking";
 import FuelStatusDashboard from "Pages/Fuel Status";
+import AutoRouting from "Pages/AutoRouting";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -66,7 +67,8 @@ const authProtectedRoutes = [
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
   { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
-  { path: "/digblock", exact: true, component: <DigBlockLayout /> }
+  { path: "/digblock", exact: true, component: <DigBlockLayout /> },
+  { path: "/auto-routing", exact: true, component: <AutoRouting /> },
 ];
 
 const publicRoutes = [

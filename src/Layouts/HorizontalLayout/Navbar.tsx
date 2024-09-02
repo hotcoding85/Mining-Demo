@@ -250,7 +250,14 @@ const Navbar = (props: any) => {
                     <Link to="#" className="dropdown-item">
                       {props.t("Fleet Optimization")}
                     </Link>
-                    <Link to="#" className="dropdown-item">
+                    <Link 
+                      to="#" 
+                      className="dropdown-item"
+                      onClick={e => {
+                        e.preventDefault();
+                        setcomponent(!component);
+                      }}
+                    >
                       {props.t("Auto Routing")}
                     </Link>
                   </div>
