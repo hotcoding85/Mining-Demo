@@ -89,7 +89,7 @@ const authProtectedRoutes = [
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
   { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
-  { path: "/digblock", exact: true, component: <DigBlockLayout /> },
+  { path: "/dig-blocks", exact: true, component: <DigBlockLayout /> },
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },

@@ -4,6 +4,7 @@ import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images
 import { round } from 'lodash';
 import './index.scss';
 import { Badge } from 'antd';
+import { roundOff } from 'utils/common';
 
 const stateConfig = [
     {
@@ -81,7 +82,7 @@ const List = ({ data = [] }: any) => {
     }
 
     const imageStyle: React.CSSProperties = {
-        'width': '100%',
+        'width': '50%',
         'height': 'auto',
         'maxHeight': '100%',
         'objectFit': 'cover'
@@ -119,11 +120,11 @@ const List = ({ data = [] }: any) => {
                                                 <div className="container">
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{item?.data?.tripCount || 0}</span>
+                                                            <span className='itemActual'>{roundOff(item?.data?.tripCount || 0)}</span>
                                                             <span className='itemPlanned'>/{item.plannedLoads}</span>
                                                         </div>
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
+                                                            <span className='itemActual'>{roundOff(item?.data?.payload || 0.0)}</span>
                                                             <span className='itemPlanned'>/{item.plannedTonnes}</span>
                                                         </div>
                                                     </div>

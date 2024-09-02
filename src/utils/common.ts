@@ -2,7 +2,7 @@
 
 import { Shift, ShiftTimingsInfo } from "Models/Shift";
 import dayjs, { Dayjs } from "dayjs";
-import _ from "lodash";
+import _, { round } from "lodash";
 
 export const dateFormats: any = {
   FULL_DATE: 'YYYY-MM-DDTHH:mm:ss.000Z'
@@ -91,6 +91,24 @@ export const msToTime = (duration: number, isFormat: boolean = false) => {
   }
 }
 
+export const roundOff = (value: number): number => {
+  let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  let formattedNumber: string = formatter.format(value);
+  return parseFloat(formattedNumber)
+}
+
+export const round2One = (value: number): number => {
+  let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  let formattedNumber: string = formatter.format(value);
+  return parseFloat(formattedNumber)
+}
+
+export const round2Two = (value: number): string => {
+  let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let formattedNumber: string = formatter.format(value);
+  return formattedNumber
+}
+
 const calculateHours = (startTime, endTime) => {
   // Define a date object to use today's date
   const today = new Date();
@@ -158,26 +176,26 @@ export const getTarget = (vehicleType, capacity, targetType, date, shift) => {
 
   if (targetType === 'SHIFT') {
     const duration = shiftDuration(shifts, shift);
-    target.availability = _.round((target['availablePer'] * duration) * 60 / 100, 0);
-    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+    target.availability = roundOff((target['availablePer'] * duration) * 60 / 100);
+    target.standby = roundOff((target['standbyPer'] * target.availability) / 100);
   } else if (targetType === 'DAILY') {
-    target.availability = _.round((target['availablePer'] * 24 * 60) / 100, 0);
-    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+    target.availability = _.round((target['availablePer'] * 24 * 60) / 100, 2);
+    target.standby = roundOff((target['standbyPer'] * target.availability) / 100);
   } else if (targetType === 'WEEKLY') {
-    target.availability = _.round((target['availablePer'] * (7 * 24 * 60)) / 100, 0);
-    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+    target.availability = roundOff((target['availablePer'] * (7 * 24 * 60)) / 100);
+    target.standby = roundOff((target['standbyPer'] * target.availability) / 100);
   } else if (targetType === 'MONTHLY') {
     const daysInMonth = dayjs(date).daysInMonth();
-    target.availability = _.round((target['availablePer'] * daysInMonth * 24 * 60) / 100, 0);
-    target.standby = _.round((target['standbyPer'] * target.availability) / 100, 0);
+    target.availability = roundOff((target['availablePer'] * daysInMonth * 24 * 60) / 100);
+    target.standby = roundOff((target['standbyPer'] * target.availability) / 100);
   }
 
-  target.utilization = _.round(target.availability - target.standby, 0);
-  target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
+  target.utilization = roundOff(target.availability - target.standby);
+  target.utilizationPer = roundOff((target.utilization / target.availability) * 100);
   target.avgLoad = capacity;
   target.avgTime = vehicleType === 'DUMP_TRUCK' ? 15 : 3;
 
-  target.loads = _.round((target.utilization / target.avgTime), 0);
+  target.loads = roundOff((target.utilization / target.avgTime));
   target.tonnes = _.round(target.loads * target.avgLoad, 2);
 
   return target;
