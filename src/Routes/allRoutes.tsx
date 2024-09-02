@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom"
+import { Navigate } from "react-router-dom";
 import FMS from "../Pages/FleetStatus";
 
 // Auth
@@ -23,11 +23,12 @@ import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
 import FleetTimeline from "Pages/FleetTimeline";
 
-import socketIO from 'socket.io-client';
+import socketIO from "socket.io-client";
 import Reports from "Pages/Reports";
 import Replay from "Pages/Replay";
 import Maintenance from "Pages/Maintenance";
 import MaterialMovement from "Pages/MaterialMovement";
+import Mock from "Pages/Mock";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -45,11 +46,15 @@ const authProtectedRoutes = [
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
-  { path: "/dispatch", exact: true, component: <Dispatch /> },
+  { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
   { path: "/daily-production", exact: true, component: <DailyProduction /> },
-  { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
+  {
+    path: "/digging-performance",
+    exact: true,
+    component: <DiggingPerformance />,
+  },
   { path: "/telemetry", exact: true, component: <Telemetry /> },
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
@@ -57,13 +62,18 @@ const authProtectedRoutes = [
   { path: "/reports", exact: true, component: <Reports /> },
   { path: "/route-replay", exact: true, component: <Replay /> },
   { path: "/maintenance", exact: true, component: <Maintenance /> },
-  { path: "/material-inventory", exact: true, component: <MaterialInventory /> },
-  { path: "/material-movement", exact: true, component: <MaterialMovement /> }
+  {
+    path: "/material-inventory",
+    exact: true,
+    component: <MaterialInventory />,
+  },
+  { path: "/material-movement", exact: true, component: <MaterialMovement /> },
+  { path: "/mock", exact: true, component: <Mock /> },
 ];
 
 const publicRoutes = [
   { path: "/login", component: <LoginPage /> },
   { path: "/logout", component: <Logout /> },
   { path: "/forgot-password", component: <ForgotPassword /> },
-]
+];
 export { authProtectedRoutes, publicRoutes };

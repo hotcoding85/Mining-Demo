@@ -1,4 +1,3 @@
-
 //LOGIN
 export const POST_LOGIN = "/auth/login";
 
@@ -28,3 +27,6 @@ export const GEO_FENCE = "/fences";
 
 // EVENTS
 export const EVENTS = "/events";
+
+// MOCK
+export const MOCK = "/mock";

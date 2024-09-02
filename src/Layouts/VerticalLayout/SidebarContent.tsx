@@ -122,7 +122,7 @@ const SidebarContent = (props: any) => {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
     activeMenu();
   }, [activeMenu]);
 
@@ -174,19 +174,27 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/daily-production">{props.t("Daily Production")}</Link>
+                  <Link to="/daily-production">
+                    {props.t("Daily Production")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/">{props.t("Production Summary")}</Link>
                 </li>
                 <li>
-                  <Link to="/digging-performance">{props.t("Digging Performance")}</Link>
+                  <Link to="/digging-performance">
+                    {props.t("Digging Performance")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/telemetry">{props.t("Trucking Trip Summary")}</Link>
+                  <Link to="/telemetry">
+                    {props.t("Trucking Trip Summary")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/ore-tracker">{props.t("ROM & Waste Summary")}</Link>
+                  <Link to="/ore-tracker">
+                    {props.t("ROM & Waste Summary")}
+                  </Link>
                 </li>
               </ul>
             </li>
@@ -234,10 +242,14 @@ const SidebarContent = (props: any) => {
                   <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>
-                  <Link to="/material-inventory">{props.t("Material Inventory")}</Link>
+                  <Link to="/material-inventory">
+                    {props.t("Material Inventory")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/material-movement">{props.t("Material Movement")}</Link>
+                  <Link to="/material-movement">
+                    {props.t("Material Movement")}
+                  </Link>
                 </li>
               </ul>
             </li>
@@ -264,7 +276,7 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="/" >
+              <Link to="/">
                 <i className="bx bx-checkbox-square"></i>
                 <span>{props.t("Telemetry Live")}</span>
               </Link>
@@ -294,7 +306,11 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="http://thingsboard.cloud" target="_blank" rel="noopener noreferrer">
+              <Link
+                to="http://thingsboard.cloud"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="bx bx-chip"></i>
                 <span>{props.t("Asset Insights")}</span>
               </Link>
@@ -307,6 +323,12 @@ const SidebarContent = (props: any) => {
               </Link>
             </li>
 
+            <li>
+              <Link to="/mock">
+                <i className="bx bx-data"></i>
+                <span>{props.t("Mock Data")}</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </SimpleBar>
