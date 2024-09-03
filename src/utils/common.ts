@@ -18,10 +18,7 @@ export const getDateInFormat = (timestamp, format) => {
   return date
 }
 
-export const shifts: any = [
-  { name: 'DS', description: 'Day Shift', startTime: "06:00:00", endTime: "17:59:59", duration: 720 },
-  { name: 'NS', description: 'Night Shift', startTime: "18:00:00", endTime: "05:59:59", duration: 720 }
-];
+export const shifts: any = JSON.parse(localStorage.getItem('shifts')!);
 
 export const shiftsInFormat: any = (shifts) => {
   return shifts.map((shift) => { return { value: shift.name, label: shift.name } })
@@ -32,8 +29,8 @@ export const shiftDuration = (shifts, shift) => {
   let currentShiftData = shifts.filter(shiftData => { return shiftData.name === shift });
   if (currentShiftData && currentShiftData[0]) {
     currentShiftData = currentShiftData[0];
-    const shiftDurationData = calculateHours(currentShiftData.startTime, currentShiftData.endTime)
-    return Math.abs(shiftDurationData.hours)
+    const shiftDurationData = currentShiftData.duration / 60;
+    return shiftDurationData;
   };
   return 12;
 }
@@ -48,6 +45,8 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
     let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
     let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
 
+    const endDateTime = calculateEndTime(shift.startTime, shift.duration);
+    shift.endTime = endDateTime;
     let endTime = shift.endTime.split(":");
     let end = dayjs().add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
     let endPrev = previousDay.add(shift.startTime > shift.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1]));
@@ -71,10 +70,28 @@ export const shiftTimingsByDateandShift = (shiftDate: string, shift: string): Sh
   let startTime: string[] = shiftInfo.startTime.split(":");
   let start: Dayjs = dayjs(shiftDate).set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1])).set('second', parseInt(startTime[2]));
 
+  const endDateTime = calculateEndTime(shiftInfo.startTime, shiftInfo.duration);
+  shiftInfo.endTime = endDateTime;
   let endTime = shiftInfo.endTime.split(":");
   let end: Dayjs = dayjs(shiftDate).add(shiftInfo.startTime > shiftInfo.endTime ? 1 : 0, 'day').set('hour', parseInt(endTime[0])).set('minute', parseInt(endTime[1])).set('second', parseInt(endTime[2]));
 
   return { start: start, end: end, shift: shift, shiftDate: shiftDate };
+}
+
+export const minsToTime = (duration: number, isFormat: boolean = false) => {
+  let hours = Math.floor((duration / 60) % 24);
+  let minutes = Math.floor(duration % 60);
+  let seconds = Math.floor((duration / (60 * 60)) % 60);
+
+  if (isFormat) {
+    return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`
+  }
+
+  return {
+    hours,
+    minutes,
+    seconds
+  }
 }
 
 export const msToTime = (duration: number, isFormat: boolean = false) => {
@@ -107,6 +124,20 @@ export const round2Two = (value: number): string => {
   let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let formattedNumber: string = formatter.format(value);
   return formattedNumber
+}
+const calculateEndTime = (startTime, duration) => {
+
+  // Create Date objects for the start and end times
+  const [startHours, startMinutes, startSeconds] = startTime.split(':').map(Number);
+  const shiftDuration: any = minsToTime(duration, true);
+  const [durationHours, durationMinutes, durationSeconds] = shiftDuration.split(':').map(Number);
+  const hours = durationHours + startHours;
+  const minutes = durationMinutes + startMinutes;
+  const seconds = durationSeconds + startSeconds;
+
+  const endDateTime = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+  return endDateTime;
 }
 
 const calculateHours = (startTime, endTime) => {

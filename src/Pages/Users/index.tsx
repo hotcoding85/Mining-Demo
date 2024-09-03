@@ -48,7 +48,7 @@ const Users = (props: any) => {
       firstName: (doc && doc.firstName) || "",
       lastName: (doc && doc.lastName) || "",
       crew: (doc && doc.crew) || "",
-      password: !isEdit ? (doc && doc.password ? doc.password : undefined) : undefined || undefined,
+      password: doc && doc.password ? doc.password : undefined,
       role: (doc && doc.role) || "",
       email: (doc && doc.email) || undefined,
       mobile: (doc && doc.mobile) || undefined,
@@ -224,8 +224,21 @@ const Users = (props: any) => {
       // setting the dialog to show as edit
       setIsEdit(true);
 
+      const doc = arg;
       // reading the row data from table
-      const user = parseUserData(arg)
+      const user = {
+        id: (doc && doc.id) || undefined,
+        employeeId: (doc && doc.employeeId) || "",
+        username: (doc && doc.username) || "",
+        firstName: (doc && doc.firstName) || "",
+        lastName: (doc && doc.lastName) || "",
+        crew: (doc && doc.crew) || "",
+        password: undefined,
+        role: (doc && doc.role) || "",
+        email: (doc && doc.email) || undefined,
+        mobile: (doc && doc.mobile) || undefined,
+        status: (doc && doc.status) || "ACTIVE",
+      }
       // saving to state
       setUser(user);
 

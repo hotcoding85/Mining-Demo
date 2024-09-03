@@ -35,3 +35,6 @@ export const TARGET = "/targets";
 
 // REPROTS
 export const REPORTS = "/reports";
+
+// CONFIGURATIONS
+export const CONFIGURATIONS = "/configurations";

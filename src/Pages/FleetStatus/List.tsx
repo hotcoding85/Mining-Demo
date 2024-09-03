@@ -122,7 +122,7 @@ const List = ({ data = [] }: any) => {
                                     {
                                         ['DUMP_TRUCK', 'EXCAVATOR'].includes(item.category) && (
                                             <>
-                                                <div className="container">
+                                                <div >
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
                                                             {/* <span className='itemActual'>{roundOff(item?.data?.tripCount || 0)}</span> */}
@@ -136,7 +136,7 @@ const List = ({ data = [] }: any) => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="container">
+                                                <div >
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
                                                             <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>

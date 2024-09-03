@@ -7,7 +7,15 @@ export const loginuser = (user: any, history: any) => async (dispatch: any) => {
             username: user.email,
             password: user.password
         })
-        dispatch(loginSuccess(response));
+        if (response && response.configurations && response.configurations && response.configurations.shifts && response.configurations.timezone) {
+            dispatch(loginSuccess(response));
+        } else {
+            dispatch(apiError({
+                data: {
+                    message: 'Configuration is missing'
+                }
+            }));
+        }
         history('/');
     } catch (error: any) {
         console.log(error)
@@ -17,7 +25,7 @@ export const loginuser = (user: any, history: any) => async (dispatch: any) => {
 
 export const resetLoginFlagState = () => async (dispatch: any) => {
     try {
-        dispatch(resetLoginFlag())    
+        dispatch(resetLoginFlag())
     } catch (error) {
         console.log(error)
     }

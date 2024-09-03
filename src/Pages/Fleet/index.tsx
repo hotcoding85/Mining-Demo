@@ -257,7 +257,7 @@ const Fleet = (props: any) => {
         cell: (cellProps: any) => {
           const category = cellProps.row.original.category
           return (
-            <Tag color={getVehicleCategoryColor(category)}>{category}</Tag>
+            <Tag color={getVehicleCategoryColor(category)}>{category.replace('_', ' ')}</Tag>
           );
         },
       },
