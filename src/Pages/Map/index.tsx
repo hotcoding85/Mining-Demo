@@ -191,7 +191,6 @@ const Map = ({ socket }) => {
 
     const { events } = useSelector(eventsProperties);
 
-
     socket.on("TRACKER_LOCATION", data => {
         console.log(data);
         // updateMarkerPosition(data.id, data.position);
@@ -872,34 +871,17 @@ const Map = ({ socket }) => {
         mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
         mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-        mapRef.current.on('load', () => {
+        // mapRef.current.on('load', () => {
 
-            mapRef.current.addSource('line', {
-                type: 'geojson',
-                data: geojson
-            });
+        //     mapRef.current.addSource('line', {
+        //         type: 'geojson',
+        //         data: geojson
+        //     });
 
-        });
+        // });
 
         addMarkers();
 
-        // if (!mapRef.current) {
-        //     mapRef.current = Leaflet.map('map', {
-        //         center: origin,
-        //         zoom: 18,
-        //         attributionControl: true,
-        //         zoomControl: false,
-        //     });
-
-        //     Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
-        //     mapRef.current.addLayer(drawItems);
-
-        //     Leaflet.control.zoom({
-        //         position: 'bottomright'
-        //     }).addTo(mapRef.current);
-
-        //     addMarkers();
-        // }
     }, []);
 
     useEffect(() => {
@@ -913,7 +895,8 @@ const Map = ({ socket }) => {
     useEffect(() => {
         geofences = [];
         geofenceFromDB.forEach((json) => {
-            drawFeature(json);
+            console.log(json)
+            // drawFeature(json);
         })
     }, [geofenceFromDB]);
 
@@ -1052,8 +1035,27 @@ const Map = ({ socket }) => {
             // layer = Leaflet.polygon(geoFenceData.geoJson.geometry.coordinates).addTo(mapRef.current!);
             layer = Leaflet.geoJson(geoFenceData.geoJson).addTo(mapRef.current!);
             layer.id = geoFenceData.id;
+            
+            if(mapRef.current.isStyleLoaded()) {
+                mapRef.current.addSource('line', {
+                    type: 'geojson',
+                    data: geoFenceData.geoJson
+                });
+    
+                mapRef.current.addLayer({
+                    type: 'fence',
+                    source: geoFenceData.name,
+                    id: 'fence',
+                    paint: {
+                        'line-color': 'yellow',
+                        'line-width': 4,
+                        'line-opacity': 0.4,
+                        'fill': 'red'
+                    }
+                });
+            }
             //layer.bindPopup("Name of the GeoFence");
-            drawItems.addLayer(layer);
+            // drawItems.addLayer(layer);
         }
         geofences.push({ id: layer.id, layer: layer, name: geoFenceData.name, bench: { value: geoFenceData.locationId, label: (geoFenceData && geoFenceData.location) ? geoFenceData.location.name : '' } })
         setGeofences([...geofences]);

@@ -44,14 +44,14 @@ const DigBlockLayout = (props: any) => {
   const selectProperties = createSelector(
     (state: any) => state.GeoFence,
     (GeoFence) => ({
-      data: GeoFence.data,
-      total: GeoFence.total,
+      data: GeoFence ? GeoFence.data : [],
+      total: GeoFence ? GeoFence.total : 0,
     })
   );
 
-  const { data: geoJsonData } = useSelector(selectProperties);
+  const { data } = useSelector(selectProperties);
 
-  const data = geoJsonData?.map((item) => item.properties);
+  // const data = []//geoJsonData?.map(item => item.properties)
 
   useEffect(() => {
     dispatch(getGeoFences());

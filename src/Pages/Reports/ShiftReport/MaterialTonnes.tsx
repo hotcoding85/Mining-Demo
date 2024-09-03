@@ -5,7 +5,7 @@ const MaterialTonnes = ({ materialData }) => {
     if (materialData && materialData.length === 0) {
         return (
             <Row>
-                <h4>No records</h4>
+                {/* <h4>No records</h4> */}
             </Row>
         )
     }

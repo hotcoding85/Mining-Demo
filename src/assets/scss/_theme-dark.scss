@@ -5,7 +5,7 @@
     // Color system - Dark Mode only
     $gray-100: #212529;
     $gray-200: #2a3042;
-    $gray-300: #32394e;
+    $gray-300: #283655;
     $gray-400: #a6b0cf;
     $gray-500: #bfc8e2;
     $gray-600: #c3cbe4;
@@ -31,13 +31,13 @@
         --#{$prefix}gray-#{$color}: #{$value};
     }
 
-    --#{$prefix}body-bg:                                    #222736;
-    --#{$prefix}body-bg-rgb:                                rgb(34, 39, 54);
+    --#{$prefix}body-bg:                                    #1C263C;
+    --#{$prefix}body-bg-rgb:                                rgb(28, 38, 60);
     --#{$prefix}body-color-rgb:                             #{to-rgb($gray-400)};
     --#{$prefix}body-color:                                 #{$gray-400};
     --#{$prefix}secondary-color:                            #{$gray-600};
     --#{$prefix}heading-color:                              #{$gray-700};
-    --#{$prefix}border-color:                               #{$gray-300};
+    --#{$prefix}border-color:                               #{$gray-400};
     --#{$prefix}custom-white:                               #{$gray-200};
 
     --#{$prefix}input-border-color:                         #{$gray-300};
@@ -58,9 +58,9 @@
 
     --#{$prefix}heading-dark-bg:                            #{$primary};
 
-    --#{$prefix}boxed-body-bg:                              #32394f;
+    --#{$prefix}boxed-body-bg:                              #1C263C;
 
-    --#{$prefix}topnav-bg:                                  #282e3f;
+    --#{$prefix}topnav-bg:                                  #{$gray-300};
     --#{$prefix}menu-item-color:                            #a6b0cf;
 
     //footer
@@ -68,7 +68,7 @@
     --#{$prefix}footer-color:                               #{$gray-400};
 
     .card{
-        --#{$prefix}card-bg:                                    #{$gray-200};
+        --#{$prefix}card-bg:                                    #{$gray-300};
     }
 
     .list-group {
@@ -120,8 +120,8 @@
     }
 
     .dropdown-menu {
-        --#{$prefix}dropdown-bg:                            #{$gray-200};
-        --#{$prefix}dropdown-link-color:                    #{$gray-400};
+        --#{$prefix}dropdown-bg:                            #{$gray-300};
+        --#{$prefix}dropdown-link-color:                    #{$gray-500};
         --#{$prefix}dropdown-border-color:                  #{$gray-300};
         --#{$prefix}dropdown-border-width:                  1px;
         --#{$prefix}dropdown-divider-bg:                    #{$gray-300};
@@ -177,7 +177,7 @@
     
     .table-dark {
         --#{$prefix}table-color:                                        #{$gray-400};
-        --#{$prefix}table-bg:                                           #{$gray-300};
-        --#{$prefix}table-border-color:                                 #{lighten($gray-300, 4%)};
+        --#{$prefix}table-bg:                                           #{$gray-400};
+        --#{$prefix}table-border-color:                                 #{lighten($gray-400, 4%)};
     }
 }

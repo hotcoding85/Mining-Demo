@@ -25,6 +25,12 @@ export interface EventsState {
     loading: boolean;
     error: boolean | null;
     errorMsg: string | null;
+    dashboardTruckingInfo: any[];
+    dashboardMaterialTons: any[];
+    dashboardFMSUtilPercent: any[];
+    dashboardUtilPercent: any[];
+    fleetUtilInfo: any[];
+    vehicleLatestState: any[];
 }
 
 export const initialState: EventsState = {
@@ -34,7 +40,13 @@ export const initialState: EventsState = {
     total: 0,
     loading: false,
     error: false,// for error
-    errorMsg: null
+    errorMsg: null,
+    dashboardTruckingInfo: [],
+    dashboardMaterialTons: [],
+    dashboardFMSUtilPercent: [],
+    dashboardUtilPercent: [],
+    fleetUtilInfo: [],
+    vehicleLatestState: []
 };
 
 const EventsSlice = createSlice({
@@ -66,11 +78,28 @@ const EventsSlice = createSlice({
             state.loading = false;
             state.error = false;
         },
+        dashboardTruckingInfoSuccess(state, action) {
+            state.dashboardTruckingInfo = action.payload;
+            state.loading = false;
+            state.error = false;
+        },
+        dashboardMaterialTonsSuccess(state, action) {
+            state.dashboardMaterialTons = action.payload;
+        },
+        dashboardUtilSuccess(state, action) {
+            state.dashboardUtilPercent = action.payload;
+        },
+        fleetInfoSuccess(state, action) {
+            state.fleetUtilInfo = action.payload;
+        },
+        vehicleLatestStateSuccess(state, action) {
+            state.vehicleLatestState = action.payload;
+        },
         apiError(state, action) {
             state.loading = true;
             state.error = true;
         },
     }
 });
-export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } = EventsSlice.actions;
+export const { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess, vehicleLatestStateSuccess } = EventsSlice.actions;
 export default EventsSlice.reducer as Reducer<EventsState>;

@@ -13,6 +13,8 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   flexRender,
+  ExpandedState,
+  getExpandedRowModel
 } from "@tanstack/react-table";
 
 import { rankItem } from "@tanstack/match-sorter-utils";
@@ -107,7 +109,7 @@ const TableContainer = ({
   columns,
   data,
   total,
-  tableClass = "table-bordered dt-responsive nowrap w-100 dataTable no-footer dtr-inline table-striped",
+  tableClass = "table-bordered dt-responsive nowrap w-100 dataTable no-footer dtr-inline",
   theadClass,
   divClassName,
   isBordered,
@@ -137,6 +139,8 @@ const TableContainer = ({
     return itemRank.passed;
   };
 
+  const [expanded, setExpanded] = React.useState<ExpandedState>({})
+
   const table = useReactTable({
     columns,
     data,
@@ -146,7 +150,10 @@ const TableContainer = ({
     state: {
       columnFilters,
       globalFilter,
+      expanded
+
     },
+    onExpandedChange: setExpanded,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
@@ -154,6 +161,8 @@ const TableContainer = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getSubRows: row => row ? row.subRows : [],
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   const {
@@ -239,11 +248,10 @@ const TableContainer = ({
                     <th
                       key={header.id}
                       colSpan={header.colSpan}
-                      className={`${
-                        header.column.columnDef.enableSorting
-                          ? "sorting sorting_desc"
-                          : ""
-                      }`}
+                      className={`${header.column.columnDef.enableSorting
+                        ? "sorting sorting_desc"
+                        : ""
+                        }`}
                     >
                       {header.isPlaceholder ? null : (
                         <React.Fragment>
@@ -316,9 +324,8 @@ const TableContainer = ({
             <div className={paginationWrapper}>
               <ul className={pagination}>
                 <li
-                  className={`paginate_button page-item previous ${
-                    !getCanPreviousPage() ? "disabled" : ""
-                  }`}
+                  className={`paginate_button page-item previous ${!getCanPreviousPage() ? "disabled" : ""
+                    }`}
                 >
                   <Link to="#" className="page-link" onClick={previousPage}>
                     <i className="mdi mdi-chevron-left"></i>
@@ -327,9 +334,8 @@ const TableContainer = ({
                 {getPageOptions().map((item: any, key: number) => (
                   <li
                     key={key}
-                    className={`paginate_button page-item ${
-                      getState().pagination.pageIndex === item ? "active" : ""
-                    }`}
+                    className={`paginate_button page-item ${getState().pagination.pageIndex === item ? "active" : ""
+                      }`}
                   >
                     <Link
                       to="#"
@@ -341,9 +347,8 @@ const TableContainer = ({
                   </li>
                 ))}
                 <li
-                  className={`paginate_button page-item next ${
-                    !getCanNextPage() ? "disabled" : ""
-                  }`}
+                  className={`paginate_button page-item next ${!getCanNextPage() ? "disabled" : ""
+                    }`}
                 >
                   <Link to="#" className="page-link" onClick={nextPage}>
                     <i className="mdi mdi-chevron-right"></i>

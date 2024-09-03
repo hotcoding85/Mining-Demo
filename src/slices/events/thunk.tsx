@@ -1,5 +1,5 @@
-import { getEvents, postEvents, putEvents, deleteEvents } from "Helpers/api_events_helper";
-import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
+import { getEvents, postEvents, putEvents, deleteEvents, getDashboardTruckingInfo, getMaterialTons, getUtilInfo, getFleetInfo, getVehicleLatestState } from "Helpers/api_events_helper";
+import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess, dashboardTruckingInfoSuccess, dashboardMaterialTonsSuccess, dashboardUtilSuccess, fleetInfoSuccess, vehicleLatestStateSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
 
@@ -41,5 +41,55 @@ export const removeEvents = (id: string) => async (events: any) => {
         events(deleteSuccess(response));
     } catch (error) {
         events(apiError(error));
+    }
+}
+
+export const dashboardTruckingInfo = (roster: string) => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getDashboardTruckingInfo(roster)
+        dispatch(dashboardTruckingInfoSuccess(response));
+    } catch (error) {
+        dispatch(apiError(error));
+    }
+}
+
+export const dashboardMaterialTons = (roster: string) => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getMaterialTons(roster)
+        dispatch(dashboardMaterialTonsSuccess(response));
+    } catch (error) {
+        dispatch(apiError(error));
+    }
+}
+
+export const dashboardUtilInfo = (roster: string) => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getUtilInfo(roster);
+        dispatch(dashboardUtilSuccess(response));
+    } catch (error) {
+        dispatch(apiError(error));
+    }
+}
+
+export const fleetInfo = (roster: string) => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getFleetInfo(roster);
+        dispatch(fleetInfoSuccess(response));
+    } catch (error) {
+        dispatch(apiError(error));
+    }
+}
+
+export const vehicleLatestState = () => async (dispatch: any) => {
+    try {
+        let response: any;
+        response = await getVehicleLatestState();
+        dispatch(vehicleLatestStateSuccess(response.data));
+    } catch (error) {
+        dispatch(apiError(error));
     }
 }

@@ -3,7 +3,7 @@ import { Container, Row, Col } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { Button, DatePicker, Segmented, Space } from "antd";
 import dayjs from "dayjs";
-import { saveFile, shiftTimings, shiftTimingsByDateandShift } from "utils/common";
+import { saveFile, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { ShiftTimingsInfo } from "Models/Shift";
 import { getShiftReportData } from "Helpers/api_events_helper";
 import MaterialTonnes from "./MaterialTonnes";
@@ -12,6 +12,8 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { downloadShiftReport } from "Helpers/api_reports_helper";
 import Notification from "Components/Common/Notification";
 import { useSearchParams } from "react-router-dom";
+import VehicleReasons from "./VehicleReasons";
+import { chain } from "lodash";
 
 const ShiftReport = () => {
     document.title = "Reports | Shift Report";
@@ -22,7 +24,8 @@ const ShiftReport = () => {
     const [reportData, setReportData] = useState({
         materialData: [],
         materialCategories: [],
-        reportData: []
+        reportData: [],
+        stateReason: []
     });
 
     useEffect(() => {
@@ -33,8 +36,8 @@ const ShiftReport = () => {
     }, [shiftDetails.shiftDate, shiftDetails.shift]);
 
     const getReportData = (shiftDate: string, shift: string) => {
-        getShiftReportData(`${shiftDate}:${shift}`)
-            // getShiftReportData("2024-08-05:NS")
+        getShiftReportData(`${shiftDate}:${shift}`, ['DELAY', 'STANDBY'])
+            // getShiftReportData("2024-08-05:NS", ['DELAY', 'STANDBY'])
             .then((response) => {
                 setReportData(response);
             }).catch((error) => {
@@ -75,6 +78,15 @@ const ShiftReport = () => {
         })
     }
 
+    const getStateVehicleReasons = (state: string) => {
+        if (!reportData.stateReason || reportData.stateReason.length === 0) {
+            return [];
+        }
+
+        let data = chain(reportData.stateReason).filter((item: any) => item.state === state).orderBy([(x: any) => x.vehicleName.toLowerCase()]).value();
+        return data;
+    }
+
     return (
         <Fragment>
             <div className="page-content">
@@ -84,7 +96,7 @@ const ShiftReport = () => {
                         <Col className='d-flex flex-row-reverse'>
                             <Space>
                                 <DatePicker allowClear={false} value={shiftDetails.start} onChange={onShiftDateChange} />
-                                <Segmented className="customSegmentLabel customSegmentBackground" value={shiftDetails.shift} onChange={onShiftChange} options={[{ value: 'DS', label: 'DS' }, { value: 'NS', label: 'NS' }]} />
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={shiftDetails.shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
                                 <Button shape="circle" icon={<DownloadOutlined />} onClick={downloadReport} />
                             </Space>
                         </Col>
@@ -95,6 +107,14 @@ const ShiftReport = () => {
                     <EquipmentReport
                         materialCategories={reportData.materialCategories || []}
                         reportData={reportData.reportData || []}
+                    />
+                    <VehicleReasons
+                        title={'Delay Reasons'}
+                        data={getStateVehicleReasons('DELAY')}
+                    />
+                    <VehicleReasons
+                        title={'Standby Reasons'}
+                        data={getStateVehicleReasons('STANDBY')}
                     />
                 </Container>
                 <Notification

@@ -23,11 +23,11 @@ export const getTargetsByRosterAndCategory = (roster, category) => async (dispat
     }
 }
 
-export const addTarget = (Target: any) => async (dispatch: any) => {
+export const addTargets = (targets: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await postTarget(Target)
-        toast.success("Target added successfully", { autoClose: 2000 });
+        response = await postTarget(targets)
+        toast.success("Targets updated successfully", { autoClose: 1000 });
         dispatch(createSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

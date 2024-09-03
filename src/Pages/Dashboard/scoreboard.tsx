@@ -1,28 +1,26 @@
 import { Card, CardBody, CardTitle, Table } from "reactstrap";
 import './dashboard.css';
+import { createSelector } from "reselect";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { dashboardTruckingInfo } from "slices/thunk";
 
-const ScoreBoard = (props: any) => {
+const ScoreBoard = ({ roster }) => {
 
-    const data = [
-        {
-            "name": "HT0002",
-            "workingHours": 3.37,
-            "payloadHour": 216.89,
-            "avgPayload": 730.99
-        },
-        {
-            "name": "DT102",
-            "workingHours": 3.42,
-            "payloadHour": 216.73,
-            "avgPayload": 740.99
-        },
-        {
-            "name": "DT101",
-            "workingHours": 3.87,
-            "payloadHour": 229.48,
-            "avgPayload": 887.6
-        }
-    ];
+    const dispatch: any = useDispatch();
+
+    useEffect(() => {
+        dispatch(dashboardTruckingInfo(roster));
+    }, [roster]);
+
+    const selectProperties = createSelector(
+        (state: any) => state.Events,
+        (info) => ({
+            data: info.dashboardTruckingInfo
+        })
+    );
+
+    const { data } = useSelector(selectProperties);
 
     return (
         <Card>
@@ -40,7 +38,7 @@ const ScoreBoard = (props: any) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {
+                            {data &&
                                 data.map((item, key) => {
                                     return (
                                         <tr key={key}>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Col, Card, CardBody, CardImg, CardImgOverlay, CardTitle, Row } from "reactstrap";
 import Chart from "react-apexcharts";
 
@@ -6,20 +6,26 @@ import PC2000 from 'assets/images/equipment/PC2000.png'
 import PC1250 from 'assets/images/equipment/PC1250.png'
 import HD1500 from 'assets/images/equipment/HD1500.png'
 import HD785 from 'assets/images/equipment/HD785.png'
+import { useDispatch, useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import { dashboardUtilInfo } from "slices/thunk";
 
-const Utilization = (props: any) => {
+const Utilization = ({ roster }) => {
 
-    const utilizationByModel: { model: string, utilPercent: number }[] = [
-        {
-            "model": "YIYY",
-            "utilPercent": 2.55
-        },
-        {
-            "model": "785-7",
-            "utilPercent": 5.52
-        }
+    const dispatch: any = useDispatch();
 
-    ];
+    useEffect(() => {
+        dispatch(dashboardUtilInfo(roster));
+    }, [roster]);
+
+    const selectProperties = createSelector(
+        (state: any) => state.Events,
+        (info) => ({
+            data: info.dashboardUtilPercent
+        })
+    );
+
+    const { data } = useSelector(selectProperties);
 
     const getUtilPercentColor = (utilPercent: number) => {
         if (utilPercent > 75) {
@@ -57,7 +63,8 @@ const Utilization = (props: any) => {
                         <CardTitle tag="h4" className="mb-3">Utilization by model</CardTitle>
                         <Row>
                             {
-                                utilizationByModel.map((model, key) => {
+                                data &&
+                                data.map((model, key) => {
                                     const options = {
                                         plotOptions: {
                                             radialBar: {

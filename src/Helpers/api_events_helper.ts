@@ -20,6 +20,30 @@ export const deleteEvents = (id: string) => {
   return api.delete(`${url.EVENTS}/${id}`, {});
 }
 
-export const getShiftReportData = (roster: string) => {
-  return api.get(`${url.EVENTS}/reports/shift-report/${roster}`, {});
+export const getShiftReportData = (roster: string, states: string[]) => {
+  let queryParams = '';
+  states.forEach((state) => {
+    queryParams += `states=${state}&`;
+  })
+  return api.get(`${url.EVENTS}/reports/shift-report/${roster}?${queryParams}`, {});
+}
+
+export const getDashboardTruckingInfo = (roster: string) => {
+  return api.get(`${url.EVENTS}/truckinginfo/${roster}`, {})
+}
+
+export const getMaterialTons = (roster: string) => {
+  return api.get(`${url.EVENTS}/tonsbymaterial/${roster}`, {});
+}
+
+export const getFleetInfo = (roster: string) => {
+  return api.get(`${url.EVENTS}/fmsutil/${roster}`, {});
+}
+
+export const getUtilInfo = (roster: string) => {
+  return api.get(`${url.EVENTS}/util/${roster}`, {});
+}
+
+export const getVehicleLatestState = () => {
+  return api.get(`${url.EVENTS}/vehicle/latest-state`, {});
 }

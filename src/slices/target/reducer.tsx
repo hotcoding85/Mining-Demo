@@ -48,15 +48,15 @@ const targetSlice = createSlice({
             state.error = false;
         },
         createSuccess(state, action: PayloadAction<CreateResponse>) {
-            var newBench = action.payload.data
-            state.data = [...state.data, newBench]
+            var targets: any = action.payload.data;
+            state.data = targets;
             state.loading = false;
             state.error = false;
         },
         updateSuccess(state, action: PayloadAction<CreateResponse>) {
-            var newBench = action.payload.data
-            var data = state.data.filter(item => item.id !== newBench.id)
-            state.data = [...data, newBench]
+            var newTarget = action.payload.data
+            var data = state.data.filter(item => item.id !== newTarget.id)
+            state.data = [...data, newTarget]
             state.loading = false;
             state.error = false;
         },

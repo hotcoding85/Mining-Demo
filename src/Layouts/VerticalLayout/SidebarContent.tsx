@@ -150,16 +150,16 @@ const SidebarContent = (props: any) => {
                   <Link to="/fleet-status">{props.t("Fleet Status")}</Link>
                 </li>
                 <li>
-                  <Link to="/map">{props.t("Real-time Positioning")}</Link>
+                  <Link to="/realtime-postioning">{props.t("Real-time Positioning")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Trucking Summary")}</Link>
+                  <Link to="/trucking">{props.t("Trucking Plan vs Actual")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Digging Summary")}</Link>
+                  <Link to="/digging">{props.t("Digging Plan vs Actual")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Equipment Activity Gantt")}</Link>
+                  <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
                 </li>
               </ul>
             </li>
@@ -177,16 +177,16 @@ const SidebarContent = (props: any) => {
                   <Link to="/shift-planner">{props.t("Shift Planner")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Short Interval Control")}</Link>
+                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Fuel Scheduler")}</Link>
+                  <Link to="/fuel-scheduler">{props.t("Fuel Scheduler")}</Link>
                 </li>
                 <li>
                   <Link to="/targets">{props.t("Production Targets")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Message Centre")}</Link>
+                  <Link to="/message-centre">{props.t("Message Centre")}</Link>
                 </li>
               </ul>
             </li>
@@ -203,7 +203,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Production Summary")}</Link>
+                  <Link to="/production-summary">{props.t("Production Summary")}</Link>
                 </li>
                 <li>
                   <Link to="/digging-performance">
@@ -211,8 +211,8 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/telemetry">
-                    {props.t("Trucking Trip Summary")}
+                  <Link to="/trucking-performance">
+                    {props.t("Trucking Performance")}
                   </Link>
                 </li>
                 <li>
@@ -238,13 +238,13 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("3D Pit View")}</Link>
+                  <Link to="/pit-view">{props.t("3D Pit View")}</Link>
                 </li>
                 <li>
-                  <Link to="/route-replay">{props.t("GPS Replay")}</Link>
+                  <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Fuel Status")}</Link>
+                  <Link to="/fuel-status">{props.t("Fuel Status")}</Link>
                 </li>
               </ul>
             </li>
@@ -259,7 +259,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/benches">{props.t("Benches")}</Link>
                 </li>
                 <li>
-                  <Link to="/digblock">{props.t("Dig Block Layout")}</Link>
+                  <Link to="/dig-blocks">{props.t("Dig Block Layout")}</Link>
                 </li>
                 <li>
                   <Link to="/materials">{props.t("Materials")}</Link>
@@ -285,16 +285,16 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/">{props.t("Fleet Optimization")}</Link>
+                  <Link to="/fleet-optimisation">{props.t("Fleet Optimization")}</Link>
                   {/*
                     plan with trucks, diggers and operators
                   */}
                 </li>
                 <li>
-                  <Link to="/">{props.t("Auto Routing")}</Link>
+                  <Link to="/auto-routing">{props.t("Auto Routing")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Haul Road Intelligence")}</Link>
+                  <Link to="/haul-road-intelligence">{props.t("Haul Road Intelligence")}</Link>
                 </li>
               </ul>
             </li>
@@ -312,21 +312,21 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/maintenance">{props.t("Maintenance Status")}</Link>
+                  <Link to="/maintenance-status">{props.t("Maintenance Status")}</Link>
                 </li>
                 <li>
-                  <Link to="/maintenance">
+                  <Link to="/maintenance-scheduler">
                     {props.t("Maintenance Scheduler")}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/maintenance">{props.t("Fuel Status")}</Link>
+                  <Link to="/maintenance-fuel-status">{props.t("Fuel Status")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Oil Analysis")}</Link>
+                  <Link to="/oil-analysis">{props.t("Oil Analysis")}</Link>
                 </li>
                 <li>
-                  <Link to="/">{props.t("Pre Starts")}</Link>
+                  <Link to="/pre-starts">{props.t("Pre Starts")}</Link>
                 </li>
               </ul>
             </li>
@@ -341,6 +341,22 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Asset Insights")}</span>
               </Link>
             </li>
+
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bxs-user-badge"></i>
+                <span>{props.t("Managers Centre")}</span>
+              </Link>
+              <ul className="sub-menu">
+                <li>
+                  <Link to="/kpi">{props.t("Manager KPI's")}</Link>
+                </li>
+                <li>
+                  <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
+                </li>
+              </ul>
+            </li>
+
 
             <li>
               <Link to="/reports" className="has-arrow">
