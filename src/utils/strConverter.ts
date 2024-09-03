@@ -49,8 +49,6 @@ const parseStrFileToGeoJSON = (text: string): GeoJSON => {
       const name = parts[4];
       const blockId = parts[5];
 
-      const [newY, newX] = convertUtmToWGS84(y, x, UTM_ZONE);
-
       // Create a unique key for each feature based on blockId and name
       const featureKey = `${blockId}_${name}`;
 
@@ -74,8 +72,7 @@ const parseStrFileToGeoJSON = (text: string): GeoJSON => {
       }
 
       // Add the current point to the coordinates of the corresponding feature
-      featureMap[featureKey].geometry.coordinates.push([newX, newY]);
-      // featureMap[featureKey].geometry.coordinates.push([y, x, z]);
+      featureMap[featureKey].geometry.coordinates.push([x, y]);
     }
   });
 
@@ -89,16 +86,4 @@ const parseStrFileToGeoJSON = (text: string): GeoJSON => {
   };
 
   return geoJSON;
-};
-
-export const convertUtmToWGS84 = (
-  easting: number,
-  northing: number,
-  zoneNumber: number
-): [number, number] => {
-  const utmProj = `+proj=utm +zone=${zoneNumber} +datum=WGS84 +units=m +no_defs`;
-  const wgs84Proj = proj4("EPSG:4326");
-
-  const [longitude, latitude] = proj4(utmProj, wgs84Proj, [easting, northing]);
-  return [latitude, longitude];
 };
