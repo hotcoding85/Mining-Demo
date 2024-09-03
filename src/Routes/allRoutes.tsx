@@ -32,9 +32,6 @@ import DigBlockLayout from "Pages/DigBlockLayout";
 import DailyProductionDashboard from "Pages/Daily Production";
 import TruckingPerformance from "Pages/Trucking";
 import FuelStatusDashboard from "Pages/Fuel Status";
-<<<<<<< HEAD
-import AutoRouting from "Pages/AutoRouting";
-=======
 import ManagerKPI from "Pages/ManagerKPI";
 import EquipmentGantt from "Pages/Equipment Gantt";
 import MaintenanceScheduler from "Pages/MaintenanceScheduler";
@@ -50,7 +47,6 @@ import FuelScheduler from "Pages/FuelScheduler";
 import MessageCentre from "Pages/MessageCentre";
 import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
->>>>>>> 6b5a6399dbb56fd19ca47133c941d0b37ae2b0ae
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -93,10 +89,6 @@ const authProtectedRoutes = [
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
   { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
-<<<<<<< HEAD
-  { path: "/digblock", exact: true, component: <DigBlockLayout /> },
-  { path: "/auto-routing", exact: true, component: <AutoRouting /> },
-=======
   { path: "/dig-blocks", exact: true, component: <DigBlockLayout /> },
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
@@ -107,7 +99,6 @@ const authProtectedRoutes = [
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> }
->>>>>>> 6b5a6399dbb56fd19ca47133c941d0b37ae2b0ae
 ];
 
 const publicRoutes = [
