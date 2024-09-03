@@ -12,6 +12,7 @@ import { mapGLB, surfaceGLB } from '../../assets/images/map'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import { buildGraticule } from 'utils/mapUtils';
 
 const Geofences = ({ socket }) => {
 
@@ -22,60 +23,6 @@ const Geofences = ({ socket }) => {
     const [lng, setLng] = useState(120.44463458272295,);
     const [lat, setLat] = useState(-29.146790943732764);
     const [zoom, setZoom] = useState(18);
-
-
-    function buildGraticule(): FeatureCollection {
-        const METERS_PER_DEGREE_LATITUDE = 111320; // Approximate meters per degree of latitude
-        const METERS_PER_DEGREE_LONGITUDE = (latitude: number) => METERS_PER_DEGREE_LATITUDE * Math.cos(latitude * Math.PI / 180);
-
-        const DISTANCE_METERS = 5;
-        const DEGREE_DISTANCE_LAT = DISTANCE_METERS / METERS_PER_DEGREE_LATITUDE;
-        const DEGREE_DISTANCE_LNG = (latitude: number) => DISTANCE_METERS / METERS_PER_DEGREE_LONGITUDE(latitude);
-
-        // Define bounding box: [minLng, minLat, maxLng, maxLat]
-        const BOUNDING_BOX = [120.211908, -29.219094, 120.508539, -29.070215];
-        const [minLng, minLat, maxLng, maxLat] = BOUNDING_BOX;
-
-        const graticule: FeatureCollection = {
-            type: 'FeatureCollection',
-            features: []
-        };
-
-        // Draw latitude lines within the bounding box
-        for (let lat = minLat; lat <= maxLat; lat += DEGREE_DISTANCE_LAT) {
-            if (lat >= minLat && lat <= maxLat) { // Ensure lat is within the bounding box
-                graticule.features.push({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: [
-                            [minLng, lat],
-                            [maxLng, lat]
-                        ]
-                    },
-                    properties: { value: lat + '' + lng }
-                });
-            }
-        }
-
-        // Draw longitude lines within the bounding box
-        for (let lng = minLng; lng <= maxLng; lng += DEGREE_DISTANCE_LNG((minLat + maxLat) / 2)) { // Average latitude for conversion
-            if (lng >= minLng && lng <= maxLng) { // Ensure lng is within the bounding box
-                graticule.features.push({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'LineString',
-                        coordinates: [
-                            [lng, minLat],
-                            [lng, maxLat]
-                        ]
-                    },
-                    properties: { value: lat + '' + lng }
-                });
-            }
-        }
-        return graticule;
-    }
 
     function getBlockColor(blockId: string): string {
         switch (blockId) {
@@ -180,120 +127,53 @@ const Geofences = ({ socket }) => {
         mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
         const drawControl = new MapboxDraw({ defaultMode: 'draw_polygon' })
-        mapRef.current.addControl(drawControl);
+        // mapRef.current.addControl(drawControl);
         mapRef.current.on('draw.create', updateArea);
         function updateArea(e) {
             console.log(e)
         }
 
-        mapRef.current.on('style.load', () => {
-            mapRef.current.addLayer({
-                id: 'custom-threebox-model',
-                type: 'custom',
-                renderingMode: '3d',
-                onAdd: function () {
-                    window.tb = new Threebox(
-                        mapRef.current,
-                        mapRef.current.getCanvas().getContext('webgl'),
-                        { defaultLights: true }
-                    );
-                    const scale = 1;
-                    const options = {
-                        obj: surfaceGLB,
-                        type: 'gltf',
-                        scale: 0.75,
-                        units: 'meters',
-                        // rotation: { x: 90, y: -90, z: 0 }
-                    };
+        // mapRef.current.on('style.load', () => {
+        //     mapRef.current.addLayer({
+        //         id: 'custom-threebox-model',
+        //         type: 'custom',
+        //         renderingMode: '3d',
+        //         onAdd: function () {
+        //             window.tb = new Threebox(
+        //                 mapRef.current,
+        //                 mapRef.current.getCanvas().getContext('webgl'),
+        //                 { defaultLights: true }
+        //             );
+        //             const scale = 1;
+        //             const options = {
+        //                 obj: surfaceGLB,
+        //                 type: 'gltf',
+        //                 scale: 0.75,
+        //                 units: 'meters',
+        //                 // rotation: { x: 90, y: -90, z: 0 }
+        //             };
 
-                    window.tb.loadObj(options, (model) => {
-                        console.log('loadObj', options, model)
-                        model.setCoords([120.452246,
-                            -29.160889]);
-                        // model.setRotation({ x: 0, y: 0, z: 0 });
-                        window.tb.add(model);
-                        window.tb.createTerrainLayer()
-                    });
-                },
+        //             window.tb.loadObj(options, (model) => {
+        //                 console.log('loadObj', options, model)
+        //                 model.setCoords([120.452246,
+        //                     -29.160889]);
+        //                 // model.setRotation({ x: 0, y: 0, z: 0 });
+        //                 window.tb.add(model);
+        //                 window.tb.createTerrainLayer()
+        //             });
+        //         },
 
-                render: function () {
-                    window.tb.update();
-                }
-            });
-        });
+        //         render: function () {
+        //             window.tb.update();
+        //         }
+        //     });
+        // });
 
-        mapRef.current.on('zoom', () => {
-            // const scale = (mapRef.current.getZoom()) * 0.4;
-
-        });
-
-
-        const graticule = buildGraticule();
         let hoveredPolygonId = null;
 
         mapRef.current.on('load', () => {
 
-            // mapRef.current.addSource('my-dem', {
-            //     'type': 'raster-dem',
-            //     'url': 'mapbox://hmesupport.cbb8vfk7',
-            //     'tileSize': 512,
-            //     'maxzoom': 22
-            // });
-            // mapRef.current.setTerrain({ 'source': 'my-dem', 'exaggeration': 5 });
-
-            // mapRef.current.addSource('tileset_data', {
-            //     url: 'mapbox://hmesupport.cbb8vfk7',
-            //     type: 'raster-dem',
-            // });
-            // mapRef.current.addLayer(
-            //     {
-            //         'id': 'tileset',
-            //         'type': 'raster-dem',
-            //         'source': 'tileset_data',
-            //         'source-layer': '240801-a2ik8t',
-            //     }
-            // );
-
-            // mapRef.current.addSource('mapbox-dem', {
-            //     'type': 'raster-dem',
-            //     'url': 'mapbox://hmesupport.cbb8vfk7',
-            //     'tileSize': 512,
-            // });
-            // mapRef.current.setTerrain({ 'exaggeration': 3 });
-
-            // const dat = _.groupBy(geojson.features, "properties.block_id")
-            // Object.keys(dat).map((block) => {
-            //     mapRef.current.addSource(block, {
-            //         type: 'geojson',
-            //         data: {
-            //             type: 'FeatureCollection',
-            //             features: dat[block]
-            //         }
-            //     });
-
-            //     mapRef.current.addLayer({
-            //         id: block + 'fill',
-            //         type: 'fill',
-            //         source: block,
-            //         layout: {},
-            //         paint: {
-            //             'fill-color': getBlockColor(block),
-            //         }
-            //     });
-
-            //     mapRef.current.addLayer({
-            //         id: block + 'line',
-            //         type: 'line',
-            //         source: block,
-            //         layout: {},
-            //         paint: {
-            //             'line-color': '#fff',
-            //             'line-width': 1
-            //         }
-            //     });
-
-
-            // })
+            mapRef.current.setTerrain({ 'exaggeration': 2 });
 
             mapRef.current.on('mouseenter', 'HG01fill', (e) => {
                 mapRef.current.getCanvas().style.cursor = 'pointer';
@@ -324,21 +204,23 @@ const Geofences = ({ socket }) => {
                 hoveredPolygonId = null;
             });
 
-            // mapRef.current.addSource('graticule', {
-            //     type: 'geojson',
-            //     data: graticule
-            // });
+            const graticule = buildGraticule(lat, lng);
+            mapRef.current.addSource('graticule', {
+                type: 'geojson',
+                data: graticule
+            });
 
-            // mapRef.current.addLayer({
-            //     id: 'graticule',
-            //     type: 'line',
-            //     source: 'graticule',
-            //     layout: {},
-            //     paint: {
-            //         'line-color': 'gray',
-            //         'line-width': 1
-            //     }
-            // });
+            mapRef.current.addLayer({
+                id: 'graticule',
+                type: 'line',
+                source: 'graticule',
+                minzoom: 18,
+                layout: {},
+                paint: {
+                    'line-color': 'gray',
+                    'line-width': 1
+                }
+            });
 
         });
 

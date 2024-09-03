@@ -12,6 +12,7 @@ import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, del
 import { Radio, Segmented } from 'antd';
 import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { shiftTimings } from 'utils/common';
+import { buildGraticule } from 'utils/mapUtils';
 
 interface EquipmentLocation {
     id: string;
@@ -208,7 +209,6 @@ const Map = ({ socket }) => {
     const mapRef = useRef<any>(null);
     const [lng, setLng] = useState(120.44871814239025);
     const [lat, setLat] = useState(-29.1576602184213);
-    const [zoom, setZoom] = useState(18);
 
     // const mapRef = useRef<Leaflet.Map | null>(null);
     const drawItems = new Leaflet.FeatureGroup();
@@ -302,7 +302,7 @@ const Map = ({ socket }) => {
     //     );
     // };
 
-    const geojson = {
+    const dumpingPaths = {
         type: 'FeatureCollection',
         features: [
             {
@@ -680,7 +680,13 @@ const Map = ({ socket }) => {
                     ],
                     "type": "LineString"
                 }
-            },
+            }
+        ]
+    };
+
+    const travellingPaths = {
+        type: 'FeatureCollection',
+        features: [
             {
                 "id": "8c93154be7d2e8934bbdbef7a2f15303",
                 "type": "Feature",
@@ -862,7 +868,7 @@ const Map = ({ socket }) => {
             container: mapContainer.current!,
             style: 'mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m',
             center: [lng, lat],
-            zoom: zoom,
+            zoom: 17,
             pitch: 75,
             minZoom: 15
         });
@@ -871,14 +877,26 @@ const Map = ({ socket }) => {
         mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
         mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-        // mapRef.current.on('load', () => {
+        mapRef.current.on('load', () => {
+            mapRef.current.setTerrain({ 'exaggeration': 2 });
+            const graticule = buildGraticule(lat, lng);
+            mapRef.current.addSource('graticule', {
+                type: 'geojson',
+                data: graticule
+            });
 
-        //     mapRef.current.addSource('line', {
-        //         type: 'geojson',
-        //         data: geojson
-        //     });
-
-        // });
+            mapRef.current.addLayer({
+                id: 'graticule',
+                type: 'line',
+                source: 'graticule',
+                minzoom: 17,
+                layout: {},
+                paint: {
+                    'line-color': 'white',
+                    'line-width': 1
+                }
+            });
+        });
 
         addMarkers();
 
@@ -924,12 +942,25 @@ const Map = ({ socket }) => {
             mapRef.current.removeLayer('line-dashed')
         }
 
+        if (mapRef.current.getLayer('loaded-line-dashed')) {
+            mapRef.current.removeLayer('loaded-line-dashed')
+        }
+
         if (mapRef.current.getLayer('line-background')) {
             mapRef.current.removeLayer('line-background')
         }
 
+        if (mapRef.current.getLayer('loaded-line-background')) {
+            mapRef.current.removeLayer('loaded-line-background')
+        }
+
         if (mapRef.current.getSource('line')) {
             mapRef.current.removeSource('line')
+        }
+
+
+        if (mapRef.current.getSource('loadedline')) {
+            mapRef.current.removeSource('loadedline')
         }
 
         if (mapRef.current && (filter == 'DUMP_TRUCK' || filter == 'All Equipment')) {
@@ -937,7 +968,12 @@ const Map = ({ socket }) => {
             if (mapRef.current.isStyleLoaded()) {
                 mapRef.current.addSource('line', {
                     type: 'geojson',
-                    data: geojson
+                    data: travellingPaths
+                });
+
+                mapRef.current.addSource('loadedline', {
+                    type: 'geojson',
+                    data: dumpingPaths
                 });
 
                 mapRef.current.addLayer({
@@ -945,7 +981,7 @@ const Map = ({ socket }) => {
                     source: 'line',
                     id: 'line-background',
                     paint: {
-                        'line-color': 'yellow',
+                        'line-color': 'red',
                         'line-width': 4,
                         'line-opacity': 0.4
                     }
@@ -955,6 +991,28 @@ const Map = ({ socket }) => {
                     type: 'line',
                     source: 'line',
                     id: 'line-dashed',
+                    paint: {
+                        'line-color': 'yellow',
+                        'line-width': 4,
+                        'line-dasharray': [0, 4, 3]
+                    }
+                });
+
+                mapRef.current.addLayer({
+                    type: 'line',
+                    source: 'loadedline',
+                    id: 'loaded-line-background',
+                    paint: {
+                        'line-color': '#14E010',
+                        'line-width': 4,
+                        'line-opacity': 0.4
+                    }
+                });
+
+                mapRef.current.addLayer({
+                    type: 'line',
+                    source: 'loadedline',
+                    id: 'loaded-line-dashed',
                     paint: {
                         'line-color': 'yellow',
                         'line-width': 4,
@@ -1000,7 +1058,6 @@ const Map = ({ socket }) => {
                 animationRequestId = animateDashArray(0);
             }
         }
-
 
 
         filteredEquipment.map(eq => {

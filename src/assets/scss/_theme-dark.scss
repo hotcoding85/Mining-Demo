@@ -38,7 +38,7 @@
     --#{$prefix}secondary-color:                            #{$gray-600};
     --#{$prefix}heading-color:                              #{$gray-700};
     --#{$prefix}border-color:                               #{$gray-400};
-    --#{$prefix}custom-white:                               #{$gray-200};
+    --#{$prefix}custom-white:                               #{$gray-700};
 
     --#{$prefix}input-border-color:                         #{$gray-300};
     --#{$prefix}input-focus-border-color:                   #{lighten($gray-300, 4%)};
@@ -133,7 +133,7 @@
 
     
     .modal {
-        --#{$prefix}modal-bg:                                           #{$gray-200};
+        --#{$prefix}modal-bg:                                           #{$gray-300};
     }
     
     .offcanvas,
