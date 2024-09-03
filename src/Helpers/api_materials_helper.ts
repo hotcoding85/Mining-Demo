@@ -51,3 +51,15 @@ export const deleteMaterial = (id: string) => {
 export const isMaterialNameUnique = (name: string) => {
   return api.get(`${url.MATERIALS}/unique/${name}`, {});
 };
+
+export const getROMStatus = (roster: string) => {
+  return api.get(`${url.MATERIALS}/inventory/rom-status/${roster}`, {});
+};
+
+export const getMaterialMoved = (roster: string) => {
+  return api.get(`${url.MATERIALS}/material-moved/${roster}`, {});
+};
+
+export const getPitStatusByCategory = (roster: string) => {
+  return api.get(`${url.MATERIALS}/pit-status/${roster}`, {});
+};

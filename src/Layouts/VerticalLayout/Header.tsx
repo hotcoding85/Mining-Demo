@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -17,9 +17,10 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { changeLayoutMode } from "slices/thunk";
+import { changeLayoutMode, changeSideMenuState } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { Switch } from "antd";
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 const Header = (props: any) => {
 
@@ -83,6 +84,7 @@ const Header = (props: any) => {
   const selectProperties = createSelector(
     selectLayoutState,
     (layout) => ({
+      isSideMenuOpen: layout.sideMenuOpen,
       layoutType: layout.layoutTypes,
       layoutModeType: layout.layoutModeTypes,
       layoutWidthType: layout.layoutWidthTypes,
@@ -92,8 +94,9 @@ const Header = (props: any) => {
       leftSidebarTypes: layout.leftSidebarTypes
     })
   );
+
   const {
-    layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
+    isSideMenuOpen, layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
   } = useSelector(selectProperties);
 
 
@@ -131,7 +134,7 @@ const Header = (props: any) => {
             <LanguageDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
-              <Switch checkedChildren="DARK" unCheckedChildren="LIGHT" value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
+              <Switch checkedChildren={<MoonOutlined />} unCheckedChildren={<SunOutlined />} value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
                 if (checked) {
                   dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
                 } else {

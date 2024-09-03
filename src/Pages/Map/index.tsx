@@ -20,6 +20,7 @@ import {
 } from "assets/images/map";
 import { Radio, Segmented } from "antd";
 import mapboxgl, { LngLatLike, Marker } from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import { shiftTimings } from "utils/common";
 
 interface EquipmentLocation {
   id: string;
@@ -479,104 +480,31 @@ const Map = ({ socket }) => {
     );
     mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-    mapRef.current.on("load", () => {
-      mapRef.current.addSource("line", {
-        type: "geojson",
-        data: geojson,
-      });
-    });
+    // mapRef.current.on('load', () => {
 
-    addMarkers();
-
-    // if (!mapRef.current) {
-    //     mapRef.current = Leaflet.map('map', {
-    //         center: origin,
-    //         zoom: 18,
-    //         attributionControl: true,
-    //         zoomControl: false,
+    //     mapRef.current.addSource('line', {
+    //         type: 'geojson',
+    //         data: geojson
     //     });
 
-    //     Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapRef.current);
-    //     mapRef.current.addLayer(drawItems);
+    // });
 
-    //     Leaflet.control.zoom({
-    //         position: 'bottomright'
-    //     }).addTo(mapRef.current);
-
-    //     addMarkers();
-    // }
+    addMarkers();
   }, []);
-
-  const shifts: any = [
-    { value: "DS", label: "Day Shift", startTime: "06:00", endTime: "18:00" },
-    { value: "NS", label: "Night Shift", startTime: "18:00", endTime: "06:00" },
-  ];
-
-  const getShiftTimings = () => {
-    let currentTime = dayjs();
-    let previousDay = dayjs().subtract(1, "day");
-    let shifTimings;
-    for (let i = 0; i < shifts.length; i++) {
-      let shift = shifts[i];
-      let startTime = shift.startTime.split(":");
-      let start = dayjs()
-        .set("hour", parseInt(startTime[0]))
-        .set("minute", parseInt(startTime[1]));
-      let startPrev = previousDay
-        .set("hour", parseInt(startTime[0]))
-        .set("minute", parseInt(startTime[1]));
-
-      let endTime = shift.endTime.split(":");
-      let end = dayjs()
-        .add(shift.startTime > shift.endTime ? 1 : 0, "day")
-        .set("hour", parseInt(endTime[0]))
-        .set("minute", parseInt(endTime[1]));
-      let endPrev = previousDay
-        .add(shift.startTime > shift.endTime ? 1 : 0, "day")
-        .set("hour", parseInt(endTime[0]))
-        .set("minute", parseInt(endTime[1]));
-
-      if (
-        (currentTime.isSame(start) || currentTime.isAfter(start)) &&
-        (currentTime.isBefore(end) || currentTime.isSame(end))
-      ) {
-        shifTimings = {
-          start,
-          end,
-          shift: shift.value,
-          shiftDate: start.format("YYYY-MM-DD"),
-        };
-        break;
-      }
-      if (
-        (currentTime.isSame(startPrev) || currentTime.isAfter(startPrev)) &&
-        (currentTime.isBefore(endPrev) || currentTime.isSame(endPrev))
-      ) {
-        shifTimings = {
-          start: startPrev,
-          end: endPrev,
-          shift: shift.value,
-          shiftDate: startPrev.format("YYYY-MM-DD"),
-        };
-        break;
-      }
-    }
-
-    return shifTimings;
-  };
 
   useEffect(() => {
     dispatch(getGeoFences());
     dispatch(getAllFleet());
 
-    const { shift, shiftDate } = getShiftTimings();
+    const { shift, shiftDate } = shiftTimings();
     dispatch(getAllEvents(shiftDate + ":" + shift));
   }, [dispatch]);
 
   useEffect(() => {
     geofences = [];
     geofenceFromDB.forEach((json) => {
-      drawFeature(json);
+      console.log(json);
+      // drawFeature(json);
     });
   }, [geofenceFromDB]);
 
@@ -587,6 +515,8 @@ const Map = ({ socket }) => {
     });
     setMarkers([]);
   };
+
+  let animationRequestId: number;
 
   useEffect(() => {
     clearMarkers();
@@ -680,7 +610,7 @@ const Map = ({ socket }) => {
           return requestAnimationFrame(animateDashArray);
         }
 
-        const animationRequestId = animateDashArray(0);
+        animationRequestId = animateDashArray(0);
       }
     }
 
@@ -727,8 +657,27 @@ const Map = ({ socket }) => {
       // layer = Leaflet.polygon(geoFenceData.geoJson.geometry.coordinates).addTo(mapRef.current!);
       layer = Leaflet.geoJson(geoFenceData.geoJson).addTo(mapRef.current!);
       layer.id = geoFenceData.id;
+
+      if (mapRef.current.isStyleLoaded()) {
+        mapRef.current.addSource("line", {
+          type: "geojson",
+          data: geoFenceData.geoJson,
+        });
+
+        mapRef.current.addLayer({
+          type: "fence",
+          source: geoFenceData.name,
+          id: "fence",
+          paint: {
+            "line-color": "yellow",
+            "line-width": 4,
+            "line-opacity": 0.4,
+            fill: "red",
+          },
+        });
+      }
       //layer.bindPopup("Name of the GeoFence");
-      drawItems.addLayer(layer);
+      // drawItems.addLayer(layer);
     }
     geofences.push({
       id: layer.id,

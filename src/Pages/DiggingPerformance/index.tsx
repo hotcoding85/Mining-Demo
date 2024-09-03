@@ -28,7 +28,8 @@ const DiggingPerformance = () => {
   const [isLoading, setLoading] = useState<boolean>(loading);
 
   function containsCaseInsensitive(str: string, substr: string): boolean {
-    return str.toLowerCase().includes(substr.toLowerCase());
+
+    return str ? str.toLowerCase().includes(substr.toLowerCase()) : false;
   }
 
   const getImage = (category: string) => {
@@ -83,7 +84,7 @@ const DiggingPerformance = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Dashboards" breadcrumbItem="Daily Production" />
+          <Breadcrumb title="Production" breadcrumbItem="Digging Performance" />
           {
             fleetList.map((item: any, key: number) => (
               <Row>
@@ -92,8 +93,8 @@ const DiggingPerformance = () => {
                   altText="excavator"
                   title={item.name}
                   cardTitle="Excavator 24 Hr. Planned Execution"
-                  progressValue={progresses[key].min}
-                  progressMax={progresses[key].max}
+                  progressValue={progresses[key] ? progresses[key].min : 10}
+                  progressMax={progresses[key] ? progresses[key].max: 100}
                   series={[series[key]]}
                   operationalDelay={[operationalDelay[0]]}
                   availability={[availability[0]]}

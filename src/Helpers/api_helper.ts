@@ -1,7 +1,7 @@
 import axios from "axios";
 import { decryptData } from "utils/cryptoUtils";
 // default
-axios.defaults.baseURL = process.env.REACT_APP_API_URL+"/v1";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL + "/v1";
 
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -12,7 +12,7 @@ axios.interceptors.request.use(
   async (config) => {
     const eToken = localStorage.getItem("token");
 
-    if(eToken) {
+    if (eToken) {
       const token = decryptData(eToken)
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,7 +25,12 @@ axios.interceptors.request.use(
 );
 
 axios.interceptors.response.use(
-  (response) => {
+  async (response) => {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1 && response.request.responseType === 'blob') {
+      response.data = await response.data.text();
+      response.data = JSON.parse(response.data);
+    }
     console.log("response.status >> ", response.status)
     console.log("response >> ", response)
     return response.data ? response.data : response;
@@ -36,7 +41,7 @@ axios.interceptors.response.use(
     console.log("error >> ", error)
     console.log("response >> ", response)
     if (response && response.status === 401) {
-      
+
     }
 
     return Promise.reject(error.response);

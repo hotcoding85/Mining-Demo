@@ -66,7 +66,7 @@ const ProfileMenu = (props: any) => {
             <span>{props.t("Admin Settings")}</span>
           </Link>
           <Link to="/users" onClick={handleOptionChange} className="dropdown-item">
-            <i className="fa fa-user font-size-16 align-middle me-1"></i>
+            <i className="bx bx-user font-size-16 align-middle me-1"></i>
             <span>{props.t("Users")}</span>
           </Link>
           <Link to="/fleet" onClick={handleOptionChange} className="dropdown-item">

@@ -4,6 +4,7 @@ import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images
 import { round } from 'lodash';
 import './index.scss';
 import { Badge } from 'antd';
+import { roundOff } from 'utils/common';
 
 const stateConfig = [
     {
@@ -31,6 +32,8 @@ const stateConfig = [
 
 const List = ({ data = [] }: any) => {
 
+    console.log(data);
+
     const getStateColor = (state) => {
         switch (state) {
             case "ACTIVE":
@@ -46,7 +49,6 @@ const List = ({ data = [] }: any) => {
         }
     }
 
-    console.log(data);
     const activeBtn = (ele: any) => {
         if (ele.closest("button").classList.contains("active")) {
             ele.closest("button").classList.remove("active");
@@ -80,7 +82,10 @@ const List = ({ data = [] }: any) => {
     }
 
     const imageStyle: React.CSSProperties = {
-        height: '7.5rem',
+        'width': '50%',
+        'height': 'auto',
+        'maxHeight': '100%',
+        'objectFit': 'cover'
     };
 
     const getStateValue = (stateInfo, key: string) => {
@@ -92,8 +97,8 @@ const List = ({ data = [] }: any) => {
         <React.Fragment>
             <Row className="row d-flex">
                 {data.map((item: any, key: number) => (
-                    <Col className="col-lg-2 col-md-6" key={key}>
-                        <Badge.Ribbon text={item.state ? item.state : "STANDBY"} color={getStateColor(item.state)}>
+                    <Col className="col-lg-3 col-md-6" key={key}>
+                        <Badge.Ribbon text={item.latestState ? item.latestState : "STANDBY"} color={getStateColor(item.latestState)}>
                             <Card>
                                 <CardBody>
                                     <div className="d-flex align-start mb-3">
@@ -115,12 +120,12 @@ const List = ({ data = [] }: any) => {
                                                 <div className="container">
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{item?.data?.tripCount || 0}</span>
-                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? 175 : 35}</span>
+                                                            <span className='itemActual'>{roundOff(item?.data?.tripCount || 0)}</span>
+                                                            <span className='itemPlanned'>/{item.plannedLoads}</span>
                                                         </div>
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
-                                                            <span className='itemPlanned'>/{item.category == 'EXCAVATOR' ? '15,000' : 35 * item.capacity}</span>
+                                                            <span className='itemActual'>{roundOff(item?.data?.payload || 0.0)}</span>
+                                                            <span className='itemPlanned'>/{item.plannedTonnes}</span>
                                                         </div>
                                                     </div>
                                                 </div>

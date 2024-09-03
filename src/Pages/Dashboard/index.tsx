@@ -1,23 +1,18 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Col, Container, Row } from 'reactstrap'
 
 //Import Breadcrumb
 import Breadcrumbs from "Components/Common/Breadcrumb";
-import { useDispatch } from 'react-redux';
 import Utilization from './utilization';
 import ScoreBoard from './scoreboard';
 import TonnesGraph from './tonnes';
 import Materials from './materials';
+import { shiftTimings } from 'utils/common';
 
-const Dashboard = (props: any) => {
+const Dashboard = () => {
     document.title = "Dashboards | FMS Live";
 
-    const dispatch: any = useDispatch();
-    const [util, setUtil] = useState<number>(65)
-
-    setTimeout(() => {
-        setUtil(67.2)
-    }, 5000)
+    const shiftDetails = shiftTimings();
 
     return (
         <React.Fragment>
@@ -25,15 +20,15 @@ const Dashboard = (props: any) => {
                 <Container fluid>
                     <Breadcrumbs title="Dashboards" breadcrumbItem="Default" />
                     <Row>
-                        <Utilization />
+                        <Utilization roster={shiftDetails ? shiftDetails.shiftDate + ':' + shiftDetails.shift : ''} />
                     </Row>
                     <Row>
                         <Col md={6}>
-                            <ScoreBoard />
+                            <ScoreBoard roster={shiftDetails ? shiftDetails.shiftDate + ':' + shiftDetails.shift : ''} />
                         </Col>
                         <Col md={6}>
-                            <Materials />
-                            <TonnesGraph />
+                            <Materials roster={shiftDetails ? shiftDetails.shiftDate + ':' + shiftDetails.shift : ''} />
+                            <TonnesGraph roster={shiftDetails ? shiftDetails.shiftDate + ':' + shiftDetails.shift : ''} />
                         </Col>
                     </Row>
                 </Container>

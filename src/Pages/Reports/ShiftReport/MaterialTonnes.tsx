@@ -1,0 +1,33 @@
+import { round } from "lodash"
+import { Row, Col, Card, CardBody, CardTitle } from "reactstrap"
+
+const MaterialTonnes = ({ materialData }) => {
+    if (materialData && materialData.length === 0) {
+        return (
+            <Row>
+                {/* <h4>No records</h4> */}
+            </Row>
+        )
+    }
+
+    return (
+        <Row>
+            <Col lg="2">
+                {materialData.map((item, index) => {
+                    return (
+                        <Card key={index}>
+                            <CardBody>
+                                <CardTitle tag="h4" className="mb-3">{item.materialName}</CardTitle>
+                                <CardBody>
+                                    <h4 style={{ textAlign: 'center' }}>{round(item.payload, 2)}</h4>
+                                </CardBody>
+                            </CardBody>
+                        </Card>
+                    )
+                })}
+            </Col>
+        </Row>
+    )
+}
+
+export default MaterialTonnes;

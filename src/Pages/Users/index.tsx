@@ -47,6 +47,7 @@ const Users = (props: any) => {
       username: (doc && doc.username) || "",
       firstName: (doc && doc.firstName) || "",
       lastName: (doc && doc.lastName) || "",
+      crew: (doc && doc.crew) || "",
       password: !isEdit ? (doc && doc.password ? doc.password : undefined) : undefined || undefined,
       role: (doc && doc.role) || "",
       email: (doc && doc.email) || undefined,
@@ -84,6 +85,14 @@ const Users = (props: any) => {
       id: 'lastName',
       name: 'lastName',
       label: 'Last Name',
+      type: 'input',
+      editable: true,
+      inputType: 'text'
+    },
+    {
+      id: 'crew',
+      name: 'crew',
+      label: 'Crew',
       type: 'input',
       editable: true,
       inputType: 'text'
@@ -157,6 +166,14 @@ const Users = (props: any) => {
       id: 'lastName',
       name: 'lastName',
       label: 'Last Name',
+      type: 'input',
+      editable: true,
+      inputType: 'text'
+    },
+    {
+      id: 'crew',
+      name: 'crew',
+      label: 'Crew',
       type: 'input',
       editable: true,
       inputType: 'text'
@@ -260,6 +277,7 @@ const Users = (props: any) => {
       }),
     firstName: Yup.string().required("Please enter user first name"),
     lastName: Yup.string().required("Please enter user last name"),
+    crew: Yup.string().required("Please enter crew"),
     role: Yup.string().required("Please select a role"),
     password: isEdit ? Yup.string().optional() : Yup.string().when(['role'], {
       is: (role) => role !== 'OPERATOR',

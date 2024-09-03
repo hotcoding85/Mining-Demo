@@ -36,3 +36,6 @@ export const TARGET = "/targets";
 
 // EVENT METAS
 export const EVENTMETAS = "/eventmetas";
+
+// REPROTS
+export const REPORTS = "/reports";

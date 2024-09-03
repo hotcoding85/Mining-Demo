@@ -7,8 +7,15 @@ import {
     changeSidebarImageTypeAction,
     changeLayoutAction,
     changeLayoutSidebarAction,
-    changeLayoutWidthAction
+    changeLayoutWidthAction,
+    sideMenuOpenAction
 } from "./reducer";
+
+export const changeSideMenuState = (isOpen: any)  => async (dispatch: any) => {
+    try {
+        dispatch(sideMenuOpenAction(isOpen));
+    } catch (error) { }
+}
 
 /**
  * Changes the layout mode
@@ -124,19 +131,19 @@ export const changeLeftSidebarType = (sidebarType: any) => async (dispatch: any)
             case "icon":
                 changeBodyAttribute("data-sidebar-size", "")
                 changeBodyAttribute("data-keep-enlarged", "true")
-                manageBodyClass("vertical-collpsed", "add")
+                manageBodyClass("vertical-collpsed", "remove")
                 break
             case "condensed":
 
-                manageBodyClass("sidebar-enable", "add")
+                manageBodyClass("sidebar-enable", "remove")
                 if (window.screen.width >= 992) {
                     manageBodyClass("vertical-collpsed", "remove")
                     manageBodyClass("sidebar-enable", "remove")
-                    manageBodyClass("vertical-collpsed", "add")
-                    manageBodyClass("sidebar-enable", "add")
+                    manageBodyClass("vertical-collpsed", "remove")
+                    manageBodyClass("sidebar-enable", "remove")
                 } else {
-                    manageBodyClass("sidebar-enable", "add")
-                    manageBodyClass("vertical-collpsed", "add")
+                    manageBodyClass("sidebar-enable", "remove")
+                    manageBodyClass("vertical-collpsed", "remove")
                 }
                 break
             default:
