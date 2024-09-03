@@ -1,5 +1,5 @@
 .ant-spin-dot-item {
-  color: #a6b0cf !important;
+  color: white !important;
 }
 
 .ant-spin {
@@ -9,27 +9,28 @@
 }
 
 .ant-table {
-  background-color: #2a3042;
+  background-color: #283655;
   color: #a6b0cf;
 }
 
 .ant-table-cell-row-hover {
-  background-color: #32384b !important;
+  background-color: #283655 !important;
+  opacity: 0.95;
 }
 
 .ant-table-thead > tr > th {
-  background-color: #2a3042 !important;
+  background-color: #283655 !important;
   color: #a6b0cf !important;
 }
 
 .ant-table-tbody > tr > td {
-  background-color: #2a3042;
+  background-color: #283655;
   color: #a6b0cf;
 }
 
 .ant-pagination-item,
 .ant-pagination-item-link {
-  background-color: #2a3042;
+  background-color: #283655;
   color: #a6b0cf;
 }
 
@@ -43,5 +44,5 @@
 }
 
 .ant-pagination-item {
-  background-color: #2a3042 !important;
+  background-color: #283655 !important;
 }

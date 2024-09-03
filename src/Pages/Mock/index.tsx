@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import { Col, Container, Row } from "reactstrap";
+import { Button, Col, Container, Row } from "reactstrap";
 import _, { isObjectLike } from "lodash";
-import { Button, DatePicker, DatePickerProps, Space, Spin } from "antd";
+import { DatePicker, DatePickerProps, Space, Spin } from "antd";
 import dayjs from "dayjs";
 import "./mock.css";
 import { useSelector } from "react-redux";
@@ -38,15 +38,18 @@ const Mock = () => {
 
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resource, setResource] = useState<any>({});
 
-  const [rosters, setRosters] = useState<any>();
-  const [targets, setTargets] = useState<any>();
-  const [materials, setMaterials] = useState<any>();
-  const [plans, setPlans] = useState<any>();
-  const [eventMetas, setEventMetas] = useState<any>();
-  const [events, setEvents] = useState<any>();
+  const [mockData, setMockData] = useState<any>({
+    rosters: null,
+    targets: null,
+    materials: null,
+    plans: null,
+    eventMetas: null,
+    events: null,
+  });
 
   useEffect(() => {
     const getMock = async () => {
@@ -90,65 +93,88 @@ const Mock = () => {
       const eventMetas = generateMockEventMetaData(plans);
       const events = generateEventData(eventMetas);
 
-      setRosters(rosters);
-      setTargets(targets);
-      setMaterials(newMaterials);
-      setPlans(plans);
-      setEventMetas(eventMetas);
-      setEvents(events);
+      setMockData({
+        rosters,
+        targets,
+        materials: newMaterials,
+        plans,
+        eventMetas,
+        events,
+      });
+
       setIsGenerating(false);
     }
   };
 
-  const onSaveRosters = async () => {
-    await dispatch(addShiftRosters(rosters.slice(0, 2)));
+  const saveData = async (saveFunction, additionalLogic?: any) => {
+    setIsSaving(true);
+    try {
+      const result = await saveFunction();
+      additionalLogic && additionalLogic(result);
+    } finally {
+      setIsSaving(false);
+    }
   };
+  const onSaveRosters = () =>
+    saveData(() => dispatch(addShiftRosters(mockData.rosters)));
 
-  const onSaveTargets = async () => {
-    await postTargets(targets.slice(0, 2));
-  };
+  const onSaveTargets = () => saveData(() => postTargets(mockData.targets));
 
-  const onSavePlans = async () => {
-    await dispatch(addDispatchs(plans.slice(0, 2)));
-  };
+  const onSavePlans = () =>
+    saveData(() => dispatch(addDispatchs(mockData.plans)));
 
-  const onSaveMaterials = async () => {
-    const { data: newMaterials } = await dispatch(addMaterials(materials));
-    setResource({
-      ...resource,
-      materials: [...resource.materials, ...newMaterials],
-    });
-    onClickGenerateMockData();
-  };
+  const onSaveMaterials = () =>
+    saveData(
+      async () => {
+        const { data: newMaterials } = await dispatch(
+          addMaterials(mockData.materials)
+        );
+        return newMaterials;
+      },
+      (newMaterials: any) => {
+        setResource({
+          ...resource,
+          materials: [...resource.materials, ...newMaterials],
+        });
+        onClickGenerateMockData();
+      }
+    );
 
-  const onSaveEventMetas = async () => {
-    await postEventMetas(eventMetas.slice(0, 2));
-  };
+  const onSaveEventMetas = () =>
+    saveData(() => postEventMetas(mockData.eventMetas));
 
-  const onSaveEvents = async () => {
-    await dispatch(addEvents({ records: events.slice(0, 2) }));
-  };
+  const onSaveEvents = () =>
+    saveData(() => dispatch(addEvents({ records: mockData.events })));
 
   return (
     <React.Fragment>
-      {(isGenerating || isLoading) && (
+      {(isGenerating || isLoading || isSaving) && (
         <div
-          className="position-absolute top-0 start-0 bg-light d-flex justify-content-center align-items-center"
+          className="position-absolute top-0 start-0 bg-light"
           style={{
             width: "calc(100vw - 24px)",
             height: "calc(100% - 24px)",
-            opacity: 0.5,
+            opacity: 0.75,
             zIndex: 9999,
           }}
         >
-          <div style={{ height: "50px" }}>
+          <div
+            style={{ height: "50px", top: "450px" }}
+            className="position-sticky mx-auto"
+          >
             <Spin tip="Loading" size="large" />
-            {isLoading ? (
-              <p className="mt-2">
+            {isLoading && (
+              <p className="mt-2 text-white text-center">
                 Loading resources for mock data, please wait...
               </p>
-            ) : (
-              <p className="mt-2">Generating mock data, please wait...</p>
+            )}
+            {isGenerating && (
+              <p className="mt-2 text-white text-center">
+                Generating mock data, please wait...
+              </p>
+            )}
+            {isSaving && (
+              <p className="mt-2 text-white text-center">Saving data...</p>
             )}
           </div>
         </div>
@@ -177,39 +203,53 @@ const Mock = () => {
                   onChange={onEndDateChange}
                 />
               </Space>
-              <Button type="primary" onClick={onClickGenerateMockData}>
-                Generate
-              </Button>
+              <Button onClick={onClickGenerateMockData}>Generate</Button>
             </Col>
           </Row>
           {resource?.users && (
             <AutoTable data={resource?.users} title="Users" />
           )}
-          {rosters && (
-            <AutoTable data={rosters} title="Rosters" onSave={onSaveRosters} />
-          )}
-          {targets && (
-            <AutoTable data={targets} title="Targets" onSave={onSaveTargets} />
-          )}
-          {materials?.length > 0 && (
+          {mockData.rosters && (
             <AutoTable
-              data={materials}
+              data={mockData.rosters}
+              title="Rosters"
+              onSave={onSaveRosters}
+            />
+          )}
+          {mockData.targets && (
+            <AutoTable
+              data={mockData.targets}
+              title="Targets"
+              onSave={onSaveTargets}
+            />
+          )}
+          {mockData.materials?.length > 0 && (
+            <AutoTable
+              data={mockData.materials}
               title="Materials"
               onSave={onSaveMaterials}
             />
           )}
-          {plans && (
-            <AutoTable data={plans} title="Plans" onSave={onSavePlans} />
-          )}
-          {eventMetas && (
+          {mockData.plans && (
             <AutoTable
-              data={eventMetas}
+              data={mockData.plans}
+              title="Plans"
+              onSave={onSavePlans}
+            />
+          )}
+          {mockData.eventMetas && (
+            <AutoTable
+              data={mockData.eventMetas}
               title="Event Metas"
               onSave={onSaveEventMetas}
             />
           )}
-          {events && (
-            <AutoTable data={events} title="Events" onSave={onSaveEvents} />
+          {mockData.events && (
+            <AutoTable
+              data={mockData.events}
+              title="Events"
+              onSave={onSaveEvents}
+            />
           )}
         </Container>
       </div>
