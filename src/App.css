@@ -136,7 +136,14 @@ body[data-layout-mode="light"] {
 .route-item:hover {
   background-color: #212529;
 }
-
+.arrow-png {
+  width: 20px;
+  height: 20px;
+  background-image: url('./assets/images/right-arrow-svgrepo-com.svg'); /* Use absolute path here */
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform-origin: center;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
