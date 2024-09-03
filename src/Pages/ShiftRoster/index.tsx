@@ -145,17 +145,17 @@ const ShiftRoster = (props: any) => {
 
     var roster: any = {};
     if (rosterInfo && rosterInfo.length > 0) {
-      roster = Object.assign({}, rosterInfo[0]);
+      // roster = Object.assign({}, rosterInfo[0]);
     }
 
     roster.vehicle = vehicle;
-    if (operatorInfo && operatorInfo[0]) {
+    if (operatorInfo && operatorInfo.length > 0) {
       roster.operators = [pick(operatorInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
     } else {
       roster.operators = [];
     }
 
-    if (trainerInfo && trainerInfo[0]) {
+    if (trainerInfo && trainerInfo.length > 0) {
       roster.trainers = [pick(trainerInfo[0], ['id', 'role', 'firstName', 'lastName', 'username'])];
     } else {
       roster.trainers = [];
@@ -185,9 +185,9 @@ const ShiftRoster = (props: any) => {
         return roster['vehicle'].id === vehicleId;
       }
     });
-    if (roster && roster[0] && roster[0]?.operators[0] && roster[0]?.operators[0]?.id) {
-      return { value: roster[0]?.operators[0]?.id, label: roster[0]?.operators[0]?.firstName + ' ' + roster[0]?.operators[0]?.lastName }
-    }
+    // if (roster && roster[0] && roster[0]?.operators[0] && roster[0]?.operators[0]?.id) {
+      // return { value: roster[0]?.operators[0]?.id, label: roster[0]?.operators[0]?.firstName + ' ' + roster[0]?.operators[0]?.lastName }
+    // }
     return "";
   }
 
@@ -197,11 +197,12 @@ const ShiftRoster = (props: any) => {
         return roster['vehicle'].id !== vehicleId;
       }
     });
-    let usedOperators = rosters.map((roster) => { return (roster && roster.operators && roster.operators[0] && roster.operators[0].id) ? roster.operators[0].id : undefined });
+    // let usedOperators = rosters.map((roster) => { return (roster && roster.operators && roster.operators.length > 0 && roster.operators[0].id) ? roster.operators[0].id : undefined });
 
-    let filterOperators = _.filter(operators, (op) => { return !(usedOperators.indexOf(op.value) > -1) });
+    // let filterOperators = _.filter(operators, (op) => { return !(usedOperators.indexOf(op.value) > -1) });
 
-    return filterOperators;
+    // return filterOperators;
+    return []
   }
 
 

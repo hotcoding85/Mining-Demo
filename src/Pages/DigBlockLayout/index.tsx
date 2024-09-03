@@ -49,9 +49,9 @@ const DigBlockLayout = (props: any) => {
     })
   );
 
-  const { data: geoJsonData } = useSelector(selectProperties);
+  const { data } = useSelector(selectProperties);
 
-  const data = geoJsonData?.map(item => item.properties)
+  // const data = []//geoJsonData?.map(item => item.properties)
 
   useEffect(() => {
     dispatch(getGeoFences());

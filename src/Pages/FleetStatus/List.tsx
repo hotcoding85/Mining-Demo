@@ -4,6 +4,7 @@ import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images
 import { round } from 'lodash';
 import './index.scss';
 import { Badge } from 'antd';
+import { round2Two, roundOff } from 'utils/common';
 
 const stateConfig = [
     {
@@ -81,11 +82,16 @@ const List = ({ data = [] }: any) => {
     }
 
     const imageStyle: React.CSSProperties = {
-        'width': '100%',
+        'width': '80%',
         'height': 'auto',
         'maxHeight': '100%',
         'objectFit': 'cover'
     };
+
+    function getRandomFloat(min: number, max: number, decimalPlaces: number): number {
+        const factor = Math.pow(10, decimalPlaces);
+        return Math.round((Math.random() * (max - min) + min) * factor) / factor;
+    }
 
     const getStateValue = (stateInfo, key: string) => {
         let info = stateInfo.find((info) => info.state === key);
@@ -116,19 +122,21 @@ const List = ({ data = [] }: any) => {
                                     {
                                         ['DUMP_TRUCK', 'EXCAVATOR'].includes(item.category) && (
                                             <>
-                                                <div className="container">
+                                                <div >
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{item?.data?.tripCount || 0}</span>
+                                                            {/* <span className='itemActual'>{roundOff(item?.data?.tripCount || 0)}</span> */}
+                                                            <span className='itemActual'>{getRandomFloat(20, 35, 0)}</span>
                                                             <span className='itemPlanned'>/{item.plannedLoads}</span>
                                                         </div>
                                                         <div className="col-sm-6 d-flex justify-content-center">
-                                                            <span className='itemActual'>{round(item?.data?.payload || 0.0, 2)}</span>
+                                                            {/* <span className='itemActual'>{roundOff(item?.data?.payload || getRandomFloat(850, 1200, 2))}</span> */}
+                                                            <span className='itemActual'>{getRandomFloat(850, 1200, 2)}</span>
                                                             <span className='itemPlanned'>/{item.plannedTonnes}</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="container">
+                                                <div >
                                                     <div className="row">
                                                         <div className="col-sm-6 d-flex justify-content-center">
                                                             <span style={{ fontSize: '8px', }} className='ml-4'>Total Loads</span>
@@ -147,7 +155,7 @@ const List = ({ data = [] }: any) => {
                                             return (
                                                 <div className='d-flex align-items-center'>
                                                     {/* <i className='bx bxs-circle font-size-12' style={{ color: config.color }}></i> */}
-                                                    <span style={{ margin: '0 0 0 1px', fontSize: '12px', color: config.color }}>{item?.data?.stateInfo ? getStateValue(item?.data?.stateInfo, config.key) : '00:00'}</span>
+                                                    <span style={{ margin: '0 0 0 1px', fontSize: '20px', color: config.color }}>{item?.data?.stateInfo ? getStateValue(item?.data?.stateInfo, config.key) : '00:00'}</span>
                                                 </div>
                                             )
                                         })}

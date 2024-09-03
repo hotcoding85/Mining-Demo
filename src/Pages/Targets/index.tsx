@@ -12,7 +12,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { shiftDuration, shifts, shiftsInFormat, shiftTimings } from "../../utils/common";
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -39,7 +39,7 @@ const Target = (props: any) => {
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
   const [hideShiftSelect, setHideShiftSelect] = useState<any>(false);
-  const [pickerType, setPickerType] = useState<any>(false);
+  const [pickerType, setPickerType] = useState<string>('month');
   const [pickerFormat, setPickerFormat] = useState<any>('YYYY-MM-DD');
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -568,7 +568,7 @@ const Target = (props: any) => {
   const truckColumns: TableColumn[] = useMemo(
     () => [
       {
-        header: "Equipment Name / Model Name",
+        header: "Equipment / Model Name",
         accessorKey: "truckModel",
         enableColumnFilter: false,
         enableSorting: true,
@@ -578,7 +578,7 @@ const Target = (props: any) => {
               {row.getCanExpand() ? (
                 <button {...{
                   onClick: row.getToggleExpandedHandler(),
-                  style: { cursor: 'pointer', border: 'none', backgroundColor: 'white' },
+                  style: { cursor: 'pointer', border: 'none', backgroundColor: 'white', borderRadius: '4px', justifyContent:'center', justifyItems:'center' },
                 }}>
                   {row.getIsExpanded() ? <DownOutlined /> : <RightOutlined />}
                 </button>
@@ -591,7 +591,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Planned loads",
+        header: "Planned Loads",
         accessorKey: "loads",
         enableColumnFilter: false,
         enableSorting: true,
@@ -602,7 +602,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Average load",
+        header: "Avg. Load",
         accessorKey: "avgLoad",
         enableColumnFilter: false,
         enableSorting: true,
@@ -613,7 +613,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Average Trip Time",
+        header: "Avg. Trip Time",
         accessorKey: "avgTime",
         enableColumnFilter: false,
         enableSorting: true,
@@ -679,7 +679,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (Mins)",
+        header: "Utilisation (Mins)",
         accessorKey: "utilization",
         enableColumnFilter: false,
         enableSorting: true,
@@ -690,7 +690,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (%)",
+        header: "Utilisation (%)",
         accessorKey: "utilizationPer",
         enableColumnFilter: false,
         enableSorting: true,
@@ -744,7 +744,7 @@ const Target = (props: any) => {
   const diggerColumns: TableColumn[] = useMemo(
     () => [
       {
-        header: "Equipment Name / Model Name",
+        header: "Equipment / Model Name",
         accessorKey: "truckModel",
         enableColumnFilter: false,
         enableSorting: true,
@@ -789,7 +789,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Avg load time per truck",
+        header: "Avg Truck Loading Time",
         accessorKey: "avgTime",
         enableColumnFilter: false,
         enableSorting: true,
@@ -844,7 +844,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (Mins)",
+        header: "Utilisation (Mins)",
         accessorKey: "utilization",
         enableColumnFilter: false,
         enableSorting: true,
@@ -855,7 +855,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (%)",
+        header: "Utilisation (%)",
         accessorKey: "utilizationPer",
         enableColumnFilter: false,
         enableSorting: true,
@@ -911,49 +911,29 @@ const Target = (props: any) => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid className="full-height">
-          <Breadcrumb breadcrumbItem="Targets" title="Operations" />
+          <Breadcrumb breadcrumbItem="Production Targets" title="Operations" />
 
           <Row className="static-rows">
             <Col lg="12">
               <Form
-              // onSubmit={e => {
-              //   e.preventDefault();
-              //   return false;
-              // }}
-              >
+>
                 <Row>
-
-
                   <Col className='d-flex flex-row-reverse'>
                     <Space>
-                      <Button onClick={submit} >Publish To Production</Button>
                       <Select
                         className="basic-single"
                         id="TargetType"
                         showSearch
-                        allowClear
                         placeholder="Target Type"
                         // styles={customStyles}
-                        style={{ width: '100%' }}
+                        style={{ width: '110px' }}
                         options={targetTypes}
                         value={selectedTargetType} // set selected value
                         onChange={onTargetTypeChange}
                       />
-                      {/* <Select
-                        className="basic-single"
-                        classNamePrefix="TargetType"
-                        defaultValue={selectedTargetType}
-                        isDisabled={false}
-                        isLoading={false}
-                        isClearable={false}
-                        isRtl={false}
-                        isSearchable={true}
-                        name="Target Type"
-                        options={targetTypes}
-                        onChange={onTargetTypeChange}
-                      /> */}
                       <DatePicker allowClear={false} value={dayjs(startDate)} format={pickerFormat} type={pickerType} onChange={onDateChange} />
                       <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
+                      <Button icon={<CloudUploadOutlined />} onClick={submit} >Publish To Production</Button>
                     </Space>
                   </Col>
 
@@ -968,7 +948,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody >
                               <Row>
-                                <h4 className='coolContainer'>Truck Tonnes</h4>
+                                <h4 className='coolContainer'>Truck Tonnes Planned</h4>
                                 <h3>{summary.truckTonnes || 0}</h3>
                               </Row>
                             </CardBody>
@@ -980,7 +960,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Truck Loads</h4>
+                                <h4>Truck Loading Plan</h4>
                                 <h3>{summary.truckLoads || 0}</h3>
                               </Row>
                             </CardBody>
@@ -998,7 +978,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Excavator Tonnes</h4>
+                                <h4>Excavator Tonnes Planned</h4>
                                 <h3>{summary.diggerTonnes || 0}</h3>
                               </Row>
                             </CardBody>
@@ -1010,7 +990,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Excavator Loads</h4>
+                                <h4>Excavator Loading Plan</h4>
                                 <h3>{summary.diggerLoads || 0}</h3>
                               </Row>
                             </CardBody>
@@ -1041,7 +1021,7 @@ const Target = (props: any) => {
                     columns={truckColumns}
                     data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : [] || []}
                     total={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'].length : 0}
-                    isGlobalFilter={true}
+                    isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
                   />
@@ -1052,7 +1032,7 @@ const Target = (props: any) => {
                     columns={diggerColumns}
                     data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : [] || []}
                     total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
-                    isGlobalFilter={true}
+                    isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
                   />

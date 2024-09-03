@@ -89,10 +89,14 @@ const FuelCard: FC<FuelData> = ({
           <span className="fuel-card-sync-tooltip">{sync}</span>
         )}
       </div>
-      <div className="vehicle-image">
+      {/* <div className="vehicle-image">
         <img src={imageUrl} alt="Vehicle" className="fuel-card-image" />
-      </div>
+      </div> */}
       <div className="fuel-card-details">
+      <p className="fuel-card-props">
+          <span className="fuel-label">GPS Location</span>
+          <span className="fuel-value">{smu}</span>
+        </p>
         <p className="fuel-card-props">
           <span className="fuel-label">SMU</span>
           <span className="fuel-value">{smu}</span>

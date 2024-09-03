@@ -3,25 +3,27 @@
 
 body[data-layout-mode="dark"] {
     .itemActual {
-        font-size: 18px;
+        font-size: 28px;
         color: #fff;
         font-weight: 500;
     }
     .itemPlanned {
-        font-size: 18px;
+        font-size: 24px;
         color: #b3b3b3;
+        margin-top: 4px;
     }
 }
 
 body[data-layout-mode="light"] {
     .itemActual {
-        font-size: 18px;
-        color: #2a3042;
+        font-size: 28px;
+        color: #283655;
         font-weight: 500;
     }
     .itemPlanned {
-        font-size: 18px;
+        font-size: 24px;
         color: #4c4c4c;
+        margin-top: 4px;
     }
 }
 

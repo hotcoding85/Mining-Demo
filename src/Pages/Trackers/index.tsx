@@ -70,13 +70,11 @@ const Trackers = (props: any) => {
     const tracker = arg;
     setTracker({
       id: tracker.id,
-      vehicle: tracker.vehicle,
+      vehicle: tracker.vehicle.name,
       name: tracker.name,
       type: tracker.type
     });
-    // vehicles = fleet.map(option => {
-    //   return { value: option.name, "label": option.name }
-    // });
+
     setIsEdit(true);
 
     toggle();
@@ -287,14 +285,14 @@ const Trackers = (props: any) => {
           const id = cellProps.row.original.id
           return (
             <div className="d-flex gap-3">
-              {/* <Link to="#!" className="text-success"
+              <Link to="#!" className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
                   const deviceData = cellProps.row.original;
                   handleUserClick(deviceData);
                 }} >
                 <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link> */}
+              </Link>
               <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
               <Link to="#!" className="text-view"
                 onClick={(event: any) => {
@@ -323,11 +321,6 @@ const Trackers = (props: any) => {
 
   return (
     <React.Fragment>
-      {/* <DeleteModal
-        show={deleteModal}
-        onDeleteClick={handleDeleteUser}
-        onCloseClick={() => setDeleteModal(false)}
-      /> */}
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Resources" breadcrumbItem="Trackers" />

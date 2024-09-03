@@ -27,8 +27,11 @@ const profileSlice = createSlice({
         loginSuccess(state, action) {
             const tokens = action.payload.tokens;
             const user = action.payload.user;
+            const siteSettings = action.payload.configurations;
             const eToken = encryptData(tokens.access.token);
             localStorage.setItem("token", eToken);
+            localStorage.setItem("shifts", JSON.stringify(siteSettings.shifts));
+            localStorage.setItem("timezone", JSON.stringify(siteSettings.timezone));
             state.token = tokens.access.token
             state.user = user
             state.loading = false;

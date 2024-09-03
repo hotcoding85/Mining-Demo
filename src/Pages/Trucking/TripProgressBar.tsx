@@ -31,11 +31,11 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   planned = 0,
   type = "Trucking",
   header = "",
-  backgroundCol = "#2b3a5e",
+  backgroundCol = "#283655",
   subHeader = "",
   total = 0,
   subType = "",
-  widthVal = '90%'
+  widthVal = '100%'
 }) => {
 
   const [isTargetBubbleVisible, setTargetBubbleVisible] = useState(false);
@@ -65,9 +65,9 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
         type === "Production" ? "ProgressProduction" : ""
       }`}
       style={{
-        backgroundColor: backgroundCol || "#2b3a5e",
-        paddingBottom: type === "Production" ? "7%" : "0", 
-        width:widthVal
+        backgroundColor: "#283655",
+        paddingBottom: "4%", 
+        width:widthVal,
       }}
     >
       {type === "Trucking" && <div className="progress-header">{header}</div>}
