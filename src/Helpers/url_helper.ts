@@ -30,3 +30,9 @@ export const EVENTS = "/events";
 
 // MOCK
 export const MOCK = "/mock";
+
+// TARGETS
+export const TARGET = "/targets";
+
+// EVENT METAS
+export const EVENTMETAS = "/eventmetas";

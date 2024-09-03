@@ -9,15 +9,24 @@ import dayjs from "dayjs";
 import "./mock.css";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { addUsers, getAllUsers } from "slices/thunk";
+import {
+  addDispatchs,
+  addEvents,
+  addMaterials,
+  addShiftRosters,
+  addUsers,
+  getAllUsers,
+} from "slices/thunk";
 import { useDispatch } from "react-redux";
 import { getMockResources } from "Helpers/api_mock_helper";
 import { generateMockTargetData } from "_mock/target";
 import { generateMockRosterData } from "_mock/roster";
 import { generateMockPlanData } from "_mock/plan";
 import { generateEventData, generateMockEventMetaData } from "_mock/event";
-import { generateMockUserData } from "_mock/user";
 import AutoTable from "Components/Common/AutoTable";
+import { postTargets } from "Helpers/api_target_helper";
+import { generateMaterialMockData } from "_mock/material";
+import { postEventMetas } from "Helpers/api_eventmata_helper";
 
 const Mock = () => {
   document.title = "Mock | FMS Live";
@@ -32,9 +41,9 @@ const Mock = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resource, setResource] = useState<any>({});
 
-  const [users, setUsers] = useState<any>();
   const [rosters, setRosters] = useState<any>();
   const [targets, setTargets] = useState<any>();
+  const [materials, setMaterials] = useState<any>();
   const [plans, setPlans] = useState<any>();
   const [eventMetas, setEventMetas] = useState<any>();
   const [events, setEvents] = useState<any>();
@@ -52,10 +61,6 @@ const Mock = () => {
     };
 
     getMock();
-
-    return () => {
-      getMock();
-    };
   }, []);
 
   const onStartDateChange: DatePickerProps["onChange"] = (date) => {
@@ -73,22 +78,21 @@ const Mock = () => {
   const onClickGenerateMockData = () => {
     if (!isLoading) {
       setIsGenerating(true);
-      console.log(resource);
-      const mockUsers = generateMockUserData();
       const rosters = generateMockRosterData(
         resource,
         startDate,
         endDate,
-        mockUsers
+        resource.users
       );
       const targets = generateMockTargetData(resource, rosters);
+      const newMaterials = generateMaterialMockData(resource);
       const plans = generateMockPlanData(resource, targets, rosters);
       const eventMetas = generateMockEventMetaData(plans);
       const events = generateEventData(eventMetas);
 
-      setUsers(mockUsers);
       setRosters(rosters);
       setTargets(targets);
+      setMaterials(newMaterials);
       setPlans(plans);
       setEventMetas(eventMetas);
       setEvents(events);
@@ -96,8 +100,33 @@ const Mock = () => {
     }
   };
 
-  const onSaveUsers = () => {
-    dispatch(addUsers(users));
+  const onSaveRosters = async () => {
+    await dispatch(addShiftRosters(rosters.slice(0, 2)));
+  };
+
+  const onSaveTargets = async () => {
+    await postTargets(targets.slice(0, 2));
+  };
+
+  const onSavePlans = async () => {
+    await dispatch(addDispatchs(plans.slice(0, 2)));
+  };
+
+  const onSaveMaterials = async () => {
+    const { data: newMaterials } = await dispatch(addMaterials(materials));
+    setResource({
+      ...resource,
+      materials: [...resource.materials, ...newMaterials],
+    });
+    onClickGenerateMockData();
+  };
+
+  const onSaveEventMetas = async () => {
+    await postEventMetas(eventMetas.slice(0, 2));
+  };
+
+  const onSaveEvents = async () => {
+    await dispatch(addEvents({ records: events.slice(0, 2) }));
   };
 
   return (
@@ -106,8 +135,8 @@ const Mock = () => {
         <div
           className="position-absolute top-0 start-0 bg-light d-flex justify-content-center align-items-center"
           style={{
-            width: "100vw",
-            height: "100vh",
+            width: "calc(100vw - 24px)",
+            height: "calc(100% - 24px)",
             opacity: 0.5,
             zIndex: 9999,
           }}
@@ -153,14 +182,35 @@ const Mock = () => {
               </Button>
             </Col>
           </Row>
-          {users && (
-            <AutoTable data={users} title="Users" onSave={onSaveUsers} />
+          {resource?.users && (
+            <AutoTable data={resource?.users} title="Users" />
           )}
-          {rosters && <AutoTable data={rosters} title="Rosters" />}
-          {targets && <AutoTable data={targets} title="Targets" />}
-          {plans && <AutoTable data={plans} title="Plans" />}
-          {eventMetas && <AutoTable data={eventMetas} title="Event Metas" />}
-          {events && <AutoTable data={events} title="Events" />}
+          {rosters && (
+            <AutoTable data={rosters} title="Rosters" onSave={onSaveRosters} />
+          )}
+          {targets && (
+            <AutoTable data={targets} title="Targets" onSave={onSaveTargets} />
+          )}
+          {materials?.length > 0 && (
+            <AutoTable
+              data={materials}
+              title="Materials"
+              onSave={onSaveMaterials}
+            />
+          )}
+          {plans && (
+            <AutoTable data={plans} title="Plans" onSave={onSavePlans} />
+          )}
+          {eventMetas && (
+            <AutoTable
+              data={eventMetas}
+              title="Event Metas"
+              onSave={onSaveEventMetas}
+            />
+          )}
+          {events && (
+            <AutoTable data={events} title="Events" onSave={onSaveEvents} />
+          )}
         </Container>
       </div>
     </React.Fragment>

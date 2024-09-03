@@ -9,7 +9,7 @@ export const generateMockEventMetaData = (plans: any[]) => {
       sourceId: plan.sourceId,
       destinationId: plan.destinationId,
       truckId: support,
-      excavatorId: plan.vehicleId,
+      vehicleId: plan.vehicleId,
     }))
   );
 };
@@ -35,9 +35,12 @@ export const generateEventData = (eventMetas: any[]) => {
           destinationId: eventMeta.destinationId,
           truckId: eventMeta.truckId,
           vehicleId: eventMeta.excavatorId,
+          roster: eventMeta.roster,
           state: "ACTIVE",
           reason: reason,
           payload: 90,
+          lng: "120.44438970741732",
+          lat: "-29.146627309426933",
           startTime: eventStartTime.getTime(),
           endTime: eventEndTime.getTime(),
         });
