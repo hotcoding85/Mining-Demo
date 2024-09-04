@@ -1,3 +1,6 @@
+import { UTM_ZONE } from "Components/constants/constant";
+import proj4 from "proj4";
+
 interface GeoJSON {
   type: string;
   features: Feature[];
@@ -69,7 +72,7 @@ const parseStrFileToGeoJSON = (text: string): GeoJSON => {
       }
 
       // Add the current point to the coordinates of the corresponding feature
-      featureMap[featureKey].geometry.coordinates.push([y, x, z]);
+      featureMap[featureKey].geometry.coordinates.push([x, y]);
     }
   });
 

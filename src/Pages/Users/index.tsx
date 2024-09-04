@@ -48,7 +48,7 @@ const Users = (props: any) => {
       firstName: (doc && doc.firstName) || "",
       lastName: (doc && doc.lastName) || "",
       crew: (doc && doc.crew) || "",
-      password: doc && doc.password ? doc.password : undefined,
+      password: !isEdit ? (doc && doc.password ? doc.password : undefined) : undefined || undefined,
       role: (doc && doc.role) || "",
       email: (doc && doc.email) || undefined,
       mobile: (doc && doc.mobile) || undefined,
