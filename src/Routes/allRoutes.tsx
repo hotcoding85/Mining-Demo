@@ -12,6 +12,7 @@ import Fleet from "Pages/Fleet";
 import Trackers from "Pages/Trackers";
 import Map from "Pages/Map";
 import Dispatch from "Pages/Dispatch";
+import DispatchLive from "Pages/DispatchLive";
 import Dashboard from "Pages/Dashboard";
 import MaterialInventory from "Pages/MaterialInventory";
 import Geofences from "Pages/Geofences";
@@ -23,6 +24,7 @@ import FleetTimeline from "Pages/FleetTimeline";
 import Target from "Pages/Targets";
 import OperatorReport from "Pages/OperatorReport";
 import TelemetryReport from "Pages/TelemetryReport";
+import GanttScheduler from "Pages/GanttScheduler";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -66,6 +68,8 @@ const authProtectedRoutes = [
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
+  { path: "/gantt-scheduler", exact: true, component: <GanttScheduler /> },
+  { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dispatch-live", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
