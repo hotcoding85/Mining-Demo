@@ -1,10 +1,11 @@
 import { Dayjs } from "dayjs"
 
 export interface Shift {
-    label: string
-    value: string
+    name: string
+    description: string
     startTime: string
     endTime: string
+    duration: number
 }
 
 export interface ShiftTimingsInfo {

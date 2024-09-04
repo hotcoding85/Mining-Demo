@@ -2,14 +2,14 @@ import React from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 
-const Maintenance = (props: any) => {
-    document.title = "Maintenance Planner | FMS Live";
+const FleetOptimisation = (props: any) => {
+    document.title = "Fleet Optimisation | FMS Live";
 
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Planner" breadcrumbItem="Maintenance" />
+                    <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Fleet Optimisation" />
                     <Row>
                         <Col lg="12">
 
@@ -21,4 +21,4 @@ const Maintenance = (props: any) => {
     )
 }
 
-export default Maintenance;
+export default FleetOptimisation;

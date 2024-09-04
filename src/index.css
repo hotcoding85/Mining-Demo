@@ -28,3 +28,9 @@ code {
 .ant-radio-button .ant-radio-button-disabled {
   background-color: blue !important;
 }
+
+.map-container {
+  .mapboxgl-ctrl-logo {
+    display: none;
+  }
+}

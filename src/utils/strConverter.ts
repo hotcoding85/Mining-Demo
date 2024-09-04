@@ -69,7 +69,7 @@ const parseStrFileToGeoJSON = (text: string): GeoJSON => {
       }
 
       // Add the current point to the coordinates of the corresponding feature
-      featureMap[featureKey].geometry.coordinates.push([y, x, z]);
+      featureMap[featureKey].geometry.coordinates.push([x, y]);
     }
   });
 

@@ -12,7 +12,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { shiftDuration, shifts, shiftsInFormat, shiftTimings } from "../../utils/common";
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -39,7 +39,7 @@ const Target = (props: any) => {
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
   const [hideShiftSelect, setHideShiftSelect] = useState<any>(false);
-  const [pickerType, setPickerType] = useState<any>(false);
+  const [pickerType, setPickerType] = useState<string>('month');
   const [pickerFormat, setPickerFormat] = useState<any>('YYYY-MM-DD');
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -47,6 +47,185 @@ const Target = (props: any) => {
   const [data, setData] = useState<any>([]);
   const [summary, setSummary] = useState<any>({});
   const [selectedTargetType, setSelectedTargetType] = useState<any>('SHIFT');
+
+  const truckColumns: TableColumn[] = useMemo(
+    () => [
+      {
+        header: "Equipment / Model Name",
+        accessorKey: "truckModel",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ row, getValue }) => {
+          return (
+            <>
+              {row.getCanExpand() ? (
+                <button {...{
+                  onClick: row.getToggleExpandedHandler(),
+                  style: { cursor: 'pointer', border: 'none', backgroundColor: 'white', borderRadius: '4px', justifyContent: 'center', justifyItems: 'center' },
+                }}>
+                  {row.getIsExpanded() ? <DownOutlined /> : <RightOutlined />}
+                </button>
+              ) : (
+                ''
+              )}{' '}
+              {getValue()}
+            </>
+          )
+        }
+      },
+      {
+        header: "Planned Loads",
+        accessorKey: "loads",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Avg. Load",
+        accessorKey: "avgLoad",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Avg. Trip Time",
+        accessorKey: "avgTime",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Planned Tonnes",
+        accessorKey: "tonnes",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Availability (Mins)",
+        accessorKey: "availability",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Availability (%)",
+        accessorKey: "availablePer",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Standby (Mins)",
+        accessorKey: "standby",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Standby (%)",
+        accessorKey: "standbyPer",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Utilisation (Mins)",
+        accessorKey: "utilization",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      {
+        header: "Utilisation (%)",
+        accessorKey: "utilizationPer",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ getValue, row, column }) => {
+          return (
+            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+          );
+        }
+      },
+      // {
+      //   header: "Loads",
+      //   accessorKey: "loads",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: ({ getValue, row, column }) => {
+      //     return (
+      //       <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()}  value={getValue()}> </Input>
+      //     );
+      //   }
+      // },
+
+      // {
+      //   header: "Actions",
+      //   enableColumnFilter: false,
+      //   accessorKey: "",
+      //   enableSorting: false,
+      //   cell: (cellProps: any) => {
+      //     const name = `${cellProps.row.original.name}`
+      //     const id = cellProps.row.original.id
+      //     return (
+      //       <div className="d-flex gap-3">
+      //         <Link
+      //           to="#!"
+      //           className="text-success"
+      //           onClick={(event: any) => {
+      //             event.preventDefault();
+      //             const benchData = cellProps.row.original;
+      //             handleOnEdit(benchData);
+      //           }}
+      //         >
+      //           <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+      //         </Link>
+      //         <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
+      //       </div>
+      //     );
+      //   },
+      // },
+    ],
+    []
+  );
+
+  const [currentTruckColumns, setCurrentTruckColumns] = useState(truckColumns);
 
   const avgTripTime: number = 15;
   const avgLoadTime: number = 3;
@@ -565,186 +744,11 @@ const Target = (props: any) => {
     return productionData;
   }
 
-  const truckColumns: TableColumn[] = useMemo(
-    () => [
-      {
-        header: "Equipment Name / Model Name",
-        accessorKey: "truckModel",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ row, getValue }) => {
-          return (
-            <>
-              {row.getCanExpand() ? (
-                <button {...{
-                  onClick: row.getToggleExpandedHandler(),
-                  style: { cursor: 'pointer', border: 'none', backgroundColor: 'white' },
-                }}>
-                  {row.getIsExpanded() ? <DownOutlined /> : <RightOutlined />}
-                </button>
-              ) : (
-                ''
-              )}{' '}
-              {getValue()}
-            </>
-          )
-        }
-      },
-      {
-        header: "Planned loads",
-        accessorKey: "loads",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Average load",
-        accessorKey: "avgLoad",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Average Trip Time",
-        accessorKey: "avgTime",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Planned Tonnes",
-        accessorKey: "tonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Availability (Mins)",
-        accessorKey: "availability",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Availability (%)",
-        accessorKey: "availablePer",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Standby (Mins)",
-        accessorKey: "standby",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Standby (%)",
-        accessorKey: "standbyPer",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Utilization (Mins)",
-        accessorKey: "utilization",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      {
-        header: "Utilization (%)",
-        accessorKey: "utilizationPer",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: ({ getValue, row, column }) => {
-          return (
-            <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
-          );
-        }
-      },
-      // {
-      //   header: "Loads",
-      //   accessorKey: "loads",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: ({ getValue, row, column }) => {
-      //     return (
-      //       <Input type='number' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()}  value={getValue()}> </Input>
-      //     );
-      //   }
-      // },
 
-      // {
-      //   header: "Actions",
-      //   enableColumnFilter: false,
-      //   accessorKey: "",
-      //   enableSorting: false,
-      //   cell: (cellProps: any) => {
-      //     const name = `${cellProps.row.original.name}`
-      //     const id = cellProps.row.original.id
-      //     return (
-      //       <div className="d-flex gap-3">
-      //         <Link
-      //           to="#!"
-      //           className="text-success"
-      //           onClick={(event: any) => {
-      //             event.preventDefault();
-      //             const benchData = cellProps.row.original;
-      //             handleOnEdit(benchData);
-      //           }}
-      //         >
-      //           <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-      //         </Link>
-      //         <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
-      //       </div>
-      //     );
-      //   },
-      // },
-    ],
-    []
-  );
   const diggerColumns: TableColumn[] = useMemo(
     () => [
       {
-        header: "Equipment Name / Model Name",
+        header: "Equipment / Model Name",
         accessorKey: "truckModel",
         enableColumnFilter: false,
         enableSorting: true,
@@ -789,7 +793,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Avg load time per truck",
+        header: "Avg Truck Loading Time",
         accessorKey: "avgTime",
         enableColumnFilter: false,
         enableSorting: true,
@@ -844,7 +848,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (Mins)",
+        header: "Utilisation (Mins)",
         accessorKey: "utilization",
         enableColumnFilter: false,
         enableSorting: true,
@@ -855,7 +859,7 @@ const Target = (props: any) => {
         }
       },
       {
-        header: "Utilization (%)",
+        header: "Utilisation (%)",
         accessorKey: "utilizationPer",
         enableColumnFilter: false,
         enableSorting: true,
@@ -907,53 +911,59 @@ const Target = (props: any) => {
     []
   );
 
+  const handleDragStart = (e, columnIndex) => {
+    e.dataTransfer.setData('columnIndex', columnIndex);
+  };
+
+  const handleDragOver = (e, columnIndex) => {
+    e.preventDefault();
+    // const dragIndex = e.dataTransfer.getData('columnIndex');
+    // if (dragIndex !== columnIndex) {
+    //   const newColumns = [...truckColumns];
+    //   const [draggedColumn] = newColumns.splice(dragIndex, 1);
+    //   newColumns.splice(columnIndex, 0, draggedColumn);
+    //   // setCurrentColumns(newColumns);
+    // }
+  };
+  const handleDrop = (e, columnIndex) => {
+    e.preventDefault();
+    const dragIndex = e.dataTransfer.getData('columnIndex');
+    if (parseInt(dragIndex) !== columnIndex) {
+      const newColumns = [...currentTruckColumns];
+      const [draggedColumn] = newColumns.splice(dragIndex, 1);
+      newColumns.splice(columnIndex, 0, draggedColumn);
+      // setCurrentColumns(newColumns);
+      setCurrentTruckColumns(newColumns);
+    }
+  };
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid className="full-height">
-          <Breadcrumb breadcrumbItem="Targets" title="Operations" />
+          <Breadcrumb breadcrumbItem="Production Targets" title="Operations" />
 
           <Row className="static-rows">
             <Col lg="12">
               <Form
-              // onSubmit={e => {
-              //   e.preventDefault();
-              //   return false;
-              // }}
               >
                 <Row>
-
-
                   <Col className='d-flex flex-row-reverse'>
                     <Space>
-                      <Button onClick={submit} >Publish To Production</Button>
                       <Select
                         className="basic-single"
                         id="TargetType"
                         showSearch
-                        allowClear
                         placeholder="Target Type"
                         // styles={customStyles}
-                        style={{ width: '100%' }}
+                        style={{ width: '110px' }}
                         options={targetTypes}
                         value={selectedTargetType} // set selected value
                         onChange={onTargetTypeChange}
                       />
-                      {/* <Select
-                        className="basic-single"
-                        classNamePrefix="TargetType"
-                        defaultValue={selectedTargetType}
-                        isDisabled={false}
-                        isLoading={false}
-                        isClearable={false}
-                        isRtl={false}
-                        isSearchable={true}
-                        name="Target Type"
-                        options={targetTypes}
-                        onChange={onTargetTypeChange}
-                      /> */}
                       <DatePicker allowClear={false} value={dayjs(startDate)} format={pickerFormat} type={pickerType} onChange={onDateChange} />
                       <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
+                      <Button icon={<CloudUploadOutlined />} onClick={submit} >Publish To Production</Button>
                     </Space>
                   </Col>
 
@@ -968,7 +978,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody >
                               <Row>
-                                <h4 className='coolContainer'>Truck Tonnes</h4>
+                                <h4 className='coolContainer'>Truck Tonnes Planned</h4>
                                 <h3>{summary.truckTonnes || 0}</h3>
                               </Row>
                             </CardBody>
@@ -980,7 +990,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Truck Loads</h4>
+                                <h4>Truck Loading Plan</h4>
                                 <h3>{summary.truckLoads || 0}</h3>
                               </Row>
                             </CardBody>
@@ -998,7 +1008,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Excavator Tonnes</h4>
+                                <h4>Excavator Tonnes Planned</h4>
                                 <h3>{summary.diggerTonnes || 0}</h3>
                               </Row>
                             </CardBody>
@@ -1010,7 +1020,7 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4>Excavator Loads</h4>
+                                <h4>Excavator Loading Plan</h4>
                                 <h3>{summary.diggerLoads || 0}</h3>
                               </Row>
                             </CardBody>
@@ -1038,12 +1048,16 @@ const Target = (props: any) => {
                 <CardBody>
                   <h2>Trucks</h2>
                   <TableContainer
-                    columns={truckColumns}
+                    columns={currentTruckColumns}
                     data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : [] || []}
                     total={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'].length : 0}
-                    isGlobalFilter={true}
+                    isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
+                    isDraggable={true}
+                    handleOnDragStart={handleDragStart}
+                    handleOnDragOver={handleDragOver}
+                    handleOnDrop={handleDrop}
                   />
                 </CardBody>
                 <CardBody>
@@ -1052,7 +1066,7 @@ const Target = (props: any) => {
                     columns={diggerColumns}
                     data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : [] || []}
                     total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
-                    isGlobalFilter={true}
+                    isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
                   />

@@ -588,7 +588,7 @@ const Dispatch = () => {
                                                         </DropTarget>
                                                     </Row>
                                                 </Col>
-                                                <Col xs={1}></Col>
+                                                <Col xs={2}></Col>
                                             </Row>
                                             <Row>
                                                 <Col xs={1}></Col>
@@ -603,7 +603,7 @@ const Dispatch = () => {
                                                                     margin: '4px',
                                                                     backgroundColor: "#F7B31A",
                                                                     borderRadius: '4px',
-                                                                    height: '65px',
+                                                                    height: '65px'
                                                                 }}
                                                             >
                                                                 <Row>

@@ -6,6 +6,7 @@
 # Node artifact files
 node_modules/
 dist/
+/public/240817_Pits_3D_WGS84.geojson
 
 # Compiled Java class files
 *.class

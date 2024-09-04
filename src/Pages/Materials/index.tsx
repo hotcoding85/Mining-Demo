@@ -12,6 +12,7 @@ import DeleteButton from 'Components/Common/DeleteButton';
 import FormModal from 'Components/Common/FormModal';
 import { createSelector } from 'reselect';
 import { isMaterialNameUnique } from '../../Helpers/api_materials_helper';
+import { round2Two } from 'utils/common';
 
 const Materials = (props: any) => {
   document.title = "Materials | FMS Live";
@@ -185,12 +186,21 @@ const Materials = (props: any) => {
         accessorKey: 'grade',
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const tonnes = cellProps.row.original.grade as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(tonnes)}</div>
+          )
+        }
       },
       {
         header: 'Color',
         accessorKey: 'color',
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          return <div style={{ height:'20px', backgroundColor:cellProps.row.original.color}}></div>
+        }
       },
       {
         header: 'Status',

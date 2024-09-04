@@ -3,31 +3,32 @@ import "./style.css";
 import { ChartOptions } from "chart.js";
 import { CustomLineChartData, TextColor } from "./interfaces/general";
 import {
-    Chart as ChartJS,
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-  } from "chart.js";
-  import ChartDataLabels from "chartjs-plugin-datalabels";
-  
-  ChartJS.register(
-    LineElement,
-    PointElement,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ChartDataLabels,
-    ArcElement
-  );
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Card } from "reactstrap";
+
+ChartJS.register(
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartDataLabels,
+  ArcElement
+);
 
 interface LineGraphProps {
   data: CustomLineChartData;
@@ -44,25 +45,25 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   widthVal,
   backgroundCol,
 }) => {
-  const containerStyle = {
-    width: widthVal || "90%",
-    backgroundColor: backgroundCol || "#2b3a5e",
-  };
 
   return (
-    <div className="BarGraphContainer" style={containerStyle}>
-      <div className="LegendContainer">
-        {textColor.map((item, index) => (
-          <div className="LegendItem" key={index}>
-            <div
-              className="LegendCircle"
-              style={{ backgroundColor: item.color }}
-            />
-            <div className="LegendText">{item.text}</div>
-          </div>
-        ))}
+    <Card>
+      <div className="BarGraphContainer">
+        <div className="LegendContainer">
+          {textColor.map((item, index) => (
+            <div className="LegendItem" key={index}>
+              <div
+                className="LegendCircle"
+                style={{ backgroundColor: item.color }}
+              />
+              <div className="LegendText">{item.text}</div>
+            </div>
+          ))}
+        </div>
+
+        <Line data={data} options={options} />
+
       </div>
-      <Line data={data} options={options} />
-    </div>
+    </Card>
   );
 };
