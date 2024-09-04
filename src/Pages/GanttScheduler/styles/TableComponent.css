@@ -1,0 +1,184 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden; /* Prevent vertical scroll in most cases */
+}
+
+.custom-table {
+  /* width: 100%; */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
+  font-size: 0.9em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-width: 1200px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.custom-table td {
+  border: none;
+  padding: 0; 
+  position: relative;
+}
+
+.custom-table tr {
+  border: none;
+}
+
+.custom-table thead tr {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 12px 0px;
+  border: 0.5px solid #ddd;
+  text-align: center;
+  background-color: white;
+  word-break: break-all;
+  /* width: 80px; */
+}
+
+.custom-table th {
+  background-color: #f8f8f8;
+  color: #333;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.custom-table th div{
+  text-wrap: wrap;
+  word-wrap: break-word;
+}
+
+.timeline-header {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-table tbody tr:nth-of-type(even) {
+  background-color: #f9f9f9;
+}
+
+.custom-table tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+
+.custom-table tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
+}
+
+/* Sticky column styles */
+.custom-table th:nth-child(1),
+.custom-table td:nth-child(1) {
+  border: 1px solid #ddd;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background-color: #f4f4f4;
+}
+
+.custom-table th:nth-child(2),
+.custom-table td:nth-child(2) {
+  border: 1px solid #ddd;
+  position: sticky;
+  left: 30px;
+  z-index: 3;
+  background-color: #f4f4f4;
+}
+
+.custom-table th:nth-child(3),
+.custom-table td:nth-child(3) {
+  border: 1px solid #ddd;
+  position: sticky;
+  left: 100px;
+  z-index: 3;
+  background-color: #f4f4f4;
+}
+
+/* When the table is in collapsed mode, move the sticky columns and shift the entire table */
+.collapsed th:nth-child(1),
+.collapsed td:nth-child(1),
+.collapsed th:nth-child(2),
+.collapsed td:nth-child(2),
+.collapsed th:nth-child(3),
+.collapsed td:nth-child(3) {
+  transform: translateX(-510px);
+}
+
+.collapsed {
+  transform: translateX(-510px);
+}
+
+/* Button to toggle */
+.toggle-button {
+  position: fixed;
+  top: 160px;
+  left: 20px; 
+  z-index: 2;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: left 0.3s ease-in-out;
+}
+
+.collapsed + .toggle-button {
+  left: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .custom-table th:nth-child(1),
+  .custom-table td:nth-child(1),
+  .custom-table th:nth-child(2),
+  .custom-table td:nth-child(2),
+  .custom-table th:nth-child(3),
+  .custom-table td:nth-child(3) {
+    left: 0;
+    z-index: 3;
+    transform: none;
+  }
+  
+  .collapsed th:nth-child(1),
+  .collapsed td:nth-child(1),
+  .collapsed th:nth-child(2),
+  .collapsed td:nth-child(2),
+  .collapsed th:nth-child(3),
+  .collapsed td:nth-child(3) {
+    transform: translateX(-100%);
+  }
+
+  .collapsed + .toggle-button {
+    left: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-table th, 
+  .custom-table td {
+    padding: 10px;
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 425px) {
+  .custom-table th, 
+  .custom-table td {
+    padding: 8px;
+    font-size: 1em;
+  }
+}
