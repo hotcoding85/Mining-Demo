@@ -1,4 +1,5 @@
 import { RouteDataType } from "./type";
+import _ from 'lodash';
 
 export const getRoutes = (data: RouteDataType[], startPoint: [number, number], endPoint: any) => {
     if (!data || !startPoint || !endPoint) return;
@@ -6,7 +7,6 @@ export const getRoutes = (data: RouteDataType[], startPoint: [number, number], e
     startPoint = findNearestPoint(startPoint, roadData);
     endPoint = findNearestPoint(endPoint, roadData);
     const graph = buildGraph(roadData);
-    console.log(graph)
     const { path, distance } = dijkstra(graph, startPoint, endPoint);
     console.log('Calculated Route:', path, distance);
 
@@ -22,14 +22,14 @@ function calculateDistance(point1, point2) {
 function buildGraph(roadData) {
     const graph = new Map();
   
-    roadData.map(route => {
-        const routeData = route.geometry.coordinates;
+    _.map(roadData, route => {
+        const routeData = route.geoJson.geometry.coordinates;
   
         for (let i = 0; i < routeData.length - 1; i++) {
             const point1 = JSON.stringify(routeData[i]);
             const point2 = JSON.stringify(routeData[i + 1]);
             const distance = calculateDistance(routeData[i], routeData[i + 1]);
-            const speedLimit = Math.min(route.speed_limits, route.speed_limits);
+            const speedLimit = Math.min(route.speedLimits, route.speedLimits);
             const weight = distance / speedLimit;
     
             if (!graph.has(point1)) {
@@ -51,8 +51,8 @@ function findNearestPoint(givenPoint, roadData) {
     let nearestPoint: any = null;
     let minDistance = Infinity;
   
-    roadData.map(route => {
-        route.geometry.coordinates.map(point => {
+    _.map(roadData, route => {
+        _.map(route.geoJson.geometry.coordinates, point => {
             const distance = calculateDistance(givenPoint, point);
             if (distance < minDistance) {
                 minDistance = distance;
@@ -64,49 +64,6 @@ function findNearestPoint(givenPoint, roadData) {
     return nearestPoint;
 }
 // Dijkstra's algorithm
-// function dijkstra(graph, start: any, end: any) {
-//     const distances = new Map();
-//     const previousVertices = new Map();
-//     const pq = new Map(); // Priority Queue
-  
-//     graph.forEach((_, vertex) => {
-//         distances.set(vertex, Infinity);
-//         previousVertices.set(vertex, null);
-//     });
-//     distances.set(JSON.stringify(start), 0);
-//     pq.set(JSON.stringify(start), 0);
-  
-//     while (pq.size !== 0) {
-//       const [currentVertex, currentDistance] = [...pq.entries()].reduce((a, b) => (a[1] < b[1] ? a : b));
-//       pq.delete(currentVertex);
-  
-//       if (currentDistance > distances.get(currentVertex)) continue;
-  
-//       graph.get(currentVertex).map(neighbor => {
-//             const { weight, point: neighborPoint } = neighbor;
-//             const distance = currentDistance + weight;
-    
-//             if (distance < distances.get(neighborPoint)) {
-//                 distances.set(neighborPoint, distance);
-//                 previousVertices.set(neighborPoint, currentVertex);
-//                 pq.set(neighborPoint, distance);
-//             }
-//         });
-//     }
-  
-//     const path: any = [];
-//     let currentVertex: any = JSON.stringify(end);
-  
-//     while (previousVertices.get(currentVertex) !== null) {
-//         path.unshift(JSON.parse(currentVertex));
-//         currentVertex = previousVertices.get(currentVertex);
-//     }
-//     if (path.length) {
-//         path.unshift(start);
-//     }
-  
-//     return { path, distance: distances.get(JSON.stringify(end)) };
-// }
 
 function dijkstra(graph, start: any, end: any) {
     const distances = new Map();
@@ -128,7 +85,7 @@ function dijkstra(graph, start: any, end: any) {
   
         if (currentDistance > distances.get(currentVertex)) continue;
   
-        graph.get(currentVertex).map(neighbor => {
+        _.map(graph.get(currentVertex), neighbor => {
             const { weight, point: neighborPoint, color } = neighbor;
             const distance = currentDistance + weight;
     

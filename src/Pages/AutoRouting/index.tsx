@@ -1,24 +1,32 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Container, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import _ from 'lodash';
-
+import { getRoutesFromDB, postRoutes, putRoutes, deleteRoutes } from "Helpers/api_auto_routing";
 import * as turf from '@turf/turf';
-import mapboxgl, { LngLatLike } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import toastr from 'toastr';
+import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Button, Input, Tooltip } from 'antd';
 import { getRoutes } from './RoutingService';
 import BoundingBoxModal from './BoundingBoxModal';
 import { RouteCoordinatesType, RouteDataType, WayPointType } from './type';
+import Breadcrumb from "Components/Common/Breadcrumb";
+import Notification from "Components/Common/Notification";
 
-import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import RBush from 'rbush';
+import bbox from '@turf/bbox';
+import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { useDispatch } from "react-redux";
 
+// default route's speed limit 40km/h
 const defaultSpeedLimit = 40;
+// default route's line color - 'green'
 const defaultColor = '#00ff00';
-const AutoRouting = () => {
+// fastest indexing with the large geojson file
+const index = new RBush();
 
+const AutoRouting = () => {
+    // Set Page Title as a 'Auto Routing'
     document.title = "Auto Routing | FMS Live";
 
     const mapContainer = useRef(null);
@@ -39,53 +47,25 @@ const AutoRouting = () => {
     const [routePoints, setRoutePoints] = useState<[number, number, number][]>([]);
     const routeMarkers = useRef<mapboxgl.Marker[]>([]);
     const [routeAllMarkers, setRouteAllMarkers] = useState<RouteCoordinatesType[]>([]);
-    const currentRoute = useRef<number>(0);
+    const currentRoute = useRef<number>(1);
     const [routeData, setRouteData] = useState<RouteDataType[] | null>(null);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-    const dispatch: any = useDispatch();
-
-    const fetchGeoJSON = useCallback((geojsonData: turf.AllGeoJSON) => {
-        if (!geojsonData) return;
-        
-        mapRef.current?.addSource('geojson-data', {
-            type: 'geojson',
-            data: geojsonData
-        });
-
-        mapRef.current?.addLayer({
-            id: 'geojson-layer',
-            type: 'fill-extrusion',
-            source: 'geojson-data',
-            paint: {
-                'fill-extrusion-color': ['get', 'color'],
-                // 'fill-extrusion-height': ['get', 'height'],
-                'fill-extrusion-base': 0, // Optional: Set base height
-                'fill-extrusion-opacity': .5
-            }
-        });
-        mapRef.current?.addLayer({
-            id: 'geojson-line-layer',
-            type: 'line',
-            source: 'geojson-data',
-            paint: {
-                'line-color': ['get', 'color'],
-                'line-width': 2,
-            }
-        });
-    }, [])
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const geojsonData = useRef<any>();
 
     useEffect(() => {
+        // get routeData
+        fetchRouteData();
         if (mapRef.current) return; // Initialize map only once
-        mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoiaG1lc3VwcG9ydCIsImEiOiJjbHp1eTRibDAwMG05MmpvczE1ZHdham5qIn0.ZoE3pSipzwdf-0TkY3ezzw';
+        mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
 
         if (mapRef.current) return; // initialize map only once
 
         mapRef.current = new mapboxgl.Map({
             container: mapContainer.current!,
-            style: 'mapbox://styles/mapbox/standard-satellite',
+            style: 'mapbox://styles/mykytas/cm0o2duin00ga01pw7e6s5gj1', //'mapbox://styles/mapbox/standard-satellite',
             center: [lng, lat],
-            zoom: 15, // Adjust zoom level
+            zoom: 18, // Adjust zoom level
             interactive: true,
             pitch: 45,
             bearing:150,
@@ -94,30 +74,19 @@ const AutoRouting = () => {
 
         });
 
-        // parameters to ensure the model is georeferenced correctly on the map
-        const modelOrigin: LngLatLike = [lng, lat];
-        const modelAltitude = 0;
-        const modelRotate = [Math.PI / 2, 0, 0];
-
-        const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-            modelOrigin,
-            modelAltitude
-        );
-
-
         mapRef.current.addControl(new mapboxgl.ScaleControl());
         mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
         mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-        // const drawControl = new MapboxDraw({ defaultMode: 'draw_polygon' })
-        // mapRef.current.addControl(drawControl);
-        // mapRef.current.on('draw.create', updateArea);
-        // function updateArea(e) {
-        //     console.log(e)
-        // }
-
         mapRef.current.on('style.load', () => {
+            mapRef.current?.addSource('mapbox-terrain-rgb', {
+                type: 'raster-dem',
+                url: 'mapbox://mapbox.terrain-rgb',
+                tileSize: 512,
+                maxzoom: 15,
+            });
             
+            mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
         });
 
         mapRef.current.on('zoom', () => {
@@ -125,12 +94,25 @@ const AutoRouting = () => {
         });
 
         mapRef.current.on('load', () => {
-            // fetch('./240817_Pits_3D_WGS84.geojson')
-            //     .then(response => response.json())
-            //     .then((geojsonData: turf.AllGeoJSON) => {
-            //         fetchGeoJSON(geojsonData)
-            //     })
-            //     .catch(error => console.error('Error loading GeoJSON data:', error));
+            // Get 3D pit geojson data for calculating elevation
+            fetch('./240817_Pits_3D_WGS84.geojson')
+                .then(response => response.json())
+                .then((_geojsonData: turf.AllGeoJSON) => {
+                    geojsonData.current = _geojsonData
+
+                    _.map(geojsonData.current.features, (feature) => {
+                        const bounds = bbox(feature);
+                        const item = {
+                            minX: bounds[0],
+                            minY: bounds[1],
+                            maxX: bounds[2],
+                            maxY: bounds[3],
+                            feature: feature
+                        };
+                        index.insert(item);
+                    });
+                })
+                .catch(error => console.error('Error loading GeoJSON data:', error));
         });
         
         mapRef.current.on('click', handleMapClick);
@@ -143,6 +125,39 @@ const AutoRouting = () => {
         };
     }, []);
 
+    const fetchRouteData = async () => {
+        try {
+            const response = await getRoutesFromDB();
+            if (response.length != 0) {
+                const _routeData = _.map(response, route => {
+                    return {
+                        id: route.id,
+                        name: route.name,
+                        speedLimits: route.speedLimits,
+                        geoJson: route.geoJson,
+                        distance: route.distance,
+                        duration: route.duration,
+                        color: route.color
+                    }
+                })
+                setRouteData(_routeData);
+                _.map(_routeData, _route => {
+                    drawRoute(_route, 4, _route.color)
+                    const newRouteMarker = {
+                        coordinates: _route.geoJson.geometry.coordinates as [number, number][],
+                        speedlimit: _route.speedLimits,
+                        color: _route.color,
+                        markers: [],
+                        routeNumber: _route.id
+                    }
+                    setRouteAllMarkers([...routeAllMarkers, newRouteMarker]);
+                })
+                currentRoute.current = _routeData.length + 1
+            }
+        }catch (error) {
+            console.error(error);
+        }
+    }
     const isNearPreviousPoint = (coords: [number, number], prevCoords: [number, number] | null, threshold: number) => {
         if (!prevCoords) return false;
         const distance = Math.sqrt(Math.pow(prevCoords[0] - coords[0], 2) + Math.pow(prevCoords[1] - coords[1], 2));
@@ -151,8 +166,8 @@ const AutoRouting = () => {
     const isNearExistingPoint = useCallback((coords: [number, number], threshold: number) => {
         let new_coord: [number, number] | null = null;
         let flag = false
-        routeAllMarkers.map(_route => {
-            _route.coordinates.map(_coord => {
+        _.map(routeAllMarkers, _route => {
+            _.map(_route.coordinates, _coord => {
                 const distance = Math.sqrt(Math.pow(_coord[0] - coords[0], 2) + Math.pow(_coord[1] - coords[1], 2));
                 if (distance < threshold) {
                     new_coord = _coord as [number, number];
@@ -162,7 +177,7 @@ const AutoRouting = () => {
         })
 
         if (!flag) {
-            coordinates.map(coordinate => {
+            _.map(coordinates, coordinate => {
                 const distance = Math.sqrt(Math.pow(coordinate[0] - coords[0], 2) + Math.pow(coordinate[1] - coords[1], 2));
                 if (distance < threshold) {
                     new_coord = coordinate as [number, number];
@@ -172,24 +187,55 @@ const AutoRouting = () => {
         return new_coord;
     }, [routeAllMarkers, coordinates]);
 
+    const calculateCustomElevation = (lngLat: { lng: number; lat: number }) => {
+        const point = [lngLat.lng, lngLat.lat];
+        
+        // Get candidate polygons in the vicinity
+        const candidates = index.search({
+            minX: lngLat.lng,
+            minY: lngLat.lat,
+            maxX: lngLat.lng,
+            maxY: lngLat.lat
+        });
+    
+        let nearestFeature: any = null;
+        let minDistance = Infinity;
+    
+        candidates.forEach((item) => {
+            const isInside = booleanPointInPolygon(point, item.feature.geometry);
+            if (isInside) {
+                nearestFeature = item.feature;
+                return false; // Exit loop early if point is inside a polygon
+            }
+        });
+    
+        if (nearestFeature) {
+            return nearestFeature.properties.height + 420; // Adjust property name if different
+        } else {
+            return null;
+        }
+    };
+
     const handleMapClick = useCallback((e: mapboxgl.MapMouseEvent) => {
         const lngLat: [number, number] = [e.lngLat.lng, e.lngLat.lat];
-
+        const elevation = Math.floor(
+            // Do not use terrain exaggeration to get actual meter values
+            mapRef.current.queryTerrainElevation(lngLat, { exaggerated: false })
+        );
+        console.log(calculateCustomElevation({lng: e.lngLat.lng, lat: e.lngLat.lat}))
         if (drawing) {
             let newCoords = lngLat;
 
-            const proximityThreshold1 = 0.00008; // Adjust this value as per your proximity requirement
+            const proximityThreshold1 = 0.0002; // Adjust this value as per your proximity requirement
             const proximityThreshold2 = 0.00004;
 
             const prevPoint = coordinates.length > 0 ? coordinates[coordinates.length - 1] : null;
-
             if (isNearPreviousPoint(newCoords as [number, number], prevPoint as [number, number], proximityThreshold2)) {
-                toastr.warning('Point is too close to the previous point.');
                 return;
             }
 
             // if it's the first point, choose the existing point near by newCoords
-            let _newCoords = isNearExistingPoint(newCoords as [number, number], proximityThreshold2);
+            let _newCoords = isNearExistingPoint(newCoords as [number, number], !prevPoint ? proximityThreshold1 : proximityThreshold2);
             if (!!_newCoords) {
                 newCoords[0] = _newCoords[0]
                 newCoords[1] = _newCoords[1]
@@ -439,19 +485,21 @@ const AutoRouting = () => {
     }, [coordinates]);
 
     const clearRoute = useCallback(() => {
-        routeMarkers.current.map(_marker => {
+        _.map(routeMarkers.current, _marker => {
             _marker.remove();
         })
         if (mapRef.current && mapRef.current.getLayer('polygon-layer')) {
             mapRef.current.removeLayer('polygon-layer');
         }
+        if (mapRef.current && mapRef.current.getLayer('route-arrows')) {
+            mapRef.current.removeLayer('route-arrows');
+        }
         routeMarkers.current = [];
         setRoutePoints([])
         setCoordinates([])
-        currentRoute.current ++
     }, [])
 
-    const saveRoute = useCallback(() => {
+    const saveRoute = useCallback(async () => {
         if (!mapRef.current) return;
 
         if (coordinates.length > 1) {
@@ -460,72 +508,132 @@ const AutoRouting = () => {
                 .addTo(mapRef.current);
             routeMarkers.current[routeMarkers.current.length - 1].remove();
             routeMarkers.current[routeMarkers.current.length - 1] = updatedRoutePointMarker;
-
-            let saving_data: RouteDataType = {
-                route_id: Date.now().toString(),
-                geometry: {
-                    type: 'LineString',
-                    coordinates: coordinates as [number, number][],
-                },
-                distance: 0,
-                duration: 0,
-                created_at: Date.now().toString(),
-                speed_limits: defaultSpeedLimit,
-                color: color,
-                name: 'New Route'
-            };
-            saving_data = drawRoute(saving_data);
-
-            routeMarkers.current.map(_marker => {
-                _marker.remove();
-            })
-            routeMarkers.current = [];
-            const newRouteMarker = {
-                coordinates: coordinates as [number, number][],
-                speedlimit: saving_data.speed_limits,
-                color: saving_data.color,
-                markers: routeMarkers.current,
-                routeNumber: saving_data.route_id
+            try {
+                let saving_data: any = {
+                    geoJson:{
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: coordinates as [number, number][],
+                        },
+                        type: "Feature",
+                        properties: {}
+                    },
+                    distance: 0,
+                    duration: 0,
+                    speedLimits: defaultSpeedLimit,
+                    color: color,
+                    name: 'New Route ' + currentRoute.current
+                };
+                const response = await postRoutes(JSON.stringify(saving_data));
+                if (response && response.data.id) {
+                    saving_data.id = response.data.id
+                    saving_data = drawRoute(saving_data);
+        
+                    _.map(routeMarkers.current, _marker => {
+                        _marker.remove();
+                    })
+                    routeMarkers.current = [];
+                    const newRouteMarker = {
+                        coordinates: coordinates as [number, number][],
+                        speedlimit: saving_data.speedLimits,
+                        color: saving_data.color,
+                        markers: routeMarkers.current,
+                        routeNumber: saving_data.id
+                    }
+                    setCoordinates([]);
+                    routeData && saving_data ? setRouteData([...routeData, saving_data]) : setRouteData([saving_data])
+                    setRouteAllMarkers([...routeAllMarkers, newRouteMarker]);
+                    setAllCoordinates([...allCoordinates, coordinates]);
+                    setDrawing(false);
+                    currentRoute.current ++
+                    setErrorMessage('New Route saved successfully!')
+                    return saving_data;
+                }
+            }catch (error) {
+                console.error(error);
             }
-            setCoordinates([]);
-            routeData && saving_data ? setRouteData([...routeData, saving_data]) : setRouteData([saving_data])
-            setRouteAllMarkers([...routeAllMarkers, newRouteMarker]);
-            setAllCoordinates([...allCoordinates, coordinates]);
-            setDrawing(false);
             
-            return saving_data;
         }
     }, [coordinates, allCoordinates, routeAllMarkers])
 
-    const removeRoute = useCallback((route: RouteDataType) => {
-        if (routeData !== null && route !== null && routeAllMarkers !== null) {
-            const updatedRouteData = routeData.filter(_route => route.route_id !== _route.route_id);
-            setRouteData(updatedRouteData);
-
-            const updatedRouteAllMarkers = routeAllMarkers.filter(_marker => _marker.routeNumber !== route.route_id)
-            setRouteAllMarkers(updatedRouteAllMarkers)
-        }
-        const sourceId = route.route_id + '-source';
-        const layerId = route.route_id + '-layer';
-        const arrowLayerId = route.route_id + '-route-arrows';
-        const mapSource = mapRef.current?.getSource(sourceId);
-        (mapSource as mapboxgl.GeoJSONSource).setData('');
-        if (mapRef.current?.getLayer(layerId)){
-            mapRef.current?.removeLayer(layerId);
-        }
-        if (mapRef.current?.getLayer(arrowLayerId)){
-            mapRef.current?.removeLayer(arrowLayerId);
-        }
-        if (mapRef.current?.getSource(sourceId)) {
-            mapRef.current?.removeSource(sourceId);
-        }
-        if (mapRef.current && mapRef.current.getLayer('polygon-layer')) {
-            mapRef.current.removeLayer('polygon-layer');
-        }
-        if (mapRef.current && mapRef.current.getLayer('route-arrows')) {
-            mapRef.current.removeLayer('route-arrows');
+    const removeRoute = useCallback(async (route: RouteDataType) => {
+        if (!route.id) return
+        try {
+            const response = await deleteRoutes(route.id)
+            if (routeData !== null && route !== null && routeAllMarkers !== null) {
+                const updatedRouteData = _.filter(routeData, _route => response.data !== _route.id);
+                setRouteData(updatedRouteData);
+    
+                const updatedRouteAllMarkers = _.filter(routeAllMarkers, _marker => _marker.routeNumber !== response.data)
+                setRouteAllMarkers(updatedRouteAllMarkers)
+            }
+            const sourceId = response.data + '-source';
+            const layerId = response.data + '-layer';
+            const arrowLayerId = response.data + '-route-arrows';
+            const mapSource = mapRef.current?.getSource(sourceId);
+            (mapSource as mapboxgl.GeoJSONSource).setData('');
+            if (mapRef.current?.getLayer(layerId)){
+                mapRef.current?.removeLayer(layerId);
+            }
+            if (mapRef.current?.getLayer(arrowLayerId)){
+                mapRef.current?.removeLayer(arrowLayerId);
+            }
+            if (mapRef.current?.getSource(sourceId)) {
+                mapRef.current?.removeSource(sourceId);
+            }
+            if (mapRef.current && mapRef.current.getLayer('polygon-layer')) {
+                mapRef.current.removeLayer('polygon-layer');
+            }
+            if (mapRef.current && mapRef.current.getLayer('route-arrows')) {
+                mapRef.current.removeLayer('route-arrows');
+            }
+            setErrorMessage(route.name + ' removed successfully!')
+        } catch (error) {
+            console.log(error)
         }
     }, [routeData, routeAllMarkers, mapRef])
+
+    const [saving_data, setSavingData] = useState<RouteDataType | null>(null);
+    
+    useEffect(() => {
+        // show edit modal when clicking the line in the map
+        const map = mapRef.current;
+        if (!map || !saving_data || !routeData || routeData.length === 0) return;
+    
+        const layerIds: string[] = [];
+        _.map(routeData, _route => {
+            const layerId = `${_route.id}-layer`;
+            layerIds.push(layerId)
+        });
+    
+        const handleDoubleClick = (e: any) => {
+            e.preventDefault();
+            const clickedFeatures = e.features;
+            const layerId = clickedFeatures[0].layer.id
+            if (clickedFeatures && clickedFeatures.length > 0) {
+                const _route = _.find(routeData, route => route.id === layerId.substr(0, layerId.length - 6));
+                if (!_route) return;
+    
+                setEditingRouteId(_route.id);
+                setNewTitle(_route.name || '');
+                setSpeedLimit(_route.speedLimits);
+                setNewColor(_route.color);
+                setIsModalOpen(true);
+            }
+        };
+    
+        _.map(layerIds, layerId => {
+            map.on('dblclick', layerId, handleDoubleClick);
+        });
+    
+        return () => {
+            _.map(layerIds, layerId => {
+                if (map.getLayer(layerId)) {
+                    map.off('dblclick', layerId, handleDoubleClick);
+                }
+            });
+        };
+    }, [routeData, saving_data]);
 
     const drawRoute = useCallback((saving_data: RouteDataType, routeWidth: number = 4, _color: string = color, animation: boolean = false): RouteDataType => {
         if (!mapRef.current) return saving_data;
@@ -540,14 +648,14 @@ const AutoRouting = () => {
         const segments: any = [];
 
         // Assuming `saving_data.geometry.coordinates` is an array of coordinates along the route
-        const _coordinates = saving_data.geometry.coordinates as [number, number][];
+        const _coordinates = saving_data.geoJson.geometry.coordinates as [number, number][];
         const pinRoute = _coordinates;
         
         // Loop through the coordinates and create segments
         for (let i = 1; i < _coordinates.length; i++) {
             segments.push({
                 coordinates: [_coordinates[i - 1], _coordinates[i]],
-                color: saving_data.colors ? saving_data.colors[i] : color // Use segment-specific color or fallback to default color
+                color: saving_data.colors ? saving_data.colors[i] : _color // Use segment-specific color or fallback to default color
             });
         }
         
@@ -558,15 +666,15 @@ const AutoRouting = () => {
             mapRef.current?.removeSource("line-source");
         }
 
-        const sourceId = saving_data.route_id + '-source';
-        const layerId = saving_data.route_id + '-layer';
-        const arrowLayerId = saving_data.route_id + '-route-arrows';
+        const sourceId = saving_data.id + '-source';
+        const layerId = saving_data.id + '-layer';
+        const arrowLayerId = saving_data.id + '-route-arrows';
 
         if (mapRef.current.getSource(sourceId)) {
             // Update the data for the existing source
             const data: any = {
                 type: 'FeatureCollection',
-                features: segments.map((segment: any) => ({
+                features: _.map(segments, (segment: any) => ({
                     type: 'Feature',
                     geometry: {
                         type: 'LineString',
@@ -586,7 +694,7 @@ const AutoRouting = () => {
                 type: 'geojson',
                 data: {
                     type: 'FeatureCollection',
-                    features: segments.map((segment: any) => ({
+                    features: _.map(segments, (segment: any) => ({
                         type: 'Feature',
                         geometry: {
                             type: 'LineString',
@@ -630,17 +738,8 @@ const AutoRouting = () => {
                 'text-color': '#ffffff',
             },
         });
-        mapRef.current.on('dblclick', layerId, (e) => {
-            e.preventDefault();
-            if (e.features.length > 0) {
-                const coordinates = e.features[0].geometry.coordinates;
-                setEditingRouteId(saving_data.route_id);
-                setNewTitle(saving_data.name ? saving_data.name : '');
-                setSpeedLimit(saving_data.speed_limits);
-                setNewColor(saving_data.color)
-                setIsModalOpen(true);
-            }
-        });
+        setSavingData(saving_data)
+
         mapRef.current.on('mouseenter', layerId, () => {
             mapRef.current.getCanvas().style.cursor = 'pointer';
         });
@@ -650,12 +749,11 @@ const AutoRouting = () => {
             mapRef.current.getCanvas().style.cursor = '';
         });
         // Adjust map view to fit the route
-        
         let popup;
         let marker;
         if (animation) {
             const bounds = new mapboxgl.LngLatBounds();
-            saving_data.geometry.coordinates?.forEach((coord: any) => bounds.extend(coord));
+            saving_data.geoJson.geometry.coordinates?.forEach((coord: any) => bounds.extend(coord));
             mapRef.current?.fitBounds(bounds, { padding: 50 });
             popup = new mapboxgl.Popup({ closeButton: false });
             const el = document.createElement('div');
@@ -682,12 +780,12 @@ const AutoRouting = () => {
 
         // get total duration of the travel
         if (wayPoints.length == 0) {
-            saving_data.duration = Math.floor(total_distance / (saving_data.speed_limits / 3.6));
+            saving_data.duration = Math.floor(total_distance / (saving_data.speedLimits / 3.6));
         }
         else{
-            saving_data.duration = calculateTotalDuration(pinRoute as [number, number][], wayPoints, saving_data.speed_limits);
+            saving_data.duration = calculateTotalDuration(pinRoute as [number, number][], wayPoints, saving_data.speedLimits);
         }
-        const diff = animation ? 50 : total_distance;
+        const diff = animation ? 30 : total_distance;
         const duration = Math.ceil(total_distance / diff) * 1000; // animation duration in ms with total distance
         const animateMarker = (timestamp: any) => {
             // Remove destination marker
@@ -720,8 +818,13 @@ const AutoRouting = () => {
             updateRoute(progress, total_distance, segments);
             
             if (animation) {
+                // prevent showing a lot of digits during the animation
+                const elevation = Math.floor(
+                    // Do not use terrain exaggeration to get actual meter values
+                    calculateCustomElevation({lng: lng, lat: lat})
+                );
                 marker.setLngLat([lng, lat]);
-                popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>');
+                popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm');
             }
         
             if (progress < 1) {
@@ -771,12 +874,12 @@ const AutoRouting = () => {
                 }
             }
         
-            const mapSource = mapRef.current?.getSource(saving_data.route_id + '-source');
+            const mapSource = mapRef.current?.getSource(saving_data.id + '-source');
             
             if (mapSource && 'setData' in mapSource) {
                 const updatedGeoJSON: any = {
                     type: 'FeatureCollection',
-                    features: updatedSegments.map((segment: any) => ({
+                    features: _.map(updatedSegments, (segment: any) => ({
                         type: 'Feature',
                         geometry: {
                             type: 'LineString',
@@ -784,10 +887,6 @@ const AutoRouting = () => {
                         },
                         properties: {
                             color: segment.color,
-                            'line-width': {
-                                'base': 1.5,
-                                'stops': [[1, 0.5], [8, 3], [15, 6], [22, 8]]
-                            }
                         }
                     }))
                 };
@@ -799,7 +898,7 @@ const AutoRouting = () => {
         requestAnimationFrame(animateMarker);
 
         return saving_data;
-    }, [startPoint, endPoint, wayPoints, color, setStartPoint, setEndPoint, setWayPoints]);
+    }, [startPoint, endPoint, wayPoints, color, setStartPoint, setEndPoint, setWayPoints, routeData]);
 
     useEffect(() => {
         if (mapRef.current) {
@@ -892,9 +991,9 @@ const AutoRouting = () => {
         transform: 'translate(-50%, -50%)'
     };
     const handleTitleClick = useCallback((route: RouteDataType) => {
-        setEditingRouteId(route.route_id);
+        setEditingRouteId(route.id);
         setNewTitle(route.name ? route.name : '');
-        setSpeedLimit(route.speed_limits);
+        setSpeedLimit(route.speedLimits);
         setNewColor(route.color)
         setIsModalOpen(true);
     }, [newColor, editingRouteId, speedLimit, newTitle]);
@@ -910,36 +1009,48 @@ const AutoRouting = () => {
         setSpeedLimit(parseFloat(event.target.value))
     }, [speedLimit])
 
-    const handleSave = useCallback(() => {
-        if (editingRouteId !== null && routeData) {
-            setRouteData(routeData.map(route =>
-                route.route_id === editingRouteId ? { ...route, name: newTitle, speed_limits: speedLimit, color: newColor } : route
-            ));
-            setEditingRouteId(null);
-            setIsModalOpen(false);
+    const handleSave = useCallback(async () => {
+        try {
+            if (editingRouteId !== null && routeData) {
+                let saving_data = _?.find(routeData, _route => editingRouteId === _route.id)
+                if (!saving_data) return;
+                saving_data.speedLimits = speedLimit
+                saving_data.color = newColor
+                saving_data.name = newTitle
+                const { id, ...rest } = saving_data;
+                const response = await putRoutes(editingRouteId, rest);
+                if (response.data && response.data.id) {
+                    setRouteData(_.map(routeData, route =>
+                        route.id === editingRouteId ? { ...route, name: newTitle, speedLimits: speedLimit, color: newColor } : route
+                    ));
+                    setEditingRouteId(null);
+                    setIsModalOpen(false);
+                    const sourceId = saving_data.id + '-source';
+                    if (mapRef.current.getSource(sourceId)) {
+                        // Update the data for the existing source
+                        const data: any = {
+                            type: 'FeatureCollection',
+                            features: _?.map(saving_data.geoJson.geometry.coordinates, (segment: any) => ({
+                                type: 'Feature',
+                                geometry: {
+                                    type: 'LineString',
+                                    coordinates: saving_data.geoJson.geometry.coordinates
+                                },
+                                properties: {
+                                    color: newColor,
+                                    'line-width': 5
+                                }
+                            }))
+                        };
+        
+                        (mapRef.current.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(data);
+                    }
 
-            const saving_data = routeData?.find(_route => editingRouteId === _route.route_id)
-            if (!saving_data) return;
-            const sourceId = saving_data.route_id + '-source';
-            if (mapRef.current.getSource(sourceId)) {
-                // Update the data for the existing source
-                const data: any = {
-                    type: 'FeatureCollection',
-                    features: saving_data.geometry.coordinates?.map((segment: any) => ({
-                        type: 'Feature',
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: saving_data.geometry.coordinates
-                        },
-                        properties: {
-                            color: newColor,
-                            'line-width': 5
-                        }
-                    }))
-                };
-
-                (mapRef.current.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(data);
+                    setErrorMessage(newTitle + ' saved successfully!')
+                }
             }
+        } catch (error) {
+            console.log(error)
         }
     }, [editingRouteId, routeData, newTitle, speedLimit, newColor]);
 
@@ -948,40 +1059,72 @@ const AutoRouting = () => {
     }, [newColor]);
 
 
-    const saveRoads = useCallback(() => {
+    const saveRoads = useCallback(async () => {
+        console.log(routeData)
         if (!routeData || routeData.length === 0) return;
+        try {
+            const response = await postRoutes(routeData[0]);
+            setErrorMessage('Successfully saved!')
+        }catch (error) {
+            console.error(error);
+        }
     }, [routeData])
 
+    const shortestRoutes = useRef<string[]>([]);
     const calculateShortestRoute = useCallback(() => {
         if (!routeData || !startPoint || !endPoint) return;
         const response = getRoutes(routeData, startPoint, endPoint.coordinates)
         if (!response) return;
-        // console.log(routeData)
+
         if (!response.route || response.route.length == 0) return;
         const points: [number, number][] = [];
         const colors: (string | null)[] = [];
-        response.route.map(item => {
+        _.map(response.route, item => {
             points.push(item.point);
             colors.push(item.color);
         });
 
         let saving_data: RouteDataType = {
-            route_id: Date.now().toString(),
-            geometry: {
-                type: 'LineString',
-                coordinates: points,
+            id: Date.now().toString(),
+            geoJson: {
+                geometry: {
+                    type: 'LineString',
+                    coordinates: points,
+                },
+                type: 'Feature',
+                properties: {}
             },
             distance: 0,
             duration: 0,
-            created_at: Date.now().toString(),
-            speed_limits: 0,
+            speedLimits: 0,
             colors: colors,
             color: ''
         };
         drawRoute(saving_data, 8, '', true);
-
+        if (saving_data.id) {
+            // this code is for clearing the map
+            shortestRoutes.current.push(saving_data?.id)
+        }
     }, [routeData, startPoint, endPoint]);
 
+    const removeShortestRoute = useCallback(() => {
+        if (!shortestRoutes.current || shortestRoutes.current.length == 0) return
+
+        _.map(shortestRoutes.current, _short => {
+            const arrowLayerId = _short + '-route-arrows';
+            const sourceId = _short + '-source';
+            const layerId = _short + '-layer';
+            if (mapRef.current && mapRef.current.getLayer(arrowLayerId)) {
+                mapRef.current.removeLayer(arrowLayerId);
+            }
+            if (mapRef.current && mapRef.current.getLayer(layerId)) {
+                mapRef.current.removeLayer(layerId);
+            }
+            if (mapRef.current && mapRef.current.getSource(sourceId)) {
+                mapRef.current.removeSource(sourceId);
+            }
+        })
+    }, [mapRef])
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -1009,9 +1152,9 @@ const AutoRouting = () => {
     useEffect(() => {
         if (!mapRef.current || !routeData || routeData.length == 0) return;
         const visibility = !showRoads ? 'none' : 'visible';
-        routeData.map(_route => {
-            const layerId = _route.route_id + '-layer';
-            const arrowLayerId = _route.route_id + '-route-arrows';
+        _.map(routeData, _route => {
+            const layerId = _route.id + '-layer';
+            const arrowLayerId = _route.id + '-route-arrows';
             mapRef.current.setLayoutProperty(layerId, 'visibility', visibility);
             mapRef.current.setLayoutProperty(arrowLayerId, 'visibility', visibility);
         })
@@ -1020,9 +1163,10 @@ const AutoRouting = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
+                <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Auto Routing" />
                     <Row>
                         <Col md="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <div ref={mapContainer} className="map-container" style={{ height: 800, width: '80%' }} >
+                            <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 200px)', width: '80%' }} >
                             <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-bounding-box-group'>
                                     <Tooltip title="Set Bounding Box">
                                         <button 
@@ -1086,9 +1230,17 @@ const AutoRouting = () => {
                                                 <i className="fas fa-truck" onClick={calculateShortestRoute}></i>
                                         </button>
                                     </Tooltip>
+                                    <Tooltip title="Clear Map">
+                                        <button 
+                                            className="mapboxgl-ctrl-zoom-in" 
+                                            type="button" 
+                                            onClick={removeShortestRoute}>
+                                                <i className="fas fa-broom"></i>
+                                        </button>
+                                    </Tooltip>
                                 </div>
                             </div>
-                            <div style={{ height: 800, width: '20%', marginLeft: '15px', background: '#282e3e' }}>
+                            <div style={{ height: 'calc(100vh - 200px)', width: '20%', marginLeft: '15px', background: '#282e3e' }}>
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', color: 'gold', margin: '10px'}}>
                                     Routes
                                     <Button onClick={() => setDrawing(!drawing)} type={'primary'}>
@@ -1096,23 +1248,20 @@ const AutoRouting = () => {
                                     </Button>
                                 </div>
                                 <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
-                                {routeData && routeData.map((route: RouteDataType) => {
-                                    return <>
-                                        <div className='route-item' key={route.route_id} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '30px', fontSize: '13px'}}>
-                                            <span onDoubleClick={() => handleTitleClick(route)} style={{ color: 'white' }}>
-                                                <span style={{color: route.color}}>{route.name}</span>,<span style={{color: 'gold'}}> {route.distance}(m)</span>
-                                            </span>
+                                    {routeData && _.map(routeData, (route: RouteDataType) => {
+                                        return <>
+                                            <div className='route-item' key={route.id} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '30px', fontSize: '13px'}}>
+                                                <span onDoubleClick={() => handleTitleClick(route)} style={{ color: 'white' }}>
+                                                    <span style={{color: route.color}}>{route.name}</span>,<span style={{color: 'gold'}}> {route.distance}(m)</span>
+                                                </span>
 
-                                            <i className="bx bx-trash" onClick={() => removeRoute(route)}></i>
-                                        </div>
-                                    </>
-                                })}
+                                                <i className="bx bx-trash" onClick={() => removeRoute(route)}></i>
+                                            </div>
+                                        </>
+                                    })}
                                 </div>
                                 <div style={{position: 'relative', height: '50px'}}>
-                                    <Button type='primary' danger style={{width: '50%', bottom: '5px', position: 'absolute'}} onClick={saveRoads}>
-                                        Save Routes
-                                    </Button>
-                                    <Button type='primary' style={{width: '50%', bottom: '5px', right: '0px', position: 'absolute'}} onClick={() => setShowRoads(!showRoads)}>
+                                    <Button type='primary' style={{width: '100%', bottom: '5px', right: '0px', position: 'absolute'}} onClick={() => setShowRoads(!showRoads)}>
                                         {showRoads ? 'Hide Routes' : 'Show Routes'}
                                     </Button>
                                 </div>
@@ -1156,10 +1305,6 @@ const AutoRouting = () => {
                         onChange={handleColorChange}
                         style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
                     />
-                    {/* <SketchPicker
-                        color={newColor}
-                        onChangeComplete={handleColorChange}
-                    /> */}
                 </ModalBody>
                 <ModalFooter>
                     <Button type="primary" onClick={handleSave} style={{ marginRight: '10px' }}>Save</Button>
@@ -1170,6 +1315,11 @@ const AutoRouting = () => {
                 isVisible={isModalVisible}
                 handleOk={handleOk}
                 handleCancel={hideBoundingBox}
+            />
+            <Notification
+                type={"success"}
+                message={errorMessage}
+                onClose={() => setErrorMessage("")}
             />
         </React.Fragment>
     );
