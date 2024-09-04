@@ -12,6 +12,7 @@ import Fleet from "Pages/Fleet";
 import Trackers from "Pages/Trackers";
 import Map from "Pages/Map";
 import Dispatch from "Pages/Dispatch";
+import DispatchLive from "Pages/DispatchLive";
 import Dashboard from "Pages/Dashboard";
 import MaterialInventory from "Pages/MaterialInventory";
 import Geofences from "Pages/Geofences";
@@ -21,6 +22,7 @@ import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
 import FleetTimeline from "Pages/FleetTimeline";
 import Target from "Pages/Targets";
+import GanttScheduler from "Pages/GanttScheduler";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -32,6 +34,7 @@ import DigBlockLayout from "Pages/DigBlockLayout";
 import DailyProductionDahboard from "Pages/Daily Production";
 import TruckingDashboard from "Pages/Trucking";
 import FuelStatusDashboard from "Pages/Fuel Status";
+import { Component } from "react";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -49,6 +52,8 @@ const authProtectedRoutes = [
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
+  { path: "/gantt-scheduler", exact: true, component: <GanttScheduler />},
+  { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },

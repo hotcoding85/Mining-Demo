@@ -60,6 +60,8 @@
     "react-color": "^2.19.3",
     "react-countdown": "^2.3.2",
     "react-datepicker": "^4.24.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
     "react-drag-listview": "^2.0.0",

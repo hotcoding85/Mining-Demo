@@ -1,0 +1,24 @@
+.shift-selector {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .shift-button {
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .shift-button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff !important;
+  }
+  
+  .shift-button:hover {
+    background-color: #e0e0e0;
+  }
+  

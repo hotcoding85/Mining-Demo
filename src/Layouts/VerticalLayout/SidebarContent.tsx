@@ -171,6 +171,9 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
+                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
+                </li>
+                <li>
                   <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
                 </li>
                 <li>
