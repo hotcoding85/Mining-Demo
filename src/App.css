@@ -28,7 +28,13 @@
   color: #61dafb;
 }
 
-
+.auth-logo > img{
+  max-width: 250px;
+  width: 100%;
+}
+.mapboxgl-ctrl-scale, .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib-inner{
+  display: none !important;
+}
 body[data-layout-mode="dark"] {
   .customSegmentBackground {
     background-color: #283655;
@@ -101,7 +107,7 @@ body[data-layout-mode="light"] {
   position: absolute;
   z-index: 9;
   right: 10px;
-  top: 300px;
+  top: 335px;
 }
 .my-bounding-box-group{
   position: absolute;
