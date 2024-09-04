@@ -161,6 +161,12 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
                 </li>
+                <li>
+                  <Link to="/operator-report">{props.t("Operator Report")}</Link>
+                </li>
+                <li>
+                  <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
+                </li>
               </ul>
             </li>
 

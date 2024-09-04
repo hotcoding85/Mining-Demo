@@ -21,6 +21,8 @@ import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
 import FleetTimeline from "Pages/FleetTimeline";
 import Target from "Pages/Targets";
+import OperatorReport from "Pages/OperatorReport";
+import TelemetryReport from "Pages/TelemetryReport";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -98,7 +100,9 @@ const authProtectedRoutes = [
   { path: "/pit-view", exact: true, component: <PitView /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
-  { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> }
+  { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
+  { path: "/operator-report", exact: true, component: <OperatorReport /> },
+  { path: "/telemetry-report", exact: true, component: <TelemetryReport /> }
 ];
 
 const publicRoutes = [
