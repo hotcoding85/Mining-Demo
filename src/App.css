@@ -75,6 +75,14 @@ body[data-layout-mode="light"] {
   cursor: pointer;
 }
 
+.animationmarker{
+  background-image: url('./assets/images/equipment/check_active.png');
+  background-size: cover;
+  width: 43px;
+  height: 30px;
+  cursor: pointer;
+}
+
 .delaymarker {
   background-image: url('./assets/images/equipment/check_delay.png');
   background-size: cover;
@@ -89,6 +97,53 @@ body[data-layout-mode="light"] {
   }
 }
 
+.my-custom-ctrl-group {
+  position: absolute;
+  z-index: 9;
+  right: 10px;
+  top: 300px;
+}
+.my-bounding-box-group{
+  position: absolute;
+  z-index: 9;
+  right: 10px;
+  top: 157px;
+}
+.my-custom-point-group{
+  position: absolute;
+  z-index: 9;
+  right: 10px;
+  top: 197px;
+}
+.mapboxgl-ctrl > button {
+  width: 32px !important;
+  height: 32px !important;
+}
+.ant-color-picker{
+  position: absolute;
+  z-index: 9999999;
+}
+.route-item{
+  color: white;
+  border-bottom: 1px dashed #787878;
+  cursor: pointer;
+}
+.route-item > i {
+  right: 25px;
+  font-size: 20px;
+  position: absolute;
+}
+.route-item:hover {
+  background-color: #212529;
+}
+.arrow-png {
+  width: 20px;
+  height: 20px;
+  background-image: url('./assets/images/right-arrow-svgrepo-com.svg'); /* Use absolute path here */
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform-origin: center;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
