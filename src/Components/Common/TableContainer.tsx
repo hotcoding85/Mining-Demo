@@ -103,6 +103,10 @@ interface TableContainerProps {
   isImportButton?: boolean;
   isCustomPageSize?: boolean;
   isJobListGlobalFilter?: boolean;
+  isDraggable?: boolean;
+  handleOnDragStart?: any;
+  handleOnDragOver?: any;
+  handleOnDrop?: any;
 }
 
 const TableContainer = ({
@@ -127,6 +131,10 @@ const TableContainer = ({
   handleOnAddClick,
   handleOnImportClick,
   isJobListGlobalFilter,
+  isDraggable,
+  handleOnDragStart,
+  handleOnDragOver,
+  handleOnDrop
 }: TableContainerProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -245,7 +253,10 @@ const TableContainer = ({
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <th
+                    <th draggable={isDraggable}
+                      onDragStart={(e) => handleOnDragStart(e, header.index)}
+                      onDragOver={(e) => handleOnDragOver(e, header.index)}
+                      onDrop={(e) => handleOnDrop(e, header.index)}
                       key={header.id}
                       colSpan={header.colSpan}
                       className={`${header.column.columnDef.enableSorting
