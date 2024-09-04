@@ -1,6 +1,3 @@
-import { UTM_ZONE } from "Components/constants/constant";
-import proj4 from "proj4";
-
 interface GeoJSON {
   type: string;
   features: Feature[];
