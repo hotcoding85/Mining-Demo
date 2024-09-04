@@ -38,3 +38,6 @@ export const REPORTS = "/reports";
 
 // CONFIGURATIONS
 export const CONFIGURATIONS = "/configurations";
+
+// AUTO ROUTING
+export const AUTO_ROUTING = "/routes"
