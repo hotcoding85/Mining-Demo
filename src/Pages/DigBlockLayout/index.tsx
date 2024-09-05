@@ -28,7 +28,6 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
-import { strFileToGeoJSON } from "utils/strConverter";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -49,9 +48,12 @@ const DigBlockLayout = (props: any) => {
     })
   );
 
-  const { data } = useSelector(selectProperties);
+  const { data: fences } = useSelector(selectProperties);
 
-  // const data = []//geoJsonData?.map(item => item.properties)
+  const data = fences.map((item) => ({
+    ...item?.location,
+    ...item,
+  }));
 
   useEffect(() => {
     dispatch(getGeoFences());
@@ -94,27 +96,27 @@ const DigBlockLayout = (props: any) => {
     name: isEdit
       ? Yup.string()
       : Yup.string()
-        .min(2, "Bench name must be at least 2 characters")
-        .required("Please enter bench name")
-        .test(
-          "unique",
-          "Bench with this name already exists",
-          async function (value) {
-            if (value && value.length >= 2) {
-              try {
-                const response = await isBenchNameUnique(value);
-                return response.available; // assuming your API returns { available: true } if username is unique
-              } catch (error) {
-                console.error("Error checking name uniqueness:", error);
-                if (error && error["data"] && error["data"]["available"]) {
-                  return true;
+          .min(2, "Bench name must be at least 2 characters")
+          .required("Please enter bench name")
+          .test(
+            "unique",
+            "Bench with this name already exists",
+            async function (value) {
+              if (value && value.length >= 2) {
+                try {
+                  const response = await isBenchNameUnique(value);
+                  return response.available; // assuming your API returns { available: true } if username is unique
+                } catch (error) {
+                  console.error("Error checking name uniqueness:", error);
+                  if (error && error["data"] && error["data"]["available"]) {
+                    return true;
+                  }
+                  return false; // treat as not unique on error
                 }
-                return false; // treat as not unique on error
               }
+              return true;
             }
-            return true;
-          }
-        ),
+          ),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
     status: Yup.string(),
@@ -318,20 +320,15 @@ const DigBlockLayout = (props: any) => {
   };
 
   const handleUploadBenches = async (file) => {
-    strFileToGeoJSON(file, async ({ features }) => {
-      setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      const data = features.map((item) => ({
-        name: item.properties.name,
-        blockId: item.properties.blockId,
-        geoJson: item,
-      }));
+    setIsUploading(true);
 
-      await dispatch(upsertGeoFence({ data: data }));
+    await dispatch(upsertGeoFence(formData));
 
-      setIsUploading(false);
-      importStrModalToggle();
-    });
+    setIsUploading(false);
+    importStrModalToggle();
   };
 
   return (
