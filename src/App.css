@@ -59,6 +59,18 @@ body[data-layout-mode="dark"] {
 
 }
 
+body[data-layout-mode= "dark"] {
+  .dropDownArrow {
+                color: white !important; 
+        }
+}
+
+body[data-layout-mode= "light"] {
+  .dropDownArrow {
+                color: grey !important;
+        }
+}
+
 body[data-layout-mode="light"] {
   .customSegmentBackground {
     background-color: #c3c3c3;
