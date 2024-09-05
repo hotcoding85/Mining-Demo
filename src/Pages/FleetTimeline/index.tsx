@@ -179,7 +179,7 @@ const FleetTimeline = (props: any) => {
                 color = "#008000";
                 break;
             case "DELAY":
-                color = "#FFBF00";
+                color = "#6A32C9";
                 break;
             case "STANDBY":
                 color = "#FFBF00";

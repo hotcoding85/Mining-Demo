@@ -473,8 +473,8 @@ const Target = (props: any) => {
         target.utilization = _.round(target.availability - target.standby, 0);
       }
 
-      target.loads = _.round((target.utilization / target.avgTime), 0);
-      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      target.loads = target.loads ? target.loads : _.round((target.utilization / target.avgTime), 0);
+      target.tonnes = target.tonnes ? target.tonnes : _.round(target.loads * target.avgLoad, 2);
 
       if (!targetsData || !targetsData[0] || !targetsData[0].truckId) {
         targetsData = [{ truckId: truck.id, truckName: truck.name, truckModel: truck.name, truckCategory: truck.category, groupModel: truck.model, availablePer: target.availablePer, availability: target.availability, standby: target.standby, standbyPer: target.standbyPer, utilization: target.utilization, utilizationPer: target.utilizationPer, loads: target.loads, tonnes: target.tonnes, avgLoad: target.avgLoad, avgTime: target.avgTime, id: target.id }]
@@ -522,8 +522,8 @@ const Target = (props: any) => {
 
       target.avgTime = targets[0].truckCategory === 'DUMP_TRUCK' ? avgTripTime : avgLoadTime;
 
-      target.loads = _.round((target.utilization / target.avgTime), 0);
-      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      target.loads = target.loads ? target.loads : _.round((target.utilization / target.avgTime), 0);
+      target.tonnes = target.tonnes ? target.tonnes : _.round(target.loads * target.avgLoad, 2);
       target.truckCategory = targets[0].truckCategory;
       target.truckModel = model;
       target.subRows = targets;
@@ -557,8 +557,9 @@ const Target = (props: any) => {
       target.utilization = _.round(target.availability - target.standby, 0);
       target.utilizationPer = _.round((target.utilization / target.availability) * 100, 0);
 
-      target.loads = _.round((target.utilization / target.avgTime), 0);
-      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      //TODO: UNCOMMENT FOR AUTO CALCULATION
+      // target.loads = _.round((target.utilization / target.avgTime), 0);
+      // target.tonnes = _.round(target.loads * target.avgLoad, 2);
     } else if (columnId === 'utilizationPer' || columnId === 'utilization') {
 
       if (columnId === 'utilizationPer') {
@@ -571,11 +572,13 @@ const Target = (props: any) => {
       target.standby = _.round(target.availability - target.utilization, 0);
       target.standbyPer = _.round((target.standby / target.availability) * 100, 0);
 
-      target.loads = _.round((target.utilization / target.avgTime), 0);
-      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      //TODO: UNCOMMENT FOR AUTO CALCULATION
+      // target.loads = _.round((target.utilization / target.avgTime), 0);
+      // target.tonnes = _.round(target.loads * target.avgLoad, 2);
     } else {
-      target.loads = _.round((target.utilization / target.avgTime), 0);
-      target.tonnes = _.round(target.loads * target.avgLoad, 2);
+      //TODO: UNCOMMENT FOR AUTO CALCULATION
+      // target.loads = _.round((target.utilization / target.avgTime), 0);
+      // target.tonnes = _.round(target.loads * target.avgLoad, 2);
     }
 
     if (depth === 0) {
