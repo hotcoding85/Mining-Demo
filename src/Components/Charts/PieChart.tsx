@@ -33,13 +33,21 @@ interface PieChartProps {
   data: ChartData<"pie">;
   showLegend?: boolean;
   legendsFirst?: boolean;
+  width?: number;
+  height?: number;
+  legendsPosition?: "top" | "bottom";
+  fontStyle?: any;
 }
 
 export const PieChart: React.FC<PieChartProps> = ({
   title,
   data,
+  width,
+  height,
   showLegend = true,
   legendsFirst = false,
+  legendsPosition = "top",
+  fontStyle,
 }) => {
   const options: ChartOptions<"pie"> = {
     responsive: true,
@@ -58,10 +66,11 @@ export const PieChart: React.FC<PieChartProps> = ({
       },
       datalabels: {
         formatter: (value: number) => (value >= 5 ? `${value}%` : ""),
-        color: "#fff",
+        color: fontStyle?.color || "#fff",
         font: {
           weight: "bold",
           size: 10,
+          ...fontStyle,
         },
       },
     },
@@ -69,16 +78,16 @@ export const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <div className="PieChartContainer">
-      {legendsFirst && showLegend && (
+      {legendsPosition === "top" && legendsFirst && showLegend && (
         <div className="LegendContainer2">
           {data.labels!.map((label, index) => (
             <div className="LegendItem2" key={index}>
               <div
                 className="LegendCircle"
                 style={{
-                  backgroundColor: (data.datasets[0].backgroundColor as string[])[
-                    index
-                  ],
+                  backgroundColor: (
+                    data.datasets[0].backgroundColor as string[]
+                  )[index],
                 }}
               />
               <div className="LegendText">{label as string}</div>
@@ -89,16 +98,16 @@ export const PieChart: React.FC<PieChartProps> = ({
       <div className="progress-header" style={{ textAlign: "center" }}>
         {title}
       </div>
-      {!legendsFirst && showLegend && (
+      {legendsPosition === "top" && !legendsFirst && showLegend && (
         <div className="LegendContainer2">
           {data.labels!.map((label, index) => (
             <div className="LegendItem2" key={index}>
               <div
                 className="LegendCircle"
                 style={{
-                  backgroundColor: (data.datasets[0].backgroundColor as string[])[
-                    index
-                  ],
+                  backgroundColor: (
+                    data.datasets[0].backgroundColor as string[]
+                  )[index],
                 }}
               />
               <div className="LegendText">{label as string}</div>
@@ -106,8 +115,24 @@ export const PieChart: React.FC<PieChartProps> = ({
           ))}
         </div>
       )}
-      <Pie data={data} options={options} />
+      <Pie data={data} options={options} width={width} height={height} />
+      {legendsPosition === "bottom" && !legendsFirst && showLegend && (
+        <div className="LegendContainer2 mt-5">
+          {data.labels!.map((label, index) => (
+            <div className="LegendItem2" key={index}>
+              <div
+                className="LegendCircle"
+                style={{
+                  backgroundColor: (
+                    data.datasets[0].backgroundColor as string[]
+                  )[index],
+                }}
+              />
+              <div className="LegendText">{label as string}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
-
