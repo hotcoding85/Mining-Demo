@@ -63,12 +63,24 @@ body[data-layout-mode= "dark"] {
   .dropDownArrow {
                 color: white !important; 
         }
+
+  .ant-select-item-option-selected {
+      background-color: #5e6c86 !important; /*Customize background color of selected item*/
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
 }
 
 body[data-layout-mode= "light"] {
   .dropDownArrow {
                 color: grey !important;
         }
+
+  .ant-select-item-option-selected {
+      background-color: #9A9A9A !important; /* Customize background color of selected item */
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
 }
 
 body[data-layout-mode="light"] {
