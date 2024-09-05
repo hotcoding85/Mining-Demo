@@ -7,9 +7,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { } from "../../Helpers/api_events_helper";
 import { DatePicker, Segmented, Space } from "antd";
-import { shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
+import { msToTime, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
+import _, { forEach } from "lodash";
+import { LaptopOutlined, PropertySafetyOutlined, UserOutlined } from "@ant-design/icons";
 
 const TelemetryReport = (props: any) => {
   document.title = "Telemetry Report | FMS Live";
@@ -75,6 +77,59 @@ const TelemetryReport = (props: any) => {
     //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
+
+  const getContentByState = (state) => {
+
+    let color = "#008000";
+    let displayState = "Standby";
+    switch (state) {
+      case "ACTIVE":
+        color = "#008000";
+        displayState = 'Active';
+        break;
+      case "DELAY":
+        color = "#6A32C9";
+        displayState = 'Delayed';
+        break;
+      case "STANDBY":
+        color = "#FFBF00";
+        displayState = 'Standby';
+        break;
+      case "DOWN":
+        color = "#FF5733";
+        displayState = 'Down';
+        break;
+      default:
+        break;
+    }
+    return { color, displayState };
+  }
+
+  const Chip = ({ label }) => (
+    <span style={{
+      display: 'inline-block',
+      padding: '5px 10px',
+      margin: '2px',
+      borderRadius: '16px',
+      backgroundColor: '#FF5733',
+      color: 'white',
+      fontSize: '12px'
+    }} > {label}</span >
+  );
+
+  const FaultCodeCell = (cellProps) => {
+    const faultCodes = cellProps.row.original.faultCodes;
+    return (
+      <Space direction="horizontal" style={{ width: '100%' }}>
+        {faultCodes && faultCodes.length > 0 ? faultCodes.length === 1 ? <Chip label={faultCodes[0]} /> : <Space><Chip label={faultCodes[0]} /> <div style={{ fontSize: '10px', textAlign: 'left' }} >+ {faultCodes.length - 1} more</div></Space> : ''}
+        {/* {faultCodes.map((code, index) => (
+          <Chip label={code} />
+        ))} */}
+      </Space>
+    );
+  };
+
+
   const columns: TableColumn[] = useMemo(
     () => [
       {
@@ -84,7 +139,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.vehicleName}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.vehicleName}</div>
           )
         }
       },
@@ -94,8 +149,12 @@ const TelemetryReport = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
+          const displayContent = getContentByState(cellProps.row.original.status);
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.status}</div>
+            <Space style={{ alignItems: 'baseline' }}>
+              <div style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></div>
+              <div style={{ textAlign: 'center' }}>{displayContent.displayState}</div>
+            </Space>
           )
         }
       },
@@ -105,10 +164,22 @@ const TelemetryReport = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
+          const syncTimeDiff: any = msToTime(cellProps.row.original.synced);
+          const displayTime = syncTimeDiff.hours === 0 ? `${syncTimeDiff.minutes}m` : `${syncTimeDiff.hours}h${syncTimeDiff.minutes}m`;
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.synced}</div>
+            <Space>
+              {cellProps.row.original.synced > 300 ? <UserOutlined style={{ color: 'red' }} /> : <LaptopOutlined style={{ color: 'green' }} />}
+              <div style={{ textAlign: 'center', color: cellProps.row.original.synced > 300 ? 'red' : 'green' }}>{displayTime}</div>
+            </Space>
           )
         }
+      },
+      {
+        header: "Fault Code",
+        accessorKey: "faultCodes",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cellProps) => <FaultCodeCell {...cellProps} />
       },
       {
         header: "Engine RPM",
@@ -117,7 +188,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.rpm}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.rpm}</div>
           )
         }
       },
@@ -128,7 +199,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.transmission}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.transmission}</div>
           )
         }
       },
@@ -139,7 +210,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.speed}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.speed}</div>
           )
         }
       },
@@ -150,7 +221,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.payload}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.payload}</div>
           )
         }
       },
@@ -161,7 +232,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.engineHours}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.engineHours}</div>
           )
         }
       },
@@ -172,7 +243,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.interval}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.interval}</div>
           )
         }
       },
@@ -183,7 +254,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.blowPressure}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.blowPressure}</div>
           )
         }
       },
@@ -194,7 +265,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.oilTemperature}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.oilTemperature}</div>
           )
         }
       },
@@ -205,18 +276,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.oilPressure}</div>
-          )
-        }
-      },
-      {
-        header: "Fault Code",
-        accessorKey: "faultCodes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div style={{ textAlign:'center' }}>{cellProps.row.original.faultCodes}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.oilPressure}</div>
           )
         }
       }
@@ -226,8 +286,8 @@ const TelemetryReport = (props: any) => {
 
   opReportData = [{
     vehicleName: 'EX201',
-    status: 'Active',
-    synced: '1m',
+    status: 'ACTIVE',
+    synced: 7000,
     rpm: '3500',
     transmission: 'N',
     speed: 'N/A',
@@ -240,9 +300,39 @@ const TelemetryReport = (props: any) => {
     faultCodes: ['C140']
   },
   {
+    vehicleName: 'DT104',
+    status: 'DELAY',
+    synced: 7000,
+    rpm: '200',
+    transmission: '4',
+    speed: '8Km',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C125']
+  },
+  {
     vehicleName: 'DT102',
-    status: 'Down',
-    synced: '3h',
+    status: 'DOWN',
+    synced: 250,
+    rpm: '2700',
+    transmission: '4',
+    speed: '8Km',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: []
+  },
+  {
+    vehicleName: 'DT102',
+    status: 'DOWN',
+    synced: 250,
     rpm: '2700',
     transmission: '4',
     speed: '8Km',
@@ -253,6 +343,21 @@ const TelemetryReport = (props: any) => {
     oilTemperature: '103',
     oilPressure: '18',
     faultCodes: ['C140', 'C125']
+  },
+  {
+    vehicleName: 'DT104',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8Km',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['D579', 'C110', 'C125']
   }];
 
   return (
@@ -285,6 +390,7 @@ const TelemetryReport = (props: any) => {
                     columns={columns}
                     data={opReportData || []}
                     // total={total || 0}
+                    isBordered={false}
                     isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
