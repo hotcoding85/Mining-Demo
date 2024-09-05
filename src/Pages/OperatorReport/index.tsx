@@ -258,6 +258,7 @@ const OperatorReport = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={opReportData || []}
+                    theadClass="theadCenterAlign"
                     // total={total || 0}
                     isGlobalFilter={false}
                     isPagination={false}

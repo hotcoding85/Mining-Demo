@@ -51,6 +51,7 @@ import FuelScheduler from "Pages/FuelScheduler";
 import MessageCentre from "Pages/MessageCentre";
 import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
+import TelemetryDetails from "Pages/TelemetryDetails";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -106,7 +107,8 @@ const authProtectedRoutes = [
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
-  { path: "/telemetry-report", exact: true, component: <TelemetryReport /> }
+  { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
+  { path: "/telemetry-details/:vehicleId", exact: true, component: <TelemetryDetails /> }
 ];
 
 const publicRoutes = [

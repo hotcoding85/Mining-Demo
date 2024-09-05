@@ -1058,6 +1058,7 @@ const Target = (props: any) => {
                     columns={currentTruckColumns}
                     data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : [] || []}
                     total={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'].length : 0}
+                    theadClass="theadCenterAlign"
                     isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
@@ -1074,6 +1075,7 @@ const Target = (props: any) => {
                     columns={diggerColumns}
                     data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : [] || []}
                     total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
+                    theadClass="theadCenterAlign"
                     isGlobalFilter={false}
                     isBordered={false}
                     isPagination={false}

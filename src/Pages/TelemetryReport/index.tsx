@@ -11,8 +11,9 @@ import { getContentByState, msToTime, shiftTimings, shiftTimingsByDateandShift, 
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
 import _, { forEach, indexOf, map } from "lodash";
-import { LaptopOutlined, UserOutlined } from "@ant-design/icons";
+import { EyeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons";
 import "./telemetry.css";
+import { Link } from "react-router-dom";
 
 const TelemetryReport = (props: any) => {
   document.title = "Telemetry Report | FMS Live";
@@ -325,6 +326,23 @@ const TelemetryReport = (props: any) => {
             <div style={{ textAlign: 'center' }}>{cellProps.row.original.oilPressure}</div>
           )
         }
+      },
+      {
+        header: "Actions",
+        enableColumnFilter: false,
+        accessorKey: "actions",
+        enableSorting: false,
+        cell: (cellProps: any) => {
+          const name = `${cellProps.row.original.vehicleName}`
+          const id = cellProps.row.original.id
+          return (
+            <div style={{ textAlign: 'center' }} >
+              <Link to={"/telemetry-details/" + name}>
+                <EyeOutlined />
+              </Link>
+            </div>
+          );
+        }
       }
     ],
     []
@@ -344,6 +362,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: true,
     oilTemperature: true,
     oilPressure: true,
+    actions: true
   };
 
   const [columns, setColumns] = useState(allColumns.filter(column => visibleColumns[column.accessorKey!]));
@@ -353,6 +372,7 @@ const TelemetryReport = (props: any) => {
     Object.keys(visibleColumns).map((key) => {
       _.indexOf(value, key) != -1 ? visibleColumns[key] = true : visibleColumns[key] = false
     })
+    visibleColumns['actions'] = true;
     setColumns(allColumns.filter(column => visibleColumns[column.accessorKey!]));
   }
 
@@ -375,7 +395,7 @@ const TelemetryReport = (props: any) => {
       padding: '5px 10px',
       margin: '2px',
       borderRadius: '16px',
-      backgroundColor: '#FF5733',
+      backgroundColor: 'red',
       color: 'white',
       fontSize: '12px'
     }} > {label}</span >
@@ -385,7 +405,7 @@ const TelemetryReport = (props: any) => {
     const faultCodes = cellProps.row.original.faultCodes;
     return (
       <Space direction="horizontal" style={{ width: '100%' }}>
-        {faultCodes && faultCodes.length > 0 ? faultCodes.length === 1 ? <Chip label={faultCodes[0]} /> : <Space><Chip label={faultCodes[0]} /> <div style={{ fontSize: '10px', textAlign: 'left' }} >+ {faultCodes.length - 1} more</div></Space> : ''}
+        {faultCodes && faultCodes.length > 0 ? faultCodes.length === 1 ? <Chip label={faultCodes[0]} /> : <Space><Chip label={faultCodes[0]} /> <div style={{ fontSize: '10px' }} >+ {faultCodes.length - 1} more</div></Space> : ''}
         {/* {faultCodes.map((code, index) => (
           <Chip label={code} />
         ))} */}
@@ -397,7 +417,9 @@ const TelemetryReport = (props: any) => {
     let children: any = [];
     allColumns.forEach(column => {
       const { Option } = Select;
-      children.push(<Option key={column.accessorKey}> {column.header}</Option >);
+      if (column.accessorKey != 'actions') {
+        children.push(<Option key={column.accessorKey}> {column.header}</Option >);
+      }
     });
     return children;
   }
@@ -447,6 +469,7 @@ const TelemetryReport = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={filteredData || []}
+                    theadClass="theadCenterAlign"
                     // total={total || 0}
                     isBordered={false}
                     isGlobalFilter={false}

@@ -114,7 +114,7 @@ const TableContainer = ({
   data,
   total,
   tableClass = "dt-responsive nowrap w-100 dataTable no-footer dtr-inline",
-  theadClass = "theadCenterAlign",
+  theadClass,
   divClassName,
   isBordered,
   isPagination,
