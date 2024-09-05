@@ -28,7 +28,8 @@ const GanttScheduler = () => {
 
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
-      name: task?.name || 'New Task',
+      name: task?.name || 'Task Name',
+      label: task?.label || 'Task Label',
       startTime,
       endTime,
       resourceId,

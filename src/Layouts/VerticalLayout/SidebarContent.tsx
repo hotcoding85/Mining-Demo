@@ -195,6 +195,9 @@ const SidebarContent = (props: any) => {
                   <Link to="/targets">{props.t("Production Targets")}</Link>
                 </li>
                 <li>
+                  <Link to="/preshift-info">{props.t("Pre Shift Information (PSI)")}</Link>
+                </li>
+                <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
                 </li>
               </ul>
@@ -208,7 +211,7 @@ const SidebarContent = (props: any) => {
               <ul className="sub-menu">
                 <li>
                   <Link to="/daily-production">
-                    {props.t("Daily Production Snapshot")}
+                    {props.t("Daily Snapshot")}
                   </Link>
                 </li>
                 <li>
@@ -290,17 +293,17 @@ const SidebarContent = (props: any) => {
             <li>
               <Link to="/" className="has-arrow">
                 <i className="bx bx-bolt-circle"></i>
-                <span>{props.t("Dynamic Dispatch")}</span>
+                <span>{props.t("Mine Dynamics")}</span>
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/fleet-optimisation">{props.t("Fleet Optimization")}</Link>
-                  {/*
-                    plan with trucks, diggers and operators
-                  */}
+                  <Link to="/fleet-optimisation">{props.t("Haul Road Optimization")}</Link>
                 </li>
                 <li>
-                  <Link to="/auto-routing">{props.t("Auto Routing")}</Link>
+                  <Link to="/auto-routing">{props.t("Haul Route Management")}</Link>
+                </li>
+                <li>
+                  <Link to="/payload-optimisation">{props.t("Payload Optimisation")}</Link>
                 </li>
                 <li>
                   <Link to="/haul-road-intelligence">{props.t("Haul Road Intelligence")}</Link>

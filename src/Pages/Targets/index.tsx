@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import type { DatePickerProps } from 'antd';
 import { DatePicker, Segmented, Space, Select, Button } from 'antd';
 import dayjs, { Dayjs } from "dayjs";
-import { shiftDuration, shifts, shiftsInFormat, shiftTimings } from "../../utils/common";
+import { round2One, round2Two, roundOff, shiftDuration, shifts, shiftsInFormat, shiftTimings } from "../../utils/common";
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
@@ -996,7 +996,7 @@ const Target = (props: any) => {
                             <CardBody >
                               <Row>
                                 <h4 style={{ color: 'grey' }} className='coolContainer'>Truck Tonnes</h4>
-                                <h3 style={{ color: 'green' }}>{`${summary.truckTonnes}t` || 0}</h3>
+                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.truckTonnes)}t` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1008,7 +1008,7 @@ const Target = (props: any) => {
                             <CardBody>
                               <Row>
                                 <h4 style={{ color: 'grey' }}>Truck Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${summary.truckLoads}t` || 0}</h3>
+                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.truckLoads)}t` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1026,7 +1026,7 @@ const Target = (props: any) => {
                             <CardBody>
                               <Row>
                                 <h4 style={{ color: 'grey' }}>Excavator Tonnes</h4>
-                                <h3 style={{ color: 'green' }}>{`${summary.diggerTonnes}t` || 0}</h3>
+                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.diggerTonnes)}t` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1038,7 +1038,7 @@ const Target = (props: any) => {
                             <CardBody>
                               <Row>
                                 <h4 style={{ color: 'grey' }}>Excavator Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${summary.diggerLoads}t` || 0}</h3>
+                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.diggerLoads)}t` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
