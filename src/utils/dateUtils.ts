@@ -62,7 +62,7 @@ export function calculateTimelineSlots(selectedDate: Date, shiftType: string, zo
 
     timeline.push({
       time: formattedTime,
-      date: isNewDay ? formattedDate : '',
+      date: formattedDate,
       isNewDay: isNewDay,
     });
 

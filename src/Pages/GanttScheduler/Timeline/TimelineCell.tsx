@@ -7,6 +7,7 @@ interface TimelineCellProps {
   resourceId: string;
   label: string;
   slotTime: string;
+  slotDate: string;
   selectedDate: Date;
   tasks: Task[];
   updateTask: (updatedTask: Task) => void;
@@ -19,6 +20,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   resourceId,
   label,
   slotTime,
+  slotDate,
   selectedDate,
   tasks,
   updateTask,
@@ -26,18 +28,18 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   slotIndex,
   totalSlots,
 }) => {
-  const slotDate = new Date(selectedDate.getTime());
+  const slotDateTime = new Date(slotDate);
   const [hours, minutes] = slotTime.split(':').map(Number);
-  slotDate.setHours(hours, minutes, 0, 0);
+  slotDateTime.setHours(hours, minutes, 0, 0);
 
   const taskForSlot = tasks.find(
     (task) =>
       task.resourceId === resourceId &&
-      task.startTime <= slotDate &&
-      task.endTime > slotDate
+      task.startTime <= slotDateTime &&
+      task.endTime > slotDateTime
   );
 
-  const isTaskStartSlot = taskForSlot && taskForSlot.startTime.getTime() === slotDate.getTime();
+  const isTaskStartSlot = taskForSlot && taskForSlot.startTime.getTime() === slotDateTime.getTime();
 
   const [isResizing, setIsResizing] = useState(false);
   const [initialX, setInitialX] = useState<number | null>(null);
@@ -130,7 +132,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLTableCellElement>) => {
     if (!isResizing && !taskForSlot) {
-      addTask(resourceId, slotDate);
+      addTask(resourceId, slotDateTime);
     }
   };
 
@@ -147,12 +149,12 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
     accept: 'TASK',
     drop: (draggedTask: Task & { fromList?: boolean }) => {
       if (draggedTask.fromList) {
-        addTask(resourceId, slotDate, draggedTask);
+        addTask(resourceId, slotDateTime, draggedTask);
       } else {
         const durationMinutes =
           (draggedTask.endTime.getTime() - draggedTask.startTime.getTime()) /
           (60 * 1000);
-        const newStartTime = new Date(slotDate);
+        const newStartTime = new Date(slotDateTime);
         const newEndTime = new Date(newStartTime.getTime() + durationMinutes * 60 * 1000);
         const newTask = {
           ...draggedTask,

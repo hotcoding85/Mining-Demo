@@ -25,6 +25,7 @@ const GanttScheduler = () => {
 
   const addTask = (resourceId: string, startTime: Date, task?: Task) => {
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+    console.log(endTime);
 
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
