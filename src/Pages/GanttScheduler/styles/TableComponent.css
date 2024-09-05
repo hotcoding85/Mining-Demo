@@ -89,27 +89,26 @@
 .custom-table td:nth-child(2) {
   border: 1px solid #ddd;
   position: sticky;
-  left: 30px;
+  left: 70px;
   z-index: 3;
   background-color: #f4f4f4;
 }
 
-.custom-table th:nth-child(3),
+/* .custom-table th:nth-child(3),
 .custom-table td:nth-child(3) {
   border: 1px solid #ddd;
   position: sticky;
   left: 100px;
   z-index: 3;
   background-color: #f4f4f4;
-}
+} */
 
 /* When the table is in collapsed mode, move the sticky columns and shift the entire table */
 .collapsed th:nth-child(1),
 .collapsed td:nth-child(1),
 .collapsed th:nth-child(2),
-.collapsed td:nth-child(2),
-.collapsed th:nth-child(3),
-.collapsed td:nth-child(3) {
+.collapsed td:nth-child(2)
+{
   transform: translateX(-510px);
 }
 
@@ -145,9 +144,7 @@
   .custom-table th:nth-child(1),
   .custom-table td:nth-child(1),
   .custom-table th:nth-child(2),
-  .custom-table td:nth-child(2),
-  .custom-table th:nth-child(3),
-  .custom-table td:nth-child(3) {
+  .custom-table td:nth-child(2){
     left: 0;
     z-index: 3;
     transform: none;
@@ -156,9 +153,7 @@
   .collapsed th:nth-child(1),
   .collapsed td:nth-child(1),
   .collapsed th:nth-child(2),
-  .collapsed td:nth-child(2),
-  .collapsed th:nth-child(3),
-  .collapsed td:nth-child(3) {
+  .collapsed td:nth-child(2) {
     transform: translateX(-100%);
   }
 

@@ -39,15 +39,14 @@ const TableComponent: React.FC<TableComponentProps> = ({
 
   return (
     <div className='table-container'>
-      <table style={{width:170+100*timelineSlots.length}}className={`custom-table ${isColumnsCollapsed ? 'collapsed' : ''}`}>
+      <table style={{width:140+100*timelineSlots.length}}className={`custom-table ${isColumnsCollapsed ? 'collapsed' : ''}`}>
         <thead>
           <tr>
-            <th style={{width: 30}}>ID</th>
             <th style={{width: 70}}>Label</th>
             <th style={{width: 70}}>Progress</th>
             {timelineSlots.map((slot, index) => (
               <th key={index} style={{width: 100}}className='timeline-header'>
-                {slot.date ? (
+                {slot.isNewDay ? (
                   <>
                     <div>{slot.date}</div>
                     <div>{slot.time}</div>
@@ -62,7 +61,6 @@ const TableComponent: React.FC<TableComponentProps> = ({
         <tbody>
           {data.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              <td>{row.id}</td>
               <td>{row.label}</td>
               <td>{row.progress}</td>
               {timelineSlots.map((slot, slotIndex) => (
@@ -70,6 +68,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   key={slotIndex}
                   resourceId={row.id}
                   label={row.label}
+                  slotDate={slot.date}
                   slotTime={slot.time}
                   selectedDate={selectedDate}
                   tasks={tasks}
