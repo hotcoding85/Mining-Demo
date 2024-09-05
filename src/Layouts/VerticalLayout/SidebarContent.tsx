@@ -164,9 +164,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/operator-report">{props.t("Operator Report")}</Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
-                </li>
+                </li> */}
               </ul>
             </li>
 
@@ -312,7 +312,7 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="/">
+              <Link to="/telemetry-report">
                 <i className="bx bx-checkbox-square"></i>
                 <span>{props.t("Telemetry Live")}</span>
               </Link>

@@ -84,7 +84,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '100px' }}>{cellProps.row.original.vehicleName}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.vehicleName}</div>
           )
         }
       },
@@ -95,7 +95,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.status}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.status}</div>
           )
         }
       },
@@ -106,7 +106,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.synced}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.synced}</div>
           )
         }
       },
@@ -117,7 +117,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.rpm}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.rpm}</div>
           )
         }
       },
@@ -128,7 +128,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.transmission}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.transmission}</div>
           )
         }
       },
@@ -139,7 +139,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.speed}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.speed}</div>
           )
         }
       },
@@ -150,7 +150,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.payload}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.payload}</div>
           )
         }
       },
@@ -161,7 +161,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.engineHours}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.engineHours}</div>
           )
         }
       },
@@ -172,7 +172,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '100px' }}>{cellProps.row.original.interval}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.interval}</div>
           )
         }
       },
@@ -183,7 +183,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.blowPressure}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.blowPressure}</div>
           )
         }
       },
@@ -194,7 +194,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.oilTemperature}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.oilTemperature}</div>
           )
         }
       },
@@ -205,7 +205,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.oilPressure}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.oilPressure}</div>
           )
         }
       },
@@ -216,7 +216,7 @@ const TelemetryReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.faultCodes}</div>
+            <div style={{ textAlign:'center' }}>{cellProps.row.original.faultCodes}</div>
           )
         }
       }
