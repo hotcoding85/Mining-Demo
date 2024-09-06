@@ -47,10 +47,12 @@ const MaintenanceStatus = (props: any) => {
             </Col>
           </Row>
           <Row>
-            <FleetGridView
-              fleetOrder={FleetOrder}
-              fleetData={normalizedFleetList}
-            />
+            {viewMode === DATA_VIEW_MODE.GRID && (
+              <FleetGridView
+                fleetOrder={FleetOrder}
+                fleetData={normalizedFleetList}
+              />
+            )}
           </Row>
         </Container>
       </div>
