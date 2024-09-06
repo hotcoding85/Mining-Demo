@@ -10,12 +10,14 @@ import "react-toastify/dist/ReactToastify.css";
 import NonAuthLayout from "./Layouts/NonLayout";
 
 //constants
-import { LAYOUT_TYPES } from "./Components/constants/layout";
+import { LAYOUT_MODE_TYPES, LAYOUT_TYPES } from "./Components/constants/layout";
 
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import AuthProtected from "./Routes/AuthProtected";
 import { ToastContainer } from "react-toastify";
+import { ThemeProvider } from "styled-components";
+import { darkTheme, lightTheme } from "utils/theme";
 
 const getLayout = (layoutType: any) => {
   let Layout = VerticalLayout;
@@ -37,9 +39,10 @@ function App() {
     (state: any) => state.Layout,
     (layout) => ({
       layoutTypes: layout.layoutTypes,
+      layoutModeType: layout.layoutModeTypes,
     })
   );
-  const { layoutTypes } = useSelector(selectLeadData);
+  const { layoutTypes, layoutModeType } = useSelector(selectLeadData);
 
   const Layout = getLayout(layoutTypes);
   return (
@@ -59,7 +62,15 @@ function App() {
             element={
               <React.Fragment>
                 <AuthProtected>
-                  <Layout>{route.component}</Layout>
+                  <ThemeProvider
+                    theme={
+                      layoutModeType === LAYOUT_MODE_TYPES.LIGHT
+                        ? lightTheme
+                        : darkTheme
+                    }
+                  >
+                    <Layout>{route.component}</Layout>
+                  </ThemeProvider>
                 </AuthProtected>
               </React.Fragment>
             }
