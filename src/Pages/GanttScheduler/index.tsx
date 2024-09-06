@@ -64,7 +64,7 @@ const GanttScheduler = () => {
               
           <DndProvider backend={HTML5Backend}>
             <Row className='mb-3'>
-              <Col xs={9}>
+              <Col xs={10}>
                 <TableComponent
                   data={resources}
                   tasks={tasks}
@@ -76,7 +76,7 @@ const GanttScheduler = () => {
                 />
               </Col>
                 
-              <Col xs={3}>
+              <Col xs={2}>
                 <TaskList tasks={taskList} />
               </Col>
             </Row>

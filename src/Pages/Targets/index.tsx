@@ -997,8 +997,8 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4 style={{ color: 'grey' }}>Truck Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.truckLoads)}t` || 0}</h3>
+                                <h4 style={{ color: 'grey' }}>Truck Loads</h4>
+                                <h3 style={{ color: 'green' }}>{`${roundOff(summary.truckLoads)}` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1027,8 +1027,8 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4 style={{ color: 'grey' }}>Excavator Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.diggerLoads)}t` || 0}</h3>
+                                <h4 style={{ color: 'grey' }}>Excavator Loads</h4>
+                                <h3 style={{ color: 'green' }}>{`${roundOff(summary.diggerLoads)}` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>

@@ -10,7 +10,7 @@ interface TaskListProps {
 const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
   return (
     <div className='task-list'>
-      <span className='task-list-title'>Active Benches</span>
+      <span className='task-list-title'>ACTIVE BENCHES</span>
       {tasks.map((task) => (
         <TaskListItem key={task.id} task={task} />
       ))}
