@@ -6,7 +6,7 @@ import { getMaterialMoved } from "Helpers/api_materials_helper";
 import { chain, groupBy, round } from "lodash";
 import { shiftTimingsByDateandShift } from "utils/common";
 
-const RomGraph = ({ graphType, shiftDate, shift }) => {
+const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData }) => {
 
     const [data, setData] = useState([]);
     const [hours, setHours] = useState([]);
@@ -38,7 +38,7 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
             },
             yaxis: {
                 title: {
-                    text: "(tonnes)",
+                    text: yaxisTitle,
                 },
             },
             grid: {
@@ -58,14 +58,23 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
     }, [hours])
 
     useEffect(() => {
-        getMaterialMoved(`${shiftDate}:${shift}`)
-            // getMaterialMoved("2024-08-05:NS")
-            .then((response) => {
-                formatGraphData(response.data);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
+        // getMaterialMoved(`${shiftDate}:${shift}`)
+        //     // getMaterialMoved("2024-08-05:NS")
+        //     .then((response) => {
+        //         response.data = [{
+        //             hour: 20,
+        //             name: "HG01",
+        //             payload: 80.31
+        //         }, {
+        //             hour: 23,
+        //             name: "HG02",
+        //             payload: 60.31
+        //         }]
+        formatGraphData(graphData);
+        // })
+        // .catch((error) => {
+        //     console.error(error);
+        // })
     }, [shiftDate, shift]);
 
 
@@ -81,17 +90,17 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
         }
 
         let graphData: any = [];
-        let materialNames = chain(data).map((item) => item.materialName).uniq().sortBy((x) => x.toLowerCase()).value();
-        let groupData = groupBy(data, 'materialName');
-        for (let materialName of materialNames) {
-            let groupHourData = groupBy(groupData[materialName], 'hour');
+        let names = chain(data).map((item) => item.name).uniq().sortBy((x) => x.toLowerCase()).value();
+        let groupData = groupBy(data, 'name');
+        for (let name of names) {
+            let groupHourData = groupBy(groupData[name], 'hour');
             let hourData: any = [];
             for (let hour of hours) {
                 hourData.push(groupHourData[hour.hour] ? round(groupHourData[hour.hour][0].payload, 2) : 0);
             }
 
             graphData.push({
-                name: materialName,
+                name: name,
                 data: hourData
             })
         }
@@ -105,7 +114,7 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
         <React.Fragment>
             <Card style={{ minHeight: '511px' }}>
                 <CardBody>
-                    <CardTitle className="h4">Tonnes moved per hour</CardTitle>
+                    <CardTitle className="h4">{title ? title : 'Tonnes moved per hour'}</CardTitle>
                     {
                         graphType == 'bar' ? <Chart
                             options={options}

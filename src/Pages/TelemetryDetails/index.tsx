@@ -85,17 +85,83 @@ const TelemetryDetails = (props) => {
                                 // shift={"DS"}
                                 shiftDate={shiftInfo.shiftDate}
                                 shift={shiftInfo.shift}
+                                title={'Payload'}
+                                yaxisTitle={'Tonnes'}
+                                graphData={[{
+                                    hour: 20,
+                                    name: "EX201",
+                                    payload: 80.31
+                                }, {
+                                    hour: 23,
+                                    name: "EX201",
+                                    payload: 60.31
+                                }]}
                             />
                         </Col>
                         <Col md={6}>
                             <RomGraph
-                                graphType={'bar'}
+                                graphType={'line'}
                                 // shiftDate={"2024-08-05"}
                                 // shift={"DS"}
                                 shiftDate={shiftInfo.shiftDate}
                                 shift={shiftInfo.shift}
+                                title={'Wheel Speed'}
+                                yaxisTitle={'KMPH'}
+                                graphData={[{
+                                    hour: 20,
+                                    name: "EX201",
+                                    payload: 8
+                                }, {
+                                    hour: 23,
+                                    name: "EX201",
+                                    payload: 20
+                                }]}
                             />
                         </Col>
+                    </Row>
+                    <Row>
+                        <Col md={6}>
+                            <RomGraph
+                                graphType={'line'}
+                                // shiftDate={"2024-08-05"}
+                                // shift={"DS"}
+                                shiftDate={shiftInfo.shiftDate}
+                                shift={shiftInfo.shift}
+                                title={'Engine RPM'}
+                                yaxisTitle={'RPM'}
+                                graphData={[{
+                                    hour: 20,
+                                    name: "EX201",
+                                    payload: 80.31
+                                }, {
+                                    hour: 23,
+                                    name: "EX201",
+                                    payload: 60.31
+                                }]}
+                            />
+                        </Col>
+                        <Col md={6}>
+                            <RomGraph
+                                graphType={'line'}
+                                // shiftDate={"2024-08-05"}
+                                // shift={"DS"}
+                                shiftDate={shiftInfo.shiftDate}
+                                shift={shiftInfo.shift}
+                                title={'Engine Hours'}
+                                yaxisTitle={'Hours'}
+                                graphData={[{
+                                    hour: 20,
+                                    name: "EX201",
+                                    payload: 8
+                                }, {
+                                    hour: 23,
+                                    name: "EX201",
+                                    payload: 20
+                                }]}
+                            />
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col md={12}>
                             <RomStatus
                                 shiftDate={shiftInfo.shiftDate}

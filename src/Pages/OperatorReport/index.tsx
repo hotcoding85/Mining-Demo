@@ -157,19 +157,19 @@ const OperatorReport = (props: any) => {
           )
         }
       },
+      // {
+      //   header: "Tonnes (Actual)",
+      //   accessorKey: "actualTonnes",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: (cellProps: any) => {
+      //     return (
+      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualTonnes}</div>
+      //     )
+      //   }
+      // },
       {
-        header: "Actual (Tonnes)",
-        accessorKey: "actualTonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualTonnes}</div>
-          )
-        }
-      },
-      {
-        header: "Planned (Tonnes)",
+        header: "Tonnes (Actual / Planned)",
         accessorKey: "plannedTonnes",
         enableColumnFilter: false,
         enableSorting: true,
@@ -180,7 +180,7 @@ const OperatorReport = (props: any) => {
         }
       },
       {
-        header: "Loads Loaded (Actual)",
+        header: "Loads (Actual / Planned)",
         accessorKey: "actualLoads",
         enableColumnFilter: false,
         enableSorting: true,
@@ -190,17 +190,17 @@ const OperatorReport = (props: any) => {
           )
         }
       },
-      {
-        header: "Loads Loaded (Plan)",
-        accessorKey: "plannedLoads",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedLoads}</div>
-          )
-        }
-      }
+      // {
+      //   header: "Loads (Planned)",
+      //   accessorKey: "plannedLoads",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: (cellProps: any) => {
+      //     return (
+      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedLoads}</div>
+      //     )
+      //   }
+      // }
     ],
     []
   );
@@ -214,8 +214,8 @@ const OperatorReport = (props: any) => {
     idle: 3,
     delay: 1,
     actualTonnes: 2765.34,
-    plannedTonnes: 2765.34,
-    actualLoads: 35,
+    plannedTonnes: '2765.34/2765.34',
+    actualLoads: '35/45',
     plannedLoads: 35,
   },
   {
@@ -227,8 +227,8 @@ const OperatorReport = (props: any) => {
     idle: 3,
     delay: 1,
     actualTonnes: 2765.34,
-    plannedTonnes: 2765.34,
-    actualLoads: 35,
+    plannedTonnes: '2765.34/2765.34',
+    actualLoads: '35/45',
     plannedLoads: 35,
   }];
 
