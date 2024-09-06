@@ -38,7 +38,7 @@ const CustomDropdown: React.FC<DropdownProps> = ({
       <Dropdown
         isOpen={open}
         toggle={toggle}
-        className="d-inline-block language-switch"
+        className="d-inline-block language-switch custom-dropdown"
       >
         <DropdownToggle tag="button" className="dropdown-btn relative">
           <div className="d-flex justify-content-between align-items-center">
