@@ -4,11 +4,16 @@ import { Card, CardBody, CardHeader, Col, Row } from "reactstrap";
 import { Steps } from "antd";
 import TimeLineChart from "Components/Charts/TimeLineChart";
 import styled from "styled-components";
-import { FLEET_TIME_STATE_COLOR } from "Components/constants/layout";
+import {
+  FLEET_TIME_STATE_COLOR,
+  LAYOUT_MODE_TYPES,
+} from "Components/constants/layout";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
 
 const Wrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: start;
   gap: 8px;
 `;
 
@@ -18,19 +23,21 @@ const Dot = styled.div<{ color: string }>`
   height: 11px;
   background-color: ${(props) => props.color};
   border-radius: 100%;
+  margin-top: 6px;
 `;
 
-const DescriptionText = styled.div`
-  color: #fff;
+const DescriptionText = styled.div<{ color?: string }>`
+  color: ${(props) => props.color || "#fff"};
   font-family: "Source Sans Pro";
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
   line-height: 24px; /* 133.333% */
+  text-align: left;
 `;
 
-const Title = styled.div`
-  color: #fff;
+const Title = styled.div<{ color?: string }>`
+  color: ${(props) => props.color || "#fff"};
   font-size: 28px;
   font-style: normal;
   font-weight: 400;
@@ -38,6 +45,19 @@ const Title = styled.div`
 `;
 
 const StateDescription: React.FC = () => {
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+
+  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+
+  const textColor = isLight ? "#2A2A2A" : "#fff";
+
   return (
     <Card
       className="text-center"
@@ -52,38 +72,38 @@ const StateDescription: React.FC = () => {
     >
       <CardBody>
         <div className="d-flex flex-column align-items-start">
-          <Title>Summary</Title>
+          <Title color={textColor}>Summary</Title>
           <div className="d-flex flex-column align-items-start gap-1 mt-3">
             <Wrapper>
               <Dot color={FLEET_TIME_STATE_COLOR.ACTIVE} />
-              <DescriptionText>
+              <DescriptionText color={textColor}>
                 Green Indicates Engine is running, machine is working.
               </DescriptionText>
             </Wrapper>
             <Wrapper>
               <Dot color={FLEET_TIME_STATE_COLOR.STANDBY} />
-              <DescriptionText>
+              <DescriptionText color={textColor}>
                 Amber Indicates Engine turned off, machine is not working ,
                 parked out.
               </DescriptionText>
             </Wrapper>
             <Wrapper>
               <Dot color={FLEET_TIME_STATE_COLOR.DOWN} />
-              <DescriptionText>
+              <DescriptionText color={textColor}>
                 Red Indicates Machine is broken down or being serviced, and
                 unavailable to work .
               </DescriptionText>
             </Wrapper>
             <Wrapper>
               <Dot color={FLEET_TIME_STATE_COLOR.IDLE} />
-              <DescriptionText>
+              <DescriptionText color={textColor}>
                 Grey Indicates Engine and machine is working, that has been
                 idling for greater than a minute.
               </DescriptionText>
             </Wrapper>
             <Wrapper>
               <Dot color={FLEET_TIME_STATE_COLOR.DELAY} />
-              <DescriptionText>
+              <DescriptionText color={textColor}>
                 Purple Indicates Operational Delay , Operations is affected by
                 Weather ,Fueling ,Clean Up ,Waiting operator.
               </DescriptionText>

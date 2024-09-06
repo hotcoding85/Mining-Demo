@@ -53,3 +53,7 @@ body[data-layout-mode="light"] {
 .fleet-state-pie-chart .LegendContainer2 .LegendItem2 {
   width: 80px;
 }
+
+body[data-layout-mode="light"] .LegendText {
+  color: #2a2a2a !important;
+}
