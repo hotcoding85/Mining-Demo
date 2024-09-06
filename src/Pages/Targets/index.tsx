@@ -13,7 +13,6 @@ import { round2One, round2Two, roundOff, shiftDuration, shifts, shiftsInFormat, 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
-import { LAYOUT_MODE_TYPES } from 'Components/constants/layout';
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -36,16 +35,6 @@ const Target = (props: any) => {
 
   const { targets } = useSelector(targetsProperties);
   const { fleet } = useSelector(fleetProperties);
-
-  const selectLayoutState = (state: any) => state.Layout;
-  const selectProperties = createSelector(
-    selectLayoutState,
-    (layout) => ({
-      layoutModeType: layout.layoutModeTypes,
-    })
-  );
-
-  const { layoutModeType } = useSelector(selectProperties);
 
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
@@ -77,8 +66,7 @@ const Target = (props: any) => {
                   style: { cursor: 'pointer', border: 'none', backgroundColor: 'transparent', borderRadius: '4px', justifyContent: 'center', justifyItems: 'center' },
                 }}>
                   {row.getIsExpanded() ?
-                    (layoutModeType === LAYOUT_MODE_TYPES.DARK ? <DownOutlined style={{ color: 'white' }} /> : <DownOutlined style={{ color: 'grey' }} />) :
-                    (layoutModeType === LAYOUT_MODE_TYPES.DARK ? <RightOutlined style={{ color: 'white' }} /> : <RightOutlined style={{ color: 'grey' }} />)}
+                    <DownOutlined className='dropDownArrow' /> : <RightOutlined className='dropDownArrow' />}
                 </button>
               ) : (
                 ''
@@ -94,7 +82,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -105,7 +93,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -116,7 +104,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -127,7 +115,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -138,7 +126,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -149,7 +137,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -160,7 +148,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -171,7 +159,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -182,7 +170,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -193,7 +181,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -780,8 +768,7 @@ const Target = (props: any) => {
                   style: { cursor: 'pointer', border: 'none', backgroundColor: 'transparent' },
                 }}>
                   {row.getIsExpanded() ?
-                    (layoutModeType === LAYOUT_MODE_TYPES.DARK ? <DownOutlined style={{ color: 'white' }} /> : <DownOutlined style={{ color: 'grey' }} />) :
-                    (layoutModeType === LAYOUT_MODE_TYPES.DARK ? <RightOutlined style={{ color: 'white' }} /> : <RightOutlined style={{ color: 'grey' }} />)}
+                    <DownOutlined className='dropDownArrow' /> : <RightOutlined className='dropDownArrow' />}
                 </button>
               ) : (
                 ''
@@ -797,7 +784,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -808,7 +795,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -819,7 +806,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -830,7 +817,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -841,7 +828,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -852,7 +839,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -863,7 +850,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -874,7 +861,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -885,7 +872,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ color: 'black', textAlign: 'right' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' style={{ color: 'black', textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -1010,8 +997,8 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4 style={{ color: 'grey' }}>Truck Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.truckLoads)}t` || 0}</h3>
+                                <h4 style={{ color: 'grey' }}>Truck Loads</h4>
+                                <h3 style={{ color: 'green' }}>{`${roundOff(summary.truckLoads)}` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1040,8 +1027,8 @@ const Target = (props: any) => {
                           <Col xs={6} style={{ width: '100%' }}>
                             <CardBody>
                               <Row>
-                                <h4 style={{ color: 'grey' }}>Excavator Loading</h4>
-                                <h3 style={{ color: 'green' }}>{`${round2Two(summary.diggerLoads)}t` || 0}</h3>
+                                <h4 style={{ color: 'grey' }}>Excavator Loads</h4>
+                                <h3 style={{ color: 'green' }}>{`${roundOff(summary.diggerLoads)}` || 0}</h3>
                               </Row>
                             </CardBody>
                           </Col>
@@ -1071,10 +1058,12 @@ const Target = (props: any) => {
                     columns={currentTruckColumns}
                     data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : [] || []}
                     total={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'].length : 0}
+                    theadClass="theadCenterAlign"
                     isGlobalFilter={false}
                     isPagination={false}
                     isAddButton={false}
                     isDraggable={true}
+                    isBordered={false}
                     handleOnDragStart={handleDragStart}
                     handleOnDragOver={handleDragOver}
                     handleOnDrop={handleDrop}
@@ -1086,7 +1075,9 @@ const Target = (props: any) => {
                     columns={diggerColumns}
                     data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : [] || []}
                     total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
+                    theadClass="theadCenterAlign"
                     isGlobalFilter={false}
+                    isBordered={false}
                     isPagination={false}
                     isAddButton={false}
                   />

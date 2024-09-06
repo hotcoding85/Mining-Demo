@@ -108,6 +108,33 @@ export const msToTime = (duration: number, isFormat: boolean = false) => {
   }
 }
 
+export const getContentByState = (state) => {
+
+  let color = "#008000";
+  let displayState = "Standby";
+  switch (state) {
+    case "ACTIVE":
+      color = "#008000";
+      displayState = 'Active';
+      break;
+    case "DELAY":
+      color = "#6A32C9";
+      displayState = 'Delayed';
+      break;
+    case "STANDBY":
+      color = "#FFBF00";
+      displayState = 'Standby';
+      break;
+    case "DOWN":
+      color = "#FF5733";
+      displayState = 'Down';
+      break;
+    default:
+      break;
+  }
+  return { color, displayState };
+}
+
 export const roundOff = (value: number): number => {
   let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   let formattedNumber: string = formatter.format(value);

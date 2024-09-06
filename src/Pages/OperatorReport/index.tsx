@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { } from "../../Helpers/api_events_helper";
 import { DatePicker, Segmented, Space } from "antd";
-import { shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
+import { getContentByState, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
 
@@ -83,7 +83,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '350px' }}>{cellProps.row.original.operatorName}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.operatorName}</div>
           )
         }
       },
@@ -94,7 +94,22 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.vehicleName}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.vehicleName}</div>
+          )
+        }
+      },
+      {
+        header: "Status",
+        accessorKey: "status",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cellProps: any) => {
+          const displayContent = getContentByState(cellProps.row.original.status);
+          return (
+            <Space style={{ alignItems: 'baseline' }}>
+              <div style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></div>
+              <div style={{ textAlign: 'center' }}>{displayContent.displayState}</div>
+            </Space>
           )
         }
       },
@@ -105,7 +120,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.active}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.active}</div>
           )
         }
       },
@@ -116,7 +131,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.standby}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.standby}</div>
           )
         }
       },
@@ -127,7 +142,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '50px' }}>{cellProps.row.original.idle}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.idle}</div>
           )
         }
       },
@@ -138,32 +153,54 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '100px' }}>{cellProps.row.original.delay}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.delay}</div>
           )
         }
       },
+      // {
+      //   header: "Tonnes (Actual)",
+      //   accessorKey: "actualTonnes",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: (cellProps: any) => {
+      //     return (
+      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualTonnes}</div>
+      //     )
+      //   }
+      // },
       {
-        header: "Total Tonnes Loaded",
-        accessorKey: "tonnes",
+        header: "Tonnes (Actual / Planned)",
+        accessorKey: "plannedTonnes",
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '100px' }}>{cellProps.row.original.tonnes}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedTonnes}</div>
           )
         }
       },
       {
-        header: "Total Loads Loaded",
-        accessorKey: "loads",
+        header: "Loads (Actual / Planned)",
+        accessorKey: "actualLoads",
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ width: '100px' }}>{cellProps.row.original.loads}</div>
+            <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualLoads}</div>
           )
         }
-      }
+      },
+      // {
+      //   header: "Loads (Planned)",
+      //   accessorKey: "plannedLoads",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: (cellProps: any) => {
+      //     return (
+      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedLoads}</div>
+      //     )
+      //   }
+      // }
     ],
     []
   );
@@ -171,22 +208,28 @@ const OperatorReport = (props: any) => {
   opReportData = [{
     operatorName: 'Prudhviraj',
     vehicleName: 'DT101',
+    status: 'ACTIVE',
     active: 7,
     standby: 2,
     idle: 3,
     delay: 1,
-    tonnes: 2765.34,
-    loads: 35,
+    actualTonnes: 2765.34,
+    plannedTonnes: '2765.34/2765.34',
+    actualLoads: '35/45',
+    plannedLoads: 35,
   },
   {
     operatorName: 'John Shein',
     vehicleName: 'DT102',
+    status: 'DOWN',
     active: 5,
     standby: 3,
     idle: 3,
     delay: 1,
-    tonnes: 4785.49,
-    loads: 45,
+    actualTonnes: 2765.34,
+    plannedTonnes: '2765.34/2765.34',
+    actualLoads: '35/45',
+    plannedLoads: 35,
   }];
 
   return (
@@ -196,7 +239,7 @@ const OperatorReport = (props: any) => {
           <Breadcrumb title="Dashboard" breadcrumbItem="Operator Report" />
           <Row className="mb-3">
             <Col className='d-flex flex-row-reverse'>
-              <Space>
+              {/* <Space>
                 {
                   timeRange == 'CUSTOM' &&
                   <>
@@ -205,7 +248,7 @@ const OperatorReport = (props: any) => {
                   </>
                 }
                 <Segmented className="customSegmentLabel customSegmentBackground" value={timeRange} onChange={(e) => setTimeRange(e)} options={[{ value: 'CUSTOM', label: 'Custom' }, { value: 'PREVIOUS_SHIFT', label: 'Previous Shift' }, { value: 'CURRENT_SHIFT', label: 'Current Shift' }]} />
-              </Space>
+              </Space> */}
             </Col>
           </Row>
           <Row>
@@ -215,6 +258,7 @@ const OperatorReport = (props: any) => {
                   <TableContainer
                     columns={columns}
                     data={opReportData || []}
+                    theadClass="theadCenterAlign"
                     // total={total || 0}
                     isGlobalFilter={false}
                     isPagination={false}

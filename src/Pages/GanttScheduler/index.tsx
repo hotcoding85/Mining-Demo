@@ -25,6 +25,7 @@ const GanttScheduler = () => {
 
   const addTask = (resourceId: string, startTime: Date, task?: Task) => {
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+    console.log(endTime);
 
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
@@ -63,7 +64,7 @@ const GanttScheduler = () => {
               
           <DndProvider backend={HTML5Backend}>
             <Row className='mb-3'>
-              <Col xs={9}>
+              <Col xs={10}>
                 <TableComponent
                   data={resources}
                   tasks={tasks}
@@ -75,7 +76,7 @@ const GanttScheduler = () => {
                 />
               </Col>
                 
-              <Col xs={3}>
+              <Col xs={2}>
                 <TaskList tasks={taskList} />
               </Col>
             </Row>

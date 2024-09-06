@@ -113,7 +113,7 @@ const TableContainer = ({
   columns,
   data,
   total,
-  tableClass = "table-bordered dt-responsive nowrap w-100 dataTable no-footer dtr-inline",
+  tableClass = "dt-responsive nowrap w-100 dataTable no-footer dtr-inline",
   theadClass,
   divClassName,
   isBordered,

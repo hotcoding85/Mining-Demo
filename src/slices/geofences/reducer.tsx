@@ -1,6 +1,7 @@
 import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
 import { User } from "slices/users/reducer";
 import { Vehicle } from "slices/fleet/reducer";
+import { uniqBy } from "lodash";
 
 interface CreateResponse {
   code: number;
@@ -57,19 +58,12 @@ const geoFenceSlice = createSlice({
       state.error = false;
     },
     upsertSuccess(state, action: PayloadAction<UpsertResponse>) {
-      var newFences = action.payload.data;
-      var existingData = state.data.filter(
-        (fence: any) =>
-          !newFences.find(
-            (item: any) =>
-              item.name === fence?.properties?.name &&
-              item.blockId === fence?.properties?.blockId
-          )
+      var newFences: any = action.payload.data;
+
+      state.data = uniqBy(
+        [...newFences, ...state.data],
+        (item) => item.name + item.blockId
       );
-      state.data = [
-        ...existingData,
-        ...newFences.map((item: any) => item.geoJson),
-      ];
       state.loading = false;
       state.error = false;
     },

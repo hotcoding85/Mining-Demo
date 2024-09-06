@@ -59,6 +59,30 @@ body[data-layout-mode="dark"] {
 
 }
 
+body[data-layout-mode= "dark"] {
+  .dropDownArrow {
+                color: white !important; 
+        }
+
+  .ant-select-item-option-selected {
+      background-color: #5e6c86 !important; /*Customize background color of selected item*/
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
+}
+
+body[data-layout-mode= "light"] {
+  .dropDownArrow {
+                color: grey !important;
+        }
+
+  .ant-select-item-option-selected {
+      background-color: #9A9A9A !important; /* Customize background color of selected item */
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
+}
+
 body[data-layout-mode="light"] {
   .customSegmentBackground {
     background-color: #c3c3c3;
@@ -158,4 +182,9 @@ body[data-layout-mode="light"] {
   to {
     transform: rotate(360deg);
   }
+}
+
+.form-control {
+  color:#232323 !important;
+  border-radius: 6px !important;
 }
