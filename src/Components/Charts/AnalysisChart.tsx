@@ -1,3 +1,5 @@
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { useSelector } from "react-redux";
 import {
   Bar,
   BarChart,
@@ -6,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { createSelector } from "reselect";
 
 interface AnalysisChartProps {
   chartData: {
@@ -23,10 +26,26 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({
   width,
   height,
 }) => {
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+
+  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart width={width} height={height} data={chartData} barSize={40}>
-        <XAxis dataKey="x" tickLine={false} axisLine={false} stroke="#FFF" />
+        <XAxis
+          dataKey="x"
+          tickLine={false}
+          axisLine={false}
+          stroke={isLight ? "#828282" : "#FFF"}
+        />
         <YAxis
           dataKey="y"
           max={30}
@@ -35,9 +54,12 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({
           axisLine={false}
           tickCount={7}
           type="number"
-          stroke="#FFF"
+          stroke={isLight ? "#828282" : "#FFF"}
         />
-        <CartesianGrid vertical={false} stroke="#4F5868" />
+        <CartesianGrid
+          vertical={false}
+          stroke={isLight ? "#4F5868" : "#C1C1C1"}
+        />
         <Bar dataKey="y" fill={color} />
       </BarChart>
     </ResponsiveContainer>
