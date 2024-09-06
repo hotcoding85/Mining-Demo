@@ -139,9 +139,10 @@ const FleetTimeline = (props: any) => {
 
   const StateTimes = useMemo(() => {
     const textColor =
-      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#FFFFFF" : "#2A2A2A";
+      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#2A2A2A";
     const bgColor =
-      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#FFFFFF" : "#C1C1C1";
+      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#C1C1C1";
+
     return [
       {
         state: "Active",
@@ -184,7 +185,7 @@ const FleetTimeline = (props: any) => {
         textColor: textColor,
       },
     ];
-  }, []);
+  }, [layoutModeType]);
 
   const stateData = {
     labels: ["Active", "StandBy", "Down", "Idle", "Delay"],
