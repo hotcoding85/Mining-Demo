@@ -188,7 +188,6 @@ const Replay = (props: any) => {
             xaxis: [{
                 x: 0, // Initial position of the annotation
                 borderColor: '#00E396',
-                strokeDashArray: 4, // Dashed border for a smooth look
                 label: {
                     text: '',
                     style: {
@@ -208,7 +207,6 @@ const Replay = (props: any) => {
             yaxis: [{
                 y: 0, // y value for the annotation
                 borderColor: '#FF4560',
-                strokeDashArray: 4, // Dashed border
                 label: {
                     text: '',
                     style: {

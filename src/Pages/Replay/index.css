@@ -1,0 +1,47 @@
+.ant-collapse-header-text{
+    color: #62be00 !important;
+    font-weight: 800;
+}
+.ant-collapse-arrow {
+    color: white !important;
+}
+.ant-collapse-content-active{
+    border-radius: 0px !important;
+    background-color: #282e3e !important;
+}
+.ant-collapse-content{
+    background-color: #282e3e !important;
+}
+.ant-collapse-content-box{
+    padding: 0px 0px 0px 30px !important;
+}
+.ant-menu{
+    background-color: #282e3e !important;
+    color: white !important;
+}
+.ant-menu-item{
+    color: white !important;
+    /* border-bottom: 1px solid white !important; */
+    border-radius: 0px !important;
+    margin: 0px !important;
+    width: 100% !important;
+}
+.ant-menu-item-selected{
+    background-color: #282e3e !important;
+}
+.ant-menu-item.selected {
+    background-color: #787d80 !important;
+}
+.ant-menu-item:hover {
+    background-color: grey;
+}
+.mapboxgl-ctrl-bottom-right{
+    display: none !important;
+}
+.mapboxgl-popup-content{
+    background-color: #2a3853 !important;
+    color: gold !important;
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip{
+    border-top-color: #293754 !important;
+}
