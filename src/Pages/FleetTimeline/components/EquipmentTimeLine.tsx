@@ -62,6 +62,7 @@ const EquipmentTimeLine: React.FC<EquipmentTimeLineProps> = ({ vehicles }) => {
                 style={{
                   width: "520px",
                 }}
+                onChange={setCurrentStep}
               />
             </div>
             <div>

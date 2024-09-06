@@ -1,27 +1,27 @@
 .ant-steps-item-active .ant-steps-icon-dot {
   background-color: #fff !important;
-  filter: blur(0.4000000059604645px);
-  stroke-width: 9px;
-  stroke: rgba(182, 190, 207, 0.2);
-}
-
-.ant-steps-item-active .ant-steps-item-tail {
-  background-color: #fff !important;
 }
 
 .ant-steps-item .ant-steps-item-tail {
   top: 5px !important;
-  border-radius: 12px;
-  opacity: 0.8;
-  background: rgba(187, 190, 196, 0.73);
+  border-radius: 12px !important;
+  opacity: 0.8 !important;
+  background: rgba(187, 190, 196, 0.73) !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-tail::after {
+  background: rgba(187, 190, 196, 0.73) !important;
 }
 
 .ant-steps-item .ant-steps-icon-dot {
-  fill: rgba(186, 189, 195, 0.4);
   opacity: 0.98;
   width: 16px !important;
   height: 16px !important;
   border-radius: 100% !important;
+}
+
+.ant-steps-item-finish .ant-steps-icon-dot {
+  background: gray !important;
 }
 
 .ant-steps-item-content .ant-steps-item-title {
@@ -30,6 +30,20 @@
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
+}
+
+body[data-layout-mode="light"] {
+  .ant-steps-item-active .ant-steps-icon-dot {
+    background-color: #2a2a2a !important;
+  }
+
+  .ant-steps-item-content .ant-steps-item-title {
+    color: gray !important;
+  }
+
+  .ant-steps-item-active .ant-steps-item-title {
+    color: #2a2a2a !important;
+  }
 }
 
 .fleet-state-pie-chart .LegendContainer2 {
