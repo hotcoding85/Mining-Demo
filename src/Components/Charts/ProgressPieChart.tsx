@@ -5,6 +5,7 @@ import Chart from "react-apexcharts";
 export interface ProgressPieChartProps {
   color: string;
   bgColor: string;
+  textColor: string;
   value?: number;
   pctValue?: number;
   maxValue?: number;
@@ -15,6 +16,7 @@ export interface ProgressPieChartProps {
 const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
   color,
   bgColor,
+  textColor,
   value,
   maxValue,
   pctValue,
@@ -26,13 +28,15 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
       radialBar: {
         startAngle: 0,
         endAngle: 360,
-
+        track: {
+          background: bgColor,
+        },
         dataLabels: {
           name: {
             show: false,
           },
           value: {
-            color: "#FFFFFF",
+            color: textColor,
             offsetY: 10,
             fontSize: "2em",
             fontWeight: "500",
