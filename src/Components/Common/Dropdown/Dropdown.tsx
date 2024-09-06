@@ -42,9 +42,9 @@ const CustomDropdown: React.FC<DropdownProps> = ({
       >
         <DropdownToggle tag="button" className="dropdown-btn relative">
           <div className="d-flex justify-content-between align-items-center">
-            <span className="text-white">{value.label}</span>
+            <span>{value.label}</span>
             <i
-              className="mdi mdi-menu-down text-white"
+              className="mdi mdi-menu-down"
               style={{
                 fontSize: "24px",
                 lineHeight: "0",

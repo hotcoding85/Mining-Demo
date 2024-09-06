@@ -99,6 +99,7 @@
     padding: 12px;
     height: 48px;
     min-width: 185px;
+    color: #fff;
   }
 
   .dropdown-btn span {
@@ -129,5 +130,26 @@
     font-style: normal;
     font-weight: 400;
     line-height: 24px;
+  }
+}
+
+body[data-layout-mode="light"] .custom-dropdown {
+  .dropdown-btn {
+    border: 1px solid rgba(0, 0, 0, 0.65);
+    color: rgba(0, 0, 0, 0.88);
+    background: #fff;
+  }
+
+  .dropdown-label {
+    color: rgba(0, 0, 0, 0.88);
+  }
+
+  .dropdown-btn .dropdown-label {
+    color: rgba(0, 0, 0, 0.88);
+    background-color: #fff;
+  }
+
+  .dropdown-item {
+    color: rgba(0, 0, 0, 0.88);
   }
 }
