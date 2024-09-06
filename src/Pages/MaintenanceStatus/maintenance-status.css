@@ -1,0 +1,81 @@
+.maintenance-status {
+  .header-action-btn {
+    background: transparent;
+    border: none;
+    color: white !important;
+  }
+
+  .header-action-btn:hover {
+    color: #535e77 !important;
+  }
+
+  .header-action-btn:hover i {
+    background: transparent;
+    color: #535e77 !important;
+  }
+
+  .header-action-btn-active {
+    background: #535e77;
+    border: 1px solid #535e77;
+  }
+}
+
+.fleet-grid-view-title {
+  flex: none;
+  color: white;
+  font-size: 20px;
+}
+
+.fleet-grid-view-line {
+  border: 1px solid #fff;
+  width: 100%;
+}
+
+.fleet-grid-action-button {
+  color: white;
+  cursor: pointer;
+}
+
+.fleet-grid-action-button i {
+  color: white;
+  font-size: 20px;
+}
+
+body[data-layout-mode="light"] {
+  .vehicle-name {
+    color: #2a2a2a !important;
+  }
+
+  .fleet-card-sync-label {
+    color: #656565 !important;
+  }
+
+  .fleet-label {
+    color: #656565 !important;
+  }
+
+  .fleet-value {
+    color: #2a2a2a !important;
+  }
+
+  .fleet-card {
+    background-color: white;
+  }
+
+  .fleet-grid-view-title {
+    color: #2a2a2a;
+  }
+
+  .fleet-grid-view-line {
+    border: 1px solid #2a2a2a;
+    width: 100%;
+  }
+
+  .fleet-grid-action-button {
+    color: #2a2a2a !important;
+  }
+
+  .fleet-grid-action-button i {
+    color: #2a2a2a;
+  }
+}
