@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { groupBy } from "lodash";
 import FleetGridView from "./components/FleetGridView";
+import FleetTableView from "./components/FleetTableView";
 
 const FleetOrder = ["DUMP_TRUCK", "EXCAVATOR", "LOADER"];
 
@@ -49,6 +50,13 @@ const MaintenanceStatus = (props: any) => {
           <Row>
             {viewMode === DATA_VIEW_MODE.GRID && (
               <FleetGridView
+                fleetOrder={FleetOrder}
+                fleetData={normalizedFleetList}
+              />
+            )}
+
+            {viewMode === DATA_VIEW_MODE.TABLE && (
+              <FleetTableView
                 fleetOrder={FleetOrder}
                 fleetData={normalizedFleetList}
               />
