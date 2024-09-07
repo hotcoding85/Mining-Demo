@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Col, Container, Row } from "reactstrap";
 import dayjs from "dayjs";
 import { format } from "date-fns";
@@ -8,7 +8,10 @@ import { createSelector } from "reselect";
 import { getAllEvents } from "slices/thunk";
 import { DatePicker, DatePickerProps, Segmented } from "antd";
 import { Dropdown, DropdownType } from "Components/Common/Dropdown";
-import { FLEET_TIME_STATE_COLOR } from "Components/constants/layout";
+import {
+  FLEET_TIME_STATE_COLOR,
+  LAYOUT_MODE_TYPES,
+} from "Components/constants/layout";
 import StateTime from "./components/StateTime";
 import EquipmentTimeLine from "./components/EquipmentTimeLine";
 import "./fleettimeline.css";
@@ -65,44 +68,6 @@ const EquipmentTypes = [
   },
 ];
 
-const StateTimes = [
-  {
-    state: "Active",
-    time: "00:24:52",
-    pctValue: 34.21,
-    color: FLEET_TIME_STATE_COLOR.ACTIVE,
-    bgColor: "#FFFFFF",
-  },
-  {
-    state: "StandBy",
-    time: "00:24:52",
-    pctValue: 49.04,
-    color: FLEET_TIME_STATE_COLOR.STANDBY,
-    bgColor: "#FFFFFF",
-  },
-  {
-    state: "Down",
-    time: "00:24:52",
-    pctValue: 16.3,
-    color: FLEET_TIME_STATE_COLOR.DOWN,
-    bgColor: "#FFFFFF",
-  },
-  {
-    state: "Idle",
-    time: "00:24:52",
-    pctValue: 0.0,
-    color: FLEET_TIME_STATE_COLOR.IDLE,
-    bgColor: "#D9D9D9",
-  },
-  {
-    state: "Delay",
-    time: "00:24:52",
-    pctValue: 0.35,
-    color: FLEET_TIME_STATE_COLOR.DELAY,
-    bgColor: "#FFFFFF",
-  },
-];
-
 const FleetTimeline = (props: any) => {
   document.title = "Timeline Utilization Model | FMS Live";
 
@@ -113,6 +78,15 @@ const FleetTimeline = (props: any) => {
     interval: 60,
     slotCount: 2,
   };
+
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
 
   const { fleet } = useSelector(
     createSelector(
@@ -162,6 +136,56 @@ const FleetTimeline = (props: any) => {
   useEffect(() => {
     dispatch(getAllEvents(format(startDate, "yyyy-MM-dd")));
   }, [dispatch, startDate]);
+
+  const StateTimes = useMemo(() => {
+    const textColor =
+      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#2A2A2A";
+    const bgColor =
+      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#C1C1C1";
+
+    return [
+      {
+        state: "Active",
+        time: "00:24:52",
+        pctValue: 34.21,
+        color: FLEET_TIME_STATE_COLOR.ACTIVE,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "StandBy",
+        time: "00:24:52",
+        pctValue: 49.04,
+        color: FLEET_TIME_STATE_COLOR.STANDBY,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Down",
+        time: "00:24:52",
+        pctValue: 16.3,
+        color: FLEET_TIME_STATE_COLOR.DOWN,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Idle",
+        time: "00:24:52",
+        pctValue: 0.0,
+        color: FLEET_TIME_STATE_COLOR.IDLE,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Delay",
+        time: "00:24:52",
+        pctValue: 0.35,
+        color: FLEET_TIME_STATE_COLOR.DELAY,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+    ];
+  }, [layoutModeType]);
 
   const stateData = {
     labels: ["Active", "StandBy", "Down", "Idle", "Delay"],

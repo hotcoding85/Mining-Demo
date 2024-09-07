@@ -1,10 +1,26 @@
 import { ApexOptions } from "apexcharts";
-import { FLEET_TIME_STATE_COLOR } from "Components/constants/layout";
+import {
+  FLEET_TIME_STATE_COLOR,
+  LAYOUT_MODE_TYPES,
+} from "Components/constants/layout";
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
 
 const GanttChart: React.FC = () => {
-  const [chartOptions, setChartOptions] = useState<ApexOptions>({
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+
+  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+
+  const chartOptions: ApexOptions = {
     chart: {
       type: "rangeBar",
       toolbar: {
@@ -22,7 +38,10 @@ const GanttChart: React.FC = () => {
       type: "datetime",
       labels: {
         show: true,
-        format: "mm:ss", // Display time in minutes and seconds
+        format: "mm:ss",
+        style: {
+          colors: [isLight ? "#828282" : "#fff"],
+        },
       },
       axisTicks: {
         show: false,
@@ -59,7 +78,7 @@ const GanttChart: React.FC = () => {
     legend: {
       show: false, // Hide legend
     },
-  });
+  };
 
   const [chartSeries, setChartSeries] = useState([
     {

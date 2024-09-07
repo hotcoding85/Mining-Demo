@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
 
 /* 
 .trucking-header{
@@ -15,19 +15,17 @@
   text-align: left;
 }
 
-
 .performance-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
   gap: 5%;
   width: 100%;
-
 }
 
 .header-1,
 .header-2 {
-  background-color: #24314D;
+  background-color: #24314d;
   padding: 20px;
   border-radius: 8px;
   width: 50%;
@@ -47,13 +45,12 @@
   font-size: 18px;
   font-weight: bold;
   text-align: left;
-
 }
 
 .label-2 {
   font-size: medium;
   text-align: right;
-  background-color: #389E0D;
+  background-color: #389e0d;
   color: white;
   padding: 0px 10px;
   border-radius: 15px 0 0 15px;
@@ -61,18 +58,18 @@
 
 .value {
   font-size: xx-large;
-  color: #73D13D;
+  color: #73d13d;
   text-align: left;
 }
 
 .total-value {
   font-size: 14px;
   text-align: left;
-  color: #9CA3B1;
+  color: #9ca3b1;
 }
 
 .bar-progress {
-  width: 70%
+  width: 70%;
 }
 
 .pie {
@@ -149,6 +146,7 @@
   height: 12px;
   border-radius: 50%;
   margin-right: 8px;
+  flex: none;
 }
 
 .LegendText {
@@ -202,7 +200,7 @@
 }
 
 .prod-prog {
-  top: 28%
+  top: 28%;
 }
 
 .ForecastBubble::after {
@@ -220,7 +218,7 @@
   position: absolute;
   top: 150%;
   /* right: 15px; */
-  background-color: #2A2A2A;
+  background-color: #2a2a2a;
   color: white;
   padding: 2.5px 2.5px;
   font-size: 11px;
@@ -235,9 +233,8 @@
   margin-left: -5px;
   border-width: 10px;
   border-style: solid;
-  border-color: transparent transparent #2A2A2A transparent;
+  border-color: transparent transparent #2a2a2a transparent;
 }
-
 
 .LegendContainer2 {
   display: flex;
@@ -269,7 +266,7 @@
 
 .ProductionText {
   font-weight: bold;
-  color: #9CA3B1;
+  color: #9ca3b1;
 }
 
 .ProgressProduction {
@@ -280,19 +277,19 @@
 }
 
 .header-production {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-size: large;
   font-weight: 500;
-  color: 'FFFFFF';
+  color: "FFFFFF";
   padding-top: 0%;
-  background-color: '#283655';
+  background-color: "#283655";
   font-weight: bold;
 }
 
 .label-2.below-target {
-  background-color: #CF1322;
+  background-color: #cf1322;
 }
 
 .value.below-target {
-  color: #CF1322;
+  color: #cf1322;
 }
