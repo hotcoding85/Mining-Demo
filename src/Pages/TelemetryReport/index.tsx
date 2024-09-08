@@ -6,14 +6,15 @@ import { getTonnesMoved } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { } from "../../Helpers/api_events_helper";
-import { DatePicker, Segmented, Select, Space } from "antd";
+import { Button, Checkbox, DatePicker, Dropdown, Menu, Segmented, Select, Space } from "antd";
 import { getContentByState, msToTime, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
 import _, { forEach, indexOf, map } from "lodash";
-import { EyeOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons";
+import { EyeOutlined, FilterFilled, FilterOutlined, LaptopOutlined, UserOutlined } from "@ant-design/icons";
 import "./telemetry.css";
 import { Link } from "react-router-dom";
+import Item from "antd/es/list/Item";
 
 const TelemetryReport = (props: any) => {
   document.title = "Telemetry Report | FMS Live";
@@ -110,72 +111,279 @@ const TelemetryReport = (props: any) => {
     oilTemperature: '103',
     oilPressure: '18',
     faultCodes: ['C2158', 'DASRKR', 'C125']
+  },
+  {
+    vehicleName: 'DT105',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 3500,
+    rpm: '180',
+    transmission: '4',
+    speed: '18',
+    payload: '35',
+    engineHours: '28816',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['DASRKR', 'C2158']
+  },
+  {
+    vehicleName: 'DT106',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C125']
+  },
+  {
+    vehicleName: 'DT107',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: []
+  },
+  {
+    vehicleName: 'DT108',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2158']
+  },
+  {
+    vehicleName: 'DT109',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C143']
+  },
+  {
+    vehicleName: 'DT103',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C125']
+  },
+  {
+    vehicleName: 'DT101',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2158', 'DASRKR', 'C125']
+  },
+  {
+    vehicleName: 'DT110',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2158']
+  },
+  {
+    vehicleName: 'DT111',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C783']
+  },
+  {
+    vehicleName: 'DT112',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2159']
+  },
+  {
+    vehicleName: 'DT113',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['1500L0']
+  },
+  {
+    vehicleName: 'DT114',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['DASRKR']
+  },
+  {
+    vehicleName: 'DT115',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2158', 'DASRKR', 'C125']
+  },
+  {
+    vehicleName: 'EX03',
+    vehicleType: 'EXCAVATOR',
+    status: 'DOWN',
+    synced: 2900,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C556']
+  },
+  {
+    vehicleName: 'DT115',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C783']
+  },
+  {
+    vehicleName: 'DT117',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['DASRKR', 'C125']
+  },
+  {
+    vehicleName: 'DT116',
+    vehicleType: 'DUMP_TRUCK',
+    status: 'STANDBY',
+    synced: 2500,
+    rpm: '200',
+    transmission: '4',
+    speed: '8',
+    payload: 'N/A',
+    engineHours: '48916',
+    interval: '503',
+    blowPressure: '212',
+    oilTemperature: '103',
+    oilPressure: '18',
+    faultCodes: ['C2158', 'C125']
   }];
-
-  const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
-  const [shiftInfo, setShiftInfo] = useState(shiftTimings());
-  const [filter, setFilter] = useState<string>('All Equipment');
-  const [filteredData, setFilteredData] = useState<string>(opReportData);
-
-  useEffect(() => {
-    if (timeRange === 'CURRENT_SHIFT') {
-      let currentShiftInfo = shiftTimings();
-      setShiftInfo((prevState) => {
-        return {
-          ...prevState,
-          ...currentShiftInfo
-        }
-      })
-    } else if (timeRange === 'PREVIOUS_SHIFT') {
-      let prevShiftInfo = shiftTimings(shiftInfo.start.subtract(2, 'hours'));
-      setShiftInfo((prevState) => {
-        return {
-          ...prevState,
-          ...prevShiftInfo
-        }
-      })
-    }
-  }, [timeRange]);
-
-  const onShiftDateChange = (date: Dayjs): void => {
-    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(date.format('YYYY-MM-DD'), shiftInfo.shift);
-    setShiftInfo((prevState: ShiftTimingsInfo) => {
-      return {
-        ...prevState,
-        ...newShiftTimings
-      }
-    })
-  }
-
-  const onShiftChange = (shift: string): void => {
-    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(shiftInfo.shiftDate, shift);
-    setShiftInfo((prevState: ShiftTimingsInfo) => {
-      return {
-        ...prevState,
-        ...newShiftTimings
-      }
-    })
-  }
-
-  const onEquipmentTypeSelect = (filterType) => {
-    setFilter(filterType);
-
-    setFilteredData(prevState => {
-      let data = _.cloneDeep(opReportData);
-
-      if (filterType != 'All Equipment') {
-        data = _.filter(data, (elem) => {
-          return elem.vehicleType === filterType
-        });
-      }
-
-      return data;
-    })
-  }
-
-  useEffect(() => {
-    //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
-  }, [dispatch]);
 
   const allColumns: TableColumn[] = useMemo(
     () => [
@@ -337,7 +545,7 @@ const TelemetryReport = (props: any) => {
           const id = cellProps.row.original.id
           return (
             <div style={{ textAlign: 'center' }} >
-              <Link to={"/telemetry-details/" + name}>
+              <Link to={"/telemetry-details?id=" + name}>
                 <EyeOutlined />
               </Link>
             </div>
@@ -348,7 +556,11 @@ const TelemetryReport = (props: any) => {
     []
   );
 
-  let visibleColumns = {
+  const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
+  const [shiftInfo, setShiftInfo] = useState(shiftTimings());
+  const [filter, setFilter] = useState<string>('All Equipment');
+  const [filteredData, setFilteredData] = useState<string>(opReportData);
+  const [visibleColumns, setVisibleColumns] = useState({
     vehicleName: true,
     status: true,
     synced: true,
@@ -363,16 +575,77 @@ const TelemetryReport = (props: any) => {
     oilTemperature: true,
     oilPressure: true,
     actions: true
-  };
-
+  });
   const [columns, setColumns] = useState(allColumns.filter(column => visibleColumns[column.accessorKey!]));
+
+  useEffect(() => {
+    if (timeRange === 'CURRENT_SHIFT') {
+      let currentShiftInfo = shiftTimings();
+      setShiftInfo((prevState) => {
+        return {
+          ...prevState,
+          ...currentShiftInfo
+        }
+      })
+    } else if (timeRange === 'PREVIOUS_SHIFT') {
+      let prevShiftInfo = shiftTimings(shiftInfo.start.subtract(2, 'hours'));
+      setShiftInfo((prevState) => {
+        return {
+          ...prevState,
+          ...prevShiftInfo
+        }
+      })
+    }
+  }, [timeRange]);
+
+  const onShiftDateChange = (date: Dayjs): void => {
+    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(date.format('YYYY-MM-DD'), shiftInfo.shift);
+    setShiftInfo((prevState: ShiftTimingsInfo) => {
+      return {
+        ...prevState,
+        ...newShiftTimings
+      }
+    })
+  }
+
+  const onShiftChange = (shift: string): void => {
+    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(shiftInfo.shiftDate, shift);
+    setShiftInfo((prevState: ShiftTimingsInfo) => {
+      return {
+        ...prevState,
+        ...newShiftTimings
+      }
+    })
+  }
+
+  const onEquipmentTypeSelect = (filterType) => {
+    setFilter(filterType);
+
+    setFilteredData(prevState => {
+      let data = _.cloneDeep(opReportData);
+
+      if (filterType != 'All Equipment') {
+        data = _.filter(data, (elem) => {
+          return elem.vehicleType === filterType
+        });
+      }
+
+      return data;
+    })
+  }
+
+  useEffect(() => {
+    //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
+  }, [dispatch]);
 
   const onVisibleColumnsChange = (value) => {
 
-    Object.keys(visibleColumns).map((key) => {
-      _.indexOf(value, key) != -1 ? visibleColumns[key] = true : visibleColumns[key] = false
-    })
+    visibleColumns[value] = !visibleColumns[value];
     visibleColumns['actions'] = true;
+    visibleColumns['vehicleName'] = true;
+    visibleColumns['synced'] = true;
+
+    setVisibleColumns(visibleColumns);
     setColumns(allColumns.filter(column => visibleColumns[column.accessorKey!]));
   }
 
@@ -397,7 +670,8 @@ const TelemetryReport = (props: any) => {
       borderRadius: '16px',
       backgroundColor: 'red',
       color: 'white',
-      fontSize: '12px'
+      fontSize: '12px',
+      alignContent: 'center'
     }} > {label}</span >
   );
 
@@ -416,13 +690,29 @@ const TelemetryReport = (props: any) => {
   const getColumnHeaders = () => {
     let children: any = [];
     allColumns.forEach(column => {
-      const { Option } = Select;
-      if (column.accessorKey != 'actions') {
-        children.push(<Option key={column.accessorKey}> {column.header}</Option >);
+      if (column.accessorKey != 'actions' && column.accessorKey != 'vehicleName' && column.accessorKey != 'synced') {
+        children.push({ key: column.accessorKey, value: column.accessorKey, label: column.header });
       }
     });
     return children;
   }
+
+
+  const menu = (
+    <Menu>
+      <Menu.Divider />
+      {getColumnHeaders().map((option) => (
+        <Item key={option.value}>
+          <Checkbox className="checkbox-color"
+            checked={((columns.filter((col) => { return col.accessorKey === option.value })).length > 0) ? true : false}
+            onChange={() => onVisibleColumnsChange(option.value)}
+          >
+            {option.label}
+          </Checkbox>
+        </Item>
+      ))}
+    </Menu>
+  );
 
   return (
     <React.Fragment>
@@ -431,20 +721,9 @@ const TelemetryReport = (props: any) => {
           <Breadcrumb title="Dashboard" breadcrumbItem="Telemetry Report" />
           <Row className="mb-3">
             <Col xs={2}>
-              <Select
-                className="customSelect"
-                mode="multiple"
-                style={{ width: '100%' }}
-                placeholder="Show/Hide Columns"
-                defaultValue={getColumnHeaders()}
-                onChange={onVisibleColumnsChange}
-                maxTagCount={1}
-                showSearch={true}
-                allowClear={false}
-                menuItemSelectedIcon={true}
-              >
-                {getColumnHeaders()}
-              </Select>
+              <Dropdown overlay={menu} trigger={['click']} placement="bottomLeft">
+                <Button icon={<FilterOutlined />} />
+              </Dropdown>
             </Col>
             <Col className='d-flex flex-row-reverse'>
               <Space>

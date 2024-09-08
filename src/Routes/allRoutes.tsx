@@ -109,7 +109,7 @@ const authProtectedRoutes = [
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
-  { path: "/telemetry-details/:vehicleId", exact: true, component: <TelemetryDetails /> },
+  { path: "/telemetry-details", exact: true, component: <TelemetryDetails /> },
 
   // Production
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
