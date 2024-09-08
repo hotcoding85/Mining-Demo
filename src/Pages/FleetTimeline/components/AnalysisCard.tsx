@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 `;
 
 const Title = styled.div`
-  color: #fff;
+  color: ${(props) => (props.theme.dark ? "#fff" : "#454545")};
   font-size: 18px;
   font-style: normal;
   font-weight: 400;

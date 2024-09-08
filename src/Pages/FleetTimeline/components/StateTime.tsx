@@ -1,6 +1,9 @@
 import ProgressPieChart, {
   ProgressPieChartProps,
 } from "Components/Charts/ProgressPieChart";
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
 import styled from "styled-components";
 
 const ChartWrapper = styled.div`
@@ -16,11 +19,11 @@ const CenteredChart = styled.div`
   left: 50%;
 `;
 
-const StatusLabel = styled.div<{ color: string }>`
+const StatusLabel = styled.div<{ bgColor: string; color?: string }>`
   width: 210px;
-  background-color: ${(props) => props.color};
+  background-color: ${(props) => props.bgColor};
   border-radius: 2px;
-  color: white;
+  color: ${(props) => props.color || "#FFF"};
   text-align: center;
   font-size: 32px;
   font-style: normal;
@@ -34,6 +37,17 @@ interface StateTimeProps extends ProgressPieChartProps {
 }
 
 const StateTime: React.FC<StateTimeProps> = ({ time, state, ...props }) => {
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+
+  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+
   return (
     <div className="d-flex flex-column align-items-start justify-content-start  gap-3">
       <ChartWrapper>
@@ -42,8 +56,13 @@ const StateTime: React.FC<StateTimeProps> = ({ time, state, ...props }) => {
         </CenteredChart>
       </ChartWrapper>
       <div className="d-flex flex-column align-items-start justify-content-start mt-5">
-        <StatusLabel color={props.color}>{state}</StatusLabel>
-        <StatusLabel color="#283655">{time}</StatusLabel>
+        <StatusLabel bgColor={props.color}>{state}</StatusLabel>
+        <StatusLabel
+          bgColor={isLight ? "#fff" : "#283655"}
+          color={isLight ? "#2A2A2A" : "#fff"}
+        >
+          {time}
+        </StatusLabel>
       </div>
     </div>
   );

@@ -28,6 +28,8 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
+import { Segmented } from "antd";
+import DigBlockLayoutMap from "./DigBlockLayoutMap";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -39,6 +41,8 @@ const DigBlockLayout = (props: any) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [importStrModal, setImportCsvModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  const [displayType, setDisplayType] = useState<string>("TABLE");
 
   const selectProperties = createSelector(
     (state: any) => state.GeoFence,
@@ -331,30 +335,51 @@ const DigBlockLayout = (props: any) => {
     importStrModalToggle();
   };
 
+  const onDisplayTypeChange = (displayInfo) => {
+    setDisplayType(displayInfo);
+  };
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Resources" breadcrumbItem="Dig Block Layout" />
+          <Row className="mb-3">
+            <Col className="d-flex flex-row-reverse">
+              <Segmented
+                className="customSegmentLabel customSegmentBackground"
+                value={displayType}
+                onChange={onDisplayTypeChange}
+                options={[
+                  { value: "TABLE", label: "TABLE" },
+                  { value: "MAP", label: "MAP" },
+                ]}
+              />
+            </Col>
+          </Row>
           <Row>
             <Col lg="12">
-              <Card>
-                <CardBody>
-                  <TableContainer
-                    columns={columns}
-                    data={data || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={false}
-                    buttonName="New Dig Block"
-                    isImportButton={true}
-                    importButtonName="Import Dig Block Data"
-                  />
-                </CardBody>
-              </Card>
+              {displayType === "TABLE" ? (
+                <Card>
+                  <CardBody>
+                    <TableContainer
+                      columns={columns}
+                      data={data || []}
+                      // total={total || 0}
+                      isGlobalFilter={true}
+                      handleOnAddClick={handleOnAdd}
+                      handleOnImportClick={handleOnImport}
+                      isPagination={true}
+                      isAddButton={false}
+                      buttonName="New Dig Block"
+                      isImportButton={true}
+                      importButtonName="Import Dig Block Data"
+                    />
+                  </CardBody>
+                </Card>
+              ) : (
+                <DigBlockLayoutMap data={data} />
+              )}
               <FormModal
                 fields={fields}
                 modalOpen={modal}
