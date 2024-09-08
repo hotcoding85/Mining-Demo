@@ -107,7 +107,7 @@
 }
 
 .BarGraphContainer {
-  width: 90%;
+  width: 100%;
   /* background-color: #283655; */
   padding: 20px;
   border-radius: 0 0 15px 15px;
@@ -151,8 +151,9 @@
 
 .LegendText {
   /* span */
-  color: white;
+  /* color: white; */
   font-size: 13px;
+  text-wrap: nowrap;
 }
 
 .ProgressBarContainer {
@@ -164,7 +165,7 @@
 }
 
 .ProgressText {
-  color: white;
+  /* color: white; */
   font-size: 13px;
   margin-bottom: 6px;
   text-align: left;
@@ -292,4 +293,19 @@
 
 .value.below-target {
   color: #cf1322;
+}
+
+.light-box {
+  color: #2A2A2A;
+  background-color: #fff !important;
+  box-shadow: 0px 1px 4px 0px #0C0C0D0D;
+}
+
+[data-layout-mode=dark] .light-box {
+  color: #fff;
+  background-color: #283655 !important;
+}
+
+.BarAndProgressContainer .PieChartContainer:first-child .LegendItem2:last-child {
+  max-width: calc(100% - 10px);
 }

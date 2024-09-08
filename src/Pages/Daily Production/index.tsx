@@ -27,7 +27,7 @@ const DailyProductionDashboard = () => {
       {
         label: "Plan",
         data: [23, 21, 15, 18, 20, 21, 23, 15, 20, 13, 5, 3],
-        backgroundColor: "#1890FF",
+        backgroundColor: "#9CA3B1",
         barPercentage: 1,
         categoryPercentage: 1,
         barThickness: 22,
@@ -39,7 +39,7 @@ const DailyProductionDashboard = () => {
       {
         label: "Actual",
         data: [21, 18, 14, 20, 19, 22, 19, 13, 18, 9, 3, 3],
-        backgroundColor: "#0050B3",
+        backgroundColor: "#535E77",
         barPercentage: 1,
         categoryPercentage: 1,
         barThickness: 22,
@@ -184,7 +184,7 @@ const DailyProductionDashboard = () => {
         <TripProgressBar
           completed={200}
           planned={140}
-          forecast={600}
+          forecast={900}
           total={1000}
           type={"Production"}
           subHeader={`${200} of ${700} completed`}
@@ -192,13 +192,13 @@ const DailyProductionDashboard = () => {
           widthVal='95%'
         />
         <TripProgressBar
-          completed={120}
-          planned={650}
-          total={1000}
-          forecast={500}
+          completed={200}
+          planned={140}
+          total={2000}
+          forecast={200}
           subHeader={`${200} of ${700} completed`}
           type={"Production"}
-          header={"Overall Load Target (Planned vs. Actual vs. Forecast)"}
+          header={"Overall Tonnes Target (Planned vs. Actual vs. Forecast)"}
           widthVal='95%'
         />
       </div>
@@ -228,7 +228,7 @@ const DailyProductionDashboard = () => {
             <TripProgressBar
               completed={120}
               planned={650}
-              total={1000}
+              total={1200}
               forecast={500}
               header={"Overall Load"}
               subHeader="9 of 18 ROMS Delivered"
@@ -265,7 +265,7 @@ const DailyProductionDashboard = () => {
             />
           </div>
         </div>
-        <div className="pie prod">
+        <div className="pie prod light-box">
           <h2 style={{ padding: "20px", marginBottom: "50px", textAlign:'center' }}>
             Truck and Digger Target Plan
           </h2>

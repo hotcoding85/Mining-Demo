@@ -49,7 +49,7 @@
   
   .fuel-card-sync-icon {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
   }
   
   .fuel-card-sync-tooltip {
