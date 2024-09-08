@@ -30,6 +30,19 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
         endAngle: 360,
         track: {
           background: bgColor,
+          show: true,
+          strokeWidth: '100%',
+          margin: 5, // Optional, gives space between bars
+          dropShadow: {
+            enabled: true,
+            top: 2,
+            left: 0,
+            blur: 4,
+            opacity: 0.15
+          }
+        },
+        hollow: {
+          size: '65%', // Adjusts the size of the hollow center
         },
         dataLabels: {
           name: {
@@ -39,15 +52,18 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
             color: textColor,
             offsetY: 10,
             fontSize: "2em",
-            fontWeight: "500",
+            fontWeight: "600",
           },
         },
-      },
+      }
     },
     fill: {
       colors: [color, bgColor],
     },
     labels: ["Utilization"],
+    stroke: {
+      lineCap: 'round'
+    },
   };
 
   const series = useMemo(
