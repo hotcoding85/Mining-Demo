@@ -140,8 +140,7 @@ const FleetTimeline = (props: any) => {
   const StateTimes = useMemo(() => {
     const textColor =
       layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#2A2A2A";
-    const bgColor =
-      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#C1C1C1";
+    const bgColor = layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#fff";
 
     return [
       {

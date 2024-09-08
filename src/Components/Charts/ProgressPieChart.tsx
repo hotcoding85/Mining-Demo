@@ -24,12 +24,15 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
   height,
 }) => {
   var options: ApexOptions = {
+    chart: {
+      type: "radialBar",
+    },
     plotOptions: {
       radialBar: {
         startAngle: 0,
         endAngle: 360,
         track: {
-          background: bgColor,
+          background: "#fff",
         },
         dataLabels: {
           name: {
@@ -44,20 +47,24 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
         },
       },
     },
-    fill: {
-      colors: [color, bgColor],
+    stroke: {
+      lineCap: "round",
     },
-    labels: ["Utilization"],
+    fill: {
+      colors: [color],
+    },
   };
 
-  const series = useMemo(
-    () =>
-      (value && maxValue && Number(((value / maxValue) * 100).toFixed(2))) || 0,
-    [maxValue, value]
-  );
+  const series = useMemo(() => {
+    if (value !== undefined && maxValue !== undefined && maxValue !== 0) {
+      return Number(((value / maxValue) * 100).toFixed(2));
+    }
+    return 0;
+  }, [maxValue, value]);
 
   return (
     <Chart
+      key={`${color}-${bgColor}-${pctValue}`}
       options={options}
       series={[pctValue || series]}
       type="radialBar"
