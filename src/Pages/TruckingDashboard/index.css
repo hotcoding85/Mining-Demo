@@ -273,6 +273,23 @@ body[data-layout-mode="light"] .trucking-summary {
   }
 }
 
+.trucking-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: white !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.trucking-summary-search input {
+  padding-left: 10px !important;
+}
+
+.trucking-summary-search input::placeholder {
+  color: #bcc1ca !important;
+}
+
 body[data-layout-mode="light"] .turcking-state {
   .state-card {
     padding-right: 24px;
@@ -288,4 +305,22 @@ body[data-layout-mode="light"] .turcking-state {
       color: #2a2a2a;
     }
   }
+}
+
+body[data-layout-mode="light"] .trucking-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: #2a2a2a !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+body[data-layout-mode="light"] .rating-bar-label {
+  color: #2a2a2a;
+}
+
+body[data-layout-mode="light"] .ant-progress-dot {
+  background-color: white !important;
 }

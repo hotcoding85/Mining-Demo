@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { Card, CardBody, Table } from "reactstrap";
 import { getRandomInt } from "utils/random";
-import { Pagination, PaginationProps, DatePicker } from "antd";
+import { Pagination, PaginationProps, DatePicker, Input } from "antd";
+import { SearchDropdown } from "Components/Common/Dropdown";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { RangePicker } = DatePicker;
 
@@ -145,6 +147,33 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
     []
   );
 
+  const filters = {
+    model: [
+      {
+        label: "HD1500",
+        value: "HD1500",
+      },
+      {
+        label: "HD785",
+        value: "HD785",
+      },
+    ],
+    fleet: [
+      {
+        label: "Fleet1",
+        value: "TD001",
+      },
+      {
+        label: "Fleet2",
+        value: "TD002",
+      },
+      {
+        label: "Fleet3",
+        value: "TD003",
+      },
+    ],
+  };
+
   const onChange: PaginationProps["onChange"] = (pageNumber) => {
     console.log("Page: ", pageNumber);
   };
@@ -154,8 +183,17 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
       <CardBody>
         <div className="d-flex justify-content-between align-items-center">
           <div className="trucking-summary-title">Trucking Summary</div>
-          <div className="d-flex justify-content-end align-items-center gap-2">
+          <div className="d-flex justify-content-end align-items-center gap-3">
             <RangePicker />
+            <SearchDropdown itemsGroup={filters} />
+            <Input
+              prefix={<SearchOutlined />}
+              value={globalFilter}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="trucking-summary-search"
+              placeholder="Search"
+            />
           </div>
         </div>
         <div className="mt-3">
