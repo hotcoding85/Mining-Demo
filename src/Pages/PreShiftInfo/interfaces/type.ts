@@ -26,6 +26,8 @@ export interface Data {
   make: string;
   model: string;
   name: string;
+  assignTruck: string;
+  truckModel: string;
   serial: string;
   state: string;
   status: string;

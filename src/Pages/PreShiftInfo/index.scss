@@ -51,6 +51,7 @@ body[data-layout-mode="light"] {
 .pre-shift {
   .card-body {
     color: #828282;
+    box-shadow: 0px 1px 4px 0px #0C0C0D1A;
   }
 
   .card-body__header {
@@ -69,7 +70,7 @@ body[data-layout-mode="light"] {
     text-align: center;
 
     &.fill {
-      background: #535E77;
+      background: #283655;
       color: #ffffff;
       font-weight: 700;
     }
@@ -84,7 +85,7 @@ body[data-layout-mode="light"] {
     background-color: #fff;
     border: 2px dashed #C1C1C1;
     border-radius: 8px;
-    width: 47%;
+    width: 48%;
     height: fit-content;
     color: #656565;
     &.pre-shift-data {
@@ -105,7 +106,7 @@ body[data-layout-mode="light"] {
     &::before {
       content: "";
       position: absolute;
-      top: 49.4%;
+      top: 49.6%;
       right: 5px;
       border: solid #828282;
       border-width: 0 2px 2px 0;
@@ -156,6 +157,57 @@ body[data-layout-mode="light"] {
   }
 }
 
+.schedule-filter {
+  padding-top: 31px;
+  margin: 0 0 31px;
+  .ant-select-show-search,
+  .ant-picker {
+    height: 48px;
+    border-color: #828282;
+    color: #828282;
+    font-size: 16px;
+    background: transparent;
+    .ant-select-selector {
+      border-color: #828282;
+      color: #828282;
+      font-size: 16px;
+      background-color: transparent !important;
+      .ant-select-selection-placeholder {
+        color: #828282;
+      }
+    }
+    .ant-picker-input {
+      input {
+        font-size: 16px;
+        &::placeholder {
+          color: #828282;
+        }
+      }
+      .ant-picker-suffix {
+        color: #828282;
+      }
+    }
+  }
+  button {
+    font-size: 16px;
+    height: 48px;
+    color: #fff;
+    background-color: #283655;
+    &:hover {
+      color: #fff !important;
+      background-color: #283655 !important;
+    }
+  }
+}
+
+.data-section {
+  width: calc(100% - 314px);
+  flex: 1 0;
+}
+.sidebar-section {
+  width: 314px;
+}
+
 [data-layout-mode="dark"] {
   .pre-shift {
     .card-body {
@@ -203,6 +255,38 @@ body[data-layout-mode="light"] {
       }
     }
   }
+  .schedule-filter {
+    .ant-select-show-search,
+    .ant-picker {
+      border-color: #BCC1CA;
+      color: #BCC1CA;
+      .ant-select-selector {
+        border-color: #BCC1CA;
+        color: #BCC1CA;
+        .ant-select-selection-placeholder {
+          color: #BCC1CA;
+        }
+      }
+      .ant-picker-input {
+        input {
+          &::placeholder {
+            color: #BCC1CA;
+          }
+        }
+        .ant-picker-suffix {
+          color: #BCC1CA;
+        }
+      }
+    }
+    button {
+      color: #283655;
+      background-color: #fff;
+      &:hover {
+        color: #283655 !important;
+        background-color: #fff !important;
+      }
+    }
+  }
 }
 
 @media screen and (max-width: 1200px) {
@@ -216,5 +300,15 @@ body[data-layout-mode="light"] {
   .fleet-card {
     flex: 1 1 100%;
     max-width: 100%;
+  }
+}
+
+body {
+  .page-content {
+    padding: calc(#{$header-height}) 0 $footer-height calc(#{$grid-gutter-width} * 0.75);
+  }
+
+  .navbar-header {
+    border-bottom: 1px solid #535E77;
   }
 }
