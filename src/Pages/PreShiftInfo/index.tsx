@@ -5,6 +5,8 @@ import SideBar from "./sidebar/SideBar";
 import { Task } from "./interfaces/type";
 import { data, sampleTaskLists } from "./data/sampleData";
 import List from "./List";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const PreShiftInfo
     = (props: any) => {
@@ -14,17 +16,19 @@ const PreShiftInfo
         return (
             <React.Fragment>
                 <div className="page-content">
-                    <Container fluid>
-                        {/* <Breadcrumb title="Mine Controle" breadcrumbItem="Pre Shift Info" /> */}
-                        <Row>
-                            <Col lg="9">
-                                <List data={data}/>
-                            </Col>
-                            <Col lg="3">
-                                <SideBar tasks={sideMenu} />
-                            </Col>
-                        </Row>
-                    </Container>
+                    <DndProvider backend={HTML5Backend}>
+                        <Container fluid className="p-0">
+                            {/* <Breadcrumb title="Mine Controle" breadcrumbItem="Pre Shift Info" /> */}
+                            <div className="d-flex flex-wrap gap-5 mx-0">
+                                <div className="data-section">
+                                    <List data={data}/>
+                                </div>
+                                <div className="sidebar-section p-0">
+                                    <SideBar tasks={sideMenu} />
+                                </div>
+                            </div>
+                        </Container>
+                    </DndProvider>
                 </div>
             </React.Fragment >
         )

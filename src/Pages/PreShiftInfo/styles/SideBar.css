@@ -1,5 +1,5 @@
 .task-list {
-  width: 96%;
+  width: 100%;
   background-color: #fff;
   border: 1px solid #ddd;
 }
@@ -9,7 +9,7 @@
 }
 
 .equip-lists {
-  gap: 21px;
+  gap: 16px 12px;
 }
 
 .equip-lists .task-chips {
@@ -19,13 +19,14 @@
   background-color: #283655;
   border-radius: 20px;
   padding: 4px 8px 4px 8px !important;
-  min-width: 129px;
-  color: white;
+  min-width: 134px;
+  color: #fff;
+  font-weight: 600;
   text-align: center;
 }
 
 .equip-lists .task-chips:hover {
-  background-color: #ddd;
+  background-color: #535E77;
 }
 
 .btn.show-btn,
@@ -44,6 +45,19 @@
 
   min-width: 80px;
   min-height: 64px;
+}
+
+.btn.show-alert {
+  color: #FAAD14;
+}
+
+.btn.show-danger {
+  color: #CF1322;
+}
+
+.btn.empty-btn {
+  background: #E0E0E0;
+  border: 1px solid transparent
 }
 
 .task-wrapper input {
@@ -78,6 +92,12 @@
   font-weight: 400;
 }
 
+.icons{
+  min-height: 16px;
+  min-width: 16px;
+  margin-right: 5px;
+}
+
 [data-layout-mode="dark"] .task-list {
   color: #fff;
   background-color: #283655;
@@ -110,6 +130,18 @@
   border: 1px solid #535E77;
 }
 
+[data-layout-mode="dark"] .equip-lists .task-chips {
+  background: #535E77;
+}
+
+[data-layout-mode="dark"] .btn.show-alert {
+  color: #FFC53D;
+}
+
+[data-layout-mode="dark"] .btn.show-danger {
+  color: #FF4D4F;
+}
+
 [data-layout-mode="dark"]  .equip-lists .task-chips:hover {
   background-color: #434F6B;
 }
@@ -129,9 +161,11 @@
   gap: 8px;
 }
 
-.equpment {
-
+[data-layout-mode="dark"] .btn.empty-btn {
+  background: #24314D;
+  border: none !important;
 }
+
 [data-layout-mode="dark"]  .task-list-title {
   color: #fff;
 }
