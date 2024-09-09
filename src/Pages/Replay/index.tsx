@@ -476,11 +476,18 @@ const Replay = (props: any) => {
     const drawRoute = useCallback((saving_data: RouteDataType, totalTime, distance, animation: boolean = true) => {
         if (!mapRef.current) return saving_data;
         if (marker.current) marker.current.remove();
-    
+        
         const segments: any = [];
         const _coordinates = saving_data.geoJson.geometry.coordinates as [number, number][];
         const pinRoute = _coordinates;
-    
+        
+        
+        if (!distance || distance == 0) {
+            distance = Math.floor(turf.length(turf.lineString(pinRoute), {units: 'meters'}))
+        }
+        if (!totalTime || totalTime == 0) {
+            totalTime = Math.floor(distance / (saving_data.speedLimits / 3.6));
+        }
         // Create segments for the route
         for (let i = 1; i < _coordinates.length; i++) {
             segments.push({
