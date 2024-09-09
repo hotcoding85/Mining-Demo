@@ -21,7 +21,7 @@ const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData })
             plotOptions: {
                 bar: {
                     horizontal: false,
-                    columnWidth: "45%",
+                    columnWidth: "100%",
                     endingShape: "rounded",
                 },
             },
@@ -34,7 +34,8 @@ const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData })
             },
             colors: ['#FFB629', '#D99A21', '#B07C18', '#936714', '#7C5710', '#62440C', '#62660C', 'gray'],
             xaxis: {
-                categories: hours.map((hour: any) => hour.hour.toString()),
+                categories: hours.map((hour: any) => hour.minute.toString()),
+                labels: { show: false }
             },
             yaxis: {
                 title: {
@@ -50,7 +51,7 @@ const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData })
             tooltip: {
                 y: {
                     formatter: function (val: any) {
-                        return val + " tonne";
+                        return val + " " + yaxisTitle;
                     },
                 }
             }
@@ -84,9 +85,9 @@ const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData })
         while (start.isBefore(end) || start.isSame(end)) {
             hours.push({
                 date: new Date(start.year(), start.month(), start.date(), start.hour(), start.minute(), start.second()).getTime(),
-                hour: start.hour()
+                minute: `${start.hour() < 10 ? '0' + start.hour() : start.hour()}:${start.minute() < 10 ? '0' + start.minute() : start.minute()}`
             })
-            start = start.add(1, 'hour');
+            start = start.add(1, 'minute');
         }
 
         let graphData: any = [];
@@ -96,7 +97,7 @@ const RomGraph = ({ graphType, shiftDate, shift, title, yaxisTitle, graphData })
             let groupHourData = groupBy(groupData[name], 'hour');
             let hourData: any = [];
             for (let hour of hours) {
-                hourData.push(groupHourData[hour.hour] ? round(groupHourData[hour.hour][0].payload, 2) : 0);
+                hourData.push(groupHourData[hour.minute] ? round(groupHourData[hour.minute][0].payload, 2) : 0);
             }
 
             graphData.push({

@@ -228,7 +228,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/ore-tracker">
+                  <Link to="/rom-waste-summary">
                     {props.t("ROM & Waste Summary")}
                   </Link>
                 </li>

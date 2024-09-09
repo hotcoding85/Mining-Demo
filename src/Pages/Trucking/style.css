@@ -93,19 +93,19 @@
   padding-top: 0px !important;
   border-radius: 8px;
   font-family: Arial, sans-serif;
-}
+  }
 
-.BarAndProgressContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  width: 100%;
-}
+  .BarAndProgressContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    width: 100%;
+  }
 
-.BarGraphContainer {
-  width: 90%;
+  .BarGraphContainer{
+    width: 100%;
   /* background-color: #283655; */
   padding: 20px;
   border-radius: 0 0 15px 15px;
@@ -144,42 +144,41 @@
   height: 12px;
   border-radius: 50%;
   margin-right: 8px;
-  flex: none;
-}
+  }
 
-.LegendText {
-  /* span */
-  color: white;
-  font-size: 13px;
-}
+  .LegendText{
+    /* span */
+    /* color: white; */
+    font-size: 13px;
+  }
 
-.ProgressBarContainer {
-  padding: 20px;
-  position: relative;
-  background-color: #283655;
-  /* width: 90%; */
-  border-radius: 15px 15px 0 0;
-}
+  .ProgressBarContainer{
+    padding: 20px;
+    position: relative;
+    background-color: #283655;
+    /* width: 90%; */
+    border-radius: 15px 15px 0 0;
+  }
 
-.ProgressText {
-  color: white;
-  font-size: 13px;
-  margin-bottom: 6px;
-  text-align: left;
-  padding-left: 3px;
-}
+  .ProgressText{
+    /* color: white; */
+    font-size: 13px;
+    margin-bottom: 6px;
+    text-align: left;
+    padding-left: 3px;
+  }
 
-.ProgressBarOuter {
-  background-color: #4a5568;
-  height: 20px;
-  border-radius: 10px;
-  /* overflow: hidden; */
-  position: relative;
-}
+  .ProgressBarOuter{
+    background-color: #4a5568;
+    height: 20px;
+    border-radius: 10px;
+    /* overflow: hidden; */
+    position: relative;
+  }
 
-.ProgressPercent {
-  /* span */
-  color: white;
+  .ProgressPercent{
+    /* span */
+    color: white;
   font-size: 10px;
 }
 
@@ -291,3 +290,24 @@
 .value.below-target {
   color: #cf1322;
 }
+  .light-box {
+    color: #2A2A2A;
+    background-color: #fff;
+    box-shadow: 0px 1px 4px 0px #0C0C0D0D;
+  }
+
+  [data-layout-mode=dark] .light-box {
+    color: #fff;
+    background-color: #283655 !important;
+  }
+
+  .sub-continer {
+    color: #2A2A2A;
+    background-color: #F7F7F7;
+    box-shadow: 0px 1px 4px 0px #0C0C0D0D;
+  }
+
+  [data-layout-mode=dark] .sub-continer.header-1 {
+    color: #fff;
+    background-color: #24314D !important;
+  }

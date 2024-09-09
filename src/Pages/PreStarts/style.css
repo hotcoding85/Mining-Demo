@@ -1,0 +1,84 @@
+/* Styling for the table */
+.table th,
+.table td {
+    color: #fff;
+    text-align: center;
+    border: none;
+    padding: 12px;
+}
+
+/* Default highlighted header row with text */
+.table thead th {
+    background-color: #1C263C;
+    color: #fff;
+}
+
+/* Set entire table background color */
+.table {
+    background-color: #283655;
+    color: #fff;
+}
+
+/* Highlight the entire row on hover */
+.table tbody tr:hover {
+    background-color: #1C263C;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Remove horizontal lines */
+.table-responsive {
+    border: none;
+}
+
+.table> :not(caption)>*>* {
+    color: #fff !important;
+}
+
+/* Custom styles for the date pickers */
+.date-picker-container {
+    position: relative;
+    top: 30px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Styling for the individual date picker wrapper */
+.date-picker-container .date-picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+    margin-top: 35px;
+}
+
+.date-picker-container .date-picker-wrapper:last-child {
+    margin-right: 0;
+}
+
+.date-picker-container label {
+    color: #fff;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.custom-date-picker {
+    border: 1px solid #3C4A6E;
+    background-color: transparent;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.custom-date-picker::placeholder {
+    color: #888;
+}
+
+.custom-date-picker:focus {
+    outline: none;
+    border-color: #5a6f93;
+}
+
+.form-control {
+    background-color: #2f3f63 !important;
+}

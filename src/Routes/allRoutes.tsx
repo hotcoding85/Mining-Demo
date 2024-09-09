@@ -41,6 +41,7 @@ import EquipmentGantt from "Pages/Equipment Gantt";
 import MaintenanceScheduler from "Pages/MaintenanceScheduler";
 import OilAnalysis from "Pages/OilAnalysis";
 import PreStarts from "Pages/PreStarts";
+import PreStartDetails from "Pages/PreStartDetails";
 import FleetOptimisation from "Pages/FleetOptimisation";
 import AutoRouting from "Pages/AutoRouting";
 import HaulRoadIntelligence from "Pages/HaulRoad";
@@ -52,6 +53,7 @@ import MessageCentre from "Pages/MessageCentre";
 import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
 import TelemetryDetails from "Pages/TelemetryDetails";
+import RomWasteSummary from "Pages/RomWasteSummary";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -100,6 +102,7 @@ const authProtectedRoutes = [
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
+  { path: "/details/:id", exact: true, component: <PreStartDetails /> },  // Assuming you have a details page
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/pit-view", exact: true, component: <PitView /> },
@@ -108,7 +111,10 @@ const authProtectedRoutes = [
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
-  { path: "/telemetry-details/:vehicleId", exact: true, component: <TelemetryDetails /> }
+  { path: "/telemetry-details", exact: true, component: <TelemetryDetails /> },
+
+  // Production
+  { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
 ];
 
 const publicRoutes = [

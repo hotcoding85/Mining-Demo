@@ -79,3 +79,87 @@ body[data-layout-mode="light"] {
     color: #2a2a2a;
   }
 }
+
+.fleet-table {
+  thead tr th {
+    font-size: 14px;
+    color: #9ca3b1 !important;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  tbody tr td {
+    font-size: 14px;
+    color: white !important;
+    line-height: 20px;
+    vertical-align: middle;
+    text-align: center;
+
+    .text-left {
+      text-align: left !important;
+    }
+  }
+
+  .table-collapse-row {
+    border-top: 1px solid #535e77;
+    border-bottom: 1px solid #535e77;
+  }
+
+  .table-collapse-trigger {
+    color: white;
+    cursor: pointer;
+    line-height: 24px;
+  }
+
+  tbody .danger-label {
+    color: #cf1322 !important;
+  }
+
+  tbody .light-danger-label {
+    color: #ff4d4f !important;
+  }
+
+  .fault-code {
+    padding: 4px 8px 4px 8px;
+    background-color: #cf1322;
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
+    border-radius: 99px;
+  }
+
+  .sync {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i {
+      color: #389e0d;
+      font-size: 16px;
+    }
+
+    .sync-label {
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+}
+
+body[data-layout-mode="light"] .fleet-table {
+  .table-collapse-trigger {
+    color: #2a2a2a !important;
+  }
+  thead tr th {
+    color: #828282 !important;
+  }
+
+  tbody tr td {
+    color: #2a2a2a !important;
+  }
+
+  .table-collapse-row {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+}

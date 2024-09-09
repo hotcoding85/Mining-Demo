@@ -45,8 +45,7 @@ export const BarGraph: React.FC<BarGraphProps> = ({
   backgroundCol,
 }) => {
   const containerStyle = {
-    width: widthVal || "90%",
-    backgroundColor: "#283655",
+    width: widthVal || "100%",
   };
 
   return (

@@ -9,14 +9,20 @@ import { DatePicker, Radio, Segmented, Space } from "antd";
 import { shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { ShiftTimingsInfo } from "Models/Shift";
 import { Dayjs } from "dayjs";
+import romTonnesData from './romTonnesData.json';
+import { useDispatch } from "react-redux";
 
-const { RangePicker } = DatePicker;
-
-const TelemetryDetails = (props) => {
+const TelemetryDetails = () => {
     document.title = "Telemetry Details | FMS Live";
+
+    const dispatch: any = useDispatch();
 
     const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
     const [shiftInfo, setShiftInfo] = useState(shiftTimings());
+
+    const query: any = new URLSearchParams(window.location.search);
+    const [data, setData] = useState<any>(JSON.parse(JSON.stringify(romTonnesData).replaceAll('EX201', query.get('id'))));
+    console.log(query.get('id'));
 
     useEffect(() => {
         if (timeRange === 'CURRENT_SHIFT') {
@@ -37,6 +43,13 @@ const TelemetryDetails = (props) => {
             })
         }
     }, [timeRange]);
+
+    useEffect(() => {
+        // const stringData = JSON.parse(JSON.stringify(romTonnesData).replaceAll('EX201', query.get('id')));
+        // setData((prevData) => {
+        //     return JSON.parse(stringData);
+        // });
+    }, [dispatch])
 
     const onShiftDateChange = (date: Dayjs): void => {
         const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(date.format('YYYY-MM-DD'), shiftInfo.shift);
@@ -87,15 +100,7 @@ const TelemetryDetails = (props) => {
                                 shift={shiftInfo.shift}
                                 title={'Payload'}
                                 yaxisTitle={'Tonnes'}
-                                graphData={[{
-                                    hour: 20,
-                                    name: "EX201",
-                                    payload: 80.31
-                                }, {
-                                    hour: 23,
-                                    name: "EX201",
-                                    payload: 60.31
-                                }]}
+                                graphData={data ? data!.romsPayloadData : []}
                             />
                         </Col>
                         <Col md={6}>
@@ -107,15 +112,7 @@ const TelemetryDetails = (props) => {
                                 shift={shiftInfo.shift}
                                 title={'Wheel Speed'}
                                 yaxisTitle={'KMPH'}
-                                graphData={[{
-                                    hour: 20,
-                                    name: "EX201",
-                                    payload: 8
-                                }, {
-                                    hour: 23,
-                                    name: "EX201",
-                                    payload: 20
-                                }]}
+                                graphData={data ? data!.romsWheelSpeedData : []}
                             />
                         </Col>
                     </Row>
@@ -129,15 +126,7 @@ const TelemetryDetails = (props) => {
                                 shift={shiftInfo.shift}
                                 title={'Engine RPM'}
                                 yaxisTitle={'RPM'}
-                                graphData={[{
-                                    hour: 20,
-                                    name: "EX201",
-                                    payload: 80.31
-                                }, {
-                                    hour: 23,
-                                    name: "EX201",
-                                    payload: 60.31
-                                }]}
+                                graphData={data ? data!.romsEngineRPMData : []}
                             />
                         </Col>
                         <Col md={6}>
@@ -149,19 +138,11 @@ const TelemetryDetails = (props) => {
                                 shift={shiftInfo.shift}
                                 title={'Engine Hours'}
                                 yaxisTitle={'Hours'}
-                                graphData={[{
-                                    hour: 20,
-                                    name: "EX201",
-                                    payload: 8
-                                }, {
-                                    hour: 23,
-                                    name: "EX201",
-                                    payload: 20
-                                }]}
+                                graphData={data ? data!.romsEngineHrsData : []}
                             />
                         </Col>
                     </Row>
-                    <Row>
+                    {/* <Row>
                         <Col md={12}>
                             <RomStatus
                                 shiftDate={shiftInfo.shiftDate}
@@ -176,7 +157,7 @@ const TelemetryDetails = (props) => {
                                 shift={shiftInfo.shift}
                             />
                         </Col>
-                    </Row>
+                    </Row> */}
 
                 </Container>
             </div>

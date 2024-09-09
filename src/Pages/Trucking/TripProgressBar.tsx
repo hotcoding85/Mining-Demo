@@ -38,34 +38,64 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   widthVal = '100%'
 }) => {
 
-  const [isTargetBubbleVisible, setTargetBubbleVisible] = useState(false);
-
   const plannedPercentage = `${(planned / total) * 100}%`;
-  const forecastPercentage = `${(forecast / total) * 100}%`;
-
-  const handleMouseEnter = () => {
-    setTargetBubbleVisible(true);
-  };
-
-  const handleMouseLeave = () => {
-    setTargetBubbleVisible(false);
-  };
+  const forecastPercentage = `${(forecast / total) * 100 - calDifference()}%`;
 
   const getBarColor = () => {
     const color = planned > forecast ? "#FAAD14" : "#389E0D";
     return color;
   };
 
-  const percentage = Math.round((completed / forecast) * 100);
-  const dotPositions = Array.from({ length: 9 }, (_, i) => `${(i * 100) / 8}%`);
+  const calculatePercentage = () => {
+    let acctualPercent = 0;
+
+    if (type === "Trucking" && subType !== "Production") {
+      acctualPercent = (completed / forecast) * 100;
+    } else {
+      acctualPercent = (forecast / total) * 100;
+    }
+    return acctualPercent>98? acctualPercent : acctualPercent>94? acctualPercent+1 : acctualPercent+2
+  }
+  const percentage = calculatePercentage();
+  const dotPositions = Array.from({ length: 11 }, (_, i) => `${(i * 100) / 10}%`);
+  
+  function calDifference () {
+    let forecastPercentage = (forecast / total) * 100;
+
+    if (forecastPercentage < 10) {
+        return 0;
+    } else if (forecastPercentage >= 10 && forecastPercentage < 20) {
+        return 0.5;
+    } else if (forecastPercentage >= 20 && forecastPercentage < 30) {
+        return 1;
+    } else if (forecastPercentage >= 30 && forecastPercentage <= 40) {
+        return 1.5;
+    } else if (forecastPercentage > 40 && forecastPercentage <= 50) {
+        return 2;
+    } else if (forecastPercentage > 50 && forecastPercentage <= 60) {
+        return 2;
+    } else if (forecastPercentage > 60 && forecastPercentage <= 70) {
+        return 2.5;
+    } else if (forecastPercentage > 70 && forecastPercentage <= 80) {
+        return 2.5;
+    } else if (forecastPercentage > 80 && forecastPercentage <= 90) {
+        return 3;
+    } else if (forecastPercentage > 90 && forecastPercentage < 95) {
+        return 3;
+    } else if (forecastPercentage >= 95 && forecastPercentage < 98) {
+      return 4;
+  } else {
+        return 5;
+    }
+}
 
   return (
     <div
-      className={`ProgressBarContainer ${
+      className={`light-box ProgressBarContainer ${
         type === "Production" ? "ProgressProduction" : ""
       }`}
       style={{
-        backgroundColor: "#283655",
+        // backgroundColor: "#283655",
         paddingBottom: "4%", 
         width:widthVal,
       }}
@@ -84,8 +114,6 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
       </div>
       <div
         className="ProgressBarOuter"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         {type === "Production" && (
           <div className="ProductionText">
@@ -117,7 +145,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
                         : "0",
                   }}
                 >
-                  {Math.round((index * total) / 8)}
+                  {Math.round((index * total) / 10)}
                 </span>
               </div>
             ))}
@@ -134,10 +162,10 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
           }
         >
           {type === "Trucking" && (
-            <span className="ProgressPercent">{percentage}%</span>
+            <span className="ProgressPercent">{Math.round(percentage)}%</span>
           )}
         </ProgressBarInner>
-        {isTargetBubbleVisible && type === "Production" && (
+        {type === "Production" && (
           <div className="TargetBubble" style={{ left: plannedPercentage }}>
             Target: {planned}
           </div>
@@ -153,6 +181,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
             background: getBarColor(),
             left: forecastPercentage,
             borderRadius: "5px",
+            textWrap: "nowrap",
             top: subType === "Production" ? "48%" : undefined,
           }}
           data-color={getBarColor()}
