@@ -303,12 +303,12 @@ body[data-layout-mode="light"] {
   }
 }
 
-body {
-  .page-content {
-    padding: calc(#{$header-height}) 0 $footer-height calc(#{$grid-gutter-width} * 0.75);
-  }
+// body {
+//   .page-content {
+//     padding: calc(#{$header-height}) 0 $footer-height calc(#{$grid-gutter-width} * 0.75);
+//   }
 
-  .navbar-header {
-    border-bottom: 1px solid #535E77;
-  }
-}
+//   .navbar-header {
+//     border-bottom: 1px solid #535E77;
+//   }
+// }
