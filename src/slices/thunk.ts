@@ -33,3 +33,6 @@ export * from "./events/thunk";
 
 // Events
 export * from "./target/thunk";
+
+// Vehicle Routes
+export * from "./vehicleRoutes/thunk";

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Container, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import _ from 'lodash';
-import { getRoutesFromDB, postRoutes, putRoutes, deleteRoutes } from "Helpers/api_auto_routing";
+import { getAll, postRoute, putRoute, deleteRoute } from "Helpers/api_auto_routing";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -127,7 +127,7 @@ const AutoRouting = () => {
 
     const fetchRouteData = async () => {
         try {
-            const response = await getRoutesFromDB();
+            const response = await getAll();
             if (response.length != 0) {
                 const _routeData = _.map(response, route => {
                     return {
@@ -524,7 +524,7 @@ const AutoRouting = () => {
                     color: color,
                     name: 'New Route ' + currentRoute.current
                 };
-                const response = await postRoutes(JSON.stringify(saving_data));
+                const response = await postRoute(JSON.stringify(saving_data));
                 if (response && response.data.id) {
                     saving_data.id = response.data.id
                     saving_data = drawRoute(saving_data);
@@ -559,7 +559,7 @@ const AutoRouting = () => {
     const removeRoute = useCallback(async (route: RouteDataType) => {
         if (!route.id) return
         try {
-            const response = await deleteRoutes(route.id)
+            const response = await deleteRoute(route.id)
             if (routeData !== null && route !== null && routeAllMarkers !== null) {
                 const updatedRouteData = _.filter(routeData, _route => response.data !== _route.id);
                 setRouteData(updatedRouteData);
@@ -1018,7 +1018,7 @@ const AutoRouting = () => {
                 saving_data.color = newColor
                 saving_data.name = newTitle
                 const { id, ...rest } = saving_data;
-                const response = await putRoutes(editingRouteId, rest);
+                const response = await putRoute(editingRouteId, rest);
                 if (response.data && response.data.id) {
                     setRouteData(_.map(routeData, route =>
                         route.id === editingRouteId ? { ...route, name: newTitle, speedLimits: speedLimit, color: newColor } : route
@@ -1063,7 +1063,7 @@ const AutoRouting = () => {
         console.log(routeData)
         if (!routeData || routeData.length === 0) return;
         try {
-            const response = await postRoutes(routeData[0]);
+            const response = await postRoute(routeData[0]);
             setErrorMessage('Successfully saved!')
         }catch (error) {
             console.error(error);

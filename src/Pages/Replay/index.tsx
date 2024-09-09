@@ -13,7 +13,7 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import TimeSlider from "./TimeSlider";
 import './index.css';
 
-import { getRoutesFromDB } from "Helpers/api_auto_routing";
+import { getAll } from "Helpers/api_auto_routing";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
 
@@ -322,7 +322,7 @@ const Replay = (props: any) => {
 
     const fetchRouteData = async () => {
         try {
-            const response = await getRoutesFromDB();
+            const response = await getAll();
             if (response.length != 0) {
                 const _routeData = _.map(response, route => {
                     return {

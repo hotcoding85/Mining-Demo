@@ -5,14 +5,14 @@ import * as url from "./url_helper";
 const api = new APIClient();
 
 // Get Method
-export const getRoutesFromDB = () => api.get(url.AUTO_ROUTING, {});
+export const getAll = () => api.get(url.VEHICLE_ROUTES, {});
 
 // POST Method
-export const postRoutes = (data: any) => api.create(url.AUTO_ROUTING, data);
+export const postRoute = (data: any) => api.create(url.VEHICLE_ROUTES, data);
 
 // PUT Method
-export const putRoutes = (id: string, data: any) => api.put(`${url.AUTO_ROUTING}/${id}`, data);
+export const putRoute = (id: string, data: any) => api.put(`${url.VEHICLE_ROUTES}/${id}`, data);
 
 // DELETE Method
-export const deleteRoutes = (id: string) => api.delete(`${url.AUTO_ROUTING}/${id}`, {});
+export const deleteRoute = (id: string) => api.delete(`${url.VEHICLE_ROUTES}/${id}`, {});
 

@@ -274,7 +274,7 @@ const Target = (props: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getAllFleet()); // Dispatch action to fetch fleet data on component mount
+    dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
   }, [dispatch]);
 
   useEffect(() => {

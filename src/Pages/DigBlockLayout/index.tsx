@@ -30,6 +30,7 @@ import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { Segmented } from "antd";
 import DigBlockLayoutMap from "./DigBlockLayoutMap";
+import { round2Two } from "utils/common";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -233,34 +234,53 @@ const DigBlockLayout = (props: any) => {
         },
       },
       {
-        header: "Au g/t",
+        header: "Grade",
         accessorKey: "augt",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const augt = cellProps.row.original.augt as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(augt)}</div>
+          )
+        }
       },
       {
         header: "Density",
         accessorKey: "density",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const density = cellProps.row.original.density as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(density)}</div>
+          )
+        }
       },
       {
         header: "Tonnes",
         accessorKey: "tonnes",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const tonnes = cellProps.row.original.tonnes as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(tonnes)}</div>
+          )
+        }
       },
       {
         header: "Volume",
         accessorKey: "volume",
         enableColumnFilter: false,
         enableSorting: true,
-      },
-      {
-        header: "Elevation",
-        accessorKey: "elevation",
-        enableColumnFilter: false,
-        enableSorting: true,
+        cell: (cellProps: any) => {
+          const volume = cellProps.row.original.volume as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(volume)}</div>
+          )
+        }
+        
       },
       {
         header: "Status",

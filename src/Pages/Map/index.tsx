@@ -984,7 +984,7 @@ const Map = ({ socket }) => {
           id: 'line-background',
           paint: {
             'line-color': 'red',
-            'line-width': 4,
+            'line-width': 40,
             'line-opacity': 0.4
           }
         });
