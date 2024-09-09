@@ -107,7 +107,7 @@ const authProtectedRoutes = [
   { path: "/details/:id", exact: true, component: <PreStartDetails /> },  // Assuming you have a details page
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
-  { path: "/pit-view", exact: true, component: <PitView /> },
+  { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },

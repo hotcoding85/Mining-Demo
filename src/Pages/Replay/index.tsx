@@ -260,7 +260,7 @@ const Replay = (props: any) => {
             zoom: 17, // Adjust zoom level
             interactive: true,
             pitch: 45,
-            bearing:150,
+            bearing: 50,
             antialias: true, // create the gl context with MSAA antialiasing, so custom layers are antialiased
             minZoom: 0,
 
@@ -831,7 +831,7 @@ const Replay = (props: any) => {
                     <Breadcrumb title="Replay" breadcrumbItem="GPS Fleet Tracking" />
                     <Row>
                         <Col lg="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 262px)', width: '80%' }} >
+                            <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 300px)', width: '80%' }} >
                                 <div style={{
                                     position: 'absolute',
                                     bottom: '-25px',
@@ -846,8 +846,8 @@ const Replay = (props: any) => {
                                     </Card>
                                 </div>
                             </div>
-                            <div style={{ height: 'calc(100vh - 262px)', width: '20%', marginLeft: '15px', background: '#282e3e' }}>
-                                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', color: 'gold', margin: '10px'}}>
+                            <Card style={{ height: 'calc(100vh - 300px)', width: '20%', marginLeft: '16px', padding: '16px' }}>
+                                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
                                     Routes
                                 </div>
                                 <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
@@ -869,7 +869,7 @@ const Replay = (props: any) => {
                                         ))}
                                     </Collapse>
                                 </div>
-                            </div>
+                            </Card>
                         </Col>
                         <TimeSlider
                             isPlaying={isPlaying}
