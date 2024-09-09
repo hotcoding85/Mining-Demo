@@ -167,7 +167,7 @@ const TableContainer = ({
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: isPagination ? getPaginationRowModel() : undefined,
     getSortedRowModel: getSortedRowModel(),
     getSubRows: row => row ? row.subRows : [],
     getExpandedRowModel: getExpandedRowModel(),
