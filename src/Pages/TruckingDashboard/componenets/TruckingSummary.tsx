@@ -4,6 +4,7 @@ import { getRandomInt } from "utils/random";
 import { Pagination, PaginationProps, DatePicker, Input } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined } from "@ant-design/icons";
+import CustomDateRangePicker from "Components/Common/DateRangePicker";
 
 const { RangePicker } = DatePicker;
 
@@ -184,7 +185,7 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
         <div className="d-flex justify-content-between align-items-center">
           <div className="trucking-summary-title">Trucking Summary</div>
           <div className="d-flex justify-content-end align-items-center gap-3">
-            <RangePicker />
+            <CustomDateRangePicker />
             <SearchDropdown itemsGroup={filters} />
             <Input
               prefix={<SearchOutlined />}
