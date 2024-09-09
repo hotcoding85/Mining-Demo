@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardBody, Col, Row } from 'reactstrap';
 import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images/equipment';
 import { round } from 'lodash';
 import './index.scss';
-import { Badge, DatePicker, Select, Space } from 'antd';
+import { Badge, Button, DatePicker, Select, Space } from 'antd';
 import { round2Two, roundOff } from 'utils/common';
+import dayjs from 'dayjs';
 
 const stateConfig = [
     {
@@ -31,6 +32,10 @@ const stateConfig = [
 
 
 const List = ({ data = [] }: any) => {
+
+    const [selectedCrew, setSelectedCrew] = useState<string>('');
+    const [selectedPlan, setSelectedPlan] = useState<string>('');
+    const [selectedDate, setSelectedDate] = useState<Date | string>('');
 
     const getStateColor = (state) => {
         switch (state) {
@@ -86,18 +91,58 @@ const List = ({ data = [] }: any) => {
         'objectFit': 'cover'
     };
 
-    function getRandomFloat(min: number, max: number, decimalPlaces: number): number {
-        const factor = Math.pow(10, decimalPlaces);
-        return Math.round((Math.random() * (max - min) + min) * factor) / factor;
-    }
+    // function getRandomFloat(min: number, max: number, decimalPlaces: number): number {
+    //     const factor = Math.pow(10, decimalPlaces);
+    //     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
+    // }
 
-    const getStateValue = (stateInfo, key: string) => {
-        let info = stateInfo.find((info) => info.state === key);
-        return info ? info.hours : '00:00'
-    }
+    // const getStateValue = (stateInfo, key: string) => {
+    //     let info = stateInfo.find((info) => info.state === key);
+    //     return info ? info.hours : '00:00'
+    // }
 
     return (
         <React.Fragment>
+            <Row className='schedule-filter pe-2'>
+                <Col xxl={3} lg={3}>
+                    <Select
+                        className="basic-single"
+                        id="Crew"
+                        showSearch
+                        allowClear
+                        placeholder="Crew"
+                        style={{ width: '100%', color: "#ffff" }}
+                        // value={selectedCrew}
+                        // options={getCrews()}
+                        // onChange={onCrewChange}
+                    />
+                </Col>
+                <Col xxl={3} lg={3}>
+                    <Select
+                        className="basic-single"
+                        id="Plan By"
+                        showSearch
+                        allowClear
+                        placeholder="Plan By"
+                        style={{ width: '100%', color: "#ffff" }}
+                        // value={selectedPlan}
+                        // options={getPlans()}
+                        // onChange={onPlanChange}
+                    />
+                </Col>
+                <Col xxl={3} lg={3}>
+                        <DatePicker allowClear={false}
+                            style={{ width: '100%'}}
+                            // value={dayjs(selectedDate)}
+                            // onChange={onDateChange}
+                        />
+                </Col>
+                <Col xxl={3} lg={3}>
+                    <Button className='schedule-btn w-100'>Schedule Shift</Button>
+                </Col>
+            </Row>
+
+
             {data.map((item: any, key: number) => (
                 <Row className="row d-flex pre-shift mb-4">
                     <>
@@ -156,11 +201,11 @@ const List = ({ data = [] }: any) => {
                                         <CardBody className="p-3">
                                             <div className="d-flex align-start gap-3 mb-3">
                                                 <div className="text-center">
-                                                    <img src={getImage(item.model)} alt="" style={imageStyle} />
+                                                    <img src={getImage(item.truckModel)} alt="" style={imageStyle} />
                                                 </div>
                                                 <div className="flex-grow-1 card-body__header">
                                                     <h4 className='fs-3'>
-                                                        {item.name}
+                                                        {item.assignTruck}
                                                     </h4>
                                                     <h6>
                                                         {item?.data?.operator || 'No Operator'}
@@ -175,25 +220,12 @@ const List = ({ data = [] }: any) => {
                                                     </div>
                                                 </p>
                                                 <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">Trainers</span>
-                                                    <div className='d-flex flex-column gap-2'>
-                                                        <span className="shift-value fill">R. Carson</span>
-                                                        <span className="shift-value">Unassigned</span>
-                                                    </div>
+                                                    <span className="shift-label">Allocation</span>
+                                                    <div>EX201</div>
                                                 </p>
                                                 <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">Location</span>
-                                                    <div className='d-flex flex-column gap-2'>
-                                                        <span className="shift-value fill">440_BLK1_HG02</span>
-                                                    </div>
-                                                </p>
-                                                <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">ETA Start</span>
-                                                    <span className="shift-time">00:00</span>
-                                                </p>
-                                                <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">ETA End</span>
-                                                    <span className="shift-time">00:00</span>
+                                                    <span className="shift-label">Planned Loads</span>
+                                                    <span className="shift-time">0</span>
                                                 </p>
                                             </div>
                                         </CardBody>
