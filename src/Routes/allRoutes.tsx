@@ -54,6 +54,7 @@ import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
 import TelemetryDetails from "Pages/TelemetryDetails";
 import RomWasteSummary from "Pages/RomWasteSummary";
+import PreShiftInfo from "Pages/PreShiftInfo";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -112,6 +113,7 @@ const authProtectedRoutes = [
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
   { path: "/telemetry-details", exact: true, component: <TelemetryDetails /> },
+  { path: "/preshift-info", exact: true, component: <PreShiftInfo /> },
 
   // Production
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
