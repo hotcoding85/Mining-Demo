@@ -20,7 +20,7 @@ const MaterialTonnes = ({ materialData }) => {
                             <CardBody>
                                 <CardTitle tag="h4" className="mb-3">{item.materialName}</CardTitle>
                                 <CardBody>
-                                    <h4 style={{ textAlign: 'center' }}>{round(item.payload, 2)}</h4>
+                                    <h3 style={{ textAlign: 'center' }}>{round(item.payload, 2)}</h3>
                                 </CardBody>
                             </CardBody>
                         </Card>
