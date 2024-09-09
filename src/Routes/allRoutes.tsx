@@ -41,6 +41,7 @@ import EquipmentGantt from "Pages/Equipment Gantt";
 import MaintenanceScheduler from "Pages/MaintenanceScheduler";
 import OilAnalysis from "Pages/OilAnalysis";
 import PreStarts from "Pages/PreStarts";
+import PreStartDetails from "Pages/PreStartDetails";
 import FleetOptimisation from "Pages/FleetOptimisation";
 import AutoRouting from "Pages/AutoRouting";
 import HaulRoadIntelligence from "Pages/HaulRoad";
@@ -101,6 +102,7 @@ const authProtectedRoutes = [
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
+  { path: "/details/:id", exact: true, component: <PreStartDetails /> },  // Assuming you have a details page
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/pit-view", exact: true, component: <PitView /> },
