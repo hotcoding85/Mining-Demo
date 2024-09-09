@@ -21,9 +21,10 @@ export const VehicleMakes = [
   { key: 1, value: "KOMATSU", label: "KOMATSU" },
   { key: 2, value: "CATERPILLAR", label: "CATERPILLAR" },
   { key: 3, value: "SANDVIK", label: "SANDVIK" },
+  { key: 4, value: "EPIROC", label: "EPIROC" },
 ]
 
-export const VehicleModels = [{ key: 1, value: 'HD785', label: 'HD785' }, { key: 1, value: 'HD1500-7', label: 'HD1500-7' }, { key: 1, value: 'HD1500-8', label: 'HD1500-8' }, { key: 1, value: 'PC1250', label: 'PC1250' }, { key: 1, value: 'PC2000', label: 'PC2000' }, { key: 1, value: 'WA600', label: 'WA600' }]
+export const VehicleModels = [{ key: 1, value: 'HD785', label: 'HD785' }, { key: 1, value: 'HD1500-7', label: 'HD1500-7' }, { key: 1, value: 'HD1500-8', label: 'HD1500-8' }, { key: 1, value: 'PC1250', label: 'PC1250' }, { key: 1, value: 'PC2000', label: 'PC2000' }, { key: 1, value: 'WA600', label: 'WA600' }, { value: 'D375A_8', label: 'D375A_8' }, { value: 'SmartROC_T45', label: 'SmartROC_T45' }]
 
 export const VehicleCategories = [
   { key: 1, value: "DUMP_TRUCK", label: "DUMP TRUCK" },
