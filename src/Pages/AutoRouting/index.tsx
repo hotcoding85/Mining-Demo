@@ -1250,7 +1250,7 @@ const AutoRouting = () => {
                                 <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
                                     {routeData && _.map(routeData, (route: RouteDataType) => {
                                         return <>
-                                            <div className='route-item' key={route.id} style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '30px', fontSize: '13px'}}>
+                                            <div className='route-item' key={route.id} style={{display: 'flex', alignItems: 'center', height: '30px', fontSize: '14px', padding: '6px'}}>
                                                 <span onDoubleClick={() => handleTitleClick(route)} style={{ color: 'white' }}>
                                                     <span style={{color: route.color}}>{route.name}</span>,<span style={{color: 'gold'}}> {route.distance}(m)</span>
                                                 </span>
