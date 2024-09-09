@@ -12,11 +12,11 @@ export const resources: Resource[] = [
 ];
 
 export const sampleTasks: Task[] = [
-  { id: '1', name: 'Task 1', label: 'jdoe1', startTime: new Date('2024-08-28T07:30:00'), endTime: new Date('2024-08-26T08:30:00'), resourceId: '1', span: 5 },
-  { id: '2', name: 'Task 2', label: 'jdoe2', startTime: new Date('2024-08-28T09:00:00'), endTime: new Date('2024-08-26T10:00:00'), resourceId: '2', span: 5 },
-  { id: '3', name: 'Task 3', label: 'jdoe3', startTime: new Date('2024-08-28T11:00:00'), endTime: new Date('2024-08-26T12:00:00'), resourceId: '1', span: 5 },
-  { id: '4', name: 'Task 4', label: 'jdoe4', startTime: new Date('2024-08-28T13:00:00'), endTime: new Date('2024-08-26T14:00:00'), resourceId: '3', span: 5 },
-  { id: '5', name: 'Task 5', label: 'jdoe5', startTime: new Date('2024-08-28T14:30:00'), endTime: new Date('2024-08-26T15:30:00'), resourceId: '2', span: 5 },
+  { id: '1', name: 'STANDBY', label: 'EX01', startTime: new Date('2024-09-09T06:00:00'), endTime: new Date('2024-09-09T08:00:00'), resourceId: '1', span: 2 },
+  { id: '2', name: 'ACTIVE', label: 'EX01', startTime: new Date('2024-09-09T08:00:00'), endTime: new Date('2024-09-09T10:00:00'), resourceId: '1', span: 2 },
+  { id: '3', name: 'DELAY', label: 'EX01', startTime: new Date('2024-09-09T10:00:00'), endTime: new Date('2024-09-09T12:00:00'), resourceId: '1', span: 2 },
+  { id: '4', name: 'DOWN', label: 'EX01', startTime: new Date('2024-09-09T12:00:00'), endTime: new Date('2024-09-09T14:00:00'), resourceId: '1', span: 2 },
+  { id: '5', name: 'STANDBY', label: 'EX01', startTime: new Date('2024-09-09T14:00:00'), endTime: new Date('2024-09-09T16:00:00'), resourceId: '1', span: 2 },
 ];
 
 export const sampleTaskLists: Task[] = [
