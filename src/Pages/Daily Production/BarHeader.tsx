@@ -3,7 +3,7 @@ import './BarHeader.css';
 
 const BarHeader = (props) => {
   return (
-    <div className="bar-header-container">
+    <div className="bar-header-container light-box">
       <div className="text-section">
         <div className="text-section-header">
         <h1>{props.title}</h1>
