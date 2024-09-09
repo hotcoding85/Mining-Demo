@@ -25,6 +25,7 @@ import Target from "Pages/Targets";
 import OperatorReport from "Pages/OperatorReport";
 import TelemetryReport from "Pages/TelemetryReport";
 import GanttScheduler from "Pages/GanttScheduler";
+import Mock from "Pages/Mock";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -114,6 +115,7 @@ const authProtectedRoutes = [
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
   { path: "/telemetry-details", exact: true, component: <TelemetryDetails /> },
   { path: "/preshift-info", exact: true, component: <PreShiftInfo /> },
+  { path: "/mock-data", exact: true, component: <Mock /> },
 
   // Production
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },

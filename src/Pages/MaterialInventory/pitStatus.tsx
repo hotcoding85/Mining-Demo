@@ -21,7 +21,7 @@ const PitStatus = ({ shiftDate, shift }) => {
                 columns: [
                     {
                         header: 'Target',
-                        accessorKey: 'target',
+                        accessorKey: 'materialTarget',
                         enableColumnFilter: false,
                         enableSorting: true
                     },

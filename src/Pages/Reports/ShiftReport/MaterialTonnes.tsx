@@ -12,9 +12,10 @@ const MaterialTonnes = ({ materialData }) => {
 
     return (
         <Row>
-            <Col lg="2">
-                {materialData.map((item, index) => {
-                    return (
+
+            {materialData.map((item, index) => {
+                return (
+                    <Col lg="2">
                         <Card key={index}>
                             <CardBody>
                                 <CardTitle tag="h4" className="mb-3">{item.materialName}</CardTitle>
@@ -23,9 +24,10 @@ const MaterialTonnes = ({ materialData }) => {
                                 </CardBody>
                             </CardBody>
                         </Card>
-                    )
-                })}
-            </Col>
+                    </Col>
+                )
+            })}
+
         </Row>
     )
 }
