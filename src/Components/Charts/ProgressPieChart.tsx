@@ -66,10 +66,6 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({
     fill: {
       colors: [color],
     },
-    labels: ["Utilization"],
-    stroke: {
-      lineCap: "round",
-    },
   };
 
   const series = useMemo(() => {
