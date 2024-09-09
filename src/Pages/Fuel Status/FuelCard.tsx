@@ -117,10 +117,8 @@ const FuelCard: FC<FuelData> = ({
           onMouseLeave={handleSyncHover}
         >
           <div className="img">{getSyncIcon()}</div>
-          <div className="fuel-card-sync">
-            <p>
+          <div style={{paddingLeft:'6px'}}>
               <em>{getSyncText()}</em>
-            </p>
           </div>
         </div>
         {isHoveringSync && (
