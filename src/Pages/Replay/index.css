@@ -40,7 +40,7 @@
 }
 .mapboxgl-popup-content{
     background-color: #2a3853 !important;
-    color: gold !important;
+    /* color: gold !important; */
 }
 .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip{
     border-top-color: #293754 !important;

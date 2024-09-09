@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Container, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Container, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, Card, Button } from 'reactstrap';
 import _ from 'lodash';
 import { getAll, postRoute, putRoute, deleteRoute } from "Helpers/api_auto_routing";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import { Button, Input, Tooltip } from 'antd';
+import { Input, Tooltip } from 'antd';
 import { getRoutes } from './RoutingService';
 import BoundingBoxModal from './BoundingBoxModal';
 import { RouteCoordinatesType, RouteDataType, WayPointType } from './type';
@@ -68,7 +68,7 @@ const AutoRouting = () => {
             zoom: 18, // Adjust zoom level
             interactive: true,
             pitch: 45,
-            bearing:150,
+            bearing: 150,
             antialias: true, // create the gl context with MSAA antialiasing, so custom layers are antialiased
             minZoom: 0,
 
@@ -85,7 +85,7 @@ const AutoRouting = () => {
                 tileSize: 512,
                 maxzoom: 15,
             });
-            
+
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
         });
 
@@ -114,7 +114,7 @@ const AutoRouting = () => {
                 })
                 .catch(error => console.error('Error loading GeoJSON data:', error));
         });
-        
+
         mapRef.current.on('click', handleMapClick);
         mapRef.current.doubleClickZoom.disable();
 
@@ -154,7 +154,7 @@ const AutoRouting = () => {
                 })
                 currentRoute.current = _routeData.length + 1
             }
-        }catch (error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -189,7 +189,7 @@ const AutoRouting = () => {
 
     const calculateCustomElevation = (lngLat: { lng: number; lat: number }) => {
         const point = [lngLat.lng, lngLat.lat];
-        
+
         // Get candidate polygons in the vicinity
         const candidates = index.search({
             minX: lngLat.lng,
@@ -197,10 +197,10 @@ const AutoRouting = () => {
             maxX: lngLat.lng,
             maxY: lngLat.lat
         });
-    
+
         let nearestFeature: any = null;
         let minDistance = Infinity;
-    
+
         candidates.forEach((item) => {
             const isInside = booleanPointInPolygon(point, item.feature.geometry);
             if (isInside) {
@@ -208,7 +208,7 @@ const AutoRouting = () => {
                 return false; // Exit loop early if point is inside a polygon
             }
         });
-    
+
         if (nearestFeature) {
             return nearestFeature.properties.height + 420; // Adjust property name if different
         } else {
@@ -222,7 +222,7 @@ const AutoRouting = () => {
             // Do not use terrain exaggeration to get actual meter values
             mapRef.current.queryTerrainElevation(lngLat, { exaggerated: false })
         );
-        console.log(calculateCustomElevation({lng: e.lngLat.lng, lat: e.lngLat.lat}))
+        console.log(calculateCustomElevation({ lng: e.lngLat.lng, lat: e.lngLat.lat }))
         if (drawing) {
             let newCoords = lngLat;
 
@@ -264,8 +264,8 @@ const AutoRouting = () => {
                             .setLngLat(newCoords as [number, number])
                             .addTo(mapRef.current);
                     }
-                    else{
-                        _routePointMarker = new mapboxgl.Marker({color: 'yellow', scale: 0.8})
+                    else {
+                        _routePointMarker = new mapboxgl.Marker({ color: 'yellow', scale: 0.8 })
                             .setLngLat(newCoords as [number, number])
                             .addTo(mapRef.current);
                     }
@@ -348,8 +348,8 @@ const AutoRouting = () => {
                 return updatedCoordinates;
             });
         }
-        else{
-            switch(pointType) {
+        else {
+            switch (pointType) {
                 case 'start_point':
                     addMarker(lngLat, 'start')
                     setStartPoint(lngLat);
@@ -357,7 +357,7 @@ const AutoRouting = () => {
                     break;
                 case 'end_point':
                     addMarker(lngLat, 'end')
-                    setEndPoint({coordinates: lngLat, speedlimit: defaultSpeedLimit, color: color});
+                    setEndPoint({ coordinates: lngLat, speedlimit: defaultSpeedLimit, color: color });
                     setPointType('way_point')
                     break;
                 default:
@@ -372,17 +372,17 @@ const AutoRouting = () => {
             const _scale = type == 'way' ? 0.6 : 1
 
             let _wayPointMarker, _startPointMarker, _endPointMarker
-            switch(type) {
+            switch (type) {
                 case 'start':
                     startMarker.current?.remove()
-                    _startPointMarker = new mapboxgl.Marker({color: _color, scale: _scale})
+                    _startPointMarker = new mapboxgl.Marker({ color: _color, scale: _scale })
                         .setLngLat(lngLat)
                         .addTo(mapRef.current);
                     startMarker.current = _startPointMarker
                     break;
                 case 'end':
                     endMarker.current?.remove()
-                    _endPointMarker = new mapboxgl.Marker({color: _color, scale: _scale})
+                    _endPointMarker = new mapboxgl.Marker({ color: _color, scale: _scale })
                         .setLngLat(lngLat)
                         .addTo(mapRef.current);
                     endMarker.current = _endPointMarker
@@ -402,7 +402,7 @@ const AutoRouting = () => {
                     wayMarkers.current.push(_wayPointMarker);
                     // Add click event listener to the marker
                     // markerElement.addEventListener('click', (e) => {e.preventDefault(); handleMarkerClick(way)});
-                    _wayPointMarker = new mapboxgl.Marker({color: _color, scale: _scale})
+                    _wayPointMarker = new mapboxgl.Marker({ color: _color, scale: _scale })
                         .setLngLat(lngLat)
                         .addTo(mapRef.current);
                     wayMarkers.current.push(_wayPointMarker);
@@ -421,9 +421,9 @@ const AutoRouting = () => {
                 lastMarker?.remove();
                 return prevCoords;
             }
-        
+
             const updatedCoordinates = prevCoords.slice(0, -1);
-        
+
             const routeData: any = {
                 type: 'Feature',
                 properties: {},
@@ -432,13 +432,13 @@ const AutoRouting = () => {
                     coordinates: updatedCoordinates,
                 },
             };
-        
+
             if (mapRef.current) {
                 // Remove the last route marker
                 const lastMarker = routeMarkers.current.pop();
                 lastMarker?.remove();
             }
-        
+
             if (mapRef.current?.getSource('polygon')) {
                 (mapRef.current.getSource('polygon') as mapboxgl.GeoJSONSource).setData(routeData);
                 if (!mapRef.current?.getLayer('polygon-layer')) {
@@ -456,13 +456,13 @@ const AutoRouting = () => {
                         }
                     });
                 }
-            } 
+            }
             else {
                 mapRef.current?.addSource('polygon', {
                     type: 'geojson',
                     data: routeData,
                 });
-        
+
                 mapRef.current?.addLayer({
                     id: 'polygon-layer',
                     type: 'line',
@@ -477,11 +477,11 @@ const AutoRouting = () => {
                     },
                 });
             }
-        
+
             return updatedCoordinates;
-          });
-        
-          setRoutePoints((prevPoints) => prevPoints.slice(0, -1)); 
+        });
+
+        setRoutePoints((prevPoints) => prevPoints.slice(0, -1));
     }, [coordinates]);
 
     const clearRoute = useCallback(() => {
@@ -510,7 +510,7 @@ const AutoRouting = () => {
             routeMarkers.current[routeMarkers.current.length - 1] = updatedRoutePointMarker;
             try {
                 let saving_data: any = {
-                    geoJson:{
+                    geoJson: {
                         geometry: {
                             type: 'LineString',
                             coordinates: coordinates as [number, number][],
@@ -528,7 +528,7 @@ const AutoRouting = () => {
                 if (response && response.data.id) {
                     saving_data.id = response.data.id
                     saving_data = drawRoute(saving_data);
-        
+
                     _.map(routeMarkers.current, _marker => {
                         _marker.remove();
                     })
@@ -545,14 +545,14 @@ const AutoRouting = () => {
                     setRouteAllMarkers([...routeAllMarkers, newRouteMarker]);
                     setAllCoordinates([...allCoordinates, coordinates]);
                     setDrawing(false);
-                    currentRoute.current ++
+                    currentRoute.current++
                     setErrorMessage('New Route saved successfully!')
                     return saving_data;
                 }
-            }catch (error) {
+            } catch (error) {
                 console.error(error);
             }
-            
+
         }
     }, [coordinates, allCoordinates, routeAllMarkers])
 
@@ -563,7 +563,7 @@ const AutoRouting = () => {
             if (routeData !== null && route !== null && routeAllMarkers !== null) {
                 const updatedRouteData = _.filter(routeData, _route => response.data !== _route.id);
                 setRouteData(updatedRouteData);
-    
+
                 const updatedRouteAllMarkers = _.filter(routeAllMarkers, _marker => _marker.routeNumber !== response.data)
                 setRouteAllMarkers(updatedRouteAllMarkers)
             }
@@ -572,10 +572,10 @@ const AutoRouting = () => {
             const arrowLayerId = response.data + '-route-arrows';
             const mapSource = mapRef.current?.getSource(sourceId);
             (mapSource as mapboxgl.GeoJSONSource).setData('');
-            if (mapRef.current?.getLayer(layerId)){
+            if (mapRef.current?.getLayer(layerId)) {
                 mapRef.current?.removeLayer(layerId);
             }
-            if (mapRef.current?.getLayer(arrowLayerId)){
+            if (mapRef.current?.getLayer(arrowLayerId)) {
                 mapRef.current?.removeLayer(arrowLayerId);
             }
             if (mapRef.current?.getSource(sourceId)) {
@@ -594,18 +594,18 @@ const AutoRouting = () => {
     }, [routeData, routeAllMarkers, mapRef])
 
     const [saving_data, setSavingData] = useState<RouteDataType | null>(null);
-    
+
     useEffect(() => {
         // show edit modal when clicking the line in the map
         const map = mapRef.current;
         if (!map || !saving_data || !routeData || routeData.length === 0) return;
-    
+
         const layerIds: string[] = [];
         _.map(routeData, _route => {
             const layerId = `${_route.id}-layer`;
             layerIds.push(layerId)
         });
-    
+
         const handleDoubleClick = (e: any) => {
             e.preventDefault();
             const clickedFeatures = e.features;
@@ -613,7 +613,7 @@ const AutoRouting = () => {
             if (clickedFeatures && clickedFeatures.length > 0) {
                 const _route = _.find(routeData, route => route.id === layerId.substr(0, layerId.length - 6));
                 if (!_route) return;
-    
+
                 setEditingRouteId(_route.id);
                 setNewTitle(_route.name || '');
                 setSpeedLimit(_route.speedLimits);
@@ -621,11 +621,11 @@ const AutoRouting = () => {
                 setIsModalOpen(true);
             }
         };
-    
+
         _.map(layerIds, layerId => {
             map.on('dblclick', layerId, handleDoubleClick);
         });
-    
+
         return () => {
             _.map(layerIds, layerId => {
                 if (map.getLayer(layerId)) {
@@ -650,7 +650,7 @@ const AutoRouting = () => {
         // Assuming `saving_data.geometry.coordinates` is an array of coordinates along the route
         const _coordinates = saving_data.geoJson.geometry.coordinates as [number, number][];
         const pinRoute = _coordinates;
-        
+
         // Loop through the coordinates and create segments
         for (let i = 1; i < _coordinates.length; i++) {
             segments.push({
@@ -658,8 +658,8 @@ const AutoRouting = () => {
                 color: saving_data.colors ? saving_data.colors[i] : _color // Use segment-specific color or fallback to default color
             });
         }
-        
-        if (mapRef.current?.getLayer('line-layer')){
+
+        if (mapRef.current?.getLayer('line-layer')) {
             mapRef.current?.removeLayer('line-layer');
         }
         if (mapRef.current?.getSource('line-source')) {
@@ -710,8 +710,8 @@ const AutoRouting = () => {
             const layerConfig: any = {
                 'line-color': ['get', 'color'],
                 'line-width': routeWidth,
-              };
-              mapRef.current.addLayer({
+            };
+            mapRef.current.addLayer({
                 id: layerId,
                 type: 'line',
                 source: sourceId,
@@ -760,29 +760,29 @@ const AutoRouting = () => {
             el.className = 'animationmarker';
 
             marker = new mapboxgl.Marker({
-                    element: el,
-                    scale: 0.8,
-                    draggable: false,
-                    pitchAlignment: 'auto',
-                    rotationAlignment: 'auto'
-                })
+                element: el,
+                scale: 0.8,
+                draggable: false,
+                pitchAlignment: 'auto',
+                rotationAlignment: 'auto'
+            })
                 .setLngLat(pinRoute[0] as [number, number])
                 .setPopup(popup)
                 .addTo(mapRef.current)
                 .togglePopup();
         }
 
-            
+
         let startTime: any;
         // get total distance of the route
-        const total_distance = Math.floor(turf.length(turf.lineString(pinRoute), {units: 'meters'}))
+        const total_distance = Math.floor(turf.length(turf.lineString(pinRoute), { units: 'meters' }))
         saving_data.distance = total_distance;
 
         // get total duration of the travel
         if (wayPoints.length == 0) {
             saving_data.duration = Math.floor(total_distance / (saving_data.speedLimits / 3.6));
         }
-        else{
+        else {
             saving_data.duration = calculateTotalDuration(pinRoute as [number, number][], wayPoints, saving_data.speedLimits);
         }
         const diff = animation ? 30 : total_distance;
@@ -790,16 +790,16 @@ const AutoRouting = () => {
         const animateMarker = (timestamp: any) => {
             // Remove destination marker
             endMarker.current?.remove();
-            
+
             if (!startTime) startTime = timestamp;
             const elapsed = timestamp - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const distanceCovered = progress * total_distance;
-        
+
             // Determine the current segment and the position along that segment
             let currentSegmentIndex = 0;
             let segmentDistance = 0;
-        
+
             for (let i = 0; i < segments.length; i++) {
                 const segmentLength = turf.length(turf.lineString(segments[i].coordinates), { units: 'meters' });
                 if (segmentDistance + segmentLength >= distanceCovered) {
@@ -808,28 +808,28 @@ const AutoRouting = () => {
                 }
                 segmentDistance += segmentLength;
             }
-        
+
             const segment = segments[currentSegmentIndex];
             const distanceInSegment = distanceCovered - segmentDistance;
             const pointAlongSegment = turf.along(turf.lineString(segment.coordinates), distanceInSegment, { units: 'meters' });
             const { coordinates: [lng, lat] } = pointAlongSegment.geometry;
-        
-            
+
+
             updateRoute(progress, total_distance, segments);
-            
+
             if (animation) {
                 // prevent showing a lot of digits during the animation
                 const elevation = Math.floor(
                     // Do not use terrain exaggeration to get actual meter values
-                    calculateCustomElevation({lng: lng, lat: lat})
+                    calculateCustomElevation({ lng: lng, lat: lat })
                 );
                 marker.setLngLat([lng, lat]);
                 popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm');
             }
-        
+
             if (progress < 1) {
                 requestAnimationFrame(animateMarker);
-        
+
                 // Rotate the camera at a slightly lower speed to give some parallax effect in the background
                 if (animation) {
                     const rotation = 150 - progress * 40.0;
@@ -846,15 +846,15 @@ const AutoRouting = () => {
                 endPoint?.coordinates && addMarker(endPoint?.coordinates, 'end')
             }
         };
-        
+
         const updateRoute = (_progress: number, _totalDistance: number, segments: any[]) => {
             const currentDistance = _progress * _totalDistance;
             let accumulatedDistance = 0;
             const updatedSegments: any = [];
-        
+
             for (const segment of segments) {
                 const segmentLength = turf.length(turf.lineString(segment.coordinates), { units: 'meters' });
-        
+
                 if (accumulatedDistance + segmentLength < currentDistance) {
                     updatedSegments.push(segment);  // Entire segment is covered
                     accumulatedDistance += segmentLength;
@@ -865,7 +865,7 @@ const AutoRouting = () => {
                         turf.along(turf.lineString(segment.coordinates), remainingDistance, { units: 'meters' }),
                         turf.lineString(segment.coordinates)
                     );
-        
+
                     updatedSegments.push({
                         coordinates: updatedSegment.geometry.coordinates,
                         color: segment.color
@@ -873,9 +873,9 @@ const AutoRouting = () => {
                     break;  // Stop once the current distance is covered
                 }
             }
-        
+
             const mapSource = mapRef.current?.getSource(saving_data.id + '-source');
-            
+
             if (mapSource && 'setData' in mapSource) {
                 const updatedGeoJSON: any = {
                     type: 'FeatureCollection',
@@ -890,11 +890,11 @@ const AutoRouting = () => {
                         }
                     }))
                 };
-        
+
                 (mapSource as mapboxgl.GeoJSONSource).setData(updatedGeoJSON);
             }
         };
-        
+
         requestAnimationFrame(animateMarker);
 
         return saving_data;
@@ -904,7 +904,7 @@ const AutoRouting = () => {
         if (mapRef.current) {
             mapRef.current.on('click', handleMapClick);
         }
-        
+
         return () => {
             if (mapRef.current) {
                 mapRef.current.off('click', handleMapClick);
@@ -923,16 +923,16 @@ const AutoRouting = () => {
     }, [drawing])
 
     const calculateTotalDuration = (
-        routeCoordinates: [number, number][], 
+        routeCoordinates: [number, number][],
         wayPoints: WayPointType[],
         finalSegmentSpeedLimit: number // Speed limit for the final segment
-        ): number => {
+    ): number => {
         let totalDuration = 0;
         // Function to find the index of a coordinate in the routeCoordinates array
         const findCoordIndex = (coord: [number, number]) => {
             let closestIndex = 0;
             let closestDistance = Infinity;
-    
+
             routeCoordinates.forEach((routeCoord, index) => {
                 const distance = turf.distance(turf.point(coord), turf.point(routeCoord), { units: 'meters' });
                 if (distance < closestDistance) {
@@ -940,7 +940,7 @@ const AutoRouting = () => {
                     closestIndex = index;
                 }
             });
-    
+
             return closestIndex;
         };
         // Calculate duration for each segment up to the last waypoint
@@ -949,17 +949,17 @@ const AutoRouting = () => {
             const endCoord = wayPoints[i].coordinates;
             const startIndex = findCoordIndex(startCoord);
             const endIndex = findCoordIndex(endCoord);
-    
+
             // Get the full range of coordinates for the segment
             const segmentCoordinates = routeCoordinates.slice(startIndex, endIndex + 1);
-            const segmentDistance = Math.floor(turf.length(turf.lineString(segmentCoordinates), {units: 'meters'}))
+            const segmentDistance = Math.floor(turf.length(turf.lineString(segmentCoordinates), { units: 'meters' }))
             const speedLimit = finalSegmentSpeedLimit;
-        
+
             // Duration in seconds for this segment
             const segmentDuration = segmentDistance / (speedLimit / 3.6); // Convert km/h to m/s
             totalDuration += segmentDuration;
         }
-      
+
         // Calculate duration for the final segment from the last waypoint to the destination
         const lastWayPointCoord = wayPoints[wayPoints.length - 1].coordinates;
         const routeEndCoord = routeCoordinates[routeCoordinates.length - 1];
@@ -967,11 +967,11 @@ const AutoRouting = () => {
         const endIndex = findCoordIndex(routeEndCoord);
         // const lastSegmentDistance = calculateDistance(lastWayPointCoord, routeEndCoord);
         const segmentCoordinates = routeCoordinates.slice(startIndex, endIndex + 1);
-        const lastSegmentDistance = Math.floor(turf.length(turf.lineString(segmentCoordinates), {units: 'meters'}))
+        const lastSegmentDistance = Math.floor(turf.length(turf.lineString(segmentCoordinates), { units: 'meters' }))
         // Use the provided speed limit for the last segment
         const lastSegmentDuration = lastSegmentDistance / (finalSegmentSpeedLimit / 3.6);
         totalDuration += lastSegmentDuration;
-      
+
         return Math.floor(totalDuration); // Total duration in seconds
     }
 
@@ -1042,7 +1042,7 @@ const AutoRouting = () => {
                                 }
                             }))
                         };
-        
+
                         (mapRef.current.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(data);
                     }
 
@@ -1065,7 +1065,7 @@ const AutoRouting = () => {
         try {
             const response = await postRoute(routeData[0]);
             setErrorMessage('Successfully saved!')
-        }catch (error) {
+        } catch (error) {
             console.error(error);
         }
     }, [routeData])
@@ -1163,109 +1163,112 @@ const AutoRouting = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Auto Routing" />
+                    <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Auto Routing" />
                     <Row>
-                        <Col md="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Col md="12" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 200px)', width: '80%' }} >
-                            <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-bounding-box-group'>
+                                <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-bounding-box-group'>
                                     <Tooltip title="Set Bounding Box">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={showModal}>
-                                                <i className="fas fa-share-alt-square"></i>
+                                            <i className="fas fa-share-alt-square"></i>
                                         </button>
                                     </Tooltip>
                                 </div>
-                                <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-custom-ctrl-group' style={{display: (!drawing ? 'none' : 'block')}}>
+                                <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-custom-ctrl-group' style={{ display: (!drawing ? 'none' : 'block') }}>
                                     <Tooltip title="Save Route">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={saveRoute}>
-                                                <i className='fas fa-save'></i>
+                                            <i className='fas fa-save'></i>
                                         </button>
                                     </Tooltip>
                                     <Tooltip title="Undo">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={handleUndo}>
-                                                <i className='fas fa-undo'></i>
+                                            <i className='fas fa-undo'></i>
                                         </button>
                                     </Tooltip>
                                     <Tooltip title="Clear">
-                                        <button 
-                                            title="" 
-                                            onClick={clearRoute} 
-                                            className="mapbox-gl-draw_ctrl-draw-btn mapbox-gl-draw_trash" 
-                                            type="button" 
-                                            aria-label="Remove" 
+                                        <button
+                                            title=""
+                                            onClick={clearRoute}
+                                            className="mapbox-gl-draw_ctrl-draw-btn mapbox-gl-draw_trash"
+                                            type="button"
+                                            aria-label="Remove"
                                             aria-disabled="false">
                                         </button>
                                     </Tooltip>
                                 </div>
                                 <div className='mapboxgl-ctrl mapboxgl-ctrl-group my-custom-point-group'>
                                     <Tooltip title="From">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={() => setPointType('start_point')}>
-                                                <i className='fas fa-map-marker' style={{color: 'green'}}></i>
+                                            <i className='fas fa-map-marker' style={{ color: 'green' }}></i>
                                         </button>
                                     </Tooltip>
                                     <Tooltip title="Destination">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={() => setPointType('end_point')}>
-                                                <i className='fas fa-map-marker' style={{color: 'red'}}></i>
+                                            <i className='fas fa-map-marker' style={{ color: 'red' }}></i>
                                         </button>
                                     </Tooltip>
                                     <Tooltip title="Find Shortest Route">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={() => setPointType('way_point')}>
-                                                <i className="fas fa-truck" onClick={calculateShortestRoute}></i>
+                                            <i className="fas fa-truck" onClick={calculateShortestRoute}></i>
                                         </button>
                                     </Tooltip>
                                     <Tooltip title="Clear Map">
-                                        <button 
-                                            className="mapboxgl-ctrl-zoom-in" 
-                                            type="button" 
+                                        <button
+                                            className="mapboxgl-ctrl-zoom-in"
+                                            type="button"
                                             onClick={removeShortestRoute}>
-                                                <i className="fas fa-broom"></i>
+                                            <i className="fas fa-broom"></i>
                                         </button>
                                     </Tooltip>
                                 </div>
                             </div>
-                            <div style={{ height: 'calc(100vh - 200px)', width: '20%', marginLeft: '15px', background: '#282e3e' }}>
-                                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', color: 'gold', margin: '10px'}}>
+                            <Card style={{ height: 'calc(100vh - 200px)', width: '20%', marginLeft: '15px', padding:'16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
                                     Routes
-                                    <Button onClick={() => setDrawing(!drawing)} type={'primary'}>
+                                    <Button onClick={() => setDrawing(!drawing)}>
                                         {drawing ? <><i className='fas fa-ellipsis-h'></i></> : <i className='fas fa-plus'></i>}
                                     </Button>
                                 </div>
-                                <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
+                                <div style={{ height: 'calc(100% - 100px)', overflow: 'auto', marginTop:'16px' }}>
                                     {routeData && _.map(routeData, (route: RouteDataType) => {
                                         return <>
-                                            <div className='route-item' key={route.id} style={{display: 'flex', alignItems: 'center', height: '30px', fontSize: '14px', padding: '6px'}}>
-                                                <span onDoubleClick={() => handleTitleClick(route)} style={{ color: 'white' }}>
-                                                    <span style={{color: route.color}}>{route.name}</span>,<span style={{color: 'gold'}}> {route.distance}(m)</span>
-                                                </span>
-
-                                                <i className="bx bx-trash" onClick={() => removeRoute(route)}></i>
+                                            <div className='route-item' key={route.id} style={{ display: 'flex', alignItems: 'center', fontSize: '14px', padding: '6px' }}>
+                                                <div style={{ flex: '1' }} onClick={() => handleTitleClick(route)}>
+                                                    <span style={{ color: route.color, display:'block' }}>{route.name}</span>
+                                                    <span style={{ fontSize: '12px', display:'block' }}>Distance: {route.distance}(m)</span>
+                                                    <span style={{ fontSize: '12px', display:'block' }}>Speed Limit: {route.speedLimits}(km/h)</span>
+                                                </div>
+                                                <div style={{ flex: '0.1' }}>
+                                                    <i className="bx bx-trash" onClick={() => removeRoute(route)}></i>
+                                                </div>
                                             </div>
                                         </>
                                     })}
                                 </div>
-                                <div style={{position: 'relative', height: '50px'}}>
-                                    <Button type='primary' style={{width: '100%', bottom: '5px', right: '0px', position: 'absolute'}} onClick={() => setShowRoads(!showRoads)}>
+                                <div style={{ position: 'relative', height: '50px' }}>
+                                    <Button style={{ width: '100%', bottom: '5px', right: '0px', position: 'absolute' }} onClick={() => setShowRoads(!showRoads)}>
                                         {showRoads ? 'Hide Routes' : 'Show Routes'}
                                     </Button>
                                 </div>
-                            </div>
+                            </Card>
                         </Col>
                     </Row>
                 </Container>
@@ -1307,11 +1310,11 @@ const AutoRouting = () => {
                     />
                 </ModalBody>
                 <ModalFooter>
-                    <Button type="primary" onClick={handleSave} style={{ marginRight: '10px' }}>Save</Button>
-                    <Button type="default" onClick={handleCancel}>Cancel</Button>
+                    <Button onClick={handleSave} style={{ marginRight: '10px' }}>Save</Button>
+                    <Button onClick={handleCancel}>Cancel</Button>
                 </ModalFooter>
             </Modal>
-            <BoundingBoxModal 
+            <BoundingBoxModal
                 isVisible={isModalVisible}
                 handleOk={handleOk}
                 handleCancel={hideBoundingBox}
