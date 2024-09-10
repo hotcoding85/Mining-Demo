@@ -1,3 +1,5 @@
+import "./index.css";
+
 import React, { useMemo } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
@@ -7,7 +9,6 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import "./index.css";
 import TruckingState from "./componenets/TruckingState";
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";

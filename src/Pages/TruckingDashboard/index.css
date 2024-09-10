@@ -108,6 +108,8 @@ body[data-layout-mode="light"] .turcking-state {
   }
 
   .trucking-summary-table {
+    background-color: transparent !important;
+
     thead tr th {
       color: #9ca3b1;
       font-size: 14px;
@@ -115,6 +117,7 @@ body[data-layout-mode="light"] .turcking-state {
       text-align: center;
       vertical-align: middle;
       width: 104px;
+      background-color: transparent !important;
     }
 
     thead tr {
@@ -211,11 +214,16 @@ body[data-layout-mode="light"] .trucking-summary {
 
   .trucking-summary-table {
     thead tr th {
-      color: #2a2a2a;
+      color: #2a2a2a !important;
+      background-color: transparent !important;
     }
 
     thead tr {
       border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover td div {
+      color: white !important;
     }
 
     tbody tr td div {
