@@ -1,362 +1,332 @@
-.chart-wrapper {
-  text-align: center;
-  padding: 10px;
+.digging-state {
+  .state-card {
+    padding-right: 24px;
+    padding-left: 24px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    .state-label {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: center;
+      color: #9ca3b1;
+    }
+
+    .apexcharts-radialbar-track.apexcharts-track path {
+      stroke: #535e77 !important;
+    }
+  }
+
+  .state-card-title {
+    width: 100%;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+  }
 }
 
-.chart-label {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
+body[data-layout-mode="light"] .digging-state {
+  .state-card-title {
+    color: #2a2a2a;
+  }
+
+  .apexcharts-radialbar-track.apexcharts-track path {
+    stroke: #e0e0e0 !important;
+  }
 }
 
-.chart-time {
-  font-size: 20px;
-  color: white;
+.rating-bar {
+  .rating-bar-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+  }
+
+  .rating-bar-wrapper {
+    position: relative;
+    border-radius: 100%;
+
+    .ant-progress-outer {
+      height: 16px;
+    }
+
+    .ant-progress-inner {
+      height: 16px;
+      background-color: #535e77 !important;
+    }
+
+    .ant-progress-text {
+      display: none;
+    }
+
+    .ant-progress-dot-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 20px;
+      left: 0;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .ant-progress-dot {
+      width: 8px;
+      height: 8px;
+      flex: none;
+      border-radius: 100%;
+      background-color: #d9d9d9;
+      margin-left: 15px;
+      margin-right: 15px;
+    }
+
+    .ant-progress-bg {
+      height: 16px !important;
+    }
+  }
+
+  .rating-bar-labels {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .rating-bar-label {
+    color: #9ca3b1;
+    font-size: 20px;
+    line-height: 24px;
+  }
 }
 
-.chart-card-body {
-  padding-top: 20px;
+.digging-summary {
+  .trucking-summary-title {
+    font-family: "Montserrat";
+    font-size: 24px;
+    line-height: 32px;
+    text-align: center;
+    color: white;
+  }
+
+  .digging-summary-table {
+    background-color: transparent !important;
+
+    thead tr th {
+      color: #9ca3b1;
+      font-size: 14px;
+      line-height: 20px;
+      text-align: center;
+      vertical-align: middle;
+      width: 130px;
+      background-color: transparent !important;
+    }
+
+    thead tr {
+      border-bottom: 1px solid #535e77;
+    }
+
+    tbody tr td {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    tbody tr td div {
+      color: white;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: center;
+      width: 130px;
+    }
+
+    tfoot tr td {
+      color: white;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: center;
+      width: 130px;
+      color: #19db43;
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+  .table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #535e77;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #ffffff;
+    opacity: 0.9;
+  }
+
+  .ant-picker-panels {
+    background-color: #283655 !important;
+    .ant-picker-cell-inner {
+      color: white !important;
+    }
+  }
+
+  .ant-pagination {
+    .ant-pagination-item-link {
+      color: white;
+    }
+
+    .ant-pagination-item {
+      background: transparent !important;
+      color: white !important;
+      font-weight: 700;
+    }
+
+    .ant-pagination-item-active {
+      background-color: #535e77 !important;
+      border: none;
+    }
+
+    .ant-pagination-options-quick-jumper {
+      color: white !important;
+    }
+
+    .ant-pagination-options-quick-jumper input {
+      background: transparent !important;
+      color: white !important;
+    }
+
+    .ant-select-selector {
+      background: transparent !important;
+    }
+  }
 }
 
-.row.justify-content-center {
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
+body[data-layout-mode="light"] .digging-summary {
+  .trucking-summary-title {
+    color: #2a2a2a;
+  }
+
+  .digging-summary-table {
+    thead tr th {
+      color: #2a2a2a !important;
+      background-color: transparent !important;
+    }
+
+    thead tr {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover td div {
+      color: white !important;
+    }
+
+    tbody tr td div {
+      color: #2a2a2a;
+    }
+
+    tfoot tr td {
+      width: 130px;
+      color: #389e0d;
+    }
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #e0e0e0 !important;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #828282 !important;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #828282 !important;
+    opacity: 0.8;
+  }
+
+  .ant-pagination {
+    .ant-pagination-item-link {
+      color: #2a2a2a;
+    }
+
+    .ant-pagination-item {
+      background: transparent !important;
+      color: #2a2a2a !important;
+      font-weight: 700;
+    }
+
+    .ant-pagination-item-active {
+      background-color: #e0e0e0 !important;
+    }
+
+    .ant-pagination-options-quick-jumper {
+      color: #2a2a2a !important;
+    }
+
+    .ant-pagination-options-quick-jumper input {
+      background: transparent !important;
+      color: #2a2a2a !important;
+    }
+
+   
+  }
 }
 
-.text-center {
-  padding-top: 15px;
+.digging-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: white !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
-.efficiency-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #FFFFFF;
-  margin-bottom: 10px;
-  text-align: left;
-  /* Align text to the left */
+.digging-summary-search input {
+  padding-left: 10px !important;
 }
 
-
-.efficiency-rating {
-  width: 100%;
-  /* Full width of container */
-  margin: 0 auto;
-  position: relative;
+.digging-summary-search input::placeholder {
+  color: #bcc1ca !important;
 }
 
-.progress-bar-container {
-  position: relative;
-  background-color: #56667A;
-  height: 10px;
-  border-radius: 10px;
-  overflow: hidden;
+body[data-layout-mode="light"] .digging-state {
+  .state-card {
+    padding-right: 24px;
+    padding-left: 24px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    .state-label {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: center;
+      color: #2a2a2a;
+    }
+  }
 }
 
-
-
-.progress-bar {
-  height: 100%;
-  background-color: #FAAD14;
-  /* Orange fill color */
-  border-radius: 10px;
-}
-
-.progress-marker {
-  position: absolute;
-  top: 1px;
-  width: 10px;
-  height: 7px;
-  background-color: #D9D9D9;
-  border-radius: 50%;
-}
-
-.progress-marker span {
-  position: relative;
-  top: 10px;
-  display: block;
-}
-.rating-labels {
-  position: relative;
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
+body[data-layout-mode="light"] .digging-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: #2a2a2a !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   font-size: 14px;
-  color: #9A9A9A;
 }
 
-.rating-label {
-  position: absolute;
-  top: 20px;
-  /* Adjust the top to bring it closer or farther from the dot */
-  text-align: center;
-  width: 50px;
-  /* Set width to center-align */
+body[data-layout-mode="light"] .rating-bar-label {
+  color: #2a2a2a;
 }
 
-.label-good {
-  left: 40%;
-  /* Positioned directly below the 'Good' dot */
-}
-
-.label-fair {
-  left: 80%;
-  /* Positioned directly below the 'Fair' dot */
-}
-
-.label-excellent {
-  left: 80%;
-  /* Positioned directly below the 'Excellent' dot */
-}
-
-/* style.css */
-/* General adjustments */
-
-.progress {
-  background-color: #FFFFFF;
-}
-
-.table-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 10px;
-  display: inline-block;
-}
-
-.table-card {
-  background-color: #1C263C;
-  border-radius: 8px;
-  border: none;
-}
-
-.table-custom th,
-.table-custom td {
-  color: #ffffff;
-  text-align: center;
-  font-size: 16px;
-  padding: 12px;
-}
-
-.date-picker {
-  background-color: #283655;
-  color: white;
-  border: 1px solid #4a4a4a;
-  padding: 6px;
-  border-radius: 4px;
-  margin-left: 10px;
-}
-
-.search-input,
-.table-dropdown .dropdown-toggle-custom {
-  background-color: #283655;
-  color: white;
-  border: 1px solid #4a4a4a;
-  padding: 6px;
-  border-radius: 4px;
-}
-
-.search-input {
-  width: 100px;
-}
-
-.table-dropdown .dropdown-toggle-custom {
-  margin-left: 10px;
-}
-
-
-
-.completed-label,
-.status-label {
-  font-size: 14px;
-  color: #FFFFFF;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-}
-
-.page-size-select {
-  background-color: #1C263C;
-  color: white;
-  border: 1px solid #4a4a4a;
-  padding: 6px;
-  border-radius: 4px;
-}
-
-.goto-page-input {
-  background-color: #1C263C;
-  color: white;
-  border: 1px solid #4a4a4a;
-  padding: 6px;
-  border-radius: 4px;
-}
-
-.pagination .page-link {
-  background-color: #283655;
-  color: white;
-  border: 1px solid #4a4a4a;
-  border-radius: 4px;
-}
-
-.pagination .page-link:hover {
-  background-color: #4a4a4a;
-}
-
-.pagination .active .page-link {
-  background-color: #3c6e71;
-  border: none;
-}
-
-/* Adjust font sizes and alignments in the header */
-h5.table-title {
-  font-size: 24px;
-  color: #ffffff;
-  font-weight: bold;
-}
-
-.card-body {
-  padding: 20px;
-}
-
-.dropdown {
-  display: inline-block;
-  margin-left: 15px;
-}
-
-input.date-picker {
-  display: inline-block;
-  margin-left: 15px;
-}
-
-input.search-input {
-  display: inline-block;
-  margin-left: 15px;
-}
-
-.chart-label-wrapper {
-  background-color: #56667A;
-  /* Matching background color */
-  border-radius: 20px;
-  /* Rounded corners */
-  padding: 0px 16px;
-  /* Padding inside the label */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: fit-content;
-  /* Adjust width according to content */
-  margin: 0 auto;
-  /* Center align */
-}
-
-.completed-label {
-  font-size: 14px;
-  padding: 5px;
-  font-weight: bold;
-  /* Bold text */
-  color: #FFFFFF;
-  /* White text for 'COMPLETED' */
-  letter-spacing: 1px;
-  /* Letter spacing for better readability */
-}
-
-.status-label {
-  font-size: 14px;
-  color: #FFFFFF;
-  /* White text for status */
-}
-
-ul {
-  list-style: none;
-}
-
-.pagination-container {
-  margin-bottom: 15px;
-}
-
-.pagination-arrow {
-  cursor: pointer;
-  padding: 0 10px;
-}
-
-.pagination-numbers {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 10px;
-  /* Adds space between numbers */
-}
-
-.pagination-item {
-  padding: 5px 10px;
-  background-color: #2c3e50;
-  /* Background color */
-  color: #fff;
-  /* Text color */
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.pagination-item:hover {
-  background-color: #34495e;
-  /* Hover color */
-}
-
-/* Items Per Page Dropdown */
-.items-per-page-dropdown {
-  margin-left: 15px;
-}
-
-.items-per-page-dropdown .dropdown-toggle {
-  background-color: #2c3e50;
-  color: white;
-}
-
-.items-per-page-dropdown .dropdown-menu {
-  background-color: #2c3e50;
-  color: white;
-}
-
-.items-per-page-dropdown .dropdown-item {
-  color: white;
-  background-color: #34495e;
-}
-
-.items-per-page-dropdown .dropdown-item:hover {
-  background-color: #1c263c;
-}
-
-/* Go To Page */
-.go-to-page {
-  margin-left: 15px;
-  display: flex;
-  align-items: center;
-}
-
-.go-to-input {
-  width: 40px !important;
-  margin: 0 5px;
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  padding: 5px;
-  border-radius: 3px;
-}
-
-table tr th#table-head {
-  background-color: #283655;
-  border-bottom: 1px solid #535377 !important;
-}
-
-.progress {
+body[data-layout-mode="light"] .ant-progress-dot {
   background-color: white !important;
 }
