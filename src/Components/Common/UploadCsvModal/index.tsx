@@ -41,7 +41,11 @@ const UploadCsvModal: React.FC<UploadCsvModalProps> = ({
     {
       title: step > 0 ? capitalize(type) : "Data source",
       content: (
-        <Select onChange={haneleChange} style={{ width: 120 }}>
+        <Select
+          onChange={haneleChange}
+          style={{ width: 220 }}
+          placeholder="Select data source"
+        >
           <Select.Option value="user">User</Select.Option>
           <Select.Option value="fleet">Fleet</Select.Option>
           <Select.Option value="material">Material</Select.Option>
