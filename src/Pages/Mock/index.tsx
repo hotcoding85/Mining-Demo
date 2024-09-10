@@ -16,6 +16,9 @@ import {
   addShiftRosters,
   addUsers,
   getAllUsers,
+  upsertMaterials,
+  upsertUsers,
+  upsertVehicles,
 } from "slices/thunk";
 import { useDispatch } from "react-redux";
 import { getMockResources } from "Helpers/api_mock_helper";
@@ -27,6 +30,7 @@ import AutoTable from "Components/Common/AutoTable";
 import { postTargets } from "Helpers/api_target_helper";
 import { generateMaterialMockData } from "_mock/material";
 import { postEventMetas } from "Helpers/api_eventmata_helper";
+import UploadCsvModal from "Components/Common/UploadCsvModal";
 
 const Mock = () => {
   document.title = "Mock | FMS Live";
@@ -41,6 +45,11 @@ const Mock = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [resource, setResource] = useState<any>({});
+
+  const [isOpenUploadModal, setIsOpenUploadModal] = useState<boolean>(false);
+
+  const handleOpenUploadModal = () => setIsOpenUploadModal(true);
+  const handleCloseUploadModal = () => setIsOpenUploadModal(false);
 
   const [mockData, setMockData] = useState<any>({
     rosters: null,
@@ -146,6 +155,27 @@ const Mock = () => {
   const onSaveEvents = () =>
     saveData(() => dispatch(addEvents({ records: mockData.events })));
 
+  const handleUploadFile = async (type: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    switch (type) {
+      case "user":
+        await dispatch(upsertUsers(formData));
+        break;
+      case "fleet":
+        await dispatch(upsertVehicles(formData));
+        break;
+      case "material":
+        await dispatch(upsertMaterials(formData));
+        break;
+      default:
+        break;
+    }
+
+    handleCloseUploadModal();
+  };
+
   return (
     <React.Fragment>
       {(isGenerating || isLoading || isSaving) && (
@@ -204,6 +234,7 @@ const Mock = () => {
                 />
               </Space>
               <Button onClick={onClickGenerateMockData}>Generate</Button>
+              <Button onClick={handleOpenUploadModal}>Upload CSV File</Button>
             </Col>
           </Row>
           {resource?.users && (
@@ -253,6 +284,11 @@ const Mock = () => {
           )}
         </Container>
       </div>
+      <UploadCsvModal
+        isOpen={isOpenUploadModal}
+        onClose={handleCloseUploadModal}
+        onUpload={handleUploadFile}
+      />
     </React.Fragment>
   );
 };
