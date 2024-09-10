@@ -8,18 +8,18 @@
 }
 
 .customSelect .ant-select-selector .ant-select-selection-item {
-  background-color: #f5f5f5;
-  color: #9A9A9A;
+  /* background-color: #f5f5f5; */
+  /* color: #9A9A9A; */
   border-radius: 4px;
 }
 
 .customSelect .ant-select-selector .ant-select-selection-item:focus {
-  background-color: #7c8187;
+  /* background-color: #7c8187; */
 }
 
 .customSelect .ant-select-selector .ant-select-selection-item.ant-select-selection-item-disabled {
-  background-color: #f5f5f5;
-  color: #c4c4c4;
+  /* background-color: #f5f5f5; */
+  /* color: #c4c4c4; */
 }
 
 /* Global CSS or your component's CSS file */

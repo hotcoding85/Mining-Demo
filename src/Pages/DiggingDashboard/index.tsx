@@ -109,7 +109,6 @@ const DiggingDashboard = () => {
       { name: 'EX202', completed: '10/35', actual: 228129, planned: 500000, load: 250, tonnes: 50, avgLoadTime: 14, plannedLoadTime: 15, avgCycleTime: 20, plannedCycleTime: 25 },
       { name: 'EX203', completed: '12/35', actual: 228129, planned: 500000, load: 250, tonnes: 50, avgLoadTime: 14, plannedLoadTime: 15, avgCycleTime: 20, plannedCycleTime: 25 },
       { name: 'EX204', completed: '17/35', actual: 228129, planned: 500000, load: 250, tonnes: 50, avgLoadTime: 14, plannedLoadTime: 15, avgCycleTime: 20, plannedCycleTime: 25 },
-
     ],
     []
   );
@@ -174,7 +173,7 @@ const DiggingDashboard = () => {
             <Col lg="12">
               <Card>
                 <CardBody className="text-center chart-card-body">
-                  <h5 className="mb-4">Digger Chart</h5>
+                  <h5 className="mb-4"></h5>
                   <Row className="justify-content-center">
                     <Col md="2" className="chart-wrapper">
                       <Chart options={chartOptions(72, 'Active', '#00FF00')} series={[72]} type="radialBar" height={220} />
@@ -254,31 +253,7 @@ const DiggingDashboard = () => {
             </Col>
           </Row>
         </Container>
-        <Container fluid>
-          <Row className="justify-content-center">
-            <Col md="12" className="text-center">
-              <h6 className="efficiency-title">Efficiency Rating</h6>
-              <div className="efficiency-rating">
-                {/* Progress Bar */}
-                <div className="progress-bar-container mb-4">
-                  <div className="progress-bar" style={{ width: "40%", backgroundColor: "#FFA500" }}></div>
-                  <div className="progress-marker" style={{ left: "40%" }}>
-                    <span className="label">Poor</span>
-                  </div>
-                  <div className="progress-marker" style={{ left: "60%" }}>
-                    <span className="label">Good</span>
-                  </div>
-                  <div className="progress-marker" style={{ left: "80%" }}>
-                    <span className="label">Fair</span>
-                  </div>
-                  <div className="progress-marker" style={{ left: "10%" }}>
-                    <span className="label">Excellent</span>
-                  </div>
-                </div>
-              </div>
-            </Col>
-          </Row>
-        </Container>
+        
 
         <Container fluid>
           {/* Header Section */}
@@ -408,6 +383,33 @@ const DiggingDashboard = () => {
               <span>page</span>
             </div>
           </Col>
+        </Container>
+
+        <Container fluid>
+          <Row className="justify-content-center">
+            <Col md="12" className="text-center">
+              <h6 className="efficiency-title">Efficiency Rating</h6>
+              <div className="efficiency-rating">
+                {/* Progress Bar */}
+                <div className="progress-bar-container mb-4">
+                  <div className="progress-bar" style={{ width: "40%", backgroundColor: "#FFA500" }}></div>
+                  <div className="progress-marker" style={{ left: "40%" }}>
+                    <span className="label">Poor</span>
+                  </div>
+                  <div className="progress-marker" style={{ left: "80%" }}>
+                    <span className="label">Fair</span>
+                  </div>
+                  <div className="progress-marker" style={{ left: "60%" }}>
+                    <span className="label">Good</span>
+                  </div>
+                  
+                  <div className="progress-marker" style={{ left: "10%" }}>
+                    <span className="label">Excellent</span>
+                  </div>
+                </div>
+              </div>
+            </Col>
+          </Row>
         </Container>
       </div>
     </React.Fragment>

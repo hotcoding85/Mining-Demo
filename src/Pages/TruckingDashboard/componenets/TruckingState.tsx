@@ -3,7 +3,7 @@ import { Card, CardBody } from "reactstrap";
 import styled from "styled-components";
 
 const TimeLabel = styled.div<{ color?: string }>`
-  color: ${(props) => props.color || "#FFF"};
+  color: white;
   text-align: center;
   font-size: 20px;
   font-style: normal;
@@ -23,7 +23,7 @@ const TruckingState: React.FC<TruckingStateProps> = ({ truckStates }) => {
   return (
     <Card className="state-card">
       <div className="d-flex flex-column align-items-start">
-        <div className="state-card-title">Trucking Summary</div>
+        <div className="state-card-title"></div>
         <div className="mt-3 d-flex align-items-center justify-content-center w-100">
           {truckStates.map(({ time, state, ...item }) => (
             <div
@@ -34,7 +34,7 @@ const TruckingState: React.FC<TruckingStateProps> = ({ truckStates }) => {
                 <ProgressPieChart width={300} {...item} />
               </ChartWrapper>
               <div className="state-label">{state}</div>
-              <TimeLabel color={item.color}>{time}</TimeLabel>
+              <TimeLabel>{time}</TimeLabel>
             </div>
           ))}
         </div>

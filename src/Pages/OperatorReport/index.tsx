@@ -83,7 +83,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.operatorName}</div>
+            <div style={{ textAlign: 'left' }}>{cellProps.row.original.operatorName}</div>
           )
         }
       },
@@ -94,7 +94,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.vehicleName}</div>
+            <div style={{ textAlign: 'left', marginLeft:'10px' }}>{cellProps.row.original.vehicleName}</div>
           )
         }
       },
@@ -106,10 +106,10 @@ const OperatorReport = (props: any) => {
         cell: (cellProps: any) => {
           const displayContent = getContentByState(cellProps.row.original.status);
           return (
-            <Space style={{ alignItems: 'baseline' }}>
-              <div style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></div>
-              <div style={{ textAlign: 'center' }}>{displayContent.displayState}</div>
-            </Space>
+            <div style={{ display:'flex', alignItems: 'center', justifyContent: 'left' }}>
+              <span style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></span>
+              <span style={{ textAlign: 'center', marginLeft: '6px' }}>{displayContent.displayState}</span>
+            </div>
           )
         }
       },

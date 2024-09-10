@@ -47,11 +47,11 @@ const EfficiencyRatingBar: React.FC<EfficiencyRatingBarProps> = ({ value }) => {
           <div className="rating-bar-label">Poor</div>
         </Col>
         <Col xs={4}>
-          <div className="rating-bar-label">Good</div>
+          <div className="rating-bar-label">Fair</div>
         </Col>
         <Col xs={4}>
           <div className="d-flex justify-content-between align-items-center gap-2">
-            <div className="rating-bar-label">Fair</div>
+            <div className="rating-bar-label">Good</div>
             <div className="rating-bar-label">Excellent</div>
           </div>
         </Col>

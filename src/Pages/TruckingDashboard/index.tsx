@@ -12,6 +12,7 @@ import {
 import TruckingState from "./componenets/TruckingState";
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";
+import { Select, Space } from "antd";
 
 const TruckingDashboard = (props: any) => {
   document.title = "Trucking Plan vs Actual | FMS Live";
@@ -87,18 +88,50 @@ const TruckingDashboard = (props: any) => {
             breadcrumbItem="Trucking Plan vs Actual"
           />
           <Row>
-            <Col lg="12">
+            <Col className='d-flex flex-row-reverse'>
+              <Space>
+                <Select
+                  className="basic-single"
+                  id="filter"
+                  showSearch
+                  placeholder="Filter"
+                  // styles={customStyles}
+                  style={{ width: '150px' }}
+                  options={[{ value: 'All', label: 'All' }, 
+                    {
+                      label: <span>Models</span>,
+                      title: 'Models',
+                      options: [
+                        { value: 'HD785', label: 'HD785' }, { value: 'HD1500-7', label: 'HD1500-7' }, { value: 'HD1500-8', label: 'HD1500-8' }
+                      ],
+                    },
+                    {
+                      label: <span>Fleet</span>,
+                      title: 'Fleet',
+                      options: [
+                        { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
+                      ],
+                    },
+                    ]}
+                />
+              </Space>
+            </Col>
+          </Row>
+          <Row>
+            <Col lg="12" className="mt-3">
               <TruckingState truckStates={StateTimes} />
             </Col>
           </Row>
-          <Row className="mt-3">
-            <Col lg="12">
-              <EfficiencyRatingBar value="excellent" />
-            </Col>
-          </Row>
+
           <Row className="mt-3">
             <Col lg="12">
               <TruckingSummary />
+            </Col>
+          </Row>
+
+          <Row className="mt-3 mb-3">
+            <Col lg="12">
+              <EfficiencyRatingBar value="excellent" />
             </Col>
           </Row>
         </Container>

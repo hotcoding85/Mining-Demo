@@ -111,7 +111,7 @@ const TableHeaders = [
   "Breakdown (mins)",
   "Avg Load per Hour",
   "Tonnes per Hour",
-  "Wasted Moved",
+  "Waste Moved",
   "Tonnes Moved",
   "Avg Load Time",
   "Planned Load Time",
