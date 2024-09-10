@@ -90,8 +90,9 @@ const Mock = () => {
       const targets = generateMockTargetData(resource, rosters);
       const newMaterials = generateMaterialMockData(resource);
       const plans = generateMockPlanData(resource, targets, rosters);
-      const eventMetas = generateMockEventMetaData(plans);
-      const events = generateEventData(eventMetas);
+      const eventsData = generateMockEventMetaData(plans);
+      const eventMetas = eventsData.eventMetas;
+      const events = eventsData.events;//generateEventData(eventMetas);
 
       setMockData({
         rosters,
