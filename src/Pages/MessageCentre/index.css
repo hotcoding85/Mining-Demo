@@ -1,0 +1,353 @@
+
+/* Message Sidebar */
+.messages-panel {
+    background-color: #293754;
+    padding: 20px;
+    color: white;
+    height: 100%;
+    overflow: auto;
+}
+
+.messages-panel .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.ant-tabs-tab-btn{
+    color: #535E77;
+}
+body[data-layout-mode='dark'] .ant-tabs-tab-active > div {
+    color: white !important;
+}
+body[data-layout-mode='light'] .ant-tabs-tab-active > div {
+    color: #535E77 !important;
+}
+.messages-panel .actions {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+.ant-tabs-top >.ant-tabs-nav::before{
+    border-bottom: 0px !important;
+}
+.ant-tabs-ink-bar {
+    background-color: white !important;
+}
+  
+.messages-panel .actions .ant-btn-text {
+    color: white;
+}
+.messages-panel .actions .ant-btn-text:hover {
+    color: grey;
+}
+  
+.message-panel-searchbar, .message-panel-searchbar > input {
+    background-color: #2a3853 !important;
+    color: white !important;
+    border: 1px solid white;
+    font-size: 14px;
+    font-weight: bold;
+}
+.message-panel-searchbar::placeholder, .message-panel-searchbar > input::placeholder {
+    color: #535e77 !important;
+}
+.message-panel-searchbar:hover, .message-panel-searchbar:active{
+    background-color: #2a3853 !important;
+    color: white !important;
+    border: 1px solid white;
+}
+
+.ant-badge-status-purple{
+    background-color: purple;
+}
+  
+.ant-checkbox-wrapper {
+    color: white;
+}
+  
+.ant-list-item {
+    padding: 5px !important;
+    border-bottom: 1px solid #535E77 !important;
+    cursor: pointer;
+}
+  
+.ant-list-item-meta-title {
+    color: white;
+}
+  
+.ant-list-item-meta-description {
+    color: gray;
+}
+
+.ant-list-item:hover{
+    background: #21252930;
+}
+/* Custom styling for horizontal scrollbar */
+.custom-scrollbar-horizontal, .message-board-table .ant-table-body {
+    overflow-x: hidden; /* Enable horizontal scrolling */
+    overflow-y: auto !important; /* Hide vertical scrollbar */
+    white-space: nowrap; /* Prevent wrapping of content */
+}
+  
+/* Webkit browsers */
+.custom-scrollbar-horizontal::-webkit-scrollbar, .message-board-table > .ant-table-body::-webkit-scrollbar {
+    width: 8px !important; /* Height of the horizontal scrollbar */
+}
+  
+/* Scrollbar track */
+.custom-scrollbar-horizontal::-webkit-scrollbar-track, .message-board-table .ant-table-body::-webkit-scrollbar-track {
+    background: #21252950 !important; /* Color of the scrollbar track */
+}
+
+/* Scrollbar handle */
+.custom-scrollbar-horizontal::-webkit-scrollbar-thumb, .message-board-table .ant-table-body::-webkit-scrollbar-thumb {
+    background: #888 !important; /* Color of the scrollbar handle */
+    border-radius: 10px !important; /* Rounded corners */
+}
+  
+/* Scrollbar handle on hover */
+.custom-scrollbar-horizontal::-webkit-scrollbar-thumb:hover, .message-board-table .ant-table-body::-webkit-scrollbar-thumb:hover {
+    background: transparent !important; /* Color of the scrollbar handle on hover */
+}
+
+
+/* Status Card */
+.message-status-card {
+    min-width: 260px !important;
+    max-width: 260px !important;
+    height: 276px;
+    background-color: #1d3355;
+    color: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: absolute; /* Use absolute or fixed as needed */
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+  
+.status-header {
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.synced {
+    font-size: 12px;
+    color: #9fb2c3;
+    display: flex;
+    align-items: center;
+}
+  
+.status-tag {
+    font-size: 12px;
+    border-radius: 12px;
+    padding: 2px 8px;
+}
+
+.status-details {
+    margin-top: 20px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    color: #9fb2c3;
+    font-size: 16px;
+}
+
+.value {
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.message-button, .send-message-second {
+    border-color: rgb(97, 97, 97);
+    color: white;
+    background: transparent;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+
+/* Message Modal */
+
+body[data-layout-mode="dark"] .btn-message-send{
+    border-radius: 0px;
+    padding: 12px;
+    margin-left: -16px;
+    width: calc(100% + 32px);
+    background-color: #1d3355 !important;
+    color: white !important;
+    font-size: 15px;
+    box-shadow: none !important;
+    border-color: #2d456b;
+    margin-top: 16px;
+}
+body[data-layout-mode="dark"] .btn-message-send:focus {
+    border: 1px solid white;
+}
+body[data-layout-mode="dark"] .btn-message-send>input::placeholder {
+    color: grey !important;
+}
+body[data-layout-mode="light"] .btn-message-send{
+    border-radius: 0px;
+    padding: 12px;
+    margin-left: -16px;
+    width: calc(100% + 32px);
+    background-color: white !important;
+    color: #1d3355 !important;
+    font-size: 15px;
+    box-shadow: none !important;
+    border-color: #2d456b;
+    border-color: grey;
+    margin-top: 16px;
+}
+body[data-layout-mode="light"] .btn-message-send:focus {
+    border: 1px solid #2d456b;
+}
+body[data-layout-mode="light"] .btn-message-send>input::placeholder {
+    color: grey !important;
+}
+.carousel-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+  
+.carousel-content {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+  
+.carousel-content::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
+}
+  
+.carousel-button {
+    border-radius: 20px;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.scroll-button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.scroll-button:hover {
+    color: #1890ff; /* Optional: Change color on hover */
+}
+
+/* MessageBoard.css */
+.message-board-container {
+    padding: 20px;
+    background-color: #2a3b5d;
+    color: #fff;
+    border-radius: 10px;
+}
+  
+.message-board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.message-board-actions button {
+    margin-left: 10px;
+}
+
+.message-board-table .ant-table {
+    background-color: transparent;
+}
+
+.message-board-table .ant-table-thead > tr > th {
+    color: #fff;
+    background-color: #324a7a;
+}
+
+.message-board-table .ant-table-tbody > tr > td {
+    color: #fff;
+    background-color: #2a3b5d;
+}
+
+.message-board-table .fault-code-btn {
+    border-radius: 20px;
+    background-color: #e74c3c;
+    border: none;
+    font-size: 12px;
+}
+
+.status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+.table.message-board-table > *, .message-board-table > * > *, .message-board-table > * > * > *{
+    border: 0px !important;
+    font-weight: bold;
+}
+.message-board-table .ant-table,
+.message-board-table .ant-table-container,
+.message-board-table .ant-table-content,
+.message-board-table .ant-table-thead > tr > th,
+.message-board-table .ant-table-tbody > tr > td,
+.message-board-table .ant-table-cell {
+    border: none !important;
+    border-start-end-radius: 0px !important;
+}
+.message-board-table .ant-table-cell:before {
+    content: '';
+    width: 0px !important;
+}
+.new-message-button > button:first-of-type {
+    display: none !important;
+    padding: 0px; 
+}
+.new-message-button > button:nth-child(2) {
+    padding: 0px; 
+    border: none;
+    background-color: #293754;
+}
+.new-message-button > button:nth-child(2):hover {
+    background-color: #535E7700 !important;
+    border: none;
+    color: white
+}
+body[data-layout-mode="dark"] .ant-dropdown-menu-title-content {
+    background-color: #293754;
+    color: white;
+}
+body[data-layout-mode="light"] .ant-dropdown-menu-title-content {
+    background-color: white;
+    color: black;
+}
+.marker-imageContainer::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* Position arrow below the tooltip */
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px;
+    border-style: solid;
+    border-color: #242424 transparent transparent transparent; /* Triangle shape */
+}
+.ant-table-cell .ant-table-cell-scrollbar {
+    border-start-end-radius: 0px !important;
+}
