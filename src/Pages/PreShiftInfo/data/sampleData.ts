@@ -20,7 +20,7 @@ export const data: Data[] = [
     "model": "PC1250",
     "name": "EX201",
     "assignTruck": "DT101",
-    "truckModel": "HD1500",
+    "truckModel": "HD785-7",
     "serial": "36279",
     "state": "ACTIVE",
     "status": "ACTIVE",

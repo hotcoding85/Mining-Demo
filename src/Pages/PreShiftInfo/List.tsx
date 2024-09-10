@@ -86,7 +86,6 @@ const List = ({ data = [] }: any) => {
 
     const imageStyle: React.CSSProperties = {
         'width': '56px',
-        'height': '56px',
         'maxHeight': '100%',
         'objectFit': 'cover'
     };
@@ -112,9 +111,9 @@ const List = ({ data = [] }: any) => {
                         allowClear
                         placeholder="Crew"
                         style={{ width: '100%', color: "#ffff" }}
-                        // value={selectedCrew}
-                        // options={getCrews()}
-                        // onChange={onCrewChange}
+                    // value={selectedCrew}
+                    // options={getCrews()}
+                    // onChange={onCrewChange}
                     />
                 </Col>
                 <Col xxl={3} lg={3}>
@@ -125,17 +124,17 @@ const List = ({ data = [] }: any) => {
                         allowClear
                         placeholder="Plan By"
                         style={{ width: '100%', color: "#ffff" }}
-                        // value={selectedPlan}
-                        // options={getPlans()}
-                        // onChange={onPlanChange}
+                    // value={selectedPlan}
+                    // options={getPlans()}
+                    // onChange={onPlanChange}
                     />
                 </Col>
                 <Col xxl={3} lg={3}>
-                        <DatePicker allowClear={false}
-                            style={{ width: '100%'}}
-                            // value={dayjs(selectedDate)}
-                            // onChange={onDateChange}
-                        />
+                    <DatePicker allowClear={false}
+                        style={{ width: '100%' }}
+                    // value={dayjs(selectedDate)}
+                    // onChange={onDateChange}
+                    />
                 </Col>
                 <Col xxl={3} lg={3}>
                     <Button className='schedule-btn w-100'>Schedule Shift</Button>
@@ -144,112 +143,98 @@ const List = ({ data = [] }: any) => {
 
 
             {data.map((item: any, key: number) => (
-                <Row className="row d-flex pre-shift mb-4">
-                    <>
-                        <Col className="col-lg-3 col-md-6 position-relative pre-shift-lft" key={key}>
-                            <Card className="rounded-3 mb-0 h-100">
-                                <CardBody className="p-3">
-                                    <div className="d-flex align-start gap-3 mb-3">
-                                        <div className="text-center">
-                                            <img src={getImage(item.model)} alt="" style={imageStyle} />
+                <>
+                    <div className='mb-2'>
+                        <h4 >Haul Fleet {key + 1}</h4>
+                    </div>
+                    <Row className="row d-flex pre-shift mb-4">
+                        <>
+                            <Col className="col-lg-3 col-md-6 position-relative pre-shift-lft" key={key}>
+                                <Card className="rounded-3 mb-0 h-70">
+                                    <CardBody className="p-3">
+                                        <div className="d-flex align-start gap-3 mb-3">
+                                            <div className="text-center">
+                                                <img src={getImage(item.model)} alt="" style={imageStyle} />
+                                            </div>
+                                            <div className="flex-grow-1 card-body__header">
+                                                <h4 className='fs-3'>
+                                                    {item.name}
+                                                </h4>
+                                                <h6>
+                                                    {item?.data?.operator || 'No Operator'}
+                                                </h6>
+                                            </div>
                                         </div>
-                                        <div className="flex-grow-1 card-body__header">
-                                            <h4 className='fs-3'>
-                                                {item.name}
-                                            </h4>
-                                            <h6>
-                                                {item?.data?.operator || 'No Operator'}
-                                            </h6>
+                                        <div className="d-flex flex-column gap-2 mb-4 w-100">
+                                            <p className="d-flex gap-3 justify-content-between mb-0">
+                                                <span className="shift-label">Location</span>
+                                                <div className='d-flex flex-column gap-2'>
+                                                    <span className="shift-value fill">440_BLK1_HG02</span>
+                                                </div>
+                                            </p>
+                                            <p className="d-flex gap-3 justify-content-between mb-0">
+                                                <span className="shift-label">ETA Start - Finish</span>
+                                                <span className="shift-time">07:30 - 17:30</span>
+                                            </p>
+                                            <p className="d-flex gap-3 justify-content-between mb-0">
+                                                <span className="shift-label">Total Loads</span>
+                                                <span className="shift-time">23/345</span>
+                                            </p>
+                                            <p className="d-flex gap-3 justify-content-between mb-0">
+                                                <span className="shift-label">Total Tonnes</span>
+                                                <span className="shift-time">1955/29,325</span>
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div className="d-flex flex-column gap-3 mb-4 w-100">
-                                        <p className="d-flex gap-3 justify-content-between mb-0">
-                                            <span className="shift-label">Operator</span>
-                                            <div className='d-flex flex-column gap-2'>
-                                                <span className="shift-value">Unassigned</span>
-                                            </div>
-                                        </p>
-                                        <p className="d-flex gap-3 justify-content-between mb-0">
-                                            <span className="shift-label">Trainers</span>
-                                            <div className='d-flex flex-column gap-2'>
-                                                <span className="shift-value fill">R. Carson</span>
-                                                <span className="shift-value">Unassigned</span>
-                                            </div>
-                                        </p>
-                                        <p className="d-flex gap-3 justify-content-between mb-0">
-                                            <span className="shift-label">Location</span>
-                                            <div className='d-flex flex-column gap-2'>
-                                                <span className="shift-value fill">440_BLK1_HG02</span>
-                                            </div>
-                                        </p>
-                                        <p className="d-flex gap-3 justify-content-between mb-0">
-                                            <span className="shift-label">ETA Start</span>
-                                            <span className="shift-time">00:00</span>
-                                        </p>
-                                        <p className="d-flex gap-3 justify-content-between mb-0">
-                                            <span className="shift-label">ETA End</span>
-                                            <span className="shift-time">00:00</span>
-                                        </p>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                        <Col className="col-lg-9 col-md-6">
-                            <div className='position-relative d-flex flex-wrap justify-content-start gap-4 ps-4 w-100 shift-line'>
-                                <div className='assign-box assign-arrow p-3 pre-shift-data'>
-                                    <Card className="rounded-3 mb-0 h-100">
-                                        <CardBody className="p-3">
-                                            <div className="d-flex align-start gap-3 mb-3">
-                                                <div className="text-center">
-                                                    <img src={getImage(item.truckModel)} alt="" style={imageStyle} />
-                                                </div>
-                                                <div className="flex-grow-1 card-body__header">
-                                                    <h4 className='fs-3'>
-                                                        {item.assignTruck}
-                                                    </h4>
-                                                    <h6>
-                                                        {item?.data?.operator || 'No Operator'}
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                            <div className="d-flex flex-column gap-3 mb-4 w-100">
-                                                <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">Operator</span>
-                                                    <div className='d-flex flex-column gap-2'>
-                                                        <span className="shift-value">Unassigned</span>
+                                    </CardBody>
+                                </Card>
+                            </Col>
+                            <Col className="col-lg-9 col-md-6">
+                                <div className='position-relative d-flex flex-wrap justify-content-start gap-4 ps-4 w-60 shift-line'>
+                                    <div className='assign-box assign-arrow p-3 pre-shift-data'>
+                                        <Card className="rounded-3 mb-0 h-100">
+                                            <CardBody className="p-3">
+                                                <div className="d-flex align-start gap-3 mb-3">
+                                                    <div className="text-center">
+                                                        <img src={getImage(item.truckModel)} alt="" style={imageStyle} />
                                                     </div>
-                                                </p>
-                                                <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">Allocation</span>
-                                                    <div>EX201</div>
-                                                </p>
-                                                <p className="d-flex gap-3 justify-content-between mb-0">
-                                                    <span className="shift-label">Planned Loads</span>
-                                                    <span className="shift-time">0</span>
-                                                </p>
-                                            </div>
-                                        </CardBody>
-                                    </Card>
+                                                    <div className="flex-grow-1 card-body__header">
+                                                        <h4 className='fs-3'>
+                                                            {item.assignTruck} <span style={{ fontSize: '12px' }}>{item.truckModel}</span>
+                                                        </h4>
+                                                        <h6>
+                                                            {item?.data?.operator || 'J. Brown'}
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                                <div className="d-flex flex-column gap-3 w-100">
+                                                    <p className="d-flex gap-3 justify-content-between mb-0">
+                                                        <span className="shift-label">Planned Loads</span>
+                                                        <span className="shift-time" style={{ fontSize: '18px' }}>0/35</span>
+                                                    </p>
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    </div>
+                                    <div className='assign-box assign-arrow p-3'>
+                                        + Assign truck here
+                                    </div>
+                                    <div className='assign-box assign-arrow p-3'>
+                                        + Assign truck here
+                                    </div>
+                                    <div className='assign-box assign-arrow p-3'>
+                                        + Assign truck here
+                                    </div>
+                                    <div className='assign-box assign-arrow p-3'>
+                                        + Assign truck here
+                                    </div>
+                                    <div className='assign-box assign-arrow p-3'>
+                                        + Assign truck here
+                                    </div>
                                 </div>
-                                <div className='assign-box assign-arrow p-3'>
-                                    + Assign dozer here
-                                </div>
-                                <div className='assign-box assign-arrow p-3'>
-                                    + Assign truck here
-                                </div>
-                                <div className='assign-box assign-arrow p-3'>
-                                    + Assign dozer here
-                                </div>
-                                <div className='assign-box assign-arrow p-3'>
-                                    + Assign truck here
-                                </div>
-                                <div className='assign-box assign-arrow p-3'>
-                                    + Assign dozer here
-                                </div>
-                            </div>
-                        </Col>
-                    </>
-                </Row>
+                            </Col>
+                        </>
+                    </Row>
+                </>
             ))}
         </React.Fragment>
     );

@@ -176,17 +176,17 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Mine Control")}</span>
               </Link>
               <ul className="sub-menu">
-                <li>
-                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
+              <li>
+                  <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
                 </li>
                 <li>
-                  <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
+                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
                 </li>
                 <li>
                   <Link to="/shift-planner">{props.t("Shift Planner")}</Link>
                 </li>
                 <li>
-                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
+                  <Link to="/ore-spotter">{props.t("Ore Spotter")}</Link>
                 </li>
                 <li>
                   <Link to="/fuel-scheduler">{props.t("Fuel Scheduler")}</Link>
@@ -296,6 +296,9 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Mine Dynamics")}</span>
               </Link>
               <ul className="sub-menu">
+              <li>
+                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
+                </li>
                 <li>
                   <Link to="/fleet-optimisation">{props.t("Haul Road Optimization")}</Link>
                 </li>

@@ -98,7 +98,7 @@
   margin-right: 5px;
 }
 
-[data-layout-mode="dark"] .task-list {
+/* [data-layout-mode="dark"] .task-list {
   color: #fff;
   background-color: #283655;
   border: 1px solid #283655;
@@ -107,7 +107,7 @@
 [data-layout-mode="dark"] .task-list-item {
   background-color: #283655;
   border: 1px solid #283655;
-}
+} */
 
 [data-layout-mode="dark"] .task-wrapper {
   border-bottom: 1px solid #535E77;

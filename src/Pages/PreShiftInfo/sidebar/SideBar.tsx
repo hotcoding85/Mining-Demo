@@ -52,7 +52,7 @@ const SideBar: React.FC<TaskListProps> = ({ tasks }) => {
   }];
 
   return (
-    <div className='task-list d-flex flex-column p-0 mt-0'>
+    <div className='task-list d-flex flex-column p-0 mt-0' >
       <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
         <span className='task-list-title text-start'>Locations</span>
         <div className='equip-lists d-flex align-items-center flex-wrap'>

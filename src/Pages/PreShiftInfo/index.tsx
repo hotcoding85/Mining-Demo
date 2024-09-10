@@ -23,7 +23,7 @@ const PreShiftInfo
                                 <div className="data-section">
                                     <List data={data}/>
                                 </div>
-                                <div className="sidebar-section p-0">
+                                <div className="sidebar-section p-0" style={{height: 'calc(100vh - 120px)', overflow:'scroll'}}>
                                     <SideBar tasks={sideMenu} />
                                 </div>
                             </div>

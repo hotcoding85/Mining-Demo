@@ -56,6 +56,7 @@ import DiggingDashboard from "Pages/DiggingDashboard";
 import TelemetryDetails from "Pages/TelemetryDetails";
 import RomWasteSummary from "Pages/RomWasteSummary";
 import PreShiftInfo from "Pages/PreShiftInfo";
+import OreSpotter from "Pages/OreSpotter";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -76,7 +77,6 @@ const authProtectedRoutes = [
   { path: "/gantt-scheduler", exact: true, component: <GanttScheduler /> },
   { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
-  { path: "/dispatch-live", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
@@ -84,6 +84,7 @@ const authProtectedRoutes = [
   { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
   { path: "/trucking-performance", exact: true, component: <TruckingPerformance /> },
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
+  { path: "/ore-spotter", exact: true, component: <OreSpotter /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
   { path: "/reports", exact: true, component: <Reports /> },
