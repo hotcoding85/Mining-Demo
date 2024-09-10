@@ -32,8 +32,8 @@
   background-color: #ddd;
 }
 
-.btn.show-btn,
-.btn.show-btn:hover {
+.btn.maintenance-show-btn,
+.btn.maintenance-show-btn:hover {
   border: 1px solid #d9d9d985;
   border-radius: 8px;
   font-weight: 400;
@@ -92,8 +92,8 @@
 }
 
 [data-layout-mode="dark"] .equip-lists .task-chips,
-[data-layout-mode="dark"] .btn.show-btn,
-[data-layout-mode="dark"] .btn.show-btn:hover {
+[data-layout-mode="dark"] .btn.maintenance-show-btn,
+[data-layout-mode="dark"] .btn.maintenance-show-btn:hover {
   cursor: pointer;
   border: 1px solid #535e77;
 }

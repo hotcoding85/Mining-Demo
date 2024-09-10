@@ -59,7 +59,7 @@
 }
 
 .calender-right {
-  width: 65%;
+  width: 60%;
   margin-left: auto;
 }
 
@@ -137,7 +137,7 @@
 
 [data-layout-mode="dark"] .rbc-header,
 [data-layout-mode="dark"] .rbc-day-bg + .rbc-day-bg {
-  border-bottom: 1px solid #4b4b4b;
+  border-bottom: 1px solid transparent;
 }
 
 [data-layout-mode="dark"] .rbc-month-view {
@@ -291,12 +291,8 @@
   color: #fff;
 }
 
-[data-layout-mode="light"]
-  .page-content
-  .rbc-label
-  [data-layout-mode="light"]
-  .page-content
-  .rbc-header,
+[data-layout-mode="light"] .page-content .rbc-label,
+[data-layout-mode="light"] .page-content .rbc-header,
 [data-layout-mode="light"] .page-content .rbc-month-view .rbc-date-cell,
 [data-layout-mode="light"] .page-content .rbc-month-view .rbc-header {
   color: #495057;
@@ -306,15 +302,93 @@
 .rbc-events-container .rbc-event.rbc-selected {
   background: #535e77;
   border-radius: 0;
+  border: none;
 }
 
-.rbc-day-slot .rbc-events-container .rbc-event-label {
+.rbc-day-slot .event-title,
+.event-status {
   width: fit-content;
   text-align: center;
   padding: 2px 8px;
   border-radius: 4px;
   background-color: #009d11;
-  min-width: 216px;
+  min-width: 116px;
+}
+
+.event-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  min-width: unset;
+  box-shadow: 0px 4px 4px 0px #00000040;
+}
+
+.event-status::before {
+  content: "";
+  position: absolute;
+  top: 102%;
+  left: 88%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #009d11 transparent transparent transparent;
+}
+
+.event-completed .event-status,
+.event-completed .event-title,
+.event-completed .event-ready-btn button {
+  background-color: #009d11;
+}
+
+.event-in-progress .event-status::before {
+  border-color: #cf1322 transparent transparent transparent;
+}
+
+.event-in-progress .event-status,
+.event-in-progress .event-title {
+  background-color: #cf1322;
+}
+
+.event-in-progress .event-ready-btn button {
+  background-color: #ffffff1f;
+}
+
+.rbc-day-slot .rbc-events-container .rbc-event-label {
+  display: none;
+}
+
+.rbc-time-view .rbc-addons-dnd-resizable::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 8px;
+  width: 1px;
+  height: calc(100% - 8px);
+  background-color: #fff;
+}
+
+.rbc-time-view .rbc-addons-dnd-resizable::after,
+.rbc-time-view .rbc-addons-dnd-resize-ns-anchor:last-child::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6px;
+  border: solid #fff;
+  border-width: 2px 2px 0 0;
+  padding: 2px;
+  transform: rotate(-45deg);
+}
+
+.rbc-time-view .rbc-addons-dnd-resize-ns-anchor {
+  position: relative;
+}
+
+.rbc-time-view .rbc-addons-dnd-resize-ns-anchor:last-child::after {
+  top: unset;
+  bottom: 4px;
+  border-width: 2px 2px 0 0;
+  transform: rotate(135deg);
 }
 
 .event-chip-wrap {
@@ -333,7 +407,7 @@
 }
 
 .event-ready-btn {
-  margin-top: 30px;
+  margin-bottom: 15px;
 }
 
 .event-ready-btn button {
@@ -344,4 +418,70 @@
   color: #fff;
   background-color: #009d11;
   border: 1px solid #f8f8f8;
+}
+
+.event-ready-btn button svg {
+  margin-left: 4px;
+  height: 10px;
+}
+
+.rbc-event {
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  background-color: #009d11;
+  border-radius: 2px;
+  padding: 0;
+}
+
+.rbc-event.rbc-selected {
+  background-color: #009d11;
+}
+
+.event-title-month {
+  display: block;
+  width: 100%;
+  padding: 4px 8px;
+}
+
+.event-completed.event-title-month {
+  border: 1px solid #009d11;
+}
+
+.event-in-progress.event-title-month {
+  border: 1px solid #cf1322;
+}
+
+.rbc-time-header,
+.rbc-header {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.rbc-month-view {
+  border: none !important;
+}
+
+.rbc-month-header {
+  border-bottom: 1px solid #4b4b4b;
+}
+
+.rbc-month-row {
+  border-top: none !important;
+  border: 1px solid #4b4b4b;
+}
+
+.rbc-calendar {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.rbc-time-view .rbc-current-time-indicator,
+.rbc-time-view .rbc-now {
+  display: none;
+}
+
+.event-direction {
+  width: 92%;
+  margin-left: auto;
 }
