@@ -15,6 +15,7 @@ import { shiftTimings } from 'utils/common';
 import { buildGraticule } from 'utils/mapUtils';
 import { Checkbox, Divider } from 'antd';
 import type { CheckboxProps } from 'antd';
+import { DropdownType } from 'Components/Common/Dropdown';
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -952,11 +953,26 @@ const Map = ({ socket }) => {
     })
   }, [geofenceFromDB]);
 
+  const _layerOptions: DropdownType[] = [ 
+    {label: 'Current Haul Routes', value: 'CURRENT_HAUL_ROUTES'}, 
+    {label: 'Future Road Designs', value: 'FUTURE_ROAD_DESIGNS'}, 
+    {label: 'Speed Restrictions', value: 'SPEED_RESTRICTIONS'}, 
+    {label: 'Pit Bottom', value: 'PIT_BOTTOM'}, 
+    {label: 'Pit Climb', value: 'PIT_CLIMB'}, 
+    {label: 'Stop Signs', value: 'STOP_SIGNS'}, 
+    {label: 'Restricted', value: 'RESTRICTED'}, 
+  ];
 
   useEffect(() => {
 
     if (mapStylesLoaded) {
       routes.map((item, key) => {
+        if (!mapRef.current?.getSource(item.id)) {
+          mapRef.current?.addSource(item.id, {
+            type: 'geojson',
+            data: item.geoJson
+          });
+        }
         if (!mapRef.current?.getLayer(item.id)) {
           mapRef.current?.addLayer({
             type: 'line',
@@ -970,16 +986,22 @@ const Map = ({ socket }) => {
           });
         }
 
-        if (!mapRef.current?.getSource(item.id)) {
-          mapRef.current?.addSource(item.id, {
-            type: 'geojson',
-            data: item.geoJson
-          });
+      })
+
+      const selectedCategories = _layerOptions
+        .filter(option => checkedList.includes(option.label)) // Get matching label from _layerOptions
+        .map(option => option.value); // Extract corresponding values (categories)
+      routes.map((item, key) => {
+        if (selectedCategories.includes(item.category)) {
+          mapRef.current.setLayoutProperty(item.id, 'visibility', 'visible');
+        }
+        else{
+          mapRef.current.setLayoutProperty(item.id, 'visibility', 'none');
         }
       })
     }
 
-  }, [routes, mapStylesLoaded])
+  }, [routes, mapStylesLoaded, checkedList])
 
   const clearMarkers = () => {
     markers.map(item => {
@@ -1150,6 +1172,10 @@ const Map = ({ socket }) => {
   const checkAll = layerOptions.length === checkedList.length;
   const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
 
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+  }, [checkedList, routes])
 
   return (
     <React.Fragment>
