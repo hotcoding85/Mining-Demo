@@ -27,7 +27,7 @@ export const addTargets = (targets: any) => async (dispatch: any) => {
     try {
         let response: any;
         response = await postTarget(targets)
-        toast.success("Targets updated successfully", { autoClose: 1000 });
+        toast.success("Targets updated successfully", { autoClose: 1000, position: 'top-center' });
         dispatch(createSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

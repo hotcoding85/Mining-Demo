@@ -1,0 +1,332 @@
+.digging-state {
+  .state-card {
+    padding-right: 24px;
+    padding-left: 24px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    .state-label {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: center;
+      color: #9ca3b1;
+    }
+
+    .apexcharts-radialbar-track.apexcharts-track path {
+      stroke: #535e77 !important;
+    }
+  }
+
+  .state-card-title {
+    width: 100%;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+  }
+}
+
+body[data-layout-mode="light"] .digging-state {
+  .state-card-title {
+    color: #2a2a2a;
+  }
+
+  .apexcharts-radialbar-track.apexcharts-track path {
+    stroke: #e0e0e0 !important;
+  }
+}
+
+.rating-bar {
+  .rating-bar-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+  }
+
+  .rating-bar-wrapper {
+    position: relative;
+    border-radius: 100%;
+
+    .ant-progress-outer {
+      height: 16px;
+    }
+
+    .ant-progress-inner {
+      height: 16px;
+      background-color: #535e77 !important;
+    }
+
+    .ant-progress-text {
+      display: none;
+    }
+
+    .ant-progress-dot-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 20px;
+      left: 0;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .ant-progress-dot {
+      width: 8px;
+      height: 8px;
+      flex: none;
+      border-radius: 100%;
+      background-color: #d9d9d9;
+      margin-left: 15px;
+      margin-right: 15px;
+    }
+
+    .ant-progress-bg {
+      height: 16px !important;
+    }
+  }
+
+  .rating-bar-labels {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .rating-bar-label {
+    color: #9ca3b1;
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
+
+.digging-summary {
+  .trucking-summary-title {
+    font-family: "Montserrat";
+    font-size: 24px;
+    line-height: 32px;
+    text-align: center;
+    color: white;
+  }
+
+  .digging-summary-table {
+    background-color: transparent !important;
+
+    thead tr th {
+      color: #9ca3b1;
+      font-size: 14px;
+      line-height: 20px;
+      text-align: center;
+      vertical-align: middle;
+      width: 130px;
+      background-color: transparent !important;
+    }
+
+    thead tr {
+      border-bottom: 1px solid #535e77;
+    }
+
+    tbody tr td {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    tbody tr td div {
+      color: white;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: center;
+      width: 130px;
+    }
+
+    tfoot tr td {
+      color: white;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: center;
+      width: 130px;
+      color: #19db43;
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+  .table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #535e77;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #ffffff;
+    opacity: 0.9;
+  }
+
+  .ant-picker-panels {
+    background-color: #283655 !important;
+    .ant-picker-cell-inner {
+      color: white !important;
+    }
+  }
+
+  .ant-pagination {
+    .ant-pagination-item-link {
+      color: white;
+    }
+
+    .ant-pagination-item {
+      background: transparent !important;
+      color: white !important;
+      font-weight: 700;
+    }
+
+    .ant-pagination-item-active {
+      background-color: #535e77 !important;
+      border: none;
+    }
+
+    .ant-pagination-options-quick-jumper {
+      color: white !important;
+    }
+
+    .ant-pagination-options-quick-jumper input {
+      background: transparent !important;
+      color: white !important;
+    }
+
+    .ant-select-selector {
+      background: transparent !important;
+    }
+  }
+}
+
+body[data-layout-mode="light"] .digging-summary {
+  .trucking-summary-title {
+    color: #2a2a2a;
+  }
+
+  .digging-summary-table {
+    thead tr th {
+      color: #2a2a2a !important;
+      background-color: transparent !important;
+    }
+
+    thead tr {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover td div {
+      color: white !important;
+    }
+
+    tbody tr td div {
+      color: #2a2a2a;
+    }
+
+    tfoot tr td {
+      width: 130px;
+      color: #389e0d;
+    }
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #e0e0e0 !important;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #828282 !important;
+    border-radius: 50px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #828282 !important;
+    opacity: 0.8;
+  }
+
+  .ant-pagination {
+    .ant-pagination-item-link {
+      color: #2a2a2a;
+    }
+
+    .ant-pagination-item {
+      background: transparent !important;
+      color: #2a2a2a !important;
+      font-weight: 700;
+    }
+
+    .ant-pagination-item-active {
+      background-color: #e0e0e0 !important;
+    }
+
+    .ant-pagination-options-quick-jumper {
+      color: #2a2a2a !important;
+    }
+
+    .ant-pagination-options-quick-jumper input {
+      background: transparent !important;
+      color: #2a2a2a !important;
+    }
+
+   
+  }
+}
+
+.digging-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: white !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.digging-summary-search input {
+  padding-left: 10px !important;
+}
+
+.digging-summary-search input::placeholder {
+  color: #bcc1ca !important;
+}
+
+body[data-layout-mode="light"] .digging-state {
+  .state-card {
+    padding-right: 24px;
+    padding-left: 24px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+
+    .state-label {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: center;
+      color: #2a2a2a;
+    }
+  }
+}
+
+body[data-layout-mode="light"] .digging-summary-search {
+  background-color: transparent !important;
+  border: 1px solid #9ca3b1 !important;
+  color: #2a2a2a !important;
+  width: 270px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+body[data-layout-mode="light"] .rating-bar-label {
+  color: #2a2a2a;
+}
+
+body[data-layout-mode="light"] .ant-progress-dot {
+  background-color: white !important;
+}

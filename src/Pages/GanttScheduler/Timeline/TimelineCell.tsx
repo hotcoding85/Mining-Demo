@@ -211,7 +211,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
         >
           {isTaskStartSlot && 
             <div style={{ textAlign: 'center' }}>
-              <p className='list-item-span bold'>{label}</p>
+              <p className='list-item-span bold'>{taskForSlot.label}</p>
               <span className='list-item-span'>{taskForSlot.name}</span>
             </div>
           }

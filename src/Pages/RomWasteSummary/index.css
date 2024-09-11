@@ -1,0 +1,36 @@
+
+.table.no-border {
+    width: '100%'; 
+    margin: 20px 0px 10px 0px; 
+    border: 1px solid #a7b1ce;
+}
+.table.no-border.light-mode {
+    background-color: white;
+    color: black;
+}
+.table.no-border.light-mode > tbody > tr:hover {
+    background-color: grey;
+}
+.table.no-border.dark-mode {
+    background-color: #283655;
+    color: #fff;
+}
+.table.no-border.light-mode > thead > th {
+    color: black !important;
+}
+.table.no-border > *, .table.no-border > * > *{
+    border: 0px !important;
+    font-weight: bold;
+}
+.table.no-border > :not(caption) > * > *{
+    border: 0px !important;
+}
+.text-color-normal{
+    color: #a6b0cf !important;
+}
+.text-color-green{
+    color: green !important;
+}
+.text-color-red{
+    color: red !important;
+}

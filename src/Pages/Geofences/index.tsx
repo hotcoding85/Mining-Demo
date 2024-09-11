@@ -13,16 +13,24 @@ import { mapGLB, surfaceGLB } from '../../assets/images/map'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { buildGraticule } from 'utils/mapUtils';
+import { useDispatch, useSelector } from 'react-redux';
+import { getGeoFences } from 'slices/thunk';
+import { createSelector } from 'reselect';
+import ReactDOMServer from 'react-dom/server';
+import BlockPopupContent from 'Pages/DigBlockLayout/BlockPopupContent';
 
 const Geofences = ({ socket }) => {
 
     document.title = "Geofences | FMS Live";
 
+    const dispatch: any = useDispatch();
     const mapContainer = useRef(null);
     const mapRef = useRef<any>(null);
     const [lng, setLng] = useState(120.44463458272295,);
     const [lat, setLat] = useState(-29.146790943732764);
-    const [zoom, setZoom] = useState(18);
+    const [zoom, setZoom] = useState(15);
+
+    const popupRef = useRef<mapboxgl.Popup | null>(null);
 
     function getBlockColor(blockId: string): string {
         switch (blockId) {
@@ -62,6 +70,80 @@ const Geofences = ({ socket }) => {
         el.className = 'delaymarker';
         new mapboxgl.Marker(el).setLngLat(lngLat).addTo(mapRef.current);
     }
+
+    useEffect(() => {
+        dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
+    }, [dispatch]);
+
+    const selectProperties = createSelector(
+        (state: any) => state.GeoFence,
+        (GeoFence) => ({
+            data: GeoFence ? GeoFence.data : [],
+            total: GeoFence ? GeoFence.total : 0,
+        })
+    );
+
+    const { data: fences } = useSelector(selectProperties);
+
+    useEffect(() => {
+        console.log('GEOFences >>', fences)
+        fences.map((feature) => {
+            mapRef.current?.addSource(feature.id, {
+                type: "geojson",
+                data: feature.geoJson,
+            });
+
+            mapRef.current?.addLayer({
+                id: feature.id,
+                type: "fill",
+                source: feature.id,
+                layout: {},
+                paint: {
+                    "fill-color": "#0080ff",
+                    "fill-opacity": 0.5,
+                },
+            });
+
+            mapRef.current?.on("mouseenter", feature.id, (e) => {
+                mapRef.current.getCanvas().style.cursor = "pointer";
+                const coordinates = e.lngLat;
+                const properties = e.features[0].properties;
+
+                // Remove existing popup if it exists
+                if (popupRef.current) {
+                  popupRef.current.remove();
+                }
+
+                // Create and display a new popup
+
+                popupRef.current = new mapboxgl.Popup({ closeButton: false })
+                  .setLngLat(coordinates)
+                  .setHTML(
+                    ReactDOMServer.renderToString(
+                      <BlockPopupContent properties={properties} />
+                    )
+                  )
+                  .addTo(mapRef.current);
+            });
+
+            // Remove the popup when the cursor leaves the layer
+            mapRef.current?.on("mouseleave", feature.id, () => {
+                mapRef.current.getCanvas().style.cursor = "";
+                // if (popupRef.current) {
+                //   popupRef.current.remove();
+                //   popupRef.current = null; // Clear the reference
+                // }
+            });
+
+            const bounds = new mapboxgl.LngLatBounds();
+            const coordinates = feature.geoJson.geometry.coordinates.flat();
+            coordinates.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+
+            // Fit map to bounds
+            mapRef.current?.fitBounds(bounds, { padding: 20 });
+        }
+        );
+    }, [fences])
 
     useEffect(() => {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaG1lc3VwcG9ydCIsImEiOiJjbHp1eTRibDAwMG05MmpvczE1ZHdham5qIn0.ZoE3pSipzwdf-0TkY3ezzw';
@@ -106,20 +188,20 @@ const Geofences = ({ socket }) => {
         // const THREE = window.THREE;
 
 
-        addActiveMarker([
-            120.44463458272295,
-            -29.146790943732764
-        ])
+        // addActiveMarker([
+        //     120.44463458272295,
+        //     -29.146790943732764
+        // ])
 
-        addDelayMarker([
-            120.44506272943079,
-            -29.147310837480894
-        ])
+        // addDelayMarker([
+        //     120.44506272943079,
+        //     -29.147310837480894
+        // ])
 
-        addActiveMarker([
-            120.44516509787695,
-            -29.147993875066938
-        ])
+        // addActiveMarker([
+        //     120.44516509787695,
+        //     -29.147993875066938
+        // ])
 
 
         mapRef.current.addControl(new mapboxgl.ScaleControl());
@@ -133,76 +215,47 @@ const Geofences = ({ socket }) => {
             console.log(e)
         }
 
-        // mapRef.current.on('style.load', () => {
-        //     mapRef.current.addLayer({
-        //         id: 'custom-threebox-model',
-        //         type: 'custom',
-        //         renderingMode: '3d',
-        //         onAdd: function () {
-        //             window.tb = new Threebox(
-        //                 mapRef.current,
-        //                 mapRef.current.getCanvas().getContext('webgl'),
-        //                 { defaultLights: true }
-        //             );
-        //             const scale = 1;
-        //             const options = {
-        //                 obj: surfaceGLB,
-        //                 type: 'gltf',
-        //                 scale: 0.75,
-        //                 units: 'meters',
-        //                 // rotation: { x: 90, y: -90, z: 0 }
-        //             };
+        mapRef.current.on('style.load', () => {
+            mapRef.current.addLayer({
+                id: 'custom-threebox-model',
+                type: 'custom',
+                renderingMode: '3d',
+                onAdd: function () {
+                    window.tb = new Threebox(
+                        mapRef.current,
+                        mapRef.current.getCanvas().getContext('webgl'),
+                        { defaultLights: true }
+                    );
+                    const scale = 1;
+                    const options = {
+                        obj: surfaceGLB,
+                        type: 'gltf',
+                        scale: 0.75,
+                        units: 'meters',
+                        // rotation: { x: 90, y: -90, z: 0 }
+                    };
 
-        //             window.tb.loadObj(options, (model) => {
-        //                 console.log('loadObj', options, model)
-        //                 model.setCoords([120.452246,
-        //                     -29.160889]);
-        //                 // model.setRotation({ x: 0, y: 0, z: 0 });
-        //                 window.tb.add(model);
-        //                 window.tb.createTerrainLayer()
-        //             });
-        //         },
+                    window.tb.loadObj(options, (model) => {
+                        console.log('loadObj', options, model)
+                        model.setCoords([120.452246,
+                            -29.160889]);
+                        // model.setRotation({ x: 0, y: 0, z: 0 });
+                        window.tb.add(model);
+                        window.tb.createTerrainLayer()
+                    });
+                },
 
-        //         render: function () {
-        //             window.tb.update();
-        //         }
-        //     });
-        // });
+                render: function () {
+                    window.tb.update();
+                }
+            });
+        });
 
         let hoveredPolygonId = null;
 
         mapRef.current.on('load', () => {
 
             mapRef.current.setTerrain({ 'exaggeration': 2 });
-
-            mapRef.current.on('mouseenter', 'HG01fill', (e) => {
-                mapRef.current.getCanvas().style.cursor = 'pointer';
-                console.log(e.features)
-                if (e.features.length > 0) {
-                    if (hoveredPolygonId !== null) {
-                        mapRef.current.setFeatureState(
-                            { source: 'HG01', id: hoveredPolygonId },
-                            { hover: false }
-                        );
-                    }
-                    hoveredPolygonId = e.features[0].source;
-                    mapRef.current.setFeatureState(
-                        { source: 'HG01', id: hoveredPolygonId },
-                        { hover: true }
-                    );
-                }
-            });
-
-            mapRef.current.on('mouseleave', 'HG01fill', () => {
-                mapRef.current.getCanvas().style.cursor = '';
-                if (hoveredPolygonId !== null) {
-                    mapRef.current.setFeatureState(
-                        { source: 'HG01', id: hoveredPolygonId },
-                        { hover: false }
-                    );
-                }
-                hoveredPolygonId = null;
-            });
 
             const graticule = buildGraticule(lat, lng);
             mapRef.current.addSource('graticule', {

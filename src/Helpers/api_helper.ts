@@ -13,7 +13,7 @@ axios.interceptors.request.use(
     const eToken = localStorage.getItem("token");
 
     if (eToken) {
-      const token = decryptData(eToken)
+      const token = decryptData(eToken);
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -27,28 +27,28 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   async (response) => {
     const contentType = response.headers.get("content-type");
-    if (contentType && contentType.indexOf("application/json") !== -1 && response.request.responseType === 'blob') {
+    if (
+      contentType &&
+      contentType.indexOf("application/json") !== -1 &&
+      response.request.responseType === "blob"
+    ) {
       response.data = await response.data.text();
       response.data = JSON.parse(response.data);
     }
-    console.log("response.status >> ", response.status)
-    console.log("response >> ", response)
+    console.log("response.status >> ", response.status);
+    console.log("response >> ", response);
     return response.data ? response.data : response;
   },
   async (error) => {
-
     const { config, response } = error;
-    console.log("error >> ", error)
-    console.log("response >> ", response)
+    console.log("error >> ", error);
+    console.log("response >> ", response);
     if (response && response.status === 401) {
-
     }
 
     return Promise.reject(error.response);
   }
 );
-
-
 
 // // intercepting to capture errors
 // axios.interceptors.response.use(
@@ -84,18 +84,18 @@ class APIClient {
   //   return axios.get(url, params);
   // };
   get = (url: any, params: any) => {
-
     let response: any;
 
     let paramKeys: any = [];
 
     if (params) {
-      Object.keys(params).map(key => {
-        paramKeys.push(key + '=' + params[key]);
+      Object.keys(params).map((key) => {
+        paramKeys.push(key + "=" + params[key]);
         return paramKeys;
       });
 
-      const queryString = paramKeys && paramKeys.length ? paramKeys.join('&') : "";
+      const queryString =
+        paramKeys && paramKeys.length ? paramKeys.join("&") : "";
       response = axios.get(`${url}?${queryString}`, params);
     } else {
       response = axios.get(`${url}`, params);
@@ -106,8 +106,12 @@ class APIClient {
   /**
    * post given data to url
    */
-  create = (url: any, data: any) => {
-    return axios.post(url, data);
+  create = (
+    url: any,
+    data: any,
+    p0?: { headers: { "Content-Type": string } }
+  ) => {
+    return axios.post(url, data, p0);
   };
   /**
    * Updates data

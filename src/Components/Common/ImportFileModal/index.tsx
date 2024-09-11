@@ -46,7 +46,8 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Click or drag file to this area to upload benches {accept || ".csv"} file
+            Click or drag file to this area to upload benches {accept || ".csv"}{" "}
+            file
           </p>
         </Dragger>
       ),

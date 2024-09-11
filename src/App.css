@@ -28,7 +28,13 @@
   color: #61dafb;
 }
 
-
+.auth-logo > img{
+  max-width: 250px;
+  width: 100%;
+}
+.mapboxgl-ctrl-scale, .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib-inner{
+  display: none !important;
+}
 body[data-layout-mode="dark"] {
   .customSegmentBackground {
     background-color: #283655;
@@ -51,6 +57,30 @@ body[data-layout-mode="dark"] {
     filter: invert(10%) hue-rotate(180deg) brightness(95%) contrast(90%);
   } */
 
+}
+
+body[data-layout-mode= "dark"] {
+  .dropDownArrow {
+                color: white !important; 
+        }
+
+  .ant-select-item-option-selected {
+      background-color: #5e6c86 !important; /*Customize background color of selected item*/
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
+}
+
+body[data-layout-mode= "light"] {
+  .dropDownArrow {
+                color: grey !important;
+        }
+
+  .ant-select-item-option-selected {
+      background-color: #9A9A9A !important; /* Customize background color of selected item */
+      color: white !important; /* Customize text color of selected item */
+      font-weight:normal !important;
+    }
 }
 
 body[data-layout-mode="light"] {
@@ -76,10 +106,11 @@ body[data-layout-mode="light"] {
 }
 
 .animationmarker{
-  background-image: url('./assets/images/equipment/check_active.png');
+  background-image: url('./assets/images/map/active_truck.png');
   background-size: cover;
-  width: 43px;
-  height: 30px;
+  width: 50px;
+  height: 60px;
+  left:0;
   cursor: pointer;
 }
 
@@ -101,7 +132,7 @@ body[data-layout-mode="light"] {
   position: absolute;
   z-index: 9;
   right: 10px;
-  top: 300px;
+  top: 335px;
 }
 .my-bounding-box-group{
   position: absolute;
@@ -153,3 +184,8 @@ body[data-layout-mode="light"] {
     transform: rotate(360deg);
   }
 }
+
+/* .form-control {
+  color:#232323 !important;
+  border-radius: 6px !important;
+} */

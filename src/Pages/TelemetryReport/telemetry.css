@@ -1,0 +1,67 @@
+.customSelect {
+  width: 100% !important;
+}
+
+.customSelect .ant-select-selector {
+  border-radius: 4px;
+  border: 2px solid darkgrey;
+}
+
+.customSelect .ant-select-selector .ant-select-selection-item {
+  /* background-color: #f5f5f5; */
+  /* color: #9A9A9A; */
+  border-radius: 4px;
+}
+
+.customSelect .ant-select-selector .ant-select-selection-item:focus {
+  /* background-color: #7c8187; */
+}
+
+.customSelect .ant-select-selector .ant-select-selection-item.ant-select-selection-item-disabled {
+  /* background-color: #f5f5f5; */
+  /* color: #c4c4c4; */
+}
+
+/* Global CSS or your component's CSS file */
+
+/* Customize the dropdown menu */
+.ant-select-dropdown {
+  border-radius: 4px;
+  border: 2px solid #e3e6e9; /* Customize border color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Customize shadow */
+}
+
+/* Customize the option items */
+.ant-select-item {
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: white; 
+}
+
+/* Customize selected option item */
+.ant-select-item-option-selected {
+  background-color: #9A9A9A !important; /* Customize background color of selected item */
+  /* background-color: #5e6c86 !important; Customize background color of selected item */
+  color: white !important; /* Customize text color of selected item */
+  font-weight:normal !important;
+}
+
+/* Customize hover effect on options */
+.ant-select-item-option:hover {
+  background-color: #c4c4c4; /* Customize hover background color */
+}
+
+/* Customize disabled items */
+.ant-select-item-option-disabled {
+  background-color: #f5f5f5; /* Customize background color of disabled item */
+  color: #c4c4c4; /* Customize text color of disabled item */
+}
+
+
+.checkbox-color {
+    .ant-checkbox-checked .ant-checkbox-inner {
+        background-color: #9A9A9A;
+        border-color: #9A9A9A;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+}

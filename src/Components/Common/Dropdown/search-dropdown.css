@@ -1,0 +1,170 @@
+.search-dropdown {
+  background: transparent;
+  border: 1px solid transparent;
+  color: white !important;
+  background-color: transparent !important;
+  padding: 8px;
+  height: auto !important;
+}
+
+.search-dropdown:hover {
+  color: white !important;
+  border: 1px solid transparent !important;
+}
+
+.search-dropdown:hover i {
+  background: transparent;
+  color: white !important;
+}
+
+body[data-layout-mode="light"] {
+  .search-dropdown {
+    color: #2a2a2a !important;
+  }
+
+  .search-dropdown:hover {
+    color: #2a2a2a !important;
+  }
+
+  .search-dropdown:hover i {
+    color: #2a2a2a !important;
+  }
+}
+
+.ant-dropdown-menu {
+  background-color: #283655 !important;
+
+  .items-search {
+    background-color: transparent !important;
+    color: white;
+    border-color: #bcc1ca !important;
+  }
+
+  .items-search input::placeholder {
+    color: #bcc1ca !important;
+  }
+
+  .menu-group-title {
+    color: white;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .ant-dropdown-menu-submenu-title-active:hover {
+    background-color: transparent !important;
+    cursor: default !important;
+  }
+
+  .cancel-btn {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: white !important;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .cancel-btn:hover {
+    background-color: #535e77 !important;
+    border: transparent !important;
+  }
+
+  .apply-btn {
+    background-color: white !important;
+    border: white !important;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .apply-btn span {
+    color: #283655 !important;
+  }
+
+  .apply-btn:hover {
+    background-color: #535e77 !important;
+    border: transparent !important;
+  }
+
+  .apply-btn:hover span {
+    color: white !important;
+  }
+
+  .menu-group-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: white !important;
+    font-size: 16px;
+  }
+
+  .ant-dropdown-menu-item-divider {
+    background-color: #bbbbbb !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+  }
+}
+
+body[data-layout-mode="light"] .ant-dropdown-menu {
+  background-color: #fff !important;
+
+  .items-search {
+    background-color: transparent !important;
+    color: #2a2a2a;
+    border-color: #bcc1ca !important;
+  }
+
+  .items-search::placeholder {
+    color: #bcc1ca !important;
+  }
+
+  .menu-group-title {
+    color: #2a2a2a;
+  }
+
+  .ant-dropdown-menu-submenu-title-active:hover {
+    background-color: transparent !important;
+    cursor: default !important;
+  }
+
+  .cancel-btn {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: #2a2a2a !important;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .cancel-btn:hover {
+    background-color: #535e77 !important;
+    color: white !important;
+    border: white !important;
+  }
+
+  .apply-btn {
+    background-color: #283655 !important;
+    border: white !important;
+  }
+
+  .apply-btn span {
+    color: white !important;
+  }
+
+  .apply-btn:hover {
+    background-color: #535e77 !important;
+    border: transparent !important;
+  }
+
+  .apply-btn:hover span {
+    color: white !important;
+  }
+
+  .menu-group-item {
+    color: #2a2a2a !important;
+  }
+
+  .ant-dropdown-menu-item-divider {
+    background-color: #bbbbbb !important;
+  }
+}

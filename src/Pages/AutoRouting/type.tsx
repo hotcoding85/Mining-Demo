@@ -8,18 +8,21 @@ export type RouteCoordinatesType = {
     speedlimit: number,
     color: string,
     markers: mapboxgl.Marker[],
-    routeNumber: string
+    routeNumber: string | null
 }
 export type RouteDataType = {
-    route_id: string,
-    geometry: {
+    id: string | null,
+    geoJson: {
+        geometry: {
+            type: string,
+            coordinates: [number, number][] | null
+        },
         type: string,
-        coordinates: [number, number][] | null
-    },
+        properties: Object
+    }
     distance: number,
     duration: number,
-    created_at: string,
-    speed_limits: number,
+    speedLimits: number,
     name?: string,
     description?: string,
     color: string,

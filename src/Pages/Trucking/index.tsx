@@ -30,26 +30,32 @@ ChartJS.register(
 );
 
 const TruckingPerformance = () => {
-  const operationalDelaysData = {
+  const planExecutionData = {
     labels: [
-      "Fueling",
-      "Clean Up",
-      "Other",
-      "Queueing",
-      "Weather",
-      "Waiting Operator",
+      "Availability",
+      "Utilization",
+      "Delays",
     ],
     datasets: [
       {
-        data: [10, 10, 5, 15, 20, 40],
+        data: [75, 10, 15],
         backgroundColor: [
-          "#9b59b6",
-          "#8e44ad",
-          "#3498db",
-          "#e74c3c",
-          "#f39c12",
-          "#2ecc71",
+          "#389E0D",
+          "#FAAD14",
+          "#CF1322",
+          
         ],
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const operationalDelaysData = {
+    labels: ["Fueling", "Queueing", "Clean Up", "Weather", "Other", "Waiting Operator"],
+    datasets: [
+      {
+        data: [10, 10, 20, 40, 15, 5 ],
+        backgroundColor: ["#D3ADF7", "#722ED1", "#B37FEB", "#531DAB", "#9254DE", "#391085"],
         borderWidth: 0,
       },
     ],
@@ -59,8 +65,8 @@ const TruckingPerformance = () => {
     labels: ["Fueling", "Planned", "Clean Up", "Weather"],
     datasets: [
       {
-        data: [10, 30, 20, 40],
-        backgroundColor: ["#3498db", "#9b59b6", "#2ecc71", "#f39c12"],
+        data: [30, 40, 20, 10],
+        backgroundColor: ["#E0E0E0", "#C1C1C1", "#828282", "#656565"],
         borderWidth: 0,
       },
     ],
@@ -151,7 +157,7 @@ const TruckingPerformance = () => {
   return (
     <div className="page-content">
       <div className="DashboardContainer">
-        <div className="trucking-header">
+        <div className="trucking-header light-box">
           <h1>Trucking Performance</h1>
           <div className="performance-header">
             <PerformanceHeader
@@ -176,7 +182,37 @@ const TruckingPerformance = () => {
                 completed={50}
                 forecast={100}
                 subHeader="3 of 18 ROMS Delivered"
-                header={"Overall Load Target (Planned vs. Actual vs. Forecast)"}
+                header={"Current Trucking Execution Plan"}
+              />
+              <Card style={{width:'100%'}}>
+                <BarGraph
+                  data={barData}
+                  options={barOptions}
+                  textColor={textColor}
+                />
+              </Card>
+            </div>
+            <div className="BarAndProgressContainer" style={{ alignItems: 'flex-start' }}>
+              <TripProgressBar
+                completed={50}
+                forecast={100}
+                subHeader="3 of 18 ROMS Delivered"
+                header={"Operator Delays"}
+              />
+              <Card style={{width:'100%'}}>
+                <BarGraph
+                  data={barData}
+                  options={barOptions}
+                  textColor={textColor}
+                />
+              </Card>
+            </div>
+            <div className="BarAndProgressContainer" style={{ alignItems: 'flex-start' }}>
+              <TripProgressBar
+                completed={50}
+                forecast={100}
+                subHeader="3 of 18 ROMS Delivered"
+                header={"Idle"}
               />
               <Card style={{width:'100%'}}>
                 <BarGraph
@@ -188,8 +224,9 @@ const TruckingPerformance = () => {
             </div>
 
           </div>
-          <div className="pie">
+          <div className="pie light-box">
             <div className="BarAndProgressContainer">
+              <PieChart title="ORE Target/Plan Execution" data={planExecutionData} />
               <PieChart title="Operational Delays" data={operationalDelaysData} />
               <PieChart title="Truck Idling" data={truckIdlingData} />
             </div>

@@ -15,7 +15,7 @@ const PerformanceHeader: React.FC<PerformanceHeaderProps> = ({
   totalValue
 }) => {
   return (
-    <div className="header-1">
+    <div className="header-1 sub-continer">
       <div className="header-label">
         <div className="label-1">{label}</div>
         <div className={`label-2 ${status === "On target" ? "on-target" : "below-target"}`}>{status}</div>

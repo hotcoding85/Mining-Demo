@@ -1,370 +1,326 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Container, Row } from "reactstrap";
-// import { Space, DatePicker, DatePickerProps } from "antd";
-import Select from 'react-select';
+import React, { useEffect, useMemo, useState } from "react";
+import { Col, Container, Row } from "reactstrap";
 import dayjs from "dayjs";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { useSearchParams } from "react-router-dom";
-import { filter } from "lodash";
-// import { ScheduleComponent, ResourcesDirective, ResourceDirective, ViewsDirective, ViewDirective, Inject, ResourceDetails, TimelineViews, TreeViewArgs } from '@syncfusion/ej2-react-schedule'
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { getAllEvents } from 'slices/thunk';
-import { shifts } from "utils/common";
+import { getAllEvents } from "slices/thunk";
+import { DatePicker, DatePickerProps, Segmented } from "antd";
+import { Dropdown, DropdownType } from "Components/Common/Dropdown";
+import {
+  FLEET_TIME_STATE_COLOR,
+  LAYOUT_MODE_TYPES,
+} from "Components/constants/layout";
+import StateTime from "./components/StateTime";
+import EquipmentTimeLine from "./components/EquipmentTimeLine";
+import "./fleettimeline.css";
+import { PieChart } from "Components/Charts/PieChart";
+import StateDescription from "./components/StateDescription";
+import AnalysisCard from "./components/AnalysisCard";
+import {
+  ActiveAnalysis,
+  DelayAnalysis,
+  DownAnalysis,
+  StandByAnalysis,
+} from "./_mock";
 
-
-const fleetTypesData: Record<string, any>[] = [
-    { Text: 'Diggers', Id: 1, Color: '#9e5fff' },
-    { Text: 'Trucks', Id: 2, Color: '#9e5fff' }
-]
-
-const data: Record<string, any>[] = [
-    {
-        "StartTime": "2024-08-03T00:30:00.000Z",
-        "EndTime": "2024-08-03T00:45:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Standby",
-        "color": "#FFBF00"
-    },
-    {
-        "StartTime": "2024-08-03T00:45:00.000Z",
-        "EndTime": "2024-08-03T01:45:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Active",
-        "color": "#008000"
-    },
-    {
-
-        "StartTime": "2024-08-03T01:45:00.000Z",
-        "EndTime": "2024-08-03T02:00:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Standby",
-        "color": "#FFBF00"
-    },
-    {
-        "StartTime": "2024-08-03T02:00:00.000Z",
-        "EndTime": "2024-08-03T07:30:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Active",
-        "color": "#008000"
-    },
-    {
-        "StartTime": "2024-08-03T07:30:00.000Z",
-        "EndTime": "2024-08-03T09:30:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Down",
-        "color": "#FF5733"
-    },
-    {
-
-        "StartTime": "2024-08-03T09:30:00.000Z",
-        "EndTime": "2024-08-03T09:45:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Standby",
-        "color": "#FFBF00"
-    },
-    {
-        "StartTime": "2024-08-03T09:45:00.000Z",
-        "EndTime": "2024-08-03T12:30:00.000Z",
-        "FleetTypeId": 1,
-        "FleetId": "d381e8f9-897b-4e6c-8160-b153512feb64",
-        "State": "Active",
-        "color": "#008000"
-    }
-]
+const EquipmentTypes = [
+  {
+    label: "Blasthole Rig",
+    value: "BLASTHOLE_RIG",
+  },
+  {
+    label: "Haul Truck",
+    value: "HAUL_TRUCK",
+  },
+  {
+    label: "Dozer",
+    value: "DOZER",
+  },
+  {
+    label: "Excuvator",
+    value: "EXCUVATOR",
+  },
+  {
+    label: "Grader",
+    value: "GRADER",
+  },
+  {
+    label: "Loader",
+    value: "LOADER",
+  },
+  {
+    label: "Light Vehicle",
+    value: "LIGHT_VEHICLE",
+  },
+  {
+    label: "Utility",
+    value: "UTILITY",
+  },
+  {
+    label: "Water cart",
+    value: "WATER_CART",
+  },
+  {
+    label: "Wheel loader",
+    value: "WHEEL_LOADER",
+  },
+];
 
 const FleetTimeline = (props: any) => {
-    document.title = "Timeline Utilization Model | FMS Live";
-    const dispatch: any = useDispatch();
-    const timeScale = {
-        enable: true,
-        interval: 60,
-        slotCount: 2
-    }
+  document.title = "Timeline Utilization Model | FMS Live";
 
-    const { fleet } = useSelector(createSelector(
-        (state: any) => state.Fleet,
-        (fleetState) => ({
-            fleet: fleetState.data
-        })
-    ));
+  const dispatch: any = useDispatch();
 
-    const { events } = useSelector(createSelector(
-        (state: any) => state.Events,
-        (eventsState) => ({
-            events: eventsState.data
-        })
-    ));
-    const timelineRef: any = useRef(null);
-    const [searchParams, setSearchParams] = useSearchParams();
+  const timeScale = {
+    enable: true,
+    interval: 60,
+    slotCount: 2,
+  };
 
-    const [startDate, setStartDate] = useState(new Date());
-    const [shift, setShift] = useState<any>('DS');
-
-    const onKeyPress = (event) => {
-        console.log(event)
-    }
-
-    const zoomIn = () => {
-        if (timelineRef.current.timeScale.slotCount <= 8) {
-            timelineRef.current.timeScale.slotCount += 1;
-        }
-    };
-
-    const zoomOut = () => {
-        if (timelineRef.current.timeScale.slotCount > 2) {
-            timelineRef.current.timeScale.slotCount -= 1;
-        }
-    };
-
-    useEffect(() => {
-        setSearchParams({ date: format(startDate, 'yyyy-MM-dd'), shift: shift });
-    }, []);
-
-    useEffect(() => {
-        dispatch(getAllEvents(format(startDate, 'yyyy-MM-dd') + ':' + shift)); // Dispatch action to fetch data on component mount
-    }, [dispatch, shift, startDate]);
-
-    const getResourceData = () => {
-        if (!fleet) {
-            return [];
-        }
-
-        return fleet
-            .map((fl) => {
-                return {
-                    Text: fl.name,
-                    Id: fl.id,
-                    GroupId: fl.category == "EXCAVATOR" ? 1 : 2,
-                    Color: '#bbdc00'
-                }
-            })
-    }
-
-    // const onDateChange: DatePickerProps['onChange'] = (date, dateString): void => {
-    //     if (date) {
-    //         setStartDate(date.toDate());
-    //         let params: URLSearchParams = new URLSearchParams({ date: format(date.toDate(), 'yyyy-MM-dd'), shift: shift });
-    //         setSearchParams(params);
-    //     }
-    // }
-
-    const onShiftChange = (shiftInfo): void => {
-        setShift(shiftInfo.value);
-        let params: URLSearchParams = new URLSearchParams({ date: format(startDate, 'yyyy-MM-dd'), shift: shiftInfo.value });
-        setSearchParams(params);
-        updateScheduler(shiftInfo.value);
-    }
-
-    const getShiftTimings = (shifts: any, shift: string) => {
-        let filteredShift = filter(shifts, (shiftData) => { return (shiftData.value === shift) ? shiftData : undefined })
-        return {
-            startTime: filteredShift[0].startTime,
-            endTime: filteredShift[0].endTime,
-            viewInterval: filteredShift[0].viewInterval
-        }
-    }
-
-    const getColorByState = (state) => {
-
-        let color = "#008000";
-        switch (state) {
-            case "ACTIVE":
-                color = "#008000";
-                break;
-            case "DELAY":
-                color = "#FFBF00";
-                break;
-            case "STANDBY":
-                color = "#FFBF00";
-                break;
-            case "DOWN":
-                color = "#FF5733";
-                break;
-            default:
-                break;
-        }
-        return color;
-    }
-
-    const getTimestamp = (unixDate) => {
-        // "2024-08-04T10:30:00.000Z",
-        let date = dayjs.unix(unixDate).format('YYYY-MM-DDTHH:mm:ss.000Z')
-        //  + '.000Z';
-        return date
-    }
-
-    const getDatasource = () => {
-
-        const data = events.map(option => {
-            return {
-                color: getColorByState(option && option.event ? option.event.state : ""),
-                State: option && option.event ? option.event.state : "",
-                StartTime: option && option.event ? getTimestamp(option.event.startTime) : "",
-                EndTime: option && option.event ? getTimestamp(option.event.endTime) : "",
-                FleetTypeId: 2,
-                FleetId: (option && option.truck) ? option.truck.id : '',
-            }
-        });
-        return data;
-    }
-
-    const eventSettings = {
-        dataSource: getDatasource(),
-        fields: {
-            subject: { title: 'Text', name: 'State' },
-            startTime: { title: "Start", name: "StartTime" },
-            endTime: { title: "End", name: "EndTime" }
-        },
-        allowEditing: false,
-        allowDeleting: false
-    };
-
-    const schedulerScrollTo = (time: string): void => {
-        if (timelineRef && timelineRef.current) {
-            timelineRef.current!.scrollTo('18:00');
-        }
-    }
-
-    const updateScheduler = (shiftValue: string) => {
-        if (!timelineRef.current) {
-            return;
-        }
-
-        let shiftTimings = getShiftTimings(shifts, shiftValue ?? shift);
-        if (shiftTimings.startTime > shiftTimings.endTime) {
-            timelineRef.current.startHour = "00:00";
-            timelineRef.current.endHour = "23:59";
-            timelineRef.current.viewOptions.timelineDay.interval = 2;
-            timelineRef.current.scrollTo('18:00', new Date(2024, 7, 4));
-        } else {
-            timelineRef.current.startHour = shiftTimings.startTime;
-            timelineRef.current.endHour = shiftTimings.endTime;
-            timelineRef.current.viewOptions.timelineDay.interval = 1;
-        }
-    }
-
-    const resourceHeaderTemplate = (props: any) => {
-        return (
-            <div className="template-wrap">
-                <div className="fleetType-category">
-                    {/* <div className="fleetType-name"> {getFleetName(props)}</div> */}
-                </div>
-            </div>
-        )
-    }
-
-    const onEventReneder = (args: any): void => {
-        let color = args.data.color;
-        args.element.style.backgroundColor = color;
-    }
-
-    const onPopupOpen = (args: any): void => {
-        let isEmptyCell = args.target.classList.contains('e-work-cells') || args.target.classList.contains('e-header-cells');
-        if ((args.type === 'QuickInfo' || args.type === 'Editor') && isEmptyCell) {
-            args.cancel = true;
-        }
-    }
-
-    // const getFleetName = (value: ResourceDetails | TreeViewArgs): string => {
-    //     return (value as ResourceDetails).resourceData[(value as ResourceDetails).resource.textField!] as string;
-    // }
-
-    return (
-        <React.Fragment>
-            <div className="page-content">
-                <Container fluid>
-                    <Row>
-                        <Col lg="12">
-                            <Row>
-                                <Col xs={6}></Col>
-                                <Col xs={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                    <Button onClick={zoomIn} style={{ marginRight: '10px' }}>Zoom In</Button>
-                                    <Button onClick={zoomOut}>Zoom Out</Button>
-                                </Col>
-                                <Col xs={2} content='right'>
-                                    {/* <Space direction="vertical" style={{ width: '100%' }}>
-                                        <DatePicker style={{ width: '100%', fontSize: '18px' }} size='large' allowClear={false} variant={'outlined'} value={dayjs(startDate)} onChange={onDateChange} />
-                                    </Space> */}
-                                </Col>
-                                <Col xs={2}>
-                                    <Select
-                                        className="basic-single"
-                                        classNamePrefix="Shifts"
-                                        defaultValue={shifts[0]}
-                                        value={shifts.filter(shiftInfo => shiftInfo.value === shift)}
-                                        isDisabled={false}
-                                        isLoading={false}
-                                        isClearable={false}
-                                        isRtl={false}
-                                        isSearchable={true}
-                                        name="Shifts"
-                                        options={shifts}
-                                        onChange={onShiftChange}
-                                        styles={{
-                                            menu: base => ({
-                                                ...base,
-                                                zIndex: 100
-                                            })
-                                        }}
-                                    />
-                                </Col>
-                            </Row>
-                            <label></label>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <div className='schedule-control-section'>
-                            <div className='col-lg-12 control-section'>
-                                <div className='control-wrapper drag-sample-wrapper'>
-                                    <Row>
-                                        <Col lg="12">
-                                            <div className="schedule-container">
-                                                {/* <ScheduleComponent
-                                                    ref={timelineRef}
-                                                    cssClass='schedule-drag-drop'
-                                                    width='100%' height='100%'
-                                                    allowMultiCellSelection={true}
-                                                    selectedDate={startDate}
-                                                    currentView='TimelineDay'
-                                                    startHour={shift === 'DS' ? "06:00" : "00:00"}
-                                                    endHour={shift === 'DS' ? "18:00" : "23:59"}
-                                                    showHeaderBar={false}
-                                                    timeScale={timeScale}
-                                                    resourceHeaderTemplate={resourceHeaderTemplate}
-                                                    eventSettings={eventSettings}
-                                                    showTimeIndicator={true}
-                                                    showQuickInfo={true}
-                                                    group={{ enableCompactView: false, resources: ['FleetTypes', 'Fleet'] }}
-                                                    eventRendered={onEventReneder}
-                                                    // actionComplete={updateScheduler}
-                                                    popupOpen={onPopupOpen}
-                                                    created={updateScheduler}>
-                                                    <ResourcesDirective>
-                                                        <ResourceDirective field='FleetTypeId' title='Fleet Type' name='FleetTypes' allowMultiple={false} dataSource={fleetTypesData} textField='Text' idField='Id' colorField='Color' />
-                                                        <ResourceDirective field='FleetId' title='Fleet' name='Fleet' allowMultiple={true} dataSource={getResourceData()} textField='Text' idField='Id' groupIDField="GroupId" colorField='Color' />
-                                                    </ResourcesDirective>
-                                                    <ViewsDirective>
-                                                        <ViewDirective option='TimelineDay' interval={shift === 'DS' ? 1 : 2} />
-                                                    </ViewsDirective>
-                                                    <Inject services={[TimelineViews]} />
-                                                </ScheduleComponent> */}
-                                            </div>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            </div>
-                        </div>
-                    </Row>
-                </Container>
-            </div>
-        </React.Fragment>
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
     )
-}
+  );
+
+  const { fleet } = useSelector(
+    createSelector(
+      (state: any) => state.Fleet,
+      (fleetState) => ({
+        fleet: fleetState.data,
+      })
+    )
+  );
+
+  const { events } = useSelector(
+    createSelector(
+      (state: any) => state.Events,
+      (eventsState) => ({
+        events: eventsState.data,
+      })
+    )
+  );
+
+  const [fleetMode, setFleetMode] = useState<string>("CURRENT_SHIFT");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+
+  const [equipmentType, setEquipmentType] = useState<DropdownType>({
+    label: "ALL",
+  });
+
+  const onStartDateChange: DatePickerProps["onChange"] = (date) => {
+    if (date) {
+      setStartDate(date.toDate());
+    }
+  };
+
+  const onEndDateChange: DatePickerProps["onChange"] = (date) => {
+    if (date) {
+      setEndDate(date.toDate());
+    }
+  };
+
+  useEffect(() => {
+    setSearchParams({ date: format(startDate, "yyyy-MM-dd") });
+  }, []);
+
+  useEffect(() => {
+    dispatch(getAllEvents(format(startDate, "yyyy-MM-dd")));
+  }, [dispatch, startDate]);
+
+  const StateTimes = useMemo(() => {
+    const textColor =
+      layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#2A2A2A";
+    const bgColor = layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#fff";
+
+    return [
+      {
+        state: "Active",
+        time: "00:24:52",
+        pctValue: 34.21,
+        color: FLEET_TIME_STATE_COLOR.ACTIVE,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "StandBy",
+        time: "00:24:52",
+        pctValue: 49.04,
+        color: FLEET_TIME_STATE_COLOR.STANDBY,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Down",
+        time: "00:24:52",
+        pctValue: 16.3,
+        color: FLEET_TIME_STATE_COLOR.DOWN,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Idle",
+        time: "00:24:52",
+        pctValue: 0.0,
+        color: FLEET_TIME_STATE_COLOR.IDLE,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+      {
+        state: "Delay",
+        time: "00:24:52",
+        pctValue: 0.35,
+        color: FLEET_TIME_STATE_COLOR.DELAY,
+        bgColor: bgColor,
+        textColor: textColor,
+      },
+    ];
+  }, [layoutModeType]);
+
+  const stateData = {
+    labels: ["Active", "StandBy", "Down", "Idle", "Delay"],
+    datasets: [
+      {
+        data: [34.21, 49.4, 16.3, 0.35, 0.0],
+        backgroundColor: Object.values(FLEET_TIME_STATE_COLOR),
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  return (
+    <React.Fragment>
+      <div
+        className="page-content"
+        style={{
+          minHeight: "100vh",
+        }}
+      >
+        <Container fluid>
+          <Row className="d-flex justify-content-between align-items-center">
+            <Col md={12} lg={5}>
+              <Segmented
+                className="customSegmentLabel customSegmentBackground"
+                value={fleetMode}
+                onChange={(e) => setFleetMode(e)}
+                options={[
+                  "All Fleet",
+                  { label: "Digging Fleet", value: "DIGGING_FLEET" },
+                  { label: "Trucking Fleet", value: "TRUCKING_FLEET" },
+                  { label: "Previous Shift", value: "PREVIOUS_SHIFT" },
+                  { label: "Current Shift", value: "CURRENT_SHIFT" },
+                ]}
+              />
+            </Col>
+            <Col xs={2}>
+              <div className="d-flex justify-content-center align-items-center gap-2">
+                <DatePicker
+                  allowClear={false}
+                  value={dayjs(startDate)}
+                  format={"MM/DD/YY"}
+                  onChange={onStartDateChange}
+                />
+                <DatePicker
+                  allowClear={false}
+                  value={dayjs(endDate)}
+                  format={"MM/DD/YY"}
+                  onChange={onEndDateChange}
+                />
+              </div>
+            </Col>
+            <Col xs={5}>
+              <div className="d-flex justify-content-end align-items-center gap-2">
+                <Dropdown
+                  label="Equipment types"
+                  items={EquipmentTypes}
+                  value={equipmentType}
+                  onChange={setEquipmentType}
+                />
+              </div>
+            </Col>
+          </Row>
+          <Row
+            className="d-flex justify-content-center align-items-center"
+            style={{ marginTop: "120px" }}
+          >
+            {StateTimes.map((el) => (
+              <Col xs={2}>
+                <StateTime {...el} />
+              </Col>
+            ))}
+          </Row>
+          <EquipmentTimeLine vehicles={fleet} />
+          <Row className="py-5 mt-5 d-flex align-items-center">
+            <Col
+              xs={5}
+              className="fleet-state-pie-chart d-flex justify-content-center align-items-center"
+            >
+              <div
+                style={{
+                  width: 210,
+                  height: 210,
+                }}
+              >
+                <PieChart
+                  data={stateData}
+                  title=""
+                  legendsFirst={false}
+                  legendsPosition="bottom"
+                  width={210}
+                  height={210}
+                  fontStyle={{
+                    size: 12,
+                    color: "#000",
+                  }}
+                />
+              </div>
+            </Col>
+            <Col xs={7}>
+              <StateDescription />
+            </Col>
+          </Row>
+          <Row className="mt-5">
+            <Col xs={6}>
+              <AnalysisCard
+                title="Detailed Active analysis"
+                chartData={ActiveAnalysis}
+                color={FLEET_TIME_STATE_COLOR.ACTIVE}
+              />
+            </Col>
+            <Col xs={6}>
+              <AnalysisCard
+                title="Detailed Active analysis"
+                chartData={StandByAnalysis}
+                color={FLEET_TIME_STATE_COLOR.STANDBY}
+              />
+            </Col>
+            <Col xs={6}>
+              <AnalysisCard
+                title="Detailed Active analysis"
+                chartData={DownAnalysis}
+                color={FLEET_TIME_STATE_COLOR.DOWN}
+              />
+            </Col>
+            <Col xs={6}>
+              <AnalysisCard
+                title="Detailed Active analysis"
+                chartData={DelayAnalysis}
+                color={FLEET_TIME_STATE_COLOR.DELAY}
+              />
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    </React.Fragment>
+  );
+};
 export default FleetTimeline;

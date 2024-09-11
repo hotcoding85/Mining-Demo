@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  Filler
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Card } from "reactstrap";
@@ -27,7 +28,8 @@ ChartJS.register(
   Tooltip,
   Legend,
   ChartDataLabels,
-  ArcElement
+  ArcElement,
+  Filler
 );
 
 interface LineGraphProps {

@@ -29,7 +29,8 @@ const GanttScheduler : React.FC = () => {
 
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
-      name: task?.name || 'New Task',
+      name: task?.name || 'Task Name',
+      label: task?.label || 'Task Label',
       startTime,
       endTime,
       resourceId,
@@ -63,7 +64,7 @@ const GanttScheduler : React.FC = () => {
               
           <DndProvider backend={HTML5Backend}>
             <Row className='mb-3'>
-              <Col xs={9}>
+              <Col xs={10}>
                 <TableComponent
                   data={resources}
                   tasks={tasks}
@@ -75,7 +76,7 @@ const GanttScheduler : React.FC = () => {
                 />
               </Col>
                 
-              <Col xs={3}>
+              <Col xs={2}>
                 <TaskList tasks={taskList} />
               </Col>
             </Row>

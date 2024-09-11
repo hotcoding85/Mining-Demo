@@ -4,12 +4,11 @@ import "./style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { getAllFleet } from "slices/thunk";
+import { getRandomFloat, getRandomInt } from "utils/random";
+import { getImage } from "utils/fleet";
 import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
-import { Container } from "reactstrap";
-import Breadcrumb from "Components/Common/Breadcrumb";
 
 const FuelStatusDashboard: React.FC = () => {
-
   document.title = "Fuel Status | FMS Live";
   const dispatch = useDispatch<any>();
 
@@ -17,14 +16,14 @@ const FuelStatusDashboard: React.FC = () => {
     (state: any) => state.Fleet,
     (fleetState) => ({
       fleetList: fleetState.data,
-      loading: fleetState.loading
+      loading: fleetState.loading,
     })
   );
 
   const { fleetList, loading } = useSelector(selectProperties);
 
   useEffect(() => {
-    dispatch(getAllFleet(1, 50, 'name', 'ASC')); // Dispatch action to fetch data on component mount
+    dispatch(getAllFleet(1, 50, "name", "ASC")); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   const getImage = (category: string) => {
@@ -60,6 +59,14 @@ const FuelStatusDashboard: React.FC = () => {
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
 
+  function getMinutesDifference(lastUpdatedTime: any): number {
+    const currentDate: Date = new Date();
+    const lastUpdatedDate: Date = new Date(lastUpdatedTime);
+    const diffMs: number = currentDate.getTime() - lastUpdatedDate.getTime();
+    const diffMinutes: number = diffMs / (1000 * 60);
+    return Math.abs(diffMinutes);
+  }
+
   return (
     <div className="page-content">
       <div className="fuel-cards-container">
@@ -67,13 +74,13 @@ const FuelStatusDashboard: React.FC = () => {
           <FuelCard
             key={item.id}
             id={item.name}
-            status={'Healthy'}
+            status={"Healthy"}
             smu={getRandomFloat(23000, 38000, 1)}
             fuelLevel={getRandomInt(20, 100)}
             fuelRate={getRandomFloat(40, 80, 1)}
             imageUrl={getImage(item.model)}
-            lastUpdated={getRandomInt(1, 2)+'m'}
-            sync={'active'}
+            lastUpdated={getMinutesDifference("2024-08-20T22:49:20.030Z")}
+            sync={"active"}
           />
         ))}
       </div>

@@ -2,7 +2,7 @@
 
 .fuel-card {
     background-color: #283655;
-    border-radius: 20px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: #ffffff;
     overflow: hidden;
@@ -41,10 +41,10 @@
   .fuel-card-sync {
     margin: 0;
     padding: 0;
-    padding-left: 15px;
-    padding-bottom: 5px;
-    position: relative;
+    padding-left: 20px;
     font-size: 12px;
+    display: flex;
+    align-items: center;
   }
   
   .fuel-card-sync-icon {
@@ -125,11 +125,11 @@
     flex: 1 1 calc(24% - 10px); 
     max-width: calc(24% - 10px); 
     background-color: #283655;
-    border-radius: 20px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: #ffffff;
     overflow: hidden;
-    margin-bottom: 20px; 
+    /* margin-bottom: 20px;  */
   }
   
   @media screen and (max-width: 1200px) {

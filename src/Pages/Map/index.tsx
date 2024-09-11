@@ -3,16 +3,20 @@ import { Container, Row, Col } from 'reactstrap';
 import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Leaflet from 'leaflet';
-import { getGeoFences, getAllFleet, getAllEvents } from 'slices/thunk';
+import { getGeoFences, getAllFleet, getAllEvents, getAllVehicleRoutes } from 'slices/thunk';
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import dayjs from "dayjs";
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
-import { Radio, Segmented } from 'antd';
+import { Radio, Segmented, Select, Space } from 'antd';
 import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { shiftTimings } from 'utils/common';
 import { buildGraticule } from 'utils/mapUtils';
+import { Checkbox, Divider } from 'antd';
+import type { CheckboxProps } from 'antd';
+
+const CheckboxGroup = Checkbox.Group;
 
 interface EquipmentLocation {
   id: string;
@@ -162,10 +166,11 @@ const Map = ({ socket }) => {
   document.title = "Real-time positioning | FMS Live";
 
   const dispatch: any = useDispatch();
+
   const geoFenceProperties = createSelector(
     (state: any) => state.GeoFence,
     (geofenceState) => ({
-      geofenceFromDB: geofenceState.data
+      geofences: geofenceState.data
     })
   );
 
@@ -190,20 +195,44 @@ const Map = ({ socket }) => {
     })
   );
 
-  const { events } = useSelector(eventsProperties);
+  const routesProperties = createSelector(
+    (state: any) => state.VehicleRoutes,
+    (routesState) => ({
+      routes: routesState.data
+    })
+  );
+
+  const { events, } = useSelector(eventsProperties);
+
+  const { routes, } = useSelector(routesProperties);
 
   socket.on("TRACKER_LOCATION", data => {
     console.log(data);
     // updateMarkerPosition(data.id, data.position);
   });
 
-  const { geofenceFromDB } = useSelector(geoFenceProperties);
+  const { geofences: geofenceFromDB } = useSelector(geoFenceProperties);
   const { fleet } = useSelector(fleetProperties);
   const { benches } = useSelector(benchesProperties);
   const [filter, setFilter] = useState<string>('All Equipment');
 
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   var [geofences, setGeofences] = useState<any[]>([]);
+  const [mapStylesLoaded, setMapStylesLoaded] = useState(false)
+
+  const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations'];
+  const defaultLayers = ['Current Haul Routes', 'Active Benches'];
+
+  const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
+
+
+  const onChange = (list: string[]) => {
+    setCheckedList(list);
+  };
+
+  const onCheckAllChange: CheckboxProps['onChange'] = (e) => {
+    setCheckedList(e.target.checked ? layerOptions : []);
+  };
 
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
@@ -879,9 +908,11 @@ const Map = ({ socket }) => {
     mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
     mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
-    mapRef.current.on('load', () => {
+    mapRef.current.on('style.load', () => {
       mapRef.current.setTerrain({ 'exaggeration': 2 });
+
       const graticule = buildGraticule(lat, lng);
+
       mapRef.current.addSource('graticule', {
         type: 'geojson',
         data: graticule
@@ -898,15 +929,16 @@ const Map = ({ socket }) => {
           'line-width': 1
         }
       });
+      setMapStylesLoaded(true)
     });
 
-    addMarkers();
-
+    return () => mapRef.current.remove();
   }, []);
 
   useEffect(() => {
     dispatch(getGeoFences());
     dispatch(getAllFleet());
+    dispatch(getAllVehicleRoutes())
 
     const { shift, shiftDate } = shiftTimings();
     dispatch(getAllEvents(shiftDate + ':' + shift));
@@ -915,10 +947,39 @@ const Map = ({ socket }) => {
   useEffect(() => {
     geofences = [];
     geofenceFromDB.forEach((json) => {
-      console.log(json)
+      // console.log(json)
       // drawFeature(json);
     })
   }, [geofenceFromDB]);
+
+
+  useEffect(() => {
+
+    if (mapStylesLoaded) {
+      routes.map((item, key) => {
+        if (!mapRef.current?.getLayer(item.id)) {
+          mapRef.current?.addLayer({
+            type: 'line',
+            source: item.id,
+            id: item.id,
+            paint: {
+              'line-color': item.color,
+              'line-width': 40,
+              'line-opacity': 0.4
+            }
+          });
+        }
+
+        if (!mapRef.current?.getSource(item.id)) {
+          mapRef.current?.addSource(item.id, {
+            type: 'geojson',
+            data: item.geoJson
+          });
+        }
+      })
+    }
+
+  }, [routes, mapStylesLoaded])
 
   const clearMarkers = () => {
     markers.map(item => {
@@ -940,56 +1001,24 @@ const Map = ({ socket }) => {
       filteredEquipment = equipments.filter(item => item.vehicleType == filter)
     }
 
-    if (mapRef.current.getLayer('line-dashed')) {
-      mapRef.current.removeLayer('line-dashed')
-    }
+    if (mapStylesLoaded && (filter == 'DUMP_TRUCK' || filter == 'All Equipment')) {
 
-    if (mapRef.current.getLayer('loaded-line-dashed')) {
-      mapRef.current.removeLayer('loaded-line-dashed')
-    }
-
-    if (mapRef.current.getLayer('line-background')) {
-      mapRef.current.removeLayer('line-background')
-    }
-
-    if (mapRef.current.getLayer('loaded-line-background')) {
-      mapRef.current.removeLayer('loaded-line-background')
-    }
-
-    if (mapRef.current.getSource('line')) {
-      mapRef.current.removeSource('line')
-    }
-
-
-    if (mapRef.current.getSource('loadedline')) {
-      mapRef.current.removeSource('loadedline')
-    }
-
-    if (mapRef.current && (filter == 'DUMP_TRUCK' || filter == 'All Equipment')) {
-
-      if (mapRef.current.isStyleLoaded()) {
-        mapRef.current.addSource('line', {
+      if (!mapRef.current?.getSource('line')) {
+        mapRef.current?.addSource('line', {
           type: 'geojson',
           data: travellingPaths
         });
+      }
 
-        mapRef.current.addSource('loadedline', {
+      if (!mapRef.current?.getSource('loadedline')) {
+        mapRef.current?.addSource('loadedline', {
           type: 'geojson',
           data: dumpingPaths
         });
+      }
 
-        mapRef.current.addLayer({
-          type: 'line',
-          source: 'line',
-          id: 'line-background',
-          paint: {
-            'line-color': 'red',
-            'line-width': 4,
-            'line-opacity': 0.4
-          }
-        });
-
-        mapRef.current.addLayer({
+      if (!mapRef.current?.getLayer('line-dashed')) {
+        mapRef.current?.addLayer({
           type: 'line',
           source: 'line',
           id: 'line-dashed',
@@ -999,19 +1028,10 @@ const Map = ({ socket }) => {
             'line-dasharray': [0, 4, 3]
           }
         });
+      }
 
-        mapRef.current.addLayer({
-          type: 'line',
-          source: 'loadedline',
-          id: 'loaded-line-background',
-          paint: {
-            'line-color': '#14E010',
-            'line-width': 4,
-            'line-opacity': 0.4
-          }
-        });
-
-        mapRef.current.addLayer({
+      if (!mapRef.current?.getLayer('loadedline')) {
+        mapRef.current?.addLayer({
           type: 'line',
           source: 'loadedline',
           id: 'loaded-line-dashed',
@@ -1021,46 +1041,53 @@ const Map = ({ socket }) => {
             'line-dasharray': [0, 4, 3]
           }
         });
+      }
 
-        const dashArraySequence = [
-          [0, 4, 3],
-          [0.5, 4, 2.5],
-          [1, 4, 2],
-          [1.5, 4, 1.5],
-          [2, 4, 1],
-          [2.5, 4, 0.5],
-          [3, 4, 0],
-          [0, 0.5, 3, 3.5],
-          [0, 1, 3, 3],
-          [0, 1.5, 3, 2.5],
-          [0, 2, 3, 2],
-          [0, 2.5, 3, 1.5],
-          [0, 3, 3, 1],
-          [0, 3.5, 3, 0.5]
-        ];
+      const dashArraySequence = [
+        [0, 4, 3],
+        [0.5, 4, 2.5],
+        [1, 4, 2],
+        [1.5, 4, 1.5],
+        [2, 4, 1],
+        [2.5, 4, 0.5],
+        [3, 4, 0],
+        [0, 0.5, 3, 3.5],
+        [0, 1, 3, 3],
+        [0, 1.5, 3, 2.5],
+        [0, 2, 3, 2],
+        [0, 2.5, 3, 1.5],
+        [0, 3, 3, 1],
+        [0, 3.5, 3, 0.5]
+      ];
 
-        let step = 0;
+      let step = 0;
 
-        function animateDashArray(timestamp) {
-          const newStep = Math.round((timestamp / 50) % dashArraySequence.length);
-          if (newStep !== step && mapRef.current.getLayer('line-dashed')) {
-            mapRef.current.setPaintProperty(
-              'line-dashed',
-              'line-dasharray',
-              dashArraySequence[step]
-            );
-            step = newStep;
-          } else {
+      function animateDashArray(timestamp) {
+        const newStep = Math.round((timestamp / 50) % dashArraySequence.length);
+        if (newStep !== step && mapRef.current?.getLayer('line-dashed')) {
+          mapRef.current?.setPaintProperty(
+            'line-dashed',
+            'line-dasharray',
+            dashArraySequence[step]
+          );
+          step = newStep;
+        } else if (newStep !== step && mapRef.current?.getLayer('loaded-line-dashed')) {
+          mapRef.current?.setPaintProperty(
+            'loaded-line-dashed',
+            'line-dasharray',
+            dashArraySequence[step]
+          );
+          step = newStep;
+        } else {
 
-          }
-
-          return requestAnimationFrame(animateDashArray);
         }
 
-        animationRequestId = animateDashArray(0);
+        return requestAnimationFrame(animateDashArray);
       }
-    }
 
+      animationRequestId = animateDashArray(0);
+
+    }
 
     filteredEquipment.map(eq => {
       // const marker = new ExtendedMarker(eq.position as Leaflet.LatLngExpression, { icon: rippleIcon(eq) }).addTo(mapRef.current!)
@@ -1069,7 +1096,7 @@ const Map = ({ socket }) => {
       const el = rippleIcon(eq)
       const marker = new mapboxgl.Marker(el).setLngLat(eq.position).addTo(mapRef.current);
       markersData.push({ id: eq['name'], marker: marker })
-      marker.getElement().addEventListener('click', () => mapRef.current.flyTo({
+      marker.getElement().addEventListener('click', () => mapRef.current?.flyTo({
         center: eq.position, zoom: 20,
         speed: 1
       }))
@@ -1077,7 +1104,7 @@ const Map = ({ socket }) => {
     })
     // markersLayer.
     setMarkers(markersData);
-  }, [filter]);
+  }, [mapStylesLoaded, filter]);
 
   const drawFeature = (geoFenceData: any) => {
     let layer;
@@ -1120,62 +1147,9 @@ const Map = ({ socket }) => {
     setGeofences([...geofences]);
   }
 
-  const getFleetData = (truckId) => {
-    return fleet[truckId] && fleet[truckId].length > 0 ? fleet[truckId][0] : {};
-  }
-  const getColorByState = (state) => {
+  const checkAll = layerOptions.length === checkedList.length;
+  const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
 
-    let color = "#008000";
-    switch (state) {
-      case "ACTIVE":
-        color = "#008000";
-        break;
-      case "DELAY":
-        color = "#FFBF00";
-        break;
-      case "STANDBY":
-        color = "#FFBF00";
-        break;
-      case "DOWN":
-        color = "#FF5733";
-        break;
-      default:
-        break;
-    }
-    return color;
-  }
-
-  const addMarkers = () => {
-    const markersData: MarkerData[] = [];
-
-    // const eventsByTruck = _.groupBy(events, 'truckId');
-
-    // var latestEvents = {};
-    // Object.keys(eventsByTruck).forEach((key) => {
-    //     eventsByTruck[key].forEach(event => {
-    //         const truckId = event.truckId; // Extract truckId
-    //         const eventStartTime = event.event.startTime; // Extract startTime
-
-    //         // If no event exists for the truck or if this event's startTime is later
-    //         if (!latestEvents[truckId] || eventStartTime > latestEvents[truckId].event.startTime) {
-    //             latestEvents[truckId] = event; // Update to latest event
-    //         }
-    //     });
-    // })
-
-    // Object.values(latestEvents).forEach((eq: any) => {
-    //     console.log(eq);
-    //     let equip = getFleetData(eq['truckId']);
-    //     let eqData = {
-    //         color: getColorByState(eq['event']['state']),
-    //         status: eq['event']['state'],
-    //         name: eq['truck']['name']
-    //     }
-    //     const marker = new ExtendedMarker([eq.event.lat, eq.event.lng] as Leaflet.LatLngExpression, { icon: rippleIcon(eqData) }).addTo(mapRef.current!)
-    //     markersData.push({ id: equip['name'], marker: marker })
-    // })
-
-  }
 
   return (
     <React.Fragment>
@@ -1183,11 +1157,23 @@ const Map = ({ socket }) => {
         <Container fluid>
           <Breadcrumb title="Dashboards" breadcrumbItem="Real-time Positioning" />
           <Row>
-            <Col md="12" className='mb-4 d-flex flex-row-reverse'>
-              <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} />
+            <Col md="12" className='mb-4 d-flex'>
+
+              {/* <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} /> */}
+              <div style={{ alignContent: 'center' }}>
+                <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll}>
+                  All
+                </Checkbox>
+                <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
+              </div>
+              <div style={{ alignContent: 'center', justifyContent:'end' }}>
+                <Select placeholder="Filter By Category" showSearch options={[{ label: 'All Equipment', value: 'All Equipment' }, { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} style={{ width: '150px' }} />
+              </div>
             </Col>
-            <Col md="12">
-              <div id="map" ref={mapContainer} className="map-container" style={{ height: '80vh', width: '100%' }}></div>
+          </Row>
+          <Row>
+            <Col>
+              <div id="map" ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 274px)', width: '100%' }}></div>
             </Col>
           </Row>
         </Container>

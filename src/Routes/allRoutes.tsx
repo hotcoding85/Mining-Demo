@@ -22,7 +22,10 @@ import ShiftRoster from "Pages/ShiftRoster";
 import MapGeofence from "Pages/MapGeofences";
 import FleetTimeline from "Pages/FleetTimeline";
 import Target from "Pages/Targets";
+import OperatorReport from "Pages/OperatorReport";
+import TelemetryReport from "Pages/TelemetryReport";
 import GanttScheduler from "Pages/GanttScheduler";
+import Mock from "Pages/Mock";
 
 import socketIO from 'socket.io-client';
 import Reports from "Pages/Reports";
@@ -39,6 +42,7 @@ import EquipmentGantt from "Pages/Equipment Gantt";
 import MaintenanceScheduler from "Pages/MaintenanceScheduler";
 import OilAnalysis from "Pages/OilAnalysis";
 import PreStarts from "Pages/PreStarts";
+import PreStartDetails from "Pages/PreStartDetails";
 import FleetOptimisation from "Pages/FleetOptimisation";
 import AutoRouting from "Pages/AutoRouting";
 import HaulRoadIntelligence from "Pages/HaulRoad";
@@ -49,6 +53,10 @@ import FuelScheduler from "Pages/FuelScheduler";
 import MessageCentre from "Pages/MessageCentre";
 import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
+import TelemetryDetails from "Pages/TelemetryDetails";
+import RomWasteSummary from "Pages/RomWasteSummary";
+import PreShiftInfo from "Pages/PreShiftInfo";
+import OreSpotter from "Pages/OreSpotter";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -66,10 +74,9 @@ const authProtectedRoutes = [
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
-  { path: "/gantt-scheduler", exact: true, component: <GanttScheduler />},
+  { path: "/gantt-scheduler", exact: true, component: <GanttScheduler /> },
   { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
-  { path: "/dispatch-live", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
@@ -77,6 +84,7 @@ const authProtectedRoutes = [
   { path: "/digging-performance", exact: true, component: <DiggingPerformance /> },
   { path: "/trucking-performance", exact: true, component: <TruckingPerformance /> },
   { path: "/ore-tracker", exact: true, component: <OreTracker /> },
+  { path: "/ore-spotter", exact: true, component: <OreSpotter /> },
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
   { path: "/reports", exact: true, component: <Reports /> },
@@ -97,12 +105,21 @@ const authProtectedRoutes = [
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
+  { path: "/details/:id", exact: true, component: <PreStartDetails /> },  // Assuming you have a details page
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
-  { path: "/pit-view", exact: true, component: <PitView /> },
+  { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
-  { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> }
+  { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
+  { path: "/operator-report", exact: true, component: <OperatorReport /> },
+  { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
+  { path: "/telemetry-details", exact: true, component: <TelemetryDetails /> },
+  { path: "/preshift-info", exact: true, component: <PreShiftInfo /> },
+  { path: "/mock-data", exact: true, component: <Mock /> },
+
+  // Production
+  { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
 ];
 
 const publicRoutes = [

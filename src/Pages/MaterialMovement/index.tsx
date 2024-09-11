@@ -1,9 +1,8 @@
 import Breadcrumb from "Components/Common/Breadcrumb";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
-import { ResponsiveSankey, SankeyLayerId } from '@nivo/sankey'
-import { DatePicker, Radio, Segmented, Space } from "antd";
-import _ from 'lodash';
+import { ResponsiveSankey } from '@nivo/sankey'
+import { DatePicker, Segmented, Space } from "antd";
 
 interface InputObject {
     source: string;
@@ -21,6 +20,7 @@ interface Link {
     source: string;
     target: string;
     value: number;
+    color: string; // Add color to the Link interface
 }
 
 const { RangePicker } = DatePicker;
@@ -50,6 +50,25 @@ const MaterialMovement = (props: any) => {
         { source: 'ROM Waste', destination: 'Crusher', tonnage: 9052, material: 'WASTE', color: 'hsl(314, 70%, 50%)' },
     ]
 
+    const linkColor = (link: any) => link.color; // Custom color for links
+
+    const customColors = (node: any) => {
+        // Custom colors for specific nodes
+        if (node.id === '440_BLK1') {
+            return '#ff0000'; // Red color for '440_BLK1' node
+        } else if (node.id === '440_BLK2') {
+            return '#0000ff'; // Blue color for '440_BLK2' node
+        } else if (node.id.includes('Waste')) {
+            return '#00ff00'; // Green color for nodes containing 'Waste'
+        } else if (node.id.includes('ROM')) {
+            return '#ffa500'; // Orange color for nodes containing 'ROM'
+        } else if (node.id === 'Crusher') {
+            return '#8a2be2'; // Purple color for 'Crusher' node
+        } else {
+            return '#cccccc'; // Default color for other nodes
+        }
+    };
+
     // Step 1: Extract unique nodes
     const nodeNames = new Set();
     rawData.forEach(item => {
@@ -57,44 +76,17 @@ const MaterialMovement = (props: any) => {
         nodeNames.add(item.destination);
     });
 
-    const nodes = Array.from(nodeNames).map(name => ({ name }));
+    const nodes = Array.from(nodeNames).map(name => ({ id: name }));
 
     // Step 2: Create a mapping of node names to indices
-    const nodeIndexMap = new Map(nodes.map((node, index) => [node.name, index]));
-
-    const CustomNode = ({ node }) => (
-        <g transform={`translate(${node.x0}, ${node.y0})`}>
-            <foreignObject width={node.width} height={node.height}>
-                <div
-                    style={{
-                        width: node.width,
-                        height: node.height,
-                        boxSizing: "border-box",
-                        color: "black",
-                        textAlign: "left",
-                        padding: "9px",
-                        fontSize: "12px",
-                        backgroundColor: '#f00',
-                        borderRadius: "5px",
-                        border: "1px solid white"
-                    }}
-                >
-                    {"👌🏻"} This is a long text for <strong>{node.id}</strong> to show how
-                    you can embed html elements in SVG and benefit from text wrap.
-                </div>
-            </foreignObject>
-        </g>
-    );
-
-    const CustomNodeLayer = ({ nodes }) => nodes.map((node) => <CustomNode key={node.id} node={node} />);
+    const nodeIndexMap = new Map(nodes.map((node, index) => [node.id, index]));
 
     // Step 3: Create links
-    const links = rawData.map((item, i) => ({
-        key: i.toString(),
+    const links = rawData.map((item) => ({
         source: nodeIndexMap.get(item.source),
         target: nodeIndexMap.get(item.destination),
         value: item.tonnage,
-        color: item.color
+        color: item.color // Add color property
     }));
 
     const transformData = (inputArray: InputObject[]): { nodes: Node[], links: Link[] } => {
@@ -106,7 +98,6 @@ const MaterialMovement = (props: any) => {
             if (!nodesMap.has(item.source)) {
                 nodesMap.set(item.source, {
                     id: item.source,
-                    // nodeColor: 'hsl(250, 70%, 50%)'  // You can customize the color if needed
                 });
             }
 
@@ -114,7 +105,6 @@ const MaterialMovement = (props: any) => {
             if (!nodesMap.has(item.destination)) {
                 nodesMap.set(item.destination, {
                     id: item.destination,
-                    // nodeColor: 'hsl(250, 70%, 50%)'  // You can customize the color if needed
                 });
             }
 
@@ -122,7 +112,8 @@ const MaterialMovement = (props: any) => {
             links.push({
                 source: item.source,
                 target: item.destination,
-                value: item.tonnage
+                value: item.tonnage,
+                color: item.color
             });
         });
 
@@ -142,10 +133,17 @@ const MaterialMovement = (props: any) => {
                     <Row className="mb-3">
                         <Col className='d-flex flex-row-reverse'>
                             <Space>
-                                {
-                                    timeRange == 'CUSTOM' && <RangePicker />
-                                }
-                                <Segmented className="customSegmentLabel customSegmentBackground" value={timeRange} onChange={(e) => setTimeRange(e)} options={[{ value: 'CUSTOM', label: 'Custom' }, { value: 'PREVIOUS_SHIFT', label: 'Previous Shift' }, { value: 'CURRENT_SHIFT', label: 'Current Shift' }]} />
+                                {timeRange === 'CUSTOM' && <RangePicker />}
+                                <Segmented
+                                    className="customSegmentLabel customSegmentBackground"
+                                    value={timeRange}
+                                    onChange={(e) => setTimeRange(e)}
+                                    options={[
+                                        { value: 'CUSTOM', label: 'Custom' },
+                                        { value: 'PREVIOUS_SHIFT', label: 'Previous Shift' },
+                                        { value: 'CURRENT_SHIFT', label: 'Current Shift' }
+                                    ]}
+                                />
                             </Space>
                         </Col>
                     </Row>
@@ -157,7 +155,6 @@ const MaterialMovement = (props: any) => {
                                         data={graphData}
                                         margin={{ top: 40, right: 200, bottom: 40, left: 40 }}
                                         align="center"
-                                        // colors={{ scheme: 'category10' }}
                                         nodeOpacity={1}
                                         nodeHoverOthersOpacity={0.4}
                                         nodeThickness={20}
@@ -169,6 +166,7 @@ const MaterialMovement = (props: any) => {
                                         linkContract={3}
                                         linkBlendMode="normal"
                                         enableLinkGradient={false}
+                                        colors={customColors}  // Use the custom color function for nodes
                                         labelPosition="inside"
                                         labelOrientation="horizontal"
                                         labelPadding={8}
@@ -204,4 +202,5 @@ const MaterialMovement = (props: any) => {
         </React.Fragment>
     )
 }
+
 export default MaterialMovement;

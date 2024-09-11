@@ -11,7 +11,7 @@ const Breadcrumb = (props: any) => {
           <div className="page-title-right">
             <ol className="breadcrumb m-0">
               <BreadcrumbItem>
-                <Link to="#">{props.title}</Link>
+                <Link to={props.link ? props.link : "#"}>{props.title}</Link>
               </BreadcrumbItem>
               <BreadcrumbItem active>{props.breadcrumbItem}</BreadcrumbItem>
             </ol>

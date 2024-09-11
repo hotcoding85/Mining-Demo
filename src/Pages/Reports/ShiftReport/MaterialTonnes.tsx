@@ -12,20 +12,22 @@ const MaterialTonnes = ({ materialData }) => {
 
     return (
         <Row>
-            <Col lg="2">
-                {materialData.map((item, index) => {
-                    return (
+
+            {materialData.map((item, index) => {
+                return (
+                    <Col lg="2">
                         <Card key={index}>
                             <CardBody>
                                 <CardTitle tag="h4" className="mb-3">{item.materialName}</CardTitle>
                                 <CardBody>
-                                    <h4 style={{ textAlign: 'center' }}>{round(item.payload, 2)}</h4>
+                                    <h3 style={{ textAlign: 'center' }}>{round(item.payload, 2)}</h3>
                                 </CardBody>
                             </CardBody>
                         </Card>
-                    )
-                })}
-            </Col>
+                    </Col>
+                )
+            })}
+
         </Row>
     )
 }

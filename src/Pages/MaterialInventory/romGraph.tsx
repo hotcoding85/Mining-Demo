@@ -32,7 +32,7 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
                 show: true,
                 width: 2
             },
-            colors: ['#FFB629', '#D99A21', '#B07C18', '#936714', '#7C5710', '#62440C', '#62660C', 'gray'],
+            colors: ['#FFB629', '#936714', '#D99A21', '#B07C18', '#7C5710', '#62440C', '#62660C', 'gray'],
             xaxis: {
                 categories: hours.map((hour: any) => hour.hour.toString()),
             },

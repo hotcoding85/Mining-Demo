@@ -28,7 +28,9 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
-import { strFileToGeoJSON } from "utils/strConverter";
+import { Segmented } from "antd";
+import DigBlockLayoutMap from "./DigBlockLayoutMap";
+import { round2Two } from "utils/common";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -41,6 +43,8 @@ const DigBlockLayout = (props: any) => {
   const [importStrModal, setImportCsvModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
+  const [displayType, setDisplayType] = useState<string>("TABLE");
+
   const selectProperties = createSelector(
     (state: any) => state.GeoFence,
     (GeoFence) => ({
@@ -49,9 +53,12 @@ const DigBlockLayout = (props: any) => {
     })
   );
 
-  const { data } = useSelector(selectProperties);
+  const { data: fences } = useSelector(selectProperties);
 
-  // const data = []//geoJsonData?.map(item => item.properties)
+  const data = fences.map((item) => ({
+    ...item?.location,
+    ...item,
+  }));
 
   useEffect(() => {
     dispatch(getGeoFences());
@@ -94,27 +101,27 @@ const DigBlockLayout = (props: any) => {
     name: isEdit
       ? Yup.string()
       : Yup.string()
-        .min(2, "Bench name must be at least 2 characters")
-        .required("Please enter bench name")
-        .test(
-          "unique",
-          "Bench with this name already exists",
-          async function (value) {
-            if (value && value.length >= 2) {
-              try {
-                const response = await isBenchNameUnique(value);
-                return response.available; // assuming your API returns { available: true } if username is unique
-              } catch (error) {
-                console.error("Error checking name uniqueness:", error);
-                if (error && error["data"] && error["data"]["available"]) {
-                  return true;
+          .min(2, "Bench name must be at least 2 characters")
+          .required("Please enter bench name")
+          .test(
+            "unique",
+            "Bench with this name already exists",
+            async function (value) {
+              if (value && value.length >= 2) {
+                try {
+                  const response = await isBenchNameUnique(value);
+                  return response.available; // assuming your API returns { available: true } if username is unique
+                } catch (error) {
+                  console.error("Error checking name uniqueness:", error);
+                  if (error && error["data"] && error["data"]["available"]) {
+                    return true;
+                  }
+                  return false; // treat as not unique on error
                 }
-                return false; // treat as not unique on error
               }
+              return true;
             }
-            return true;
-          }
-        ),
+          ),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
     status: Yup.string(),
@@ -227,34 +234,53 @@ const DigBlockLayout = (props: any) => {
         },
       },
       {
-        header: "Au g/t",
+        header: "Grade",
         accessorKey: "augt",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const augt = cellProps.row.original.augt as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(augt)}</div>
+          )
+        }
       },
       {
         header: "Density",
         accessorKey: "density",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const density = cellProps.row.original.density as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(density)}</div>
+          )
+        }
       },
       {
         header: "Tonnes",
         accessorKey: "tonnes",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          const tonnes = cellProps.row.original.tonnes as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(tonnes)}</div>
+          )
+        }
       },
       {
         header: "Volume",
         accessorKey: "volume",
         enableColumnFilter: false,
         enableSorting: true,
-      },
-      {
-        header: "Elevation",
-        accessorKey: "elevation",
-        enableColumnFilter: false,
-        enableSorting: true,
+        cell: (cellProps: any) => {
+          const volume = cellProps.row.original.volume as number
+          return(
+            <div style={{textAlign:'right'}}>{round2Two(volume)}</div>
+          )
+        }
+        
       },
       {
         header: "Status",
@@ -318,20 +344,19 @@ const DigBlockLayout = (props: any) => {
   };
 
   const handleUploadBenches = async (file) => {
-    strFileToGeoJSON(file, async ({ features }) => {
-      setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      const data = features.map((item) => ({
-        name: item.properties.name,
-        blockId: item.properties.blockId,
-        geoJson: item,
-      }));
+    setIsUploading(true);
 
-      await dispatch(upsertGeoFence({ data: data }));
+    await dispatch(upsertGeoFence(formData));
 
-      setIsUploading(false);
-      importStrModalToggle();
-    });
+    setIsUploading(false);
+    importStrModalToggle();
+  };
+
+  const onDisplayTypeChange = (displayInfo) => {
+    setDisplayType(displayInfo);
   };
 
   return (
@@ -339,25 +364,42 @@ const DigBlockLayout = (props: any) => {
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Resources" breadcrumbItem="Dig Block Layout" />
+          <Row className="mb-3">
+            <Col className="d-flex flex-row-reverse">
+              <Segmented
+                className="customSegmentLabel customSegmentBackground"
+                value={displayType}
+                onChange={onDisplayTypeChange}
+                options={[
+                  { value: "TABLE", label: "TABLE" },
+                  { value: "MAP", label: "MAP" },
+                ]}
+              />
+            </Col>
+          </Row>
           <Row>
             <Col lg="12">
-              <Card>
-                <CardBody>
-                  <TableContainer
-                    columns={columns}
-                    data={data || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={false}
-                    buttonName="New Dig Block"
-                    isImportButton={true}
-                    importButtonName="Import Dig Block Data"
-                  />
-                </CardBody>
-              </Card>
+              {displayType === "TABLE" ? (
+                <Card>
+                  <CardBody>
+                    <TableContainer
+                      columns={columns}
+                      data={data || []}
+                      // total={total || 0}
+                      isGlobalFilter={true}
+                      handleOnAddClick={handleOnAdd}
+                      handleOnImportClick={handleOnImport}
+                      isPagination={true}
+                      isAddButton={false}
+                      buttonName="New Dig Block"
+                      isImportButton={true}
+                      importButtonName="Import Dig Block Data"
+                    />
+                  </CardBody>
+                </Card>
+              ) : (
+                <DigBlockLayoutMap data={data} />
+              )}
               <FormModal
                 fields={fields}
                 modalOpen={modal}

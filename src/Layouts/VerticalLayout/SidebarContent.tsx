@@ -161,6 +161,12 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
                 </li>
+                <li>
+                  <Link to="/operator-report">{props.t("Operator Report")}</Link>
+                </li>
+                {/* <li>
+                  <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
+                </li> */}
               </ul>
             </li>
 
@@ -170,23 +176,26 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Mine Control")}</span>
               </Link>
               <ul className="sub-menu">
-                <li>
-                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
+              <li>
+                  <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
                 </li>
                 <li>
-                  <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
+                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
                 </li>
                 <li>
                   <Link to="/shift-planner">{props.t("Shift Planner")}</Link>
                 </li>
                 <li>
-                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
+                  <Link to="/ore-spotter">{props.t("Ore Spotter")}</Link>
                 </li>
                 <li>
                   <Link to="/fuel-scheduler">{props.t("Fuel Scheduler")}</Link>
                 </li>
                 <li>
                   <Link to="/targets">{props.t("Production Targets")}</Link>
+                </li>
+                <li>
+                  <Link to="/preshift-info">{props.t("Pre Shift Information (PSI)")}</Link>
                 </li>
                 <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
@@ -202,7 +211,7 @@ const SidebarContent = (props: any) => {
               <ul className="sub-menu">
                 <li>
                   <Link to="/daily-production">
-                    {props.t("Daily Production Snapshot")}
+                    {props.t("Daily Snapshot")}
                   </Link>
                 </li>
                 <li>
@@ -219,7 +228,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/ore-tracker">
+                  <Link to="/rom-waste-summary">
                     {props.t("ROM & Waste Summary")}
                   </Link>
                 </li>
@@ -284,17 +293,20 @@ const SidebarContent = (props: any) => {
             <li>
               <Link to="/" className="has-arrow">
                 <i className="bx bx-bolt-circle"></i>
-                <span>{props.t("Dynamic Dispatch")}</span>
+                <span>{props.t("Mine Dynamics")}</span>
               </Link>
               <ul className="sub-menu">
-                <li>
-                  <Link to="/fleet-optimisation">{props.t("Fleet Optimization")}</Link>
-                  {/*
-                    plan with trucks, diggers and operators
-                  */}
+              <li>
+                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
                 </li>
                 <li>
-                  <Link to="/auto-routing">{props.t("Auto Routing")}</Link>
+                  <Link to="/fleet-optimisation">{props.t("Haul Road Optimization")}</Link>
+                </li>
+                <li>
+                  <Link to="/auto-routing">{props.t("Haul Route Management")}</Link>
+                </li>
+                <li>
+                  <Link to="/payload-optimisation">{props.t("Payload Optimisation")}</Link>
                 </li>
                 <li>
                   <Link to="/haul-road-intelligence">{props.t("Haul Road Intelligence")}</Link>
@@ -303,7 +315,7 @@ const SidebarContent = (props: any) => {
             </li>
 
             <li>
-              <Link to="/">
+              <Link to="/telemetry-report">
                 <i className="bx bx-checkbox-square"></i>
                 <span>{props.t("Telemetry Live")}</span>
               </Link>

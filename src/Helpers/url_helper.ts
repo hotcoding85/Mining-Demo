@@ -32,9 +32,17 @@ export const EVENTS = "/events";
 // TARGETS
 export const TARGET = "/targets";
 
+// MOCK
+export const MOCK = "/mock";
+
+// EVENT METAS
+export const EVENTMETAS = "/eventmetas";
 
 // REPROTS
 export const REPORTS = "/reports";
 
 // CONFIGURATIONS
 export const CONFIGURATIONS = "/configurations";
+
+// AUTO ROUTING
+export const VEHICLE_ROUTES = "/routes"

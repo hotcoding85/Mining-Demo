@@ -5,6 +5,6 @@ export interface FuelData {
     fuelLevel: number;
     fuelRate: number;
     imageUrl: string;
-    lastUpdated: string;
+    lastUpdated: number;
     sync: "manual" | "inactive" | "active";
   }

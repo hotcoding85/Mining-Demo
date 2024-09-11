@@ -107,7 +107,7 @@ const Dispatch = () => {
 
     useEffect(() => {
         dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
-        dispatch(getAllFleet()); // Dispatch action to fetch fleet data on component mount
+        dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
         const queryParams = new URLSearchParams(window.location.search)
         setShift(queryParams.get("shift") ? queryParams.get("shift") : 'DS');

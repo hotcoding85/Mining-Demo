@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import List from './List';
+import FleetList from './FleetList';
 import { getAllFleet, getTargetsByRoster, vehicleLatestState } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from '@reduxjs/toolkit';
@@ -119,11 +119,11 @@ const FMS = () => {
                     </Row>
                     {
                         filter === 'All Equipment' && ["EXCAVATOR", "DUMP_TRUCK", "LOADER", "DOZER", "DRILLER", "WATER CART", "LV"].map((model: string) => (
-                            <List data={getFleet(model)} key={model} />
+                            <FleetList data={getFleet(model)} key={model} className="mb-3" />
                         ))
                     }
                     {
-                        (filter != 'All Equipment') && (<List data={getFleet(filter)} key={"ALL_EQUIPMENT"} />)
+                        (filter != 'All Equipment') && (<FleetList className="mb-3" data={getFleet(filter)} key={"ALL_EQUIPMENT"} />)
                     }
 
                 </Container>

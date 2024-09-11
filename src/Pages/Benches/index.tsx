@@ -226,7 +226,7 @@ const Benches = (props: any) => {
         },
       },
       {
-        header: "Au g/t",
+        header: "Grade",
         accessorKey: "augt",
         enableColumnFilter: false,
         enableSorting: true,
@@ -272,12 +272,6 @@ const Benches = (props: any) => {
             <div style={{textAlign:'right'}}>{round2Two(volume)}</div>
           )
         }
-      },
-      {
-        header: "Elevation",
-        accessorKey: "elevation",
-        enableColumnFilter: false,
-        enableSorting: true,
       },
       {
         header: "Status",

@@ -51,9 +51,9 @@ export function calculateTimelineSlots(selectedDate: Date, shiftType: string, zo
       hour12: false,
     });
     const formattedDate = startTime.toLocaleDateString([], {
-      weekday: 'long',
+      // weekday: 'short',
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
     });
 
