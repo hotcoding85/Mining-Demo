@@ -9,10 +9,14 @@ import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import dayjs from "dayjs";
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
-import { Radio, Segmented } from 'antd';
+import { Radio, Segmented, Select, Space } from 'antd';
 import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { shiftTimings } from 'utils/common';
 import { buildGraticule } from 'utils/mapUtils';
+import { Checkbox, Divider } from 'antd';
+import type { CheckboxProps } from 'antd';
+
+const CheckboxGroup = Checkbox.Group;
 
 interface EquipmentLocation {
   id: string;
@@ -215,6 +219,20 @@ const Map = ({ socket }) => {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   var [geofences, setGeofences] = useState<any[]>([]);
   const [mapStylesLoaded, setMapStylesLoaded] = useState(false)
+
+  const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations'];
+  const defaultLayers = ['Current Haul Routes', 'Active Benches'];
+
+  const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
+
+
+  const onChange = (list: string[]) => {
+    setCheckedList(list);
+  };
+
+  const onCheckAllChange: CheckboxProps['onChange'] = (e) => {
+    setCheckedList(e.target.checked ? layerOptions : []);
+  };
 
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
@@ -894,7 +912,7 @@ const Map = ({ socket }) => {
       mapRef.current.setTerrain({ 'exaggeration': 2 });
 
       const graticule = buildGraticule(lat, lng);
-      
+
       mapRef.current.addSource('graticule', {
         type: 'geojson',
         data: graticule
@@ -1129,16 +1147,32 @@ const Map = ({ socket }) => {
     setGeofences([...geofences]);
   }
 
+  const checkAll = layerOptions.length === checkedList.length;
+  const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
+
+
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
           <Breadcrumb title="Dashboards" breadcrumbItem="Real-time Positioning" />
           <Row>
-            <Col md="12" className='mb-4 d-flex flex-row-reverse'>
-              <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} />
+            <Col md="12" className='mb-4 d-flex'>
+
+              {/* <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} /> */}
+              <div style={{ alignContent: 'center' }}>
+                <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll}>
+                  All
+                </Checkbox>
+                <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
+              </div>
+              <div style={{ alignContent: 'center', justifyContent:'end' }}>
+                <Select placeholder="Filter By Category" showSearch options={[{ label: 'All Equipment', value: 'All Equipment' }, { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER', disabled: true }, { label: 'Drillers', value: 'Drillers', disabled: true }, { label: 'Dozers', value: 'Dozers', disabled: true }]} style={{ width: '150px' }} />
+              </div>
             </Col>
-            <Col md="12">
+          </Row>
+          <Row>
+            <Col>
               <div id="map" ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 274px)', width: '100%' }}></div>
             </Col>
           </Row>
