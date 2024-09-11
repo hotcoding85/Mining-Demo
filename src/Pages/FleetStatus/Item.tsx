@@ -105,20 +105,28 @@ const Item = (data: any) => {
             <em style={{ marginLeft: '4px' }}>Updated 2m ago</em>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'end', justifyContent: "space-between", padding: '0px 16px' }}>
-          <div className="loadsView" style={{ display: 'flex', flex: '1', alignItems: 'baseline', justifyContent: 'center', alignContent: 'center' }}>
-            <div>
-              <span style={{ fontSize: '2.4em', fontWeight: '500' }}>9<span style={{ fontSize: '0.6em' }}>/{data.data.plannedLoads}</span></span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", padding: '0px 16px', marginTop:'16px' }}>
+          <div style={{flex: '1',}}>
+            <div className="loadsView" style={{ display: 'flex', flex: '1', alignItems: 'baseline', justifyContent: 'center', alignContent: 'center', borderRadius: '6px', padding: '8px 16px', }}>
+              <div>
+                <span style={{ fontSize: '2.0em', fontWeight: '500' }}>129<span style={{ fontSize: '0.6em' }}>/{data.data.plannedLoads}</span></span>
+              </div>
+              <span style={{ marginLeft: '6px', fontSize: '18px' }}>Loads</span>
             </div>
-            <span style={{ marginLeft: '6px', fontSize: '18px' }}>Loads</span>
+            <div>
+              {
+                isNaN(data.data.plannedTonnes) ? '' : <div className="tonnesView" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 16px', marginTop: '8px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '2.0em', fontWeight: '500' }}>1704<span style={{ fontSize: '0.6em' }}>/{data.data.plannedTonnes} t</span></span></div>
+              }
+            </div>
           </div>
-          <img src={getImage(data.data.model)} style={{ flex: '0.5', paddingLeft: '16px' }} width={'30%'} />
+
+          <div style={{ display:'flex', flex: '.7', placeContent:'flex-end', justifyContent:'end', }}>
+            <img src={getImage(data.data.model)} width={'100px'} />
+          </div>
         </div>
 
-        {
-          isNaN(data.data.plannedTonnes) ? '' : <div className="tonnesView" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 16px', marginTop: '8px', marginLeft: '16px', marginRight: '16px' }}>
-            <span style={{ fontSize: '2.0em', fontWeight: '500' }}>704 <span style={{ fontSize: '0.6em' }}> of {data.data.plannedTonnes} t</span></span></div>
-        }
+
 
         <div className="d-flex justify-content-between gap-2 text-muted" style={{ padding: '0px 16px', marginTop: '8px' }}>
           {stateConfig.map((config) => {

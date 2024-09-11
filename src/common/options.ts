@@ -4,6 +4,15 @@ export const UserRoleOptions = [
   { key: 3, value: 'OPERATOR', label: 'Operator' }
 ]
 
+export const UserSkillOptions = [
+  { key: 1, value: 'HD785', label: 'HD785' },
+  { key: 2, value: 'HD1500', label: 'HD1500' },
+  { key: 3, value: 'PC1250', label: 'PC1250' },
+  { key: 4, value: 'PC2000', label: 'PC2000' },
+  { key: 5, value: 'GRADER', label: 'GRADER' },
+  { key: 6, value: 'DRILLER', label: 'DRILLER' },
+]
+
 export const StatusOptions = [
   { key: 1, value: "ACTIVE", label: "Active" },
   { key: 2, value: "INACTIVE", label: "In Active" },

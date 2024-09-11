@@ -15,7 +15,7 @@ import "./styles/GanttScheduler.css"
 import '../../App.css'
 
 
-const GanttScheduler = () => {
+const GanttScheduler : React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [shiftType, setShiftType] = useState<ShiftType>('DAY_SHIFT');

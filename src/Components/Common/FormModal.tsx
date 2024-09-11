@@ -61,6 +61,7 @@ const FormModal = ({ fields, modalOpen, isEdit, resource, initialValues, schema,
                                                                 <CustomSelect
                                                                     id={field.id}
                                                                     name={field.name}
+                                                                    allowMultiple={field.allowMultiple}
                                                                     formValues={values}
                                                                     options={field.options}
                                                                     setFieldValue={setFieldValue}

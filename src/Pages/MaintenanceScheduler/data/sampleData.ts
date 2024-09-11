@@ -1,235 +1,175 @@
-import { Task } from "../interfaces/types";
+import { DraggableItem } from "../interfaces/types";
 
-export const equipmentList: Task[] = [
+export const sampleEvents = [
+  {
+    id: 0,
+    title: "DT01",
+    workLocation: "Workshop Bay1",
+    serviceInterval: "Aircon",
+    resourceLabor: "John Brown (Fitter)",
+    reason: "Damage",
+    status: "completed",
+    start: new Date(2024, 8, 12, 10, 0),
+    end: new Date(2024, 8, 12, 15, 0),
+  },
+  {
+    id: 1,
+    title: "DT02",
+    workLocation: "Workshop1 Bay1",
+    serviceInterval: "250hr",
+    resourceLabor: "Mike Rough (Fitter)",
+    reason: "Repair",
+    status: "In Progress",
+    start: new Date(2024, 8, 11, 13, 0),
+    end: new Date(2024, 8, 11, 19, 0),
+  },
+  {
+    id: 2,
+    title: "DT03",
+    workLocation: "Workshop2 Bay1",
+    serviceInterval: "Tires",
+    resourceLabor: "Alan Poe (Elect)",
+    reason: "Inspection",
+    status: "In Progress",
+    start: new Date(2024, 8, 13, 0, 0),
+    end: new Date(2024, 8, 13, 23, 59),
+  },
+];
+
+export const equipmentList: DraggableItem[] = [
   {
     id: "1",
     name: "DT105",
     label: "DT105",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "DT106",
     label: "DT106",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "3",
     name: "DT107",
     label: "DT107",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
 ];
 
-export const workLocation: Task[] = [
+export const workLocation: DraggableItem[] = [
   {
     id: "1",
     name: "workshop1 Bay1",
     label: "workshop1 Bay1",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "workshop1 Bay1",
     label: "workshop1 Bay1",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
 ];
 
-export const repairAndServiceInterval: Task[] = [
+export const repairAndServiceInterval: DraggableItem[] = [
   {
     id: "1",
     name: "250hr",
     label: "250hr",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "Tires",
     label: "Tires",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "3",
     name: "Aircon",
     label: "Aircon",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "4",
     name: "500hr",
     label: "500hr",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "5",
     name: "GET",
     label: "GET",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "6",
     name: "Prestart Fail",
     label: "Prestart Fail",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 2,
   },
 ];
 
-export const reasons: Task[] = [
+export const reasons: DraggableItem[] = [
   {
     id: "1",
     name: "Inspection",
     label: "Inspection",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "Repair",
     label: "Repair",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "3",
     name: "Damage",
     label: "Damage",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "4",
     name: "Inspection",
     label: "Inspection",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "5",
     name: "Repair",
     label: "Repair",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "6",
     name: "Damage",
     label: "Damage",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 2,
   },
 ];
 
-export const resourceLaborAllocation: Task[] = [
+export const resourceLaborAllocation: DraggableItem[] = [
   {
     id: "1",
     name: "John Brown (Fitter)",
     label: "John Brown (Fitter)",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "Alan Poe (Elect)",
     label: "Alan Poe (Elect)",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "3",
     name: "Joe Boy (Apprent)",
     label: "Joe Boy (Apprent)",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "4",
     name: "Mike Rough (Fitter)",
     label: "Mike Rough (Fitter)",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
 ];
 
-export const longTermDown: Task[] = [
+export const longTermDown: DraggableItem[] = [
   {
     id: "1",
     name: "DT123",
     label: "DT123",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 30 * 60 * 1000),
-    resourceId: "",
-    span: 3,
   },
   {
     id: "2",
     name: "DT123",
     label: "DT123",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 15 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
   {
     id: "3",
     name: "DT123",
     label: "DT123",
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 60 * 60 * 1000),
-    resourceId: "",
-    span: 1,
   },
 ];

@@ -36,6 +36,14 @@ export const postUser = (user: any) => api.create(url.USERS, user);
 export const postUsers = (users: any) =>
   api.create(`${url.USERS}/batch-create`, { data: users });
 
+// Create Users
+export const postUpsertUsers = (formData: any) =>
+  api.create(`${url.USERS}/upsert`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
 // Update User
 export const putUser = (id: string, user: any) => {
   return api.put(`${url.USERS}/${id}`, user);

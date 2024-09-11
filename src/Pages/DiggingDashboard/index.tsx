@@ -1,7 +1,7 @@
 import "Pages/DiggingDashboard/style.css";
 
 import React, { useMemo } from "react";
-import { Col, Container, Row } from "reactstrap";
+import { Card, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
@@ -34,7 +34,7 @@ const DiggingDashboard = (props: any) => {
   const StateTimes = useMemo(() => {
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
-  
+
     return [
       {
         state: "Active",
@@ -56,7 +56,7 @@ const DiggingDashboard = (props: any) => {
         state: "Down",
         time: "00:24:52",
         pctValue: 58,
-        color: FLEET_TIME_STATE_COLOR.DOWN, 
+        color: FLEET_TIME_STATE_COLOR.DOWN,
         bgColor: bgColor,
         textColor: textColor,
       },
@@ -64,7 +64,7 @@ const DiggingDashboard = (props: any) => {
         state: "Idle",
         time: "00:24:52",
         pctValue: 58,
-        color: isLight ? "#828282" : "#fff", 
+        color: isLight ? "#828282" : "#fff",
         bgColor: bgColor,
         textColor: textColor,
       },
@@ -72,13 +72,13 @@ const DiggingDashboard = (props: any) => {
         state: "Delay",
         time: "00:24:52",
         pctValue: 65,
-        color: FLEET_TIME_STATE_COLOR.DELAY, 
+        color: FLEET_TIME_STATE_COLOR.DELAY,
         bgColor: bgColor,
         textColor: textColor,
       },
     ];
   }, [layoutModeType, isLight]);
-  
+
 
   return (
     <React.Fragment>
@@ -97,13 +97,18 @@ const DiggingDashboard = (props: any) => {
           </Row>
 
           <Row className="mt-3">
-            <EfficiencyMetrics />
-          </Row>
-
-
-          <Row className="mt-3">
-            <Col lg="12">
-              <EfficiencyRating value="good" />
+            <Col lg="8">
+              <EfficiencyMetrics />
+            </Col>
+            <Col lg="4">
+              <Card className="state-card" style={{height:'90%'}}>
+                <div className="d-flex flex-column align-items-center">
+                  <h3 className="text-center">Tonnes Per Hour</h3>
+                  <div className="d-flex align-items-center justify-content-center w-100">
+                    <span style={{fontSize:'64px', marginTop:'72px'}}>450 t</span>
+                  </div>
+                </div>
+              </Card>
             </Col>
           </Row>
 
@@ -112,6 +117,13 @@ const DiggingDashboard = (props: any) => {
               <DiggingSummary />
             </Col>
           </Row>
+
+          <Row className="mt-3">
+            <Col lg="6">
+              <EfficiencyRating value="good" />
+            </Col>
+          </Row>
+
         </Container>
       </div>
     </React.Fragment>

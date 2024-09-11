@@ -91,6 +91,14 @@ const generateShiftRoster = (
         trucks: trucks.slice(index * 4, (index + 1) * 4),
         roster: rosterName,
       });
+    } else {
+      const operators = getRandomUsersExcept(users, []);
+      rosterList.push({
+        vehicleId: digger.id,
+        operators: operators,
+        trucks: trucks.slice(0, 4),
+        roster: rosterName,
+      });
     }
   });
 

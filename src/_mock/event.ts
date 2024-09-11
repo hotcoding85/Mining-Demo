@@ -1,20 +1,33 @@
 import { formatTime, getShiftTimes } from "./common";
+import { v4 as uuidv4 } from "uuid";
 
 export const generateMockEventMetaData = (plans: any[]) => {
-  return plans.flatMap((plan) =>
+  const eventMetas = plans.flatMap((plan) =>
     plan.supporting.map((support) => ({
+      id: uuidv4(),
       planId: plan.planId,
       roster: plan.roster,
       materialId: plan.materialId,
       sourceId: plan.sourceId,
       destinationId: plan.destinationId,
       truckId: support,
-      vehicleId: plan.vehicleId,
+      excavatorId: plan.vehicleId,
     }))
   );
+
+  const events = generateEventData(eventMetas);
+
+  return { eventMetas, events };
 };
 
-const Reasons = ["TRAVELLING", "QUEUING", "LOADING", "HOLDING", "DUMPING"];
+const reasons = [{ reason: "TRAVELLING", state: "ACTIVE" },
+{ reason: "QUEUING", state: "ACTIVE" },
+{ reason: "LOADING", state: "ACTIVE" },
+{ reason: "Smoke Break", state: "STANDBY" },
+{ reason: "HOLDING", state: "ACTIVE" },
+{ reason: "Crib Break", state: "DELAY" },
+{ reason: "DUMPING", state: "ACTIVE" },
+];
 
 export const generateEventData = (eventMetas: any[]) => {
   const events: any[] = [];
@@ -24,21 +37,16 @@ export const generateEventData = (eventMetas: any[]) => {
     let currentTime = startDateTime;
 
     for (let trip = 1; trip <= 35; trip += 1) {
-      Reasons.forEach((reason) => {
+      reasons.forEach((reason) => {
         const eventStartTime = currentTime;
         const eventEndTime = new Date(currentTime.getTime() + 4 * 60000);
 
         events.push({
           tripId: trip.toString(),
-          materialId: eventMeta.materialId,
-          sourceId: eventMeta.sourceId,
-          destinationId: eventMeta.destinationId,
-          truckId: eventMeta.truckId,
-          eventMetaId: eventMeta.planId,
-          vehicleId: eventMeta.excavatorId,
+          eventMetaId: eventMeta.id,
           roster: eventMeta.roster,
-          state: "ACTIVE",
-          reason: reason,
+          state: reason.state,
+          reason: reason.reason,
           payload: 90,
           lng: "120.44438970741732",
           lat: "-29.146627309426933",

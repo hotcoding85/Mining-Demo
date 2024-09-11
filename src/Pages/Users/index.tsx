@@ -7,11 +7,13 @@ import { getAllUsers, addUser, updateUser, removeUser } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
 import { Link } from 'react-router-dom';
-import { UserRoleOptions, StatusOptions } from 'common/options';
+import { UserRoleOptions, StatusOptions, UserSkillOptions } from 'common/options';
 import DeleteButton from 'Components/Common/DeleteButton';
 import FormModal from 'Components/Common/FormModal';
 import axios from 'axios';
 import { createSelector } from 'reselect';
+import _ from 'lodash';
+import { Tag } from 'antd';
 
 const Users = (props: any) => {
   document.title = "Users | FMS Live";
@@ -22,6 +24,8 @@ const Users = (props: any) => {
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
+  const [xda, setXda] = useState([])
+
   const selectProperties = createSelector(
     (state: any) => state.Users,
     (users) => ({
@@ -31,6 +35,15 @@ const Users = (props: any) => {
   );
 
   const { data, total } = useSelector(selectProperties);
+
+  useEffect(() => {
+
+    const xdata = _.cloneDeep(data).map((item) => {
+      item.skills = ['PC1250', 'HD785', 'HD1500']
+      return item
+    })
+    setXda(xdata)
+  }, [data])
 
   useEffect(() => {
     dispatch(getAllUsers()); // Dispatch action to fetch data on component mount
@@ -49,6 +62,7 @@ const Users = (props: any) => {
       lastName: (doc && doc.lastName) || "",
       crew: (doc && doc.crew) || "",
       password: !isEdit ? (doc && doc.password ? doc.password : undefined) : undefined || undefined,
+      skills: (doc && doc.skills) || undefined,
       role: (doc && doc.role) || "",
       email: (doc && doc.email) || undefined,
       mobile: (doc && doc.mobile) || undefined,
@@ -111,6 +125,14 @@ const Users = (props: any) => {
       type: 'input',
       editable: true,
       inputType: 'password'
+    },
+    {
+      id: 'skills',
+      name: 'skills',
+      label: 'Skills',
+      type: 'select',
+      allowMultiple: true,
+      options: UserSkillOptions
     },
     {
       id: 'email',
@@ -192,6 +214,14 @@ const Users = (props: any) => {
       type: 'input',
       editable: true,
       inputType: 'password'
+    },
+    {
+      id: 'skills',
+      name: 'skills',
+      label: 'Skills',
+      type: 'select',
+      allowMultiple: true,
+      options: UserSkillOptions
     },
     {
       id: 'email',
@@ -318,41 +348,61 @@ const Users = (props: any) => {
         accessorKey: 'username',
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          return (
+            <div style={{ textAlign: 'left', }}>{cellProps.row.original.username}</div>
+          );
+        },
       },
       {
         header: 'First Name',
         accessorKey: 'firstName',
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          return (
+            <div style={{ textAlign: 'left', }}>{cellProps.row.original.firstName}</div>
+          );
+        },
       },
       {
         header: 'Last Name',
         accessorKey: 'lastName',
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          return (
+            <div style={{ textAlign: 'left', }}>{cellProps.row.original.lastName}</div>
+          );
+        },
       },
       {
         header: 'Role',
         accessorKey: 'role',
         enableColumnFilter: false,
         enableSorting: true,
+        // cell: (cellProps: any) => {
+        //   return (
+        //     <div className="badge badge-soft-primary font-size-11 m-1">{cellProps.row.original.role}</div>
+        //   );
+        // },
+      },
+      {
+        header: 'Skills',
+        accessorKey: 'skills',
+        enableColumnFilter: false,
+        enableSorting: true,
         cell: (cellProps: any) => {
+          const skillsData = cellProps.row.original.skills
+          console.log('columns props', skillsData)
           return (
-            <div className="badge badge-soft-primary font-size-11 m-1">{cellProps.row.original.role}</div>
+            <>
+              {
+                skillsData?.map((item, key) => <Tag color='#87d068'>{item}</Tag>)
+              }
+            </>
           );
         },
-      },
-      {
-        header: 'Email',
-        accessorKey: 'email',
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: 'Mobile',
-        accessorKey: 'mobile',
-        enableColumnFilter: false,
-        enableSorting: true,
       },
       {
         header: "Actions",
@@ -408,6 +458,7 @@ const Users = (props: any) => {
     toggle();
   })
 
+  console.log(xda)
   return (
     <React.Fragment >
       <div className="page-content">
@@ -419,7 +470,7 @@ const Users = (props: any) => {
                 <CardBody>
                   <TableContainer
                     columns={columns}
-                    data={data || []}
+                    data={xda || []}
                     // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
