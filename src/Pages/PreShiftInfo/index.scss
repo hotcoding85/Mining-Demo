@@ -52,6 +52,7 @@ body[data-layout-mode="light"] {
   .card-body {
     color: #828282;
     box-shadow: 0px 1px 4px 0px #0C0C0D1A;
+    height: 200px;
   }
 
   .card-body__header {
@@ -92,10 +93,23 @@ body[data-layout-mode="light"] {
       padding: 0 !important;
       border: none !important;
       &.assign-arrow {
+        &::before {
+          top: 48.5%;
+        }
         &::after {
-          top: 27px;
+          left: -6px;
         }
       }
+    }
+    &.assign-box-shift {
+      width: 48%;
+      // &::before {
+      //   top: 50%;
+      // }
+      // &::after {
+      //   top: 52% !important;
+      //   transform: translateY(-52%);
+      // }
     }
   }
 
@@ -148,17 +162,22 @@ body[data-layout-mode="light"] {
     &::before {
       content: "";
       position: absolute;
-      top: 28px;
+      top: 100px;
       left: 1px;
-      border-left: 1px solid #828282;
       width: 4px;
-      height: calc(100% - 56px);
+      height: calc(100% - 29px - 100px);
+      overflow: hidden;
+    }
+
+    &.last-equipment {
+      &::before {
+        height: calc(100% - 200px);
+      }
     }
   }
 }
 
 .schedule-filter {
-  padding-top: 31px;
   margin: 0 0 31px;
   .ant-select-show-search,
   .ant-picker {
@@ -201,11 +220,18 @@ body[data-layout-mode="light"] {
 }
 
 .data-section {
-  width: calc(100% - 314px);
+  width: calc(100% - 324px);
   flex: 1 0;
 }
+
 .sidebar-section {
-  width: 314px;
+  width: 324px;
+}
+
+.side-scroll {
+  height: calc(100vh - 120px);
+  overflow: auto;
+  margin: -24px -24px 0 0 !important;
 }
 
 [data-layout-mode="dark"] {

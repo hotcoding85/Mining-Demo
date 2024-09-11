@@ -4,6 +4,7 @@ import '../styles/SideBar.css';
 import { Task } from '../interfaces/type';
 import ExcavatorIcon from 'assets/icons/ExcavatorsIcon.svg';
 import TruckIcons from 'assets/icons/TrucksIcon.svg';
+import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 
 interface TaskListProps {
   tasks: Task[];
@@ -22,11 +23,6 @@ interface DataItem {
   repairTrucks: string[];
   repairDozers: string[];
   repairDrillers: string[];
-  workLocation: string[];
-  repairAndServiceInterval: string[];
-  reasons: string[];
-  resourceLaborAllocation: string[];
-  longTermDown: string[];
 }
 
 const SideBar: React.FC<TaskListProps> = ({ tasks }) => {
@@ -44,153 +40,260 @@ const SideBar: React.FC<TaskListProps> = ({ tasks }) => {
     repairTrucks: ["DT110", "DT111", ""],
     repairDozers: ["", "", ""],
     repairDrillers: ["", "", ""],
-    workLocation: ["workshop1", "workshop2", "workshop3"],
-    repairAndServiceInterval: ["workshop1", "workshop2", "workshop3"],
-    reasons: ["workshop1", "workshop2", "workshop3"],
-    resourceLaborAllocation: ["workshop1", "workshop2", "workshop3"],
-    longTermDown: ["workshop1", "workshop2", "workshop3"],
   }];
 
+  function Draggable({ id, name, disabled, onDragStart, style }) {
+
+    const [{ isDragging }, drag] = useDrag(() => ({
+      type: "image",
+      item: { id: id, value: name },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+    }));
+
+    return (
+        <div
+            className={style}
+            draggable
+            ref={drag}
+            onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
+        >
+            {name}
+        </div>
+    );
+}
+
   return (
-    <div className='task-list d-flex flex-column p-0 mt-0' >
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Locations</span>
-        <div className='equip-lists d-flex align-items-center flex-wrap'>
-          {data[0].locations.map((locations, index) => (
-            <div className='task-chips py-2 px-3 btn-drag' key={index}>{locations}</div>
+    <div className="task-list d-flex flex-column p-0 side-scroll">
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">Locations</span>
+        <div className="equip-lists d-flex align-items-center flex-wrap">
+          {data[0].locations.map((location, index) => (
+            <Draggable
+              key={index}
+              id={'location'}
+              style='task-chips py-2 px-3 btn-drag'
+              disabled={location !== ""? false : true}
+              name={location}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Operators</span>
-        <div className='sub-title'>Excavators</div>
-        <div className='equip-lists d-flex align-items-center flex-wrap'>
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">Operators</span>
+        <div className="sub-title">Excavators</div>
+        <div className="equip-lists d-flex align-items-center flex-wrap">
           {data[0].excavators.map((excavator, index) => (
-            <div className='task-chips py-2 px-3' key={index}>
-              <img src={ExcavatorIcon} className='icons'/>
-              {excavator}
-            </div>
+            <Draggable
+              key={index}
+              id={'excavatorOperator'}
+              style='task-chips py-2 px-3 btn-drag'
+              disabled={excavator !== ""? false : true}
+              name={
+                <>
+                  <img src={ExcavatorIcon} className="icons" />
+                  {excavator}
+                </>
+              }
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
 
-        <div className='sub-title'>Trucks</div>
-        <div className='equip-lists d-flex align-items-center flex-wrap'>
+        <div className="sub-title">Trucks</div>
+        <div className="equip-lists d-flex align-items-center flex-wrap">
           {data[0].truckOperators.map((truck, index) => (
-            <div className='task-chips py-2 px-3' key={index}>
-              <img src={TruckIcons} className='icons'/>
-              {truck}
-            </div>
+            <Draggable
+              key={index}
+              id={'truckOperator'}
+              style='task-chips py-2 px-3 btn-drag'
+              disabled={truck !== ""? false : true}
+              name={
+                <>
+                  <img src={TruckIcons} className="icons" />
+                  {truck}
+                </>
+              }
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Trainers</span>
-        <div className='equip-lists d-flex align-items-center flex-wrap'>
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">Trainers</span>
+        <div className="equip-lists d-flex align-items-center flex-wrap">
           {data[0].trainers.map((equipment, index) => (
-            <div className='task-chips py-2 px-3' key={index}>{equipment}</div>
+            <Draggable
+              key={index}
+              id={'trainer'}
+              style='task-chips py-2 px-3 btn-drag'
+              disabled={equipment !== ""? false : true}
+              name={equipment}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Ready for dispatch on Go-Line</span>
-        <div className='sub-title'>Trucks</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">
+          Ready for dispatch on Go-Line
+        </span>
+        <div className="sub-title">Trucks</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].trucks.map((truck, index) => (
-            <div className={truck !== ''? 'btn show-btn' : 'btn show-btn empty-btn'} key={index}>{truck}</div>
+            <Draggable
+            key={index}
+            id={'truck'}
+            style={ truck !== "" ? "btn show-btn" : "btn show-btn empty-btn"}
+            disabled={truck !== ""? false : true}
+            name={truck}
+            onDragStart={() => console.log("drag")}
+          />
           ))}
         </div>
-        <div className='sub-title'>Dozers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Dozers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].dozers.map((dozer, index) => (
-            <div className={dozer !== ''? 'btn show-btn' : 'btn show-btn empty-btn'} key={index}>{dozer}</div>
+            <Draggable
+              key={index}
+              id={'dozer'}
+              style={ dozer !== "" ? "btn show-btn" : "btn show-btn empty-btn"}
+              disabled={dozer !== ""? false : true}
+              name={dozer}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
-        <div className='sub-title'>Drillers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Drillers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].drillers.map((driller, index) => (
-            <div className={driller !== ''? 'btn show-btn' : 'btn show-btn empty-btn'} key={index}>{driller}</div>
+            <Draggable
+              key={index}
+              id={'driller'}
+              style={ driller !== "" ? "btn show-btn" : "btn show-btn empty-btn"}
+              disabled={driller !== ""? false : true}
+              name={driller}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
 
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Standby No Operator Assigned</span>
-        <div className='sub-title'>Trucks</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">
+          Standby No Operator Assigned
+        </span>
+        <div className="sub-title">Trucks</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].standByTrucks.map((truck, index) => (
-            <div className={truck !== ''? 'btn show-btn show-alert' : 'btn show-btn empty-btn'} key={index}>{truck}</div>
+            <Draggable
+              key={index}
+              id={'truck'}
+              style={
+                truck !== ""
+                  ? "btn show-btn show-alert"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={truck !== ""? false : true}
+              name={truck}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
-        <div className='sub-title'>Dozers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Dozers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].standByDozers.map((dozer, index) => (
-            <div className={dozer !== ''? 'btn show-btn show-alert' : 'btn show-btn empty-btn'} key={index}>{dozer}</div>
+            <Draggable
+              key={index}
+              id={'dozer'}
+              style={
+                dozer !== ""
+                  ? "btn show-btn show-alert"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={dozer !== ""? false : true}
+              name={dozer}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
-        <div className='sub-title'>Drillers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Drillers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].standByDrillers.map((driller, index) => (
-            <div className={driller !== ''? 'btn show-btn show-alert' : 'btn show-btn empty-btn'} key={index}>{driller}</div>
+            <Draggable
+              key={index}
+              id={'driller'}
+              style={
+                driller !== ""
+                  ? "btn show-btn show-alert"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={driller !== ""? false : true}
+              name={driller}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
 
-      <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Down for Repair</span>
-        <div className='sub-title'>Trucks</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+      <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
+        <span className="task-list-title text-start">Down for Repair</span>
+        <div className="sub-title">Trucks</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].repairTrucks.map((truck, index) => (
-            <div className={truck !== ''? 'btn show-btn show-danger' : 'btn show-btn empty-btn'} key={index}>{truck}</div>
+            <Draggable
+              key={index}
+              id={'truck'}
+              style= {
+                truck !== ""
+                  ? "btn show-btn show-danger"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={truck !== ""? false : true}
+              name={truck}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
-        <div className='sub-title'>Dozers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Dozers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].repairDozers.map((dozer, index) => (
-            <div className={dozer !== ''? 'btn show-btn show-danger' : 'btn show-btn empty-btn'} key={index}>{dozer}</div>
+            <Draggable
+              key={index}
+              id={'dozer'}
+              style= {
+                dozer !== ""
+                  ? "btn show-btn show-danger"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={dozer !== ""? false : true}
+              name={dozer}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
-        <div className='sub-title'>Drillers</div>
-        <div className='d-flex align-items-center equip-wrapper  justify-content-between '>
+        <div className="sub-title">Drillers</div>
+        <div className="d-flex align-items-center equip-wrapper  justify-content-between ">
           {data[0].repairDrillers.map((driller, index) => (
-            <div className={driller !== ''? 'btn show-btn show-danger' : 'btn show-btn empty-btn'} key={index}>{driller}</div>
+            <Draggable
+              key={index}
+              id={'driller'}
+              style= {
+                driller !== ""
+                  ? "btn show-btn show-danger"
+                  : "btn show-btn empty-btn"
+              }
+              disabled={driller !== ""? false : true}
+              name={driller}
+              onDragStart={() => console.log("drag")}
+            />
           ))}
         </div>
       </div>
-
-
-      {/* <div className='task-wrapper d-flex flex-column gap-3 py-4 px-3'>
-        <span className='task-list-title text-start'>Equipment List</span>
-        <div className='equip-lists d-flex align-items-center flex-wrap'>
-          {data[0].trucks.map((equipment, index) => (
-            <div className='task-chips py-2 px-3' key={index}>{equipment}</div>
-          ))}
-        </div>
-      </div>  */}
-
-
-      {/* Rendering tasks with the TaskListItem component */}
-      {/* {tasks.map((task) => (
-        <TaskListItem key={task.id} task={task} />
-      ))} */}
     </div>
   );
 };
-
-// const TaskListItem: React.FC<{ task: Task }> = ({ task }) => {
-//   const [{ isDragging }, drag] = useDrag({
-//     type: 'TASK',
-//     item: { ...task, fromList: true },
-//     collect: (monitor) => ({
-//       isDragging: monitor.isDragging(),
-//     }),
-//   });
-
-//   return (
-//     <div ref={drag} className='task-list-item' style={{ opacity: isDragging ? 0.5 : 1 }}>
-//       <p className='list-item-span fw-bold'>{task.label}</p>
-//       <p className='list-item-span'>{task.name}</p>
-//     </div>
-//   );
-// };
 
 export default SideBar;
