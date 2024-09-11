@@ -1,0 +1,85 @@
+.ore-trakcer-content {
+  .current-location-containe {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+  }
+
+  .collapse-view-containe {
+    display: flex;
+    gap: 8px;
+
+    .collapse-view-label {
+      color: white;
+      font-size: 16px;
+    }
+
+    .collapse-view-toggle {
+      background-color: #c1c1c1 !important;
+    }
+  }
+
+  .current-location-progress {
+    width: 100% !important;
+    margin-top: 16px !important;
+
+    .ant-progress-inner {
+      background-color: #535e77 !important;
+
+      .ant-progress-bg {
+        background-color: #389e0d !important;
+      }
+    }
+  }
+
+  .dispatch-location {
+    border: none !important;
+    padding: 24px 0px !important;
+  }
+
+  .assign-truck-item-header {
+    width: 50% !important;
+  }
+
+  .assign-material-item-header {
+    width: 25% !important;
+  }
+
+  .assign-location-item-header {
+    width: 25% !important;
+  }
+
+  .assign-truck-item {
+    width: 40% !important;
+  }
+
+  .assign-material-item {
+    width: 25% !important;
+  }
+
+  .assign-location-item {
+    width: 25% !important;
+  }
+
+  .assigned-material-item-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .assigned-material-item-label {
+      color: white;
+      font-size: 32px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 40px;
+    }
+  }
+}
+
+body[data-layout-mode="light"] .ore-trakcer-content {
+  .assigned-material-item-container {
+    .assigned-material-item-label {
+      color: #2a2a2a;
+    }
+  }
+}
