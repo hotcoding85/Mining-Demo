@@ -1,10 +1,97 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ToolbarProps } from "react-big-calendar";
 import moment from "moment";
 import { Segmented } from "antd";
+import * as Yup from "yup";
+import {
+  equipmentList,
+  workLocation,
+  reasons,
+  repairAndServiceInterval,
+  resourceLaborAllocation,
+} from "../data/sampleData";
+import FormModal from "Components/Common/FormModal";
 
-const CalendarHeader = (props: ToolbarProps) => {
-  const { onNavigate, label, onView, view } = props;
+interface CalendarHeaderProps extends ToolbarProps {
+  newEvent: any;
+}
+
+const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
+  const { onNavigate, label, onView, view, newEvent } = props;
+
+  const [modal, setModal] = useState<boolean>(false);
+
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required("Please enter a title"),
+    resourceLabor: Yup.string().required("Please allocate resource labor"),
+    reason: Yup.string().required("Please select a reason"),
+    serviceInterval: Yup.string().required(
+      "Please select a repair and service interval"
+    ),
+    workLocation: Yup.string().required("Please select a work location"),
+    start: Yup.date().required("Please select a start date"),
+    end: Yup.date().required("Please select an end date"),
+  });
+
+  const fields = [
+    {
+      id: "title",
+      name: "title",
+      label: "Equipment List",
+      type: "select",
+      options: equipmentList,
+    },
+    {
+      id: "workLocation",
+      name: "workLocation",
+      label: "Work Locations",
+      type: "select",
+      options: workLocation,
+    },
+    {
+      id: "resourceLabor",
+      name: "resourceLabor",
+      label: "Resource labor Allocation",
+      type: "select",
+      options: resourceLaborAllocation,
+    },
+    {
+      id: "serviceInterval",
+      name: "serviceInterval",
+      label: "Repair And Service Interval",
+      type: "select",
+      options: repairAndServiceInterval,
+    },
+    {
+      id: "reason",
+      name: "reason",
+      label: "Reasons",
+      type: "select",
+      options: reasons,
+    },
+    {
+      id: "start",
+      name: "start",
+      label: "Start",
+      type: "date",
+    },
+    {
+      id: "end",
+      name: "end",
+      label: "End",
+      type: "date",
+    },
+  ];
+
+  const initialValues = {
+    title: "",
+    workLocation: "",
+    serviceInterval: "",
+    reason: "",
+    resourceLabor: "",
+    start: "",
+    end: "",
+  };
 
   useEffect(() => {
     const start = moment().startOf("month");
@@ -16,9 +103,16 @@ const CalendarHeader = (props: ToolbarProps) => {
     }
   }, []);
 
-  const handleCreateNewEvent = () => {
-    alert("Create new event logic goes here!");
+  const handleCreateNewEvent = (values) => {
+    const start = new Date(values.start);
+    const end = new Date(values.end);
+
+    newEvent({ ...values, start, end });
   };
+
+  const toggle = useCallback(() => {
+    setModal(!modal);
+  }, [modal]);
 
   return (
     <div className="custom-toolbar-wrapper">
@@ -84,10 +178,7 @@ const CalendarHeader = (props: ToolbarProps) => {
             />
 
             <div className="month-container">
-              <button
-                className="create-event-button"
-                onClick={handleCreateNewEvent}
-              >
+              <button className="create-event-button" onClick={toggle}>
                 <svg
                   width="17"
                   height="16"
@@ -103,6 +194,17 @@ const CalendarHeader = (props: ToolbarProps) => {
                 </svg>
                 Create New Event
               </button>
+
+              <FormModal
+                fields={fields}
+                modalOpen={modal}
+                isEdit={false}
+                resource={"Maintenance Scheduler"}
+                initialValues={initialValues}
+                schema={validationSchema}
+                handleOnSubmit={handleCreateNewEvent}
+                handleOnCancel={toggle}
+              />
             </div>
           </div>
         </div>
