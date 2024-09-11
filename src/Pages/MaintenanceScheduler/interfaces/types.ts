@@ -1,9 +1,21 @@
-export interface Task {
+export interface DraggableItem {
   id: string;
   name: string;
-  label?: string;
-  startTime: Date;
-  endTime: Date;
-  resourceId: string;
-  span: number;
+  label: string;
+}
+
+export interface Events {
+  id: number;
+  title: string;
+  workLocation?: string;
+  serviceInterval?: string;
+  resourceLabor?: string;
+  reason?: string;
+  start: Date;
+  end: Date;
+}
+
+export interface DraggedEvent {
+  name: string;
+  type: string;
 }

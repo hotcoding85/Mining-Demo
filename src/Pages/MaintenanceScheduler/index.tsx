@@ -12,6 +12,8 @@ import "moment/locale/en-gb";
 import Sidebar from "./Sidebar";
 import CalendarHeader from "./CalendarHeader/CalendarHeader";
 import "./styles/Scheduler.css";
+import { sampleEvents } from "./data/sampleData";
+import { DraggedEvent, Events } from "./interfaces/types";
 
 //to start week from monday
 moment.updateLocale("en-gb", {
@@ -26,27 +28,8 @@ const DragAndDropCalendar = withDragAndDrop(Calendar);
 const MaintenanceScheduler = () => {
   document.title = "Maintenance Scheduler | FMS Live";
 
-  const [events, setEvents] = useState([
-    {
-      id: 0,
-      title: "Meeting with Team",
-      start: new Date(2024, 8, 10, 10, 0),
-      end: new Date(2024, 8, 10, 15, 0),
-    },
-    {
-      id: 1,
-      title: "Lunch with Client",
-      start: new Date(2024, 8, 11, 13, 0),
-      end: new Date(2024, 8, 11, 19, 0),
-    },
-    {
-      id: 2,
-      title: "Project Deadline",
-      start: new Date(2024, 8, 15, 0, 0),
-      end: new Date(2024, 8, 15, 23, 59),
-      allDay: true,
-    },
-  ]);
+  const [events, setEvents] = useState<Events[]>(sampleEvents);
+  const [draggedEvent, setDraggedEvent] = useState<DraggedEvent | null>(null);
 
   const [view, setView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -102,6 +85,66 @@ const MaintenanceScheduler = () => {
     }
   };
 
+  const newEvent = useCallback(
+    (event) => {
+      setEvents((prev) => {
+        const idList = prev.map((item) => item.id);
+        const newId = Math.max(...idList) + 1;
+        return [...prev, { ...event, id: newId, status: "in Progress" }];
+      });
+    },
+    [setEvents]
+  );
+
+  const isEventOverlapping = useCallback(
+    (newEvent) => {
+      return events.find((existingEvent) => {
+        return (
+          newEvent.start < existingEvent.end &&
+          newEvent.end > existingEvent.start
+        );
+      });
+    },
+    [events]
+  );
+
+  const onDropFromOutside = useCallback(
+    ({ start, end }) => {
+      const draggedEventDeatils = { start, end };
+      if (!draggedEvent) return;
+
+      const { name, type } = draggedEvent;
+
+      if (type === "title") {
+        const event = {
+          title: name,
+          start,
+          end,
+        };
+        setDraggedEvent(null);
+
+        newEvent(event);
+      } else {
+        const overlappedEvent = isEventOverlapping(draggedEventDeatils);
+        if (!overlappedEvent) return;
+
+        const updatedOverlappedEvent = {
+          ...overlappedEvent,
+          [type]: name,
+        };
+
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event.id === overlappedEvent.id ? updatedOverlappedEvent : event
+          )
+        );
+
+        setDraggedEvent(null);
+      }
+    },
+    [draggedEvent, newEvent, isEventOverlapping, setEvents]
+  );
+
   const formats = {
     timeGutterFormat: (date, culture, localizer) =>
       localizer.format(date, "h A", culture),
@@ -134,6 +177,7 @@ const MaintenanceScheduler = () => {
                         view={view}
                         date={currentDate}
                         onEventDrop={onEventDrop}
+                        onDropFromOutside={onDropFromOutside}
                         resizable
                         onEventResize={onEventResize}
                         step={60}
@@ -159,7 +203,7 @@ const MaintenanceScheduler = () => {
                 </Card>
               </Col>
               <Col lg="3">
-                <Sidebar />
+                <Sidebar setDraggedEvent={setDraggedEvent} />
               </Col>
             </DndProvider>
           </Row>
@@ -170,19 +214,61 @@ const MaintenanceScheduler = () => {
 };
 
 const CustomEvent = ({ event, view }) => {
+  const eventStatusClass =
+    event.event.status === "completed"
+      ? "event-completed"
+      : "event-in-progress";
+
   return view === "month" ? (
-    <span>{event.title}</span>
+    <div className={`${eventStatusClass}`}>
+      <span className="event-title event-title-month">{event.title}</span>
+    </div>
   ) : (
-    <div className="d-flex flex-column align-items-center gap-2 event-chip-wrap">
+    <div
+      className={`d-flex flex-column align-items-center justify-content-between gap-4 h-100 event-direction ${eventStatusClass}`}
+    >
       <>
-        <p className="text-center mb-0 p-2 event-chip">{event.title}</p>
-        <p className="text-center mb-0 p-2 event-chip">250hr</p>
-        <p className="text-center mb-0 p-2 event-chip">Inspection</p>
-        <p className="text-center mb-0 p-2 event-chip event-chip-filter">
-          John Brown (Fitter)
-        </p>
+        <div>
+          <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
+            <p className="text-center mb-0 p-2 event-title">{event.title}</p>
+            <span className={`position-relative event-status`}>
+              {event.event.status}
+            </span>
+          </div>
+          <div className="d-flex flex-column align-items-center gap-2 event-chip-wrap">
+            <p className="text-center mb-0 p-2 event-chip">
+              {event.event.workLocation}
+            </p>
+
+            <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
+              <p className="text-center mb-0 p-2 event-chip">
+                {event.event.serviceInterval}
+              </p>
+              <p className="text-center mb-0 p-2 event-chip event-chip-filter">
+                {event.event.resourceLabor}
+              </p>
+            </div>
+            <p className="text-center mb-0 p-2 event-chip">
+              {event.event.reason}
+            </p>
+          </div>
+        </div>
         <div className="event-ready-btn ms-auto">
-          <button type="button">Ready to Return to Work</button>
+          <button type="button">
+            Ready to Return to Work
+            <svg
+              width="21"
+              height="16"
+              viewBox="0 0 21 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.5185 16.9848L20.389 7.85716L11.2613 -1.01323L9.94715 0.33902L16.7085 6.90974L0.37673 7.14313L0.405308 9.14292L16.7369 8.90954L10.1662 15.6707L11.5185 16.9848Z"
+                fill="white"
+              />
+            </svg>
+          </button>
         </div>
       </>
     </div>
