@@ -18,10 +18,10 @@ interface DiggingSummaryTableRowProps {
   avgLoadPerHour: number;
   tonnesPerHour: number;
  
-  avgLoadTime: number;
-  plannedLoadTime: number;
-  avgCycleTime: number;
-  plannedCycleTime: number;
+  avgLoadTime: string;
+  plannedLoadTime: string;
+  avgCycleTime: string;
+  plannedCycleTime: string;
  
 }
 
@@ -91,9 +91,9 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
 
   const tableData = useMemo(
     () =>
-      [...new Array(5)].map(() => ({
+      [...new Array(5)].map((item, key) => ({
         
-        equipmentName: "EX201",
+        equipmentName: "EX20"+(key+1),
         completed: `${getRandomInt(0, 35)}/35`,
         actual: getRandomInt(228129, 228459),
         planned: getRandomInt(500000, 500100),
@@ -101,10 +101,10 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
         avgLoadPerHour: getRandomInt(250, 300),
         tonnesPerHour: getRandomInt(25, 50),
         
-        avgLoadTime: getRandomInt(10, 20),
-        plannedLoadTime: getRandomInt(15, 20),
-        avgCycleTime: getRandomInt(20, 30),
-        plannedCycleTime: getRandomInt(25, 30),
+        avgLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        plannedLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        avgCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        plannedCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
        
       })),
     []

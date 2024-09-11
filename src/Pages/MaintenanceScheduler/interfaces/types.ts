@@ -2,6 +2,8 @@ export interface DraggableItem {
   id: string;
   name: string;
   label: string;
+  key: number;
+  value: string;
 }
 
 export interface Events {

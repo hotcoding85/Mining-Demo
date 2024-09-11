@@ -24,7 +24,7 @@ const DiggerState: React.FC<TruckingStateProps> = ({ truckStates }) => {
         <Card className="state-card">
             <div className="d-flex flex-column align-items-start">
                 <div className="state-card-title">
-                    <h3>Digger Chart</h3>
+                    <h3></h3>
                 </div>
                 <div className="mt-3 d-flex align-items-center justify-content-center w-100">
                     {truckStates.map(({ time, state, color, bgColor, textColor, pctValue }) => (
@@ -43,7 +43,7 @@ const DiggerState: React.FC<TruckingStateProps> = ({ truckStates }) => {
                                 />
                             </ChartWrapper>
                             <div className="state-label">{state}</div>
-                            <TimeLabel color={color}>{time}</TimeLabel>
+                            <TimeLabel >{time}</TimeLabel>
                         </div>
                     ))}
                 </div>

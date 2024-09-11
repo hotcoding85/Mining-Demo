@@ -50,24 +50,14 @@ const metrics = [
     color: "#FFC107", 
     bgColor: "#535E77",
     textColor: "#ffffff",
-  },
-  {
-    title: "Hours Planned",
-    value: 30,
-    completed: 3,
-    target: 10,
-    label: "DELIVERED",
-    color: "#FF5722", 
-    bgColor: "#535E77",
-    textColor: "#ffffff",
-  },
+  }
 ];
 
 const EfficiencyMetrics: React.FC = () => {
   return (
     <Row>
       {metrics.map(({ title, value, completed, target, label, color, bgColor, textColor }) => (
-        <Col lg="4" className="mb-3" key={title}>
+        <Col lg="6" className="mb-3" key={title}>
           <Card className="state-card">
             <div className="d-flex flex-column align-items-center">
               <h3 className="text-center">{title}</h3>

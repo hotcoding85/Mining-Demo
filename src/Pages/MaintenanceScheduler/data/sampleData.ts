@@ -39,16 +39,22 @@ export const sampleEvents = [
 export const equipmentList: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "DT105",
     name: "DT105",
     label: "DT105",
   },
   {
     id: "2",
+    key: 2,
+    value: "DT106",
     name: "DT106",
     label: "DT106",
   },
   {
     id: "3",
+    key: 3,
+    value: "DT107",
     name: "DT107",
     label: "DT107",
   },
@@ -57,11 +63,15 @@ export const equipmentList: DraggableItem[] = [
 export const workLocation: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "workshop1 Bay1",
     name: "workshop1 Bay1",
     label: "workshop1 Bay1",
   },
   {
     id: "2",
+    key: 2,
+    value: "workshop1 Bay1",
     name: "workshop1 Bay1",
     label: "workshop1 Bay1",
   },
@@ -70,31 +80,43 @@ export const workLocation: DraggableItem[] = [
 export const repairAndServiceInterval: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "250hr",
     name: "250hr",
     label: "250hr",
   },
   {
     id: "2",
+    key: 2,
+    value: "Tires",
     name: "Tires",
     label: "Tires",
   },
   {
     id: "3",
+    key: 3,
+    value: "Aircon",
     name: "Aircon",
     label: "Aircon",
   },
   {
     id: "4",
+    key: 4,
+    value: "500hr",
     name: "500hr",
     label: "500hr",
   },
   {
     id: "5",
+    key: 5,
+    value: "GET",
     name: "GET",
     label: "GET",
   },
   {
     id: "6",
+    key: 6,
+    value: "Prestart Fail",
     name: "Prestart Fail",
     label: "Prestart Fail",
   },
@@ -103,31 +125,22 @@ export const repairAndServiceInterval: DraggableItem[] = [
 export const reasons: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "Inspection",
     name: "Inspection",
     label: "Inspection",
   },
   {
     id: "2",
+    key: 2,
+    value: "Repair",
     name: "Repair",
     label: "Repair",
   },
   {
     id: "3",
-    name: "Damage",
-    label: "Damage",
-  },
-  {
-    id: "4",
-    name: "Inspection",
-    label: "Inspection",
-  },
-  {
-    id: "5",
-    name: "Repair",
-    label: "Repair",
-  },
-  {
-    id: "6",
+    key: 3,
+    value: "Damage",
     name: "Damage",
     label: "Damage",
   },
@@ -136,21 +149,29 @@ export const reasons: DraggableItem[] = [
 export const resourceLaborAllocation: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "John Brown (Fitter)",
     name: "John Brown (Fitter)",
     label: "John Brown (Fitter)",
   },
   {
     id: "2",
+    key: 2,
+    value: "Alan Poe (Elect)",
     name: "Alan Poe (Elect)",
     label: "Alan Poe (Elect)",
   },
   {
     id: "3",
+    key: 3,
+    value: "Joe Boy (Apprent)",
     name: "Joe Boy (Apprent)",
     label: "Joe Boy (Apprent)",
   },
   {
     id: "4",
+    key: 4,
+    value: "Mike Rough (Fitter)",
     name: "Mike Rough (Fitter)",
     label: "Mike Rough (Fitter)",
   },
@@ -159,16 +180,22 @@ export const resourceLaborAllocation: DraggableItem[] = [
 export const longTermDown: DraggableItem[] = [
   {
     id: "1",
+    key: 1,
+    value: "DT123",
     name: "DT123",
     label: "DT123",
   },
   {
     id: "2",
+    key: 2,
+    value: "DT123",
     name: "DT123",
     label: "DT123",
   },
   {
     id: "3",
+    key: 3,
+    value: "DT123",
     name: "DT123",
     label: "DT123",
   },

@@ -188,6 +188,7 @@ const MaintenanceScheduler = () => {
                             <CalendarHeader
                               {...props}
                               onNavigate={handleNavigate}
+                              newEvent={newEvent}
                               onView={setView}
                               view={view}
                             />

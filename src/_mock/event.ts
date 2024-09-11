@@ -20,7 +20,14 @@ export const generateMockEventMetaData = (plans: any[]) => {
   return { eventMetas, events };
 };
 
-const Reasons = ["TRAVELLING", "QUEUING", "LOADING", "HOLDING", "DUMPING"];
+const reasons = [{ reason: "TRAVELLING", state: "ACTIVE" },
+{ reason: "QUEUING", state: "ACTIVE" },
+{ reason: "LOADING", state: "ACTIVE" },
+{ reason: "Smoke Break", state: "STANDBY" },
+{ reason: "HOLDING", state: "ACTIVE" },
+{ reason: "Crib Break", state: "DELAY" },
+{ reason: "DUMPING", state: "ACTIVE" },
+];
 
 export const generateEventData = (eventMetas: any[]) => {
   const events: any[] = [];
@@ -30,7 +37,7 @@ export const generateEventData = (eventMetas: any[]) => {
     let currentTime = startDateTime;
 
     for (let trip = 1; trip <= 35; trip += 1) {
-      Reasons.forEach((reason) => {
+      reasons.forEach((reason) => {
         const eventStartTime = currentTime;
         const eventEndTime = new Date(currentTime.getTime() + 4 * 60000);
 
@@ -38,8 +45,8 @@ export const generateEventData = (eventMetas: any[]) => {
           tripId: trip.toString(),
           eventMetaId: eventMeta.id,
           roster: eventMeta.roster,
-          state: "ACTIVE",
-          reason: reason,
+          state: reason.state,
+          reason: reason.reason,
           payload: 90,
           lng: "120.44438970741732",
           lat: "-29.146627309426933",

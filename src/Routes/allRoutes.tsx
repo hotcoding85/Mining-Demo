@@ -57,6 +57,11 @@ import TelemetryDetails from "Pages/TelemetryDetails";
 import RomWasteSummary from "Pages/RomWasteSummary";
 import PreShiftInfo from "Pages/PreShiftInfo";
 import OreSpotter from "Pages/OreSpotter";
+import CarryBackDescrepencies from "Pages/CarryBackDescrepencies";
+import ROMMillTargets from "Pages/ROMMillTargets";
+import path from "path";
+import { Component } from "react";
+import TimelineReport from "Pages/Reports/TimelineReport";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -78,6 +83,8 @@ const authProtectedRoutes = [
   { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
+  { path: "/descrepencies", exact: true, component: <CarryBackDescrepencies /> },
+  { path: '/rom-mill-targets', exact: true, component: <ROMMillTargets /> },
   { path: "/dashboard", exact: true, component: <Dashboard /> },
   { path: "/geofences", exact: true, component: <Geofences socket={socket} /> },
   { path: "/daily-production", exact: true, component: <DailyProductionDashboard /> },
@@ -101,6 +108,7 @@ const authProtectedRoutes = [
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
   { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
+  {path:"/reports/timeline-report", exact:true, component:<TimelineReport /> },
   { path: "/dig-blocks", exact: true, component: <DigBlockLayout /> },
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },

@@ -14,9 +14,10 @@ import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import ConfirmModal from 'Components/Common/ConfirmModal';
 import { shifts, shiftsInFormat } from 'utils/common';
-import { truckIcon } from 'assets/images/equipment';
+import { pc1250, truckIcon } from 'assets/images/equipment';
+import ExcavatorIcon from 'assets/icons/shovel.png';
 
-function Draggable({ type, id, name, disabled, onDragStart }) {
+function Draggable({ type, id, name, model, disabled, onDragStart }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
 
     return (
@@ -39,7 +40,7 @@ function Draggable({ type, id, name, disabled, onDragStart }) {
             }}
             onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
         >
-            {type == "operators" ? (<><UserOutlined /><span style={{ paddingLeft: '8px', fontSize: '18px', fontWeight: 'normal' }}>{name}</span></>) : (<><img width={36} src={truckIcon} /><span style={{ paddingLeft: '8px' }}>{name}</span></>)}
+            {type == "operators" ? (<><UserOutlined /><span style={{ paddingLeft: '8px', fontSize: '18px', fontWeight: 'normal' }}>{name}<span>{model}</span></span></>) : (<><img width={36} src={truckIcon} /><span style={{ paddingLeft: '8px' }}>{name}<span style={{fontSize:'8px', marginLeft:'4px' }}>({model})</span></span></>)}
 
         </div>
     );
@@ -55,7 +56,7 @@ function DropTarget({ id, children }) {
                 border: '1px solid #ccc',
                 padding: '10px',
                 minHeight: '100px',
-                backgroundColor: isOver ? '#e0ffe0' : '#fafafa',
+                backgroundColor: isOver ? '#e0ffe0' : '#2a3042',
                 marginBottom: '20px',
                 borderStyle: 'dashed'
             }}
@@ -488,102 +489,32 @@ const ShortIntervalControl = () => {
                         <Row className='d-flex' style={{ justifyContent: 'space-evenly' }}>
                             <Card className='col-9'>
                                 <CardBody>
-                                    <span style={{ fontSize: '16px', fontWeight: '500' }}>Excavators</span>
+                                    <div>
+                                        <img src={ExcavatorIcon} width={32} />
+                                        <span style={{ fontSize: '16px', fontWeight: '500' }}>Excavators</span>
+                                    </div>
                                     <div style={{ marginTop: '10px', overflow: 'scroll', height: '100vh' }}>
                                         {diggers.map(excavator => (
                                             <DropTarget key={excavator.id} id={excavator.id}>
-                                                <span style={{ fontSize:'22px', fontWeight:'500' }}>{excavator.name}</span>
+                                                <span style={{ fontSize: '22px', fontWeight: '500' }}>{excavator.name}<span style={{fontSize:'16px'}}>({excavator.model})</span></span>
                                                 <div style={{
                                                     width: '100%', backgroundColor: '', padding: '10px',
                                                     margin: '4px',
                                                     // border: '1px solid #ddd',
                                                     borderRadius: '4px',
                                                 }}>
-
-                                                    <Row style={{ justifyContent: 'space-evenly', display:'none' }}>
-                                                        <Col xs={5}>
-                                                            <Row>
-                                                                <h5 style={{ color: 'darkGray' }}>Operator</h5>
-                                                                <DropTarget key={excavator.id} id={excavator.id + '::operator'}>
-                                                                    {getOperators(excavator.id).map(person => (
-                                                                        <><div
-                                                                            key={person.id}
-                                                                            style={{
-                                                                                padding: '8px',
-                                                                                margin: '4px',
-                                                                                backgroundColor: "#F7B31A",
-                                                                                borderRadius: '4px',
-                                                                                height: '65px',
-                                                                            }}
-                                                                        >
-                                                                            <Row >
-                                                                                <Col xs={8}>
-
-                                                                                    <p style={{
-                                                                                        textAlign: 'left',
-                                                                                        color: 'white',
-                                                                                        fontWeight: 'bold',
-                                                                                        alignItems: 'center',
-                                                                                        paddingTop: '12px'
-                                                                                    }}>{person.firstName + " " + person.lastName}</p>
-                                                                                </Col>
-                                                                                <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                                    <Button id={excavator.id + '::' + person.id} onClick={removeOperator} shape="circle" icon={<DeleteOutlined />}></Button>
-                                                                                </Col>
-                                                                            </Row>
-                                                                        </div>
-                                                                        </>
-                                                                    ))}
-                                                                </DropTarget>
-                                                            </Row>
-                                                        </Col>
-                                                        <Col xs={5}>
-                                                            <Row>
-                                                                <h5 style={{ color: 'darkGray' }}>Trainer</h5>
-                                                                <DropTarget key={excavator.id} id={excavator.id + '::trainer'}>
-                                                                    {getTrainers(excavator.id).map(person => (
-                                                                        <><div
-                                                                            key={person.id}
-                                                                            style={{
-                                                                                padding: '8px',
-                                                                                margin: '4px',
-                                                                                backgroundColor: "#F7B31A",
-                                                                                borderRadius: '4px',
-                                                                                height: '65px',
-                                                                            }}
-                                                                        >
-                                                                            <Row>
-                                                                                <Col xs={8}>
-                                                                                    <p style={{
-                                                                                        textAlign: 'left',
-                                                                                        color: 'white',
-                                                                                        fontWeight: 'bold',
-                                                                                        alignItems: 'center',
-                                                                                        paddingTop: '12px'
-                                                                                    }}>{person.firstName + " " + person.lastName}</p>
-                                                                                </Col>
-                                                                                <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                                    <Button id={excavator.id + '::' + person.id} onClick={removeTrainer} shape="circle" icon={<DeleteOutlined />}></Button>
-                                                                                </Col>
-                                                                            </Row>
-                                                                        </div>
-                                                                        </>
-                                                                    ))}
-                                                                </DropTarget>
-                                                            </Row>
-                                                        </Col>
-                                                    </Row>
                                                     <Row style={{ justifyContent: 'space-around' }}>
                                                         <Col xs={11}>
-                                                            <span style={{ fontWeight:'500' }}>Assigned Trucks</span>
+                                                            <span style={{ fontWeight: '500' }}>Assigned Trucks</span>
                                                             <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
                                                                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                                                                     {getTrucks(excavator.id).map(truck => (
-                                                                        <div style={{ justifyContent: 'space-between', padding: '10px', width: 'fit-content',  }}>
-                                                                            <Card style={{ marginBottom: '0px', border:'1px solid #333' }}>
+                                                                        <div style={{ justifyContent: 'space-between', padding: '10px', width: 'fit-content', }}>
+                                                                            <Card style={{ marginBottom: '0px', border: '1px solid #333' }}>
                                                                                 <CardBody style={{ padding: '8px 8px' }}>
                                                                                     <img width={36} src={truckIcon} />
                                                                                     <span style={{ fontSize: '18px' }}>{truck.name}</span>
+                                                                                    <span style={{fontSize:'10px', marginLeft:'6px'}}>({truck.model})</span>
                                                                                     <Button id={excavator.id + '::' + truck.id} style={{ marginLeft: '10px' }} shape="circle" icon={<DeleteOutlined />} onClick={removeTruck} />
                                                                                 </CardBody>
                                                                             </Card>
@@ -609,6 +540,7 @@ const ShortIntervalControl = () => {
                                                 key={truck.id}
                                                 id={truck.id}
                                                 name={truck.name}
+                                                model={truck.model}
                                                 disabled={truck.disabled}
                                                 onDragStart={() => { }}
                                             />
