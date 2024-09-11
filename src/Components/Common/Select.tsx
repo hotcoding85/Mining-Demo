@@ -4,6 +4,7 @@ const CustomSelect = ({
   id,
   name,
   formValues,
+  allowMultiple,
   options,
   setFieldValue,
   onBlur,
@@ -41,20 +42,39 @@ const CustomSelect = ({
   };
 
   return (
-    <Select
-      id={id}
-      showSearch
-      allowClear
-      placeholder="Please select"
-      // styles={customStyles}
-      style={{ width: '100%' }}
-      options={options}
-      value={options.find((option) => option.value === formValues[name])} // set selected value
-      onChange={(option) => {
-        setFieldValue(name, option)
-      }}
-      onBlur={onBlur}
-    />
+    <>
+      {
+        allowMultiple && allowMultiple == true ? <Select
+          id={id}
+          showSearch
+          allowClear
+          mode='multiple'
+          placeholder="Please select"
+          // styles={customStyles}
+          style={{ width: '100%' }}
+          options={options}
+          value={options.find((option) => option.value === formValues[name])} // set selected value
+          onChange={(option) => {
+            setFieldValue(name, option)
+          }}
+          onBlur={onBlur}
+        /> : <Select
+          id={id}
+          showSearch
+          allowClear
+          placeholder="Please select"
+          // styles={customStyles}
+          style={{ width: '100%' }}
+          options={options}
+          value={options.find((option) => option.value === formValues[name])} // set selected value
+          onChange={(option) => {
+            setFieldValue(name, option)
+          }}
+          onBlur={onBlur}
+        />
+      }
+    </>
+
   );
 };
 

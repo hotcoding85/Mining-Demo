@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import { Col, Container, Row } from 'reactstrap';
+import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import { createSelector } from 'reselect';
 import { useDispatch, useSelector } from 'react-redux';
 import { getShiftRosters, updateShiftRoster, getAllFleet, getAllUsers, addShiftRoster } from 'slices/thunk';
 import _ from 'lodash';
-import { Button, DatePicker, DatePickerProps, Segmented, Select, Space } from 'antd';
+import { Button, DatePicker, DatePickerProps, Segmented, Select, Space, Tag } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import dayjs from "dayjs";
 import { useSearchParams } from 'react-router-dom';
@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 import ConfirmModal from 'Components/Common/ConfirmModal';
 import { shifts, shiftsInFormat } from 'utils/common';
 
-function Draggable({ id, name, disabled, onDragStart }) {
+function Draggable({ id, name, model, disabled, onDragStart, ...props }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
 
     return (
@@ -37,7 +37,8 @@ function Draggable({ id, name, disabled, onDragStart }) {
             }}
             onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
         >
-            {name}
+            {name} {model != '' ? <span style={{ fontSize: '8px', marginLeft: '4px', fontStyle: 'normal' }}>({model})</span> : ''}
+            {props.children}
         </div>
     );
 }
@@ -50,9 +51,10 @@ function DropTarget({ id, children }) {
             ref={setNodeRef}
             style={{
                 border: '1px solid #ccc',
-                padding: '10px',
+                padding: '16px',
                 minHeight: '100px',
-                backgroundColor: isOver ? '#e0ffe0' : '#fafafa',
+                alignContent: 'center',
+                backgroundColor: isOver ? '#e0ffe0' : '#283655',
                 marginBottom: '20px',
                 borderStyle: 'dashed'
             }}
@@ -481,206 +483,129 @@ const Dispatch = () => {
                         </Col>
                     </Row>
                     <DndContext onDragEnd={handleDragEnd}>
-                        <div style={{ display: 'flex', justifyContent: 'space-around', padding: '20px' }}>
-                            <Col xs={2}>
-                                <h3>OPERATORS</h3>
-                                <div style={{ border: '1px solid #ccc', padding: '10px' }}>
-                                    {filteredOperators.map(person => (
-                                        < Draggable
-                                            key={person.id}
-                                            id={person.id}
-                                            name={person.firstName + " " + person.lastName}
-                                            disabled={person.disabled}
-                                            onDragStart={() => { }}
-                                        />
-                                    ))}
-                                </div>
+                        <Row style={{maxHeight: 'calc(100vh - 250px)', overflow:'scroll'}}>
+                            <Col lg={2} >
+                                <Card>
+                                    <CardBody>
+                                        <span style={{ fontSize: '20px', }}>Operators</span>
+                                        <div className='mt-3'>
+                                            {filteredOperators.map(person => (
+                                                < Draggable
+                                                    key={person.id}
+                                                    id={person.id}
+                                                    name={person.firstName + " " + person.lastName}
+                                                    model=''
+                                                    disabled={person.disabled}
+                                                    onDragStart={() => { }}
+                                                >
+                                                    <div className='mt-2'>
+                                                        <Tag>HD785</Tag>
+                                                        <Tag>HD1500</Tag>
+                                                        <Tag>HDPC1250</Tag>
+                                                    </div>
+                                                </Draggable>
+                                            ))}
+                                        </div>
+                                    </CardBody>
+                                </Card>
                             </Col>
 
 
-                            <Col style={{
-                                overflowY: "auto",
-                                maxHeight: "700px",
-                                flexDirection: "column"
-                            }} xs={6}>
-                                <h3 className='h3'>EXCAVATORS</h3>
+                            <Col style={{overflowY: "auto", maxHeight: "calc(100vh-100px)", flexDirection: "column" }} lg={8}>
+                                <span style={{ fontSize: '20px', }}>Excavators</span>
                                 {diggers.map(excavator => (
                                     <DropTarget key={excavator.id} id={excavator.id}>
-                                        <h3 style={{ color: 'darkGray' }}>{excavator.name}</h3>
+                                        <span style={{ fontSize: '20px', }}>{excavator.name}</span>
                                         <div style={{
-                                            width: '100%', backgroundColor: '', padding: '8px',
+                                            display: 'flex',
+                                            height: '50px',
                                             margin: '4px',
-                                            // border: '1px solid #ddd',
                                             borderRadius: '4px',
                                         }}>
+                                            {
+                                                getOperators(excavator.id).map(person => (
+                                                    <div
+                                                        key={person.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            padding: '8px 12px',
+                                                            backgroundColor: "#F7B31A",
+                                                            borderRadius: '26px',
+                                                        }}>
+                                                        <span style={{ alignContent: 'center', color: 'white', fontSize: '16px', fontWeight: '500' }}>{person.firstName + " " + person.lastName}</span>
+                                                        <Button style={{ alignContent: 'center', marginLeft: '8px' }} id={excavator.id + '::' + person.id} onClick={removeOperator} shape="circle" icon={<DeleteOutlined />}></Button>
+                                                    </div>
+                                                ))
+                                            }
 
-                                            <Row>
-                                                <Col xs={1}></Col>
-                                                <Col xs={4}>
-                                                    <Row>
-                                                        <h5 style={{ color: 'darkGray' }}>Operator</h5>
-                                                        <DropTarget key={excavator.id} id={excavator.id + '::operator'}>
-                                                            {getOperators(excavator.id).map(person => (
-                                                                <><div
-                                                                    key={person.id}
-                                                                    style={{
-                                                                        padding: '8px',
-                                                                        margin: '4px',
-                                                                        backgroundColor: "#F7B31A",
-                                                                        borderRadius: '4px',
-                                                                        height: '65px',
-                                                                    }}
-                                                                >
-                                                                    <Row >
-                                                                        <Col xs={8}>
-
-                                                                            <p style={{
-                                                                                textAlign: 'left',
-                                                                                color: 'white',
-                                                                                fontWeight: 'bold',
-                                                                                alignItems: 'center',
-                                                                                paddingTop: '12px'
-                                                                            }}>{person.firstName + " " + person.lastName}</p>
-                                                                        </Col>
-                                                                        <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                            <Button id={excavator.id + '::' + person.id} onClick={removeOperator} shape="circle" icon={<DeleteOutlined />}></Button>
-                                                                        </Col>
-                                                                    </Row>
-                                                                </div>
-                                                                </>
-                                                            ))}
-                                                        </DropTarget>
-                                                    </Row>
-                                                </Col>
-                                                <Col xs={1}></Col>
-                                                <Col xs={4}>
-                                                    <Row>
-                                                        <h5 style={{ color: 'darkGray' }}>Trainer</h5>
-                                                        <DropTarget key={excavator.id} id={excavator.id + '::trainer'}>
-                                                            {getTrainers(excavator.id).map(person => (
-                                                                <><div
-                                                                    key={person.id}
-                                                                    style={{
-                                                                        padding: '8px',
-                                                                        margin: '4px',
-                                                                        backgroundColor: "#F7B31A",
-                                                                        borderRadius: '4px',
-                                                                        height: '65px',
-                                                                    }}
-                                                                >
-                                                                    <Row>
-                                                                        <Col xs={8}>
-                                                                            <p style={{
-                                                                                textAlign: 'left',
-                                                                                color: 'white',
-                                                                                fontWeight: 'bold',
-                                                                                alignItems: 'center',
-                                                                                paddingTop: '12px'
-                                                                            }}>{person.firstName + " " + person.lastName}</p>
-                                                                        </Col>
-                                                                        <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                            <Button id={excavator.id + '::' + person.id} onClick={removeTrainer} shape="circle" icon={<DeleteOutlined />}></Button>
-                                                                        </Col>
-                                                                    </Row>
-                                                                </div>
-                                                                </>
-                                                            ))}
-                                                        </DropTarget>
-                                                    </Row>
-                                                </Col>
-                                                <Col xs={2}></Col>
-                                            </Row>
-                                            <Row>
-                                                <Col xs={1}></Col>
-                                                <Col xs={4}>
-                                                    <h5 style={{ color: 'darkGray' }}>Trucks</h5>
-                                                    <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
-                                                        {getTrucks(excavator.id).map(truck => (
-                                                            <><div
-                                                                key={truck.id}
-                                                                style={{
-                                                                    padding: '8px',
-                                                                    margin: '4px',
-                                                                    backgroundColor: "#F7B31A",
-                                                                    borderRadius: '4px',
-                                                                    height: '65px'
-                                                                }}
-                                                            >
-                                                                <Row>
-                                                                    <Col xs={8}>
-                                                                        <p style={{
-                                                                            textAlign: 'left',
-                                                                            color: 'white',
-                                                                            fontWeight: 'bold',
-                                                                            alignItems: 'center',
-                                                                            paddingTop: '12px'
-                                                                        }}>{truck.name}</p>
-                                                                    </Col>
-                                                                    <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                        <Button id={excavator.id + '::' + truck.id} shape="circle" icon={<DeleteOutlined />} onClick={removeTruck} />
-                                                                    </Col>
-                                                                </Row>
-                                                            </div >
-                                                            </>
-                                                        ))}
-                                                    </DropTarget>
-                                                </Col>
-                                            </Row>
-
-
+                                            {
+                                                getTrainers(excavator.id).map(person => (
+                                                    <div
+                                                        key={person.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            padding: '8px 12px',
+                                                            backgroundColor: "#CF1322",
+                                                            borderRadius: '26px',
+                                                        }}>
+                                                        <span style={{ alignContent: 'center', color: 'white', fontSize: '16px', fontWeight: '500' }}>{person.firstName + " " + person.lastName}</span>
+                                                        <Button style={{ alignContent: 'center', marginLeft: '8px' }} id={excavator.id + '::' + person.id} onClick={removeTrainer} shape="circle" icon={<DeleteOutlined />}></Button>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                        <div style={{ display: 'block' }}>
+                                            <span style={{ fontSize: '20px', }}>Trucks</span>
+                                            <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
+                                                <div style={{ display: 'flex', gap: 10 }}>
+                                                    {getTrucks(excavator.id).map(truck => (
+                                                        <div
+                                                            key={truck.id}
+                                                            style={{
+                                                                display: 'flex',
+                                                                padding: '8px 12px',
+                                                                backgroundColor: "#F7B31A",
+                                                                borderRadius: '26px',
+                                                            }}>
+                                                            <span style={{ alignContent: 'center', color: 'white', fontSize: '16px', fontWeight: '500' }}>{truck.name}</span>
+                                                            <Button style={{ alignContent: 'center', marginLeft: '8px' }} id={excavator.id + '::' + truck.id} onClick={removeTruck} shape="circle" icon={<DeleteOutlined />}></Button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </DropTarget>
                                         </div>
                                     </DropTarget>
                                 ))}
 
-                                <h3>TRUCKS</h3>
+                                <span style={{ fontSize: '20px', }}>Trucks</span>
                                 {trucks.map(truck => (
 
                                     <DropTarget key={truck.id} id={truck.id}>
-                                        <h3 style={{ color: 'darkGray' }}>{truck.name}</h3>
+                                        <span style={{ fontSize: '20px', }}>{truck.name}</span>
                                         <div style={{
-                                            width: '100%', backgroundColor: '', padding: '8px',
+                                            display: 'flex',
+                                            backgroundColor: '', padding: '8px',
                                             margin: '4px',
                                             borderRadius: '4px',
                                         }}>
+                                            {
+                                                getOperators(truck.id).map(person => (
 
-                                            <Row>
-                                                <Col xs={1}></Col>
-                                                <Col xs={4}>
-                                                    <h5 style={{ color: 'darkGray' }}>{'Operator'}</h5>
-                                                    <DropTarget key={truck.id} id={truck.id + '::operator'}>
-                                                        {getOperators(truck.id).map(person => (
-                                                            <><div
-                                                                key={person.id}
-                                                                style={{
-                                                                    padding: '8px',
-                                                                    margin: '4px',
-                                                                    backgroundColor: "#F7B31A",
-                                                                    borderRadius: '4px',
-                                                                    height: '65px',
-                                                                }}
-                                                            >
-                                                                <Row>
-                                                                    <Col xs={8}>
-                                                                        <p style={{
-                                                                            textAlign: 'left',
-                                                                            color: 'white',
-                                                                            fontWeight: 'bold',
-                                                                            alignItems: 'center',
-                                                                            paddingTop: '12px'
-                                                                        }}>{person.firstName + " " + person.lastName}</p>
-                                                                    </Col>
-                                                                    <Col xs={2} style={{ paddingTop: '10px' }}>
-                                                                        <Button id={truck.id + '::' + person.id} onClick={removeOperator} shape="circle" icon={<DeleteOutlined />}></Button>
-                                                                    </Col>
-                                                                </Row>
-                                                            </div>
-                                                            </>
-                                                        ))}
-                                                    </DropTarget>
-                                                </Col>
-                                            </Row>
+                                                    <div
+                                                        key={person.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            padding: '8px 12px',
+                                                            backgroundColor: "#F7B31A",
+                                                            borderRadius: '26px',
+                                                        }}>
+                                                        <span style={{ alignContent: 'center', color: 'white', fontSize: '16px', fontWeight: '500' }}>{person.firstName + " " + person.lastName}</span>
+                                                        <Button style={{ alignContent: 'center', marginLeft: '8px' }} id={truck.id + '::' + person.id} onClick={removeOperator} shape="circle" icon={<DeleteOutlined />}></Button>
+                                                    </div>
 
 
+                                                ))
+                                            }
                                         </div>
                                     </DropTarget>
                                 ))}
@@ -688,20 +613,25 @@ const Dispatch = () => {
 
 
                             <Col xs={2}>
-                                <h3>TRUCKS</h3>
-                                <div style={{ border: '1px solid #ccc', padding: '10px' }}>
-                                    {trucks.map(truck => (
-                                        < Draggable
-                                            key={truck.id}
-                                            id={truck.id}
-                                            name={truck.name}
-                                            disabled={truck.disabled}
-                                            onDragStart={() => { }}
-                                        />
-                                    ))}
-                                </div>
+                                <Card>
+                                    <CardBody>
+                                        <span style={{ fontSize: '20px', }}>Trucks</span>
+                                        <div className='mt-3'>
+                                            {trucks.map(truck => (
+                                                < Draggable
+                                                    key={truck.id}
+                                                    id={truck.id}
+                                                    name={truck.name}
+                                                    model={truck.model}
+                                                    disabled={truck.disabled}
+                                                    onDragStart={() => { }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </CardBody>
+                                </Card>
                             </Col>
-                        </div>
+                        </Row>
                     </DndContext>
                 </Container>
                 <ConfirmModal

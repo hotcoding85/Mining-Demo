@@ -5,6 +5,7 @@ import { Pagination, PaginationProps, DatePicker, Input } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined } from "@ant-design/icons";
 import CustomDateRangePicker from "Components/Common/DateRangePicker";
+import { round2Two } from "utils/common";
 
 const { RangePicker } = DatePicker;
 
@@ -14,20 +15,21 @@ interface TruckingSummaryTableRowProps {
   completed: string;
   actual: number;
   planned: number;
-  availability: number;
-  standBy: number;
-  idel: number;
-  operationalyDelay: number;
-  breakdown: number;
+  availability: string;
+  standBy: string;
+  idel: string;
+  idle: string;
+  operationalyDelay: string;
+  breakdown: string;
   avgLoadPerHour: number;
   tonnesPerHour: number;
   wastedMoved: number;
   tonnesMoved: number;
-  avgLoadTime: number;
-  plannedLoadTime: number;
-  avgCycleTime: number;
-  plannedCycleTime: number;
-  avgQueueTime: number;
+  avgLoadTime: string;
+  plannedLoadTime: string;
+  avgCycleTime: string;
+  plannedCycleTime: string;
+  avgQueueTime: string;
 }
 
 const TruckingSummaryTableRow: React.FC<TruckingSummaryTableRowProps> = (
@@ -51,19 +53,22 @@ const TruckingSummaryTableRow: React.FC<TruckingSummaryTableRowProps> = (
         <div>{props.planned.toLocaleString("US-en")}</div>
       </td>
       <td width={104}>
-        <div>{props.availability}%</div>
+        <div>{props.availability}</div>
       </td>
       <td width={104}>
-        <div>{props.standBy}%</div>
+        <div>{props.standBy}</div>
       </td>
       <td width={104}>
-        <div>{props.idel}%</div>
+        <div>{props.idel}</div>
+      </td>
+      <td width={104}>
+        <div>{props.idle}</div>
       </td>
       <td width={104}>
         <div>{props.operationalyDelay}</div>
       </td>
       <td width={104}>
-        <div>{props.breakdown}%</div>
+        <div>{props.breakdown}</div>
       </td>
       <td width={104}>
         <div>{props.avgLoadPerHour}</div>
@@ -96,7 +101,7 @@ const TruckingSummaryTableRow: React.FC<TruckingSummaryTableRowProps> = (
   );
 };
 
-interface TruckingSummaryProps {}
+interface TruckingSummaryProps { }
 
 const TableHeaders = [
   "Model",
@@ -104,10 +109,11 @@ const TableHeaders = [
   "Completed",
   "Actual (Tonnes)",
   "Planned (Tonnes)",
-  "Availability (%)",
-  "Standby (%)",
+  "Active (mins)",
+  "Standby (mins)",
+  "Idle (mins)",
   "Idle (%)",
-  "Operational Delay",
+  "Operational Delay (mins)",
   "Breakdown (mins)",
   "Avg Load per Hour",
   "Tonnes per Hour",
@@ -124,26 +130,27 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
 
   const tableData = useMemo(
     () =>
-      [...new Array(5)].map(() => ({
-        modelName: "HD1500",
-        equipmentName: "DT101",
+      [...new Array(5)].map((item, key) => ({
+        modelName: "HD785",
+        equipmentName: "DT10"+(key+1),
         completed: `${getRandomInt(0, 35)}/35`,
         actual: getRandomInt(228129, 228459),
         planned: getRandomInt(500000, 500100),
-        availability: getRandomInt(65, 90),
-        standBy: getRandomInt(10, 30),
-        idel: getRandomInt(5, 10),
-        operationalyDelay: getRandomInt(1, 5),
-        breakdown: getRandomInt(1, 5),
+        availability: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        standBy: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        idel: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        idle: getRandomInt(10, 55)+'%',
+        operationalyDelay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        breakdown: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         avgLoadPerHour: getRandomInt(250, 300),
         tonnesPerHour: getRandomInt(25, 50),
         wastedMoved: getRandomInt(25, 50),
         tonnesMoved: getRandomInt(64, 80),
-        avgLoadTime: getRandomInt(10, 20),
-        plannedLoadTime: getRandomInt(15, 20),
-        avgCycleTime: getRandomInt(20, 30),
-        plannedCycleTime: getRandomInt(25, 30),
-        avgQueueTime: getRandomInt(8, 10),
+        avgLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        plannedLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        avgCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        plannedCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
+        avgQueueTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
       })),
     []
   );

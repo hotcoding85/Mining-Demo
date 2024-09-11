@@ -195,6 +195,9 @@ const SidebarContent = (props: any) => {
                   <Link to="/targets">{props.t("Production Targets")}</Link>
                 </li>
                 <li>
+                  <Link to="/rom-mill-targets">{props.t("ROM/Mill Targets")}</Link>
+                </li>
+                <li>
                   <Link to="/preshift-info">{props.t("Pre Shift Information (PSI)")}</Link>
                 </li>
                 <li>
@@ -230,6 +233,11 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/rom-waste-summary">
                     {props.t("ROM & Waste Summary")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/descrepencies">
+                    {props.t("Carryback Discrepency")}
                   </Link>
                 </li>
               </ul>
