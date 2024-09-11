@@ -7,17 +7,27 @@
 }
 .ant-collapse-content-active{
     border-radius: 0px !important;
-    background-color: #282e3e !important;
+    background-color: #283655 !important;
 }
-.ant-collapse-content{
-    background-color: #282e3e !important;
+body[data-layout-mode="dark"] .ant-collapse-content{
+    background-color: #283655 !important;
+}
+body[data-layout-mode="light"] .ant-collapse-content{
+    background-color: white !important;
 }
 .ant-collapse-content-box{
     padding: 0px 0px 0px 30px !important;
 }
-.ant-menu{
-    background-color: #282e3e !important;
+body[data-layout-mode="dark"] .ant-menu{
+    background-color: #283655 !important;
     color: white !important;
+}
+body[data-layout-mode="light"] .ant-menu{
+    background-color: white !important;
+    color: grey !important;
+}
+body[data-layout-mode="light"] .ant-menu-title-content {
+    color: black;
 }
 .ant-menu-item{
     color: white !important;
@@ -27,7 +37,7 @@
     width: 100% !important;
 }
 .ant-menu-item-selected{
-    background-color: #282e3e !important;
+    background-color: #283655 !important;
 }
 .ant-menu-item.selected {
     background-color: #787d80 !important;
@@ -38,8 +48,20 @@
 .mapboxgl-ctrl-bottom-right{
     display: none !important;
 }
-.mapboxgl-popup-content{
+body[data-layout-mode="dark"] .mapboxgl-popup-content{
     background-color: #2a3853 !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .mapboxgl-popup-content{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .card{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="dark"] .card{
+    background-color: #293754 !important;
     /* color: gold !important; */
 }
 .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip{

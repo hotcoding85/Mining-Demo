@@ -16,6 +16,9 @@ import './index.css';
 import { getAll } from "Helpers/api_auto_routing";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
 
 export type TripRoutesDataType = {
     id: string,
@@ -43,6 +46,16 @@ const Replay = (props: any) => {
 
     const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
 
+    const { layoutModeType } = useSelector(
+        createSelector(
+          (state: any) => state.Layout,
+          (layout) => ({
+            layoutModeType: layout.layoutModeTypes,
+          })
+        )
+    );
+    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+    
     const togglePlay = () => {
         setIsPlaying(!isPlaying);
         currentIsPlaying.current = !isPlaying
@@ -332,7 +345,8 @@ const Replay = (props: any) => {
                         geoJson: route.geoJson,
                         distance: route.distance,
                         duration: route.duration,
-                        color: route.color
+                        color: route.color,
+                        speeds: []
                     }
                 })
                 setRouteData([{id: "DT101", routes: _routeData}]);
@@ -724,7 +738,7 @@ const Replay = (props: any) => {
             const temp = calculateCustomElevation({ lng, lat });
             const elevation = Math.floor(temp || 0);
             marker.current?.setLngLat([lng, lat]);
-            popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm');
+            popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm' + "<br/>Speed: " + saving_data.speedLimits + "km/h<br/>Current Time: " + Math.floor(animationRef.current.elapsedTime / 1000) + 's');
     
             if (progress < 1) {
                 animationRef.current.elapsedTime += deltaTime;
@@ -740,11 +754,11 @@ const Replay = (props: any) => {
                 }
     
                 if (animation) {
-                    // const rotation = 150 - progress * 10.0;
-                    // mapRef.current.setBearing(rotation % 360);
+                    const rotation = 150 - progress * 10.0;
+                    mapRef.current.setBearing(rotation % 360);
                     mapRef.current.flyTo({
                         center: [lng, lat],
-                        speed: 10,
+                        speed: 1,
                         curve: 1,
                         easing: t => t
                     });
@@ -850,7 +864,7 @@ const Replay = (props: any) => {
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
                                     Routes
                                 </div>
-                                <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
+                                <div style={{overflow: 'auto'}}>
                                     <Collapse accordion style={{border: 'none', borderRadius: 'none'}}>
                                         {_.map(routeData, (dt, index) => (
                                         <Panel header={dt.id} key={dt.id}>
