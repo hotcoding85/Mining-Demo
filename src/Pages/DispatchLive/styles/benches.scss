@@ -1,0 +1,35 @@
+body[data-layout-mode="dark"] {
+    .benches-item {
+        background-color: #535E77;
+        border-radius: 99px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+    }
+}
+
+body[data-layout-mode="light"] {
+    .benches-item {
+        background-color: #2A2A2A;
+        border-radius: 99px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+    }   
+}
+
+.benches-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.benches-item-label {
+    padding: 4px 8px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: white;
+    margin: 0;
+}

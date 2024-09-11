@@ -1,0 +1,32 @@
+.waste-dump-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.waste-dump-item {
+    width: 100%;
+    height: 64px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.waste-dump-item img {
+    width: 100%;
+    height: 64px;
+    border-radius: 4px;
+}
+
+.waste-dump-item .waste-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2A2A2A;
+    color: white;
+}
