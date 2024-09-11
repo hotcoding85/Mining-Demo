@@ -1,0 +1,44 @@
+.message-container {
+    display: flex;
+    padding: 8px 16px;
+    align-items: center;
+    gap: 16px;
+    align-self: stretch;
+    color: white;
+    background-color: #9254DE;
+    border-radius: 99px;
+    margin-top: 16px;
+    /* align-items: baseline; */
+}
+
+.message-text {
+    overflow: hidden;
+    width: 90%;
+    margin: 0;
+}
+.message-truck-text {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    color: white;
+    margin-right: 5px;
+}
+
+.message-status-text {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    color: white;
+}
+
+.message-close-btn {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    margin: 0px;
+}
