@@ -38,6 +38,14 @@ export const postMaterial = (material: any) =>
 export const postMaterials = (materials: any) =>
   api.create(`${url.MATERIALS}/batch-create`, { data: materials });
 
+// Create Users
+export const postUpsertMaterials = (formData: any) =>
+  api.create(`${url.MATERIALS}/upsert`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
 // Update Material
 export const putMaterial = (id: string, material: any) => {
   return api.put(`${url.MATERIALS}/${id}`, material);
