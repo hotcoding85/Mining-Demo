@@ -1,0 +1,38 @@
+.timeline-container {
+    height: 240px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #ccc;
+}
+
+
+
+body[data-layout-mode="light"] {
+
+
+    .timeline-container .vis-labelset .vis-label,
+    .timeline-container .vis-time-axis .vis-text {
+        color: #2a2a2a !important;
+    }
+
+    .timeline-container .vis-background {
+        background-color: #fff !important;
+    }
+}
+
+body[data-layout-mode="dark"] {
+
+
+    .timeline-container .vis-labelset .vis-label,
+    .timeline-container .vis-time-axis .vis-text {
+        color: #9ca3b1 !important;
+    }
+
+    .timeline-container .vis-background {
+        background-color: #283655 !important;
+    }
+
+    .timeline-container .vis-time-axis .vis-grid {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}

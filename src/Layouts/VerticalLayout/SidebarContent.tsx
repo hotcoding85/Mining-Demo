@@ -392,6 +392,11 @@ const SidebarContent = (props: any) => {
                     {props.t("Shift Report")}
                   </Link>
                 </li>
+                <li>
+                  <Link to="/reports/timeline-report">
+                    {props.t("Timeline Report")}
+                  </Link>
+                </li>
               </ul>
             </li>
           </ul>
