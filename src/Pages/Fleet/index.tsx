@@ -1,18 +1,39 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, } from "react";
-import { Card, CardBody, Col, Container, Row, } from "reactstrap";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, { TableColumn, } from "../../Components/Common/TableContainer";
+import TableContainer, {
+  TableColumn,
+} from "../../Components/Common/TableContainer";
 import { AppState } from "store";
-import { getAllFleet, addVehicle, updateVehicle, removeVehicle, } from "slices/thunk";
+import {
+  getAllFleet,
+  addVehicle,
+  updateVehicle,
+  removeVehicle,
+  upsertVehicles,
+} from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { Link } from "react-router-dom";
-import { StateOptions, StatusOptions, VehicleCategories, VehicleMakes, VehicleModels } from "common/options";
+import {
+  StateOptions,
+  StatusOptions,
+  VehicleCategories,
+  VehicleMakes,
+  VehicleModels,
+} from "common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
 import { Tag } from "antd";
+import ImportFileModal from "Components/Common/ImportFileModal";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -22,6 +43,13 @@ const Fleet = (props: any) => {
 
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  const importCsvModalToggle = useCallback(() => {
+    setImportFileModal(!importCsvModal);
+  }, [importCsvModal]);
 
   const selectProperties = createSelector(
     (state: any) => state.Fleet,
@@ -64,9 +92,9 @@ const Fleet = (props: any) => {
       category: (doc && doc.category) || undefined,
       capacity: (doc && doc.capacity) || undefined,
       state: (doc && doc.state) || "STANDBY",
-      status: (doc && doc.status) || "ACTIVE"
-    }
-  }
+      status: (doc && doc.status) || "ACTIVE",
+    };
+  };
 
   const initialValues = parseVehicleData(vehicle);
 
@@ -82,7 +110,7 @@ const Fleet = (props: any) => {
   const handleOnEdit = useCallback(
     (arg: any) => {
       // reading the row data from table
-      const bench = parseVehicleData(arg)
+      const bench = parseVehicleData(arg);
       // saving to state
       setVehicle(bench);
       // setting the dialog to show as edit
@@ -93,97 +121,106 @@ const Fleet = (props: any) => {
     [toggle]
   );
 
-  const handleOnDelete = useCallback((arg: string) => {
-    dispatch(removeVehicle(arg));
-    onPaginationPageChange(1);
-  }, [dispatch]);
+  const handleOnDelete = useCallback(
+    (arg: string) => {
+      dispatch(removeVehicle(arg));
+      onPaginationPageChange(1);
+    },
+    [dispatch]
+  );
 
   const fields = [
     {
-      id: 'name',
-      name: 'name',
-      label: 'Name',
-      type: 'input',
+      id: "name",
+      name: "name",
+      label: "Name",
+      type: "input",
       editable: true,
-      inputType: 'text'
+      inputType: "text",
     },
     {
-      id: 'serial',
-      name: 'serial',
-      label: 'Serial',
-      type: 'input',
+      id: "serial",
+      name: "serial",
+      label: "Serial",
+      type: "input",
       editable: true,
-      inputType: 'text'
+      inputType: "text",
     },
     {
-      id: 'make',
-      name: 'make',
-      label: 'Make',
-      type: 'select',
+      id: "make",
+      name: "make",
+      label: "Make",
+      type: "select",
       editable: true,
-      options: VehicleMakes
+      options: VehicleMakes,
     },
     {
-      id: 'model',
-      name: 'model',
-      label: 'Model',
-      type: 'select',
+      id: "model",
+      name: "model",
+      label: "Model",
+      type: "select",
       editable: true,
-      options: VehicleModels
+      options: VehicleModels,
     },
     {
-      id: 'category',
-      name: 'category',
-      label: 'Category',
-      type: 'select',
+      id: "category",
+      name: "category",
+      label: "Category",
+      type: "select",
       editable: true,
-      options: VehicleCategories
+      options: VehicleCategories,
     },
     {
-      id: 'capacity',
-      name: 'capacity',
-      label: 'Capacity',
-      type: 'input',
+      id: "capacity",
+      name: "capacity",
+      label: "Capacity",
+      type: "input",
       editable: true,
-      inputType: 'text'
+      inputType: "text",
     },
     {
-      id: 'state',
-      name: 'state',
-      label: 'State',
-      type: 'select',
+      id: "state",
+      name: "state",
+      label: "State",
+      type: "select",
       editable: true,
-      options: StateOptions
+      options: StateOptions,
     },
     {
-      id: 'b_status',
-      name: 'status',
-      label: 'Status',
-      type: 'select',
+      id: "b_status",
+      name: "status",
+      label: "Status",
+      type: "select",
       editable: true,
-      options: StatusOptions
-    }
-  ]
+      options: StatusOptions,
+    },
+  ];
 
   const validationSchema = Yup.object().shape({
-    name: isEdit ? Yup.string() : Yup.string()
-      .min(2, 'Vehicle name must be at least 2 characters')
-      .required("Please enter vehicle name")
-      .test('unique', 'vehicle with this name already exists', async function (value) {
-        if (value && value.length >= 2) {
-          try {
-            const response = await isVehicleNameUnique(value);
-            return response.available; // assuming your API returns { available: true } if username is unique
-          } catch (error) {
-            console.error('Error checking name uniqueness:', error);
-            if (error && error['data'] && error['data']['available']) {
+    name: isEdit
+      ? Yup.string()
+      : Yup.string()
+          .min(2, "Vehicle name must be at least 2 characters")
+          .required("Please enter vehicle name")
+          .test(
+            "unique",
+            "vehicle with this name already exists",
+            async function (value) {
+              if (value && value.length >= 2) {
+                try {
+                  const response = await isVehicleNameUnique(value);
+                  return response.available; // assuming your API returns { available: true } if username is unique
+                } catch (error) {
+                  console.error("Error checking name uniqueness:", error);
+                  if (error && error["data"] && error["data"]["available"]) {
+                    return true;
+                  }
+                  return false; // treat as not unique on error
+                }
+              }
               return true;
             }
-            return false; // treat as not unique on error
-          }
-        }
-        return true;
-      }),
+          ),
     serial: Yup.string(),
     make: Yup.string(),
     model: Yup.string(),
@@ -206,7 +243,7 @@ const Fleet = (props: any) => {
       default:
         return "#F7B31A";
     }
-  }
+  };
 
   const getVehicleCategoryColor = (category) => {
     switch (category) {
@@ -221,7 +258,7 @@ const Fleet = (props: any) => {
       default:
         return "gold";
     }
-  }
+  };
 
   const columns: TableColumn[] = useMemo(
     () => [
@@ -255,9 +292,11 @@ const Fleet = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const category = cellProps.row.original.category
+          const category = cellProps.row.original.category;
           return (
-            <Tag color={getVehicleCategoryColor(category)}>{category.replace('_', ' ')}</Tag>
+            <Tag color={getVehicleCategoryColor(category)}>
+              {category.replace("_", " ")}
+            </Tag>
           );
         },
       },
@@ -273,10 +312,8 @@ const Fleet = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const state = cellProps.row.original.state
-          return (
-            <Tag color={getStateColor(state)}>{state}</Tag>
-          );
+          const state = cellProps.row.original.state;
+          return <Tag color={getStateColor(state)}>{state}</Tag>;
         },
       },
       {
@@ -285,8 +322,8 @@ const Fleet = (props: any) => {
         accessorKey: "",
         enableSorting: false,
         cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`
-          const id = cellProps.row.original.id
+          const name = `${cellProps.row.original.name}`;
+          const id = cellProps.row.original.id;
           return (
             <div className="d-flex gap-3">
               <Link
@@ -309,24 +346,42 @@ const Fleet = (props: any) => {
     [handleOnEdit, handleOnDelete]
   );
 
-  const handleOnSubmit = ((values, { resetForm }) => {
-
-    const _vehicle = parseVehicleData(values)
+  const handleOnSubmit = (values, { resetForm }) => {
+    const _vehicle = parseVehicleData(values);
 
     if (isEdit) {
-      _vehicle['id'] = vehicle.id
+      _vehicle["id"] = vehicle.id;
       delete _vehicle.id;
       dispatch(updateVehicle(vehicle.id, _vehicle));
       setIsEdit(false);
     } else {
-      delete _vehicle.id
+      delete _vehicle.id;
       dispatch(addVehicle(_vehicle));
     }
     // reset form after saving
     resetForm();
     // toggle the dialog
     toggle();
-  })
+  };
+
+  const handleOnImport = () => {
+    // setting as it is not edit
+    setIsEdit(false);
+    // clearing the resource state if previous value is set
+    setVehicle("");
+    // show import csv dialog
+    importCsvModalToggle();
+  };
+
+  const handleUploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setIsUploading(true);
+    await dispatch(upsertVehicles(formData));
+    setIsUploading(false);
+    importCsvModalToggle();
+  };
 
   return (
     <React.Fragment>
@@ -343,20 +398,32 @@ const Fleet = (props: any) => {
                     // total={total || 0}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
+                    handleOnImportClick={handleOnImport}
                     isPagination={true}
                     isAddButton={true}
                     buttonName="New Vehicle"
+                    isImportButton={true}
+                    importButtonName="Import Vehicles"
                   />
                 </CardBody>
               </Card>
-              <FormModal fields={fields}
+              <FormModal
+                fields={fields}
                 modalOpen={modal}
                 isEdit={isEdit}
                 resource={"Vehicle"}
                 initialValues={initialValues}
                 schema={validationSchema}
                 handleOnSubmit={handleOnSubmit}
-                handleOnCancel={toggle} />
+                handleOnCancel={toggle}
+              />
+              <ImportFileModal
+                title="Upload Vehicles"
+                isOpen={importCsvModal}
+                onClose={importCsvModalToggle}
+                onUpload={handleUploadFile}
+                isUploading={isUploading}
+              />
             </Col>
           </Row>
         </Container>
