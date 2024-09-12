@@ -15,6 +15,7 @@ export interface Events {
   reason?: string;
   start: Date;
   end: Date;
+  status?: string;
 }
 
 export interface DraggedEvent {

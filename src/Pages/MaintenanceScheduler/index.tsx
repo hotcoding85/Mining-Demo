@@ -34,6 +34,18 @@ const MaintenanceScheduler = () => {
   const [view, setView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  const [modal, setModal] = useState<boolean>(false);
+
+  const [modalInitialValues, setModalInitialValues] = useState({
+    title: "",
+    workLocation: "",
+    serviceInterval: "",
+    reason: "",
+    resourceLabor: "",
+    start: "",
+    end: "",
+  });
+
   const onEventDrop = useCallback(
     ({ event, start, end }) => {
       const updatedEvent = { ...event, start, end };
@@ -52,14 +64,9 @@ const MaintenanceScheduler = () => {
     [events]
   );
 
-  const handleNavigate = (action: string, date?: Date) => {
+  const handleNavigate = (action: string) => {
     switch (action) {
-      case "DAY":
-        setView("day");
-        setCurrentDate(date || new Date());
-        break;
       case "TODAY":
-        setView("month");
         setCurrentDate(new Date());
         break;
       case "PREV":
@@ -69,6 +76,8 @@ const MaintenanceScheduler = () => {
           setCurrentDate(moment(currentDate).subtract(1, "week").toDate());
         } else if (view === "month") {
           setCurrentDate(moment(currentDate).subtract(1, "month").toDate());
+        } else if (view === "agenda") {
+          setCurrentDate(moment(currentDate).subtract(1, "month").toDate());
         }
         break;
       case "NEXT":
@@ -77,6 +86,8 @@ const MaintenanceScheduler = () => {
         } else if (view === "week") {
           setCurrentDate(moment(currentDate).add(1, "week").toDate());
         } else if (view === "month") {
+          setCurrentDate(moment(currentDate).add(1, "month").toDate());
+        } else if (view === "agenda") {
           setCurrentDate(moment(currentDate).add(1, "month").toDate());
         }
         break;
@@ -156,6 +167,26 @@ const MaintenanceScheduler = () => {
       )}`,
   };
 
+  const handleSelectSlot = useCallback(({ start, end }) => {
+    setModalInitialValues((prevState) => ({ ...prevState, start, end }));
+    setModal(true);
+  }, []);
+
+  const toggle = useCallback(() => {
+    if (modal)
+      setModalInitialValues({
+        title: "",
+        workLocation: "",
+        serviceInterval: "",
+        reason: "",
+        resourceLabor: "",
+        start: "",
+        end: "",
+      });
+
+    setModal(!modal);
+  }, [modal]);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -172,21 +203,28 @@ const MaintenanceScheduler = () => {
                     <div style={{ height: "720px" }}>
                       <DragAndDropCalendar
                         localizer={localizer}
+                        view={view}
+                        onView={setView}
                         events={events}
                         style={{ height: "100%" }}
-                        view={view}
                         date={currentDate}
                         onEventDrop={onEventDrop}
                         onDropFromOutside={onDropFromOutside}
-                        resizable
+                        onSelectSlot={handleSelectSlot}
+                        selectable
                         onEventResize={onEventResize}
                         step={60}
                         timeslots={1}
+                        showMultiDayTimes
                         formats={formats}
+                        views={["month", "week", "day", "agenda"]}
                         components={{
                           toolbar: (props) => (
                             <CalendarHeader
                               {...props}
+                              toggle={toggle}
+                              modal={modal}
+                              modalInitialValues={modalInitialValues}
                               onNavigate={handleNavigate}
                               newEvent={newEvent}
                               onView={setView}
@@ -230,7 +268,7 @@ const CustomEvent = ({ event, view }) => {
     >
       <>
         <div>
-          <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
+          <div className="d-flex align-items-center justify-content-center flex-wrap gap-2 my-2">
             <p className="text-center mb-0 p-2 event-title">{event.title}</p>
             <span className={`position-relative event-status`}>
               {event.event.status}
