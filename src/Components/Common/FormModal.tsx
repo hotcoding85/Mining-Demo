@@ -14,6 +14,7 @@ import {
 import CustomSelect from "./Select";
 import { DatePicker } from "antd";
 import moment from "moment";
+import dayjs from "dayjs";
 
 const FormModal = ({
   fields,
@@ -113,7 +114,7 @@ const FormModal = ({
                                 name={field.name}
                                 value={
                                   values[field.name]
-                                    ? moment(values[field.name])
+                                    ? dayjs(values[field.name])
                                     : null
                                 }
                                 onChange={(date) =>

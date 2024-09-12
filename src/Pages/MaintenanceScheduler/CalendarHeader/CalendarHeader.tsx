@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ToolbarProps } from "react-big-calendar";
 import moment from "moment";
 import { Segmented } from "antd";
@@ -14,12 +14,22 @@ import FormModal from "Components/Common/FormModal";
 
 interface CalendarHeaderProps extends ToolbarProps {
   newEvent: any;
+  modalInitialValues: any;
+  modal: boolean;
+  toggle: () => void;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
-  const { onNavigate, label, onView, view, newEvent } = props;
-
-  const [modal, setModal] = useState<boolean>(false);
+  const {
+    onNavigate,
+    label,
+    onView,
+    view,
+    newEvent,
+    modalInitialValues,
+    modal,
+    toggle,
+  } = props;
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Please enter a title"),
@@ -83,16 +93,6 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
     },
   ];
 
-  const initialValues = {
-    title: "",
-    workLocation: "",
-    serviceInterval: "",
-    reason: "",
-    resourceLabor: "",
-    start: "",
-    end: "",
-  };
-
   useEffect(() => {
     const start = moment().startOf("month");
     const end = moment().endOf("month");
@@ -108,11 +108,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
     const end = new Date(values.end);
 
     newEvent({ ...values, start, end });
+    toggle();
   };
-
-  const toggle = useCallback(() => {
-    setModal(!modal);
-  }, [modal]);
 
   return (
     <div className="custom-toolbar-wrapper">
@@ -122,8 +119,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
           <>
             <span
               style={{
-                transform:
-                  view === "week" || view === "day" ? "rotate(270deg)" : "",
+                transform: "rotate(270deg)",
+                cursor: "pointer",
               }}
               onClick={() => onNavigate("PREV")}
             >
@@ -137,14 +134,13 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
                 <path
                   d="M7.56566 0.663365L13.5647 6.53137C13.854 6.81438 13.8591 7.27833 13.5761 7.56763L12.8917 8.26732C12.6092 8.55615 12.1462 8.56182 11.8567 8.27997L7.08022 3.62972L2.40761 8.38433C2.12441 8.6725 1.6614 8.67706 1.37257 8.39454L0.672874 7.71013C0.383546 7.42712 0.378422 6.96317 0.66143 6.67388L6.52937 0.674809C6.81238 0.385511 7.27633 0.380387 7.56566 0.663365Z"
                   fill="white"
-                  fill-opacity="0.12"
                 />
               </svg>
             </span>
             <span
               style={{
-                transform:
-                  view === "week" || view === "day" ? "rotate(270deg)" : "",
+                transform: "rotate(270deg)",
+                cursor: "pointer",
               }}
               onClick={() => onNavigate("NEXT")}
             >
@@ -158,7 +154,6 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
                 <path
                   d="M6.43434 8.33663L0.435287 2.46863C0.14603 2.18562 0.140861 1.72167 0.423875 1.43237L1.10826 0.732682C1.39077 0.443854 1.85381 0.43818 2.14334 0.72003L6.91978 5.37028L11.5924 0.615671C11.8756 0.327504 12.3386 0.322943 12.6274 0.605458L13.3271 1.28987C13.6165 1.57288 13.6216 2.03683 13.3386 2.32612L7.47063 8.32519C7.18762 8.61449 6.72367 8.61961 6.43434 8.33663Z"
                   fill="white"
-                  fill-opacity="0.12"
                 />
               </svg>
             </span>
@@ -172,8 +167,10 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
               value={view}
               onChange={onView}
               options={[
-                { label: "Week", value: "week" },
                 { label: "Month", value: "month" },
+                { label: "Week", value: "week" },
+                { label: "Day", value: "day" },
+                { label: "Agenda", value: "agenda" },
               ]}
             />
 
@@ -200,7 +197,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
                 modalOpen={modal}
                 isEdit={false}
                 resource={"Maintenance Scheduler"}
-                initialValues={initialValues}
+                initialValues={modalInitialValues}
                 schema={validationSchema}
                 handleOnSubmit={handleCreateNewEvent}
                 handleOnCancel={toggle}
