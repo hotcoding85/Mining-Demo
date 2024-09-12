@@ -12,20 +12,20 @@ export const getAllVehicleRoutes = () => async (dispatch: any) => {
     }
 }
 
-export const addRoute = (user: any) => async (dispatch: any) => {
+export const addRoute = (route: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await postRoute(user)
+        response = await postRoute(route)
         dispatch(createSuccess(response));
     } catch (error: any) {
         dispatch(apiError(error.data));
     }
 }
 
-export const updateRoute = (id: string, user: any) => async (dispatch: any) => {
+export const updateRoute = (id: string, route: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await putRoute(id, user)
+        response = await putRoute(id, route)
         dispatch(updateSuccess(response));
     } catch (error) {
         dispatch(apiError(error));

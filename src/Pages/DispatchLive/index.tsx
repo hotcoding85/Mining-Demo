@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import Breadcrumb from 'Components/Common/Breadcrumb';
-import { Col, Container, Row } from 'reactstrap';
-import MainCard from './MainCard';
-import RightBoard from './RightBoard';
-import { DndProvider } from 'react-dnd';
+import React, { useEffect, useState } from "react";
+import Breadcrumb from "Components/Common/Breadcrumb";
+import { Col, Container, Row } from "reactstrap";
+import MainCard from "./MainCard";
+import RightBoard from "./RightBoard";
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { sampleReadyTrucks, dumpLocationsForAssign , sampleAssignedBenches, diggers} from './data/sampleData';
 import { Space, Tabs } from 'antd';
@@ -42,9 +42,9 @@ const DispatchLive : React.FC = () => {
         );
     }
 
-    const addDumpLocation = (newDumpLocation : DumpLocation) => {
-        setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]); 
-    }
+  const addDumpLocation = (newDumpLocation: DumpLocation) => {
+    setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
+  };
 
     const addBenches= (newBenches : ActiveBenchData) => {
         const existItem = assignedBenches.find(
@@ -126,8 +126,7 @@ const DispatchLive : React.FC = () => {
                     
                 </Container>
             </div>
-        </React.Fragment>
-    )
-
-}
+    </React.Fragment>
+  );
+};
 export default DispatchLive;

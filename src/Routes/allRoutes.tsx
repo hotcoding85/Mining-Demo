@@ -1,67 +1,74 @@
 import { Navigate } from "react-router-dom"
-import FMS from "../Pages/FleetStatus";
+import path from "path";
+import React, { Component } from "react";
+import socketIO from 'socket.io-client';
+
+const FMS = React.lazy(() => import("Pages/FleetStatus"));
 
 // Auth
-import LoginPage from "Pages/Authentication/Login";
-import Logout from "Pages/Authentication/Logout";
-import ForgotPassword from "Pages/Authentication/ForgotPassword";
-import Materials from "Pages/Materials";
-import Benches from "Pages/Benches";
-import Users from "Pages/Users";
-import Fleet from "Pages/Fleet";
-import Trackers from "Pages/Trackers";
-import Map from "Pages/Map";
-import Dispatch from "Pages/Dispatch";
-import DispatchLive from "Pages/DispatchLive";
-import Dashboard from "Pages/Dashboard";
-import MaterialInventory from "Pages/MaterialInventory";
-import Geofences from "Pages/Geofences";
-import DiggingPerformance from "Pages/DiggingPerformance";
-import OreTracker from "Pages/OreTracker";
-import ShiftRoster from "Pages/ShiftRoster";
-import MapGeofence from "Pages/MapGeofences";
-import FleetTimeline from "Pages/FleetTimeline";
-import Target from "Pages/Targets";
-import OperatorReport from "Pages/OperatorReport";
-import TelemetryReport from "Pages/TelemetryReport";
-import GanttScheduler from "Pages/GanttScheduler";
-import Mock from "Pages/Mock";
+const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
+const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
+const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
+// const Materials = React.lazy(() => import("Pages/"));
+const Materials = React.lazy(() => import("Pages/Materials"));
+const Benches = React.lazy(() => import("Pages/Benches"));
+const Users = React.lazy(() => import("Pages/Users"));
+const Fleet = React.lazy(() => import("Pages/Fleet"));
+const Trackers = React.lazy(() => import("Pages/Trackers"));
+const Map = React.lazy(() => import("Pages/Map"));
+const DispatchLive = React.lazy(() => import("Pages/DispatchLive"));
+const Dashboard = React.lazy(() => import("Pages/Dashboard"));
+const MaterialInventory = React.lazy(() => import("Pages/MaterialInventory"));
+const Geofences = React.lazy(() => import("Pages/Geofences"));
+const DiggingPerformance = React.lazy(() => import("Pages/DiggingPerformance"));
+const OreTracker = React.lazy(() => import("Pages/OreTracker"));
+const ShiftRoster = React.lazy(() => import("Pages/ShiftRoster"));
+const MapGeofence = React.lazy(() => import("Pages/MapGeofences"));
+const FleetTimeline = React.lazy(() => import("Pages/FleetTimeline"));
+const Target = React.lazy(() => import("Pages/Targets"));
+const OperatorReport = React.lazy(() => import("Pages/OperatorReport"));
+const TelemetryReport = React.lazy(() => import("Pages/TelemetryReport"));
+const GanttScheduler = React.lazy(() => import("Pages/GanttScheduler"));
+const Mock = React.lazy(() => import("Pages/Mock"));
 
-import socketIO from 'socket.io-client';
-import Reports from "Pages/Reports";
-import Replay from "Pages/Replay";
-import MaintenanceStatus from "Pages/MaintenanceStatus";
-import MaterialMovement from "Pages/MaterialMovement";
-import ShiftReport from "Pages/Reports/ShiftReport";
-import DigBlockLayout from "Pages/DigBlockLayout";
-import DailyProductionDashboard from "Pages/Daily Production";
-import TruckingPerformance from "Pages/Trucking";
-import FuelStatusDashboard from "Pages/Fuel Status";
-import ManagerKPI from "Pages/ManagerKPI";
-import EquipmentGantt from "Pages/Equipment Gantt";
-import MaintenanceScheduler from "Pages/MaintenanceScheduler";
-import OilAnalysis from "Pages/OilAnalysis";
-import PreStarts from "Pages/PreStarts";
-import PreStartDetails from "Pages/PreStartDetails";
-import FleetOptimisation from "Pages/FleetOptimisation";
-import AutoRouting from "Pages/AutoRouting";
-import HaulRoadIntelligence from "Pages/HaulRoad";
-import PitView from "Pages/PitView";
-import ProductionSummary from "Pages/ProductionSummary";
-import ShortIntervalControl from "Pages/ShortIntervalControl";
-import FuelScheduler from "Pages/FuelScheduler";
-import MessageCentre from "Pages/MessageCentre";
-import TruckingDashboard from "Pages/TruckingDashboard";
-import DiggingDashboard from "Pages/DiggingDashboard";
-import TelemetryDetails from "Pages/TelemetryDetails";
-import RomWasteSummary from "Pages/RomWasteSummary";
-import PreShiftInfo from "Pages/PreShiftInfo";
-import OreSpotter from "Pages/OreSpotter";
-import CarryBackDescrepencies from "Pages/CarryBackDescrepencies";
-import ROMMillTargets from "Pages/ROMMillTargets";
-import path from "path";
-import { Component } from "react";
-import TimelineReport from "Pages/Reports/TimelineReport";
+const Reports = React.lazy(() => import("Pages/Reports"));
+const Replay = React.lazy(() => import("Pages/Replay"));
+const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
+
+
+const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
+const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
+const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
+const DailyProductionDashboard = React.lazy(() => import("Pages/Daily Production"));
+const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
+const FuelStatusDashboard = React.lazy(() => import("Pages/Fuel Status"));
+const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
+const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
+const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
+const OilAnalysis = React.lazy(() => import("Pages/OilAnalysis"));
+const PreStarts = React.lazy(() => import("Pages/PreStarts"));
+const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
+const FleetOptimisation = React.lazy(() => import("Pages/FleetOptimisation"));
+const AutoRouting = React.lazy(() => import("Pages/AutoRouting"));
+const HaulRoadIntelligence = React.lazy(() => import("Pages/HaulRoad"));
+const PitView = React.lazy(() => import("Pages/PitView"));
+const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
+const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
+const FuelScheduler = React.lazy(() => import("Pages/FuelScheduler"));
+const MessageCentre = React.lazy(() => import("Pages/MessageCentre"));
+const TruckingDashboard = React.lazy(() => import("Pages/TruckingDashboard"));
+const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
+const TelemetryDetails = React.lazy(() => import("Pages/TelemetryDetails"));
+const RomWasteSummary = React.lazy(() => import("Pages/RomWasteSummary"));
+const PreShiftInfo = React.lazy(() => import("Pages/PreShiftInfo"));
+const OreSpotter = React.lazy(() => import("Pages/OreSpotter"));
+const CarryBackDescrepencies = React.lazy(() => import("Pages/CarryBackDescrepencies"));
+const ROMMillTargets = React.lazy(() => import("Pages/ROMMillTargets"));
+const TimelineReport = React.lazy(() => import("Pages/Reports/TimelineReport"));
+const Dispatch = React.lazy(() => import("Pages/Dispatch"));
+const ROMManagement = React.lazy(() => import("Pages/ROMManagement"));
+const WasteDumpManagement = React.lazy(() => import("Pages/WasteDumpManagement"));
+
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -76,12 +83,15 @@ const authProtectedRoutes = [
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
   { path: "/users", exact: true, component: <Users /> },
+  { path: "/shift-planner", exact: true, component: <Dispatch /> },
+  { path: "/rom-management", exact: true, component: <ROMManagement /> },
+  { path: "/waste-dump-management", exact: true, component: <WasteDumpManagement /> },
+  { path: "/payload-optimisation", exact: true, component: <WasteDumpManagement /> },
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
   { path: "/gantt-scheduler", exact: true, component: <GanttScheduler /> },
   { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
-  { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
   { path: "/descrepencies", exact: true, component: <CarryBackDescrepencies /> },
   { path: '/rom-mill-targets', exact: true, component: <ROMMillTargets /> },
@@ -108,7 +118,7 @@ const authProtectedRoutes = [
   { path: "/material-movement", exact: true, component: <MaterialMovement /> },
   { path: "/targets", exact: true, component: <Target /> },
   { path: "/reports/shift-report", exact: true, component: <ShiftReport /> },
-  {path:"/reports/timeline-report", exact:true, component:<TimelineReport /> },
+  { path: "/reports/timeline-report", exact: true, component: <TimelineReport /> },
   { path: "/dig-blocks", exact: true, component: <DigBlockLayout /> },
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },

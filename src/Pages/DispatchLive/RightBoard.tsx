@@ -7,16 +7,16 @@ import WasteDumpLocations from "./WasteDumpLocations";
 import OreBodies from "./OreBodies";
 import ReadyTrucks from "./ReadyTrucks";
 import MessageBoard from "./MessageBoard";
-import { DumpLocation, Truck } from "./interfaces/type";
+import { DumpLocation, Material, Truck } from "./interfaces/type";
 
 interface RightBoardProps {
-    readyTrucks : Truck[];
-    dumpLocationsForAssign : DumpLocation[];
+  readyTrucks: Truck[];
+  dumpLocationsForAssign: DumpLocation[];
 }
 
-const RightBoard : React.FC<RightBoardProps> = ({
-    readyTrucks,
-    dumpLocationsForAssign
+const RightBoard: React.FC<RightBoardProps> = ({
+  readyTrucks,
+  dumpLocationsForAssign,
 }) => {
     const [isShowMore, setIsShowMore] = useState<boolean>(true);
 

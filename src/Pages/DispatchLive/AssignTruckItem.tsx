@@ -1,6 +1,6 @@
-import React , { useState, useRef, useEffect } from "react";
-import { useDrop } from 'react-dnd';
-import "./styles/assignItem.scss"
+import React, { useState, useRef, useEffect } from "react";
+import { useDrop } from "react-dnd";
+import "./styles/assignItem.scss";
 import { Truck } from "./interfaces/type";
 import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
 import { Progress, Divider, Dropdown} from "antd";
@@ -57,20 +57,20 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
           truck.assignId === sourceId
     );
 
-    const [{ isOver, canDrop }, drop] = useDrop({
-        accept: 'READYTRUCK',
-        drop: (draggedTruck: Truck) => {
-            const updatedTruck = {
-            ...draggedTruck,
-            assignId : sourceId
-            };
-            updateReadyTrucks(updatedTruck);
-        },
-        collect: (monitor) => ({
-            isOver: !!monitor.isOver(),
-            canDrop: !!monitor.canDrop(),
-        }),
-    });
+  const [{ isOver, canDrop }, drop] = useDrop({
+    accept: "READYTRUCK",
+    drop: (draggedTruck: Truck) => {
+      const updatedTruck = {
+        ...draggedTruck,
+        assignId: sourceId,
+      };
+      updateReadyTrucks(updatedTruck);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
+    }),
+  });
 
     return (
         <div 
@@ -143,15 +143,12 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
                         <div className="show-more-btn" onClick={onShowMoreOrLess}>{isShowMore ? 'View More' : 'View Less'}</div>
                     </div>  
                 </div>
-            </div>
-                
-            ):
-            (
-                <p className="empty">+Assign truck here</p>
-            )}
-        </div>
-        
-    )
-}
+          </div>
+      ) : (
+        <p className="empty">+Assign truck here</p>
+      )}
+    </div>
+  );
+};
 
 export default AssignTruckItem;

@@ -1,4 +1,4 @@
-import { ActiveBenchData, Truck, DumpLocation, MessageData, DiggerData } from "../interfaces/type"
+import { ActiveBenchData, Truck, DumpLocation, MessageData, DiggerData, Material } from "../interfaces/type"
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 
 export const activeBenches : ActiveBenchData[] = [
@@ -56,3 +56,10 @@ export const diggers : DiggerData[] = [
     {no:2, diggerId : "Digger2", headerName:"Digger Fleet2"},
     {no:3, diggerId : "Digger3", headerName:"Digger Fleet3"}
 ]
+
+export const sampleTargetMaterials: Material[] = [
+  { id: 1, assignId: 0, materialId: "HG01" },
+  { id: 2, assignId: 0, materialId: "HG02" },
+  { id: 3, assignId: 0, materialId: "HG03" },
+];
+

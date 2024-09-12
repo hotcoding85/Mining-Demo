@@ -16,6 +16,9 @@ import './index.css';
 import { getAll } from "Helpers/api_auto_routing";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
 
 export type TripRoutesDataType = {
     id: string,
@@ -31,6 +34,7 @@ const Replay = (props: any) => {
     const [lat, setLat] = useState(-29.146790943732764);
     const geojsonData = useRef<any>();
     const [routeData, setRouteData] = useState<TripRoutesDataType[]>([]);
+    const stopSignData = useRef<RouteDataType[]>([]);
     const [selectedTrip, setSelectedTrip] = useState<RouteDataType | null>(null);
 
     // TimeSlider
@@ -43,6 +47,16 @@ const Replay = (props: any) => {
 
     const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
 
+    const { layoutModeType } = useSelector(
+        createSelector(
+          (state: any) => state.Layout,
+          (layout) => ({
+            layoutModeType: layout.layoutModeTypes,
+          })
+        )
+    );
+    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+    
     const togglePlay = () => {
         setIsPlaying(!isPlaying);
         currentIsPlaying.current = !isPlaying
@@ -324,7 +338,7 @@ const Replay = (props: any) => {
         try {
             const response = await getAll();
             if (response.length != 0) {
-                const _routeData = _.map(response, route => {
+                const _routeData = _.map(response.filter(_route => _route.category !== 'STOP_SIGNS'), route => {
                     return {
                         id: route.id,
                         name: route.name,
@@ -332,24 +346,73 @@ const Replay = (props: any) => {
                         geoJson: route.geoJson,
                         distance: route.distance,
                         duration: route.duration,
-                        color: route.color
+                        color: route.color,
+                        speeds: []
                     }
                 })
                 setRouteData([{id: "DT101", routes: _routeData}]);
-                _.map(_routeData, _route => {
-                    const newRouteMarker = {
-                        coordinates: _route.geoJson.geometry.coordinates as [number, number][],
-                        speedlimit: _route.speedLimits,
-                        color: _route.color,
-                        markers: [],
-                        routeNumber: _route.id
+                const _stopSignData = _.map(response.filter(_route => _route.category === 'STOP_SIGNS'), route => {
+                    return {
+                        id: route.id,
+                        name: route.name,
+                        speedLimits: route.speedLimits,
+                        geoJson: route.geoJson,
+                        distance: route.distance,
+                        duration: route.duration,
+                        color: route.color,
+                        speeds: []
                     }
                 })
+                
+                stopSignData.current = _stopSignData
             }
         }catch (error) {
             console.error(error);
         }
     }
+
+    useEffect(() => {
+        stopSignData.current.map((item: any, key) => {
+            const map = mapRef.current;
+            if (!map) return;
+        
+            // Convert LineString to Point assuming the first coordinate is the desired location
+            const pointFeature = {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: item.geoJson.geometry.coordinates[0]
+                },
+                properties: item.geoJson.properties
+            };
+        
+            // Check if the source does not exist before adding it
+            if (!map.getSource(item.id)) {
+                map.addSource(item.id, {
+                    type: 'geojson',
+                    data: pointFeature
+                });
+            }
+        
+            // Remove existing layer if it exists
+            if (map.getLayer(item.id)) {
+                map.removeLayer(item.id);
+            }
+        
+            // Add a new circle layer for STOP_SIGNS
+            map.addLayer({
+                id: item.id,
+                type: 'circle',
+                source: item.id,
+                paint: {
+                    'circle-radius': 10,  // This sets the radius in pixels
+                    'circle-color': item.color,
+                    'circle-opacity': 1
+                }
+            });
+    
+          })
+    }, [stopSignData, mapRef.current])
     
     const handleMapClick = useCallback((e: mapboxgl.MapMouseEvent) => {
 
@@ -369,7 +432,8 @@ const Replay = (props: any) => {
                 currentTimeValue.current = -1
                 animationRef.current.elapsedTime = 0
             }
-            drawRoute(selectedTrip, selectedTrip.duration, selectedTrip.distance)
+            let stopSignDuration = getStopSignsDuration(selectedTrip.geoJson.geometry.coordinates)
+            drawRoute(selectedTrip, selectedTrip.duration, selectedTrip.distance, true, stopSignDuration)
         }
     }, [isPlaying, selectedTrip, animationRef, totalTime])
 
@@ -379,7 +443,9 @@ const Replay = (props: any) => {
             setTimeValue(0)
             setIsPlaying(true)
             currentIsPlaying.current = true
-            setTotalTime(_route.duration && _route.duration != 0 ? _route.duration : 3600)
+            // add stopSignDuration if the stop_sign exist in the current route
+            let stopSignDuration = getStopSignsDuration(_route.geoJson.geometry.coordinates)
+            setTotalTime(_route.duration && _route.duration != 0 ? _route.duration + stopSignDuration : 3600)
             const [xaxis, yaxis] = extractDistanceAndElevationArrayWithTurf(_route.geoJson)
             const distanceData: any = _.map(xaxis, (distance, index) => distance);
             const elevationData: any = _.map(yaxis, (elevation, index) => elevation);
@@ -395,9 +461,36 @@ const Replay = (props: any) => {
             animationRef.current.startTime = null
             currentTimeValue.current = -1
             animationRef.current.elapsedTime = 0
-            drawRoute(_route, _route.duration, _route.distance)
+            drawRoute(_route, _route.duration, _route.distance, true, stopSignDuration)
         }
     }, [routeData, selectedTrip])
+
+    const getStopSignsDuration = useCallback((coordinates) => {
+        let duration = 0;
+        _.map(coordinates, coor => {
+            _.map(stopSignData.current, _stopsign => {
+                if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
+                    if (_stopsign.geoJson.geometry.coordinates[0][0] == coor[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coor[1]) {
+                        duration += _stopsign.duration
+                    }
+                }
+            })
+        })
+
+        return duration
+    }, [stopSignData])
+
+    const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
+        _.map(stopSignData.current, _stopsign => {
+            if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
+                if (_stopsign.geoJson.geometry.coordinates[0][0] == coord[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]) {
+                    return _stopsign.duration
+                }
+            }
+        })
+
+        return 0
+    }, [stopSignData])
 
     const calculateCustomElevation = (lngLat: { lng: number; lat: number }) => {
         if (!mapRef.current) return;
@@ -473,7 +566,7 @@ const Replay = (props: any) => {
         return [distanceArray, elevationArray];
     };
 
-    const drawRoute = useCallback((saving_data: RouteDataType, totalTime, distance, animation: boolean = true) => {
+    const drawRoute = useCallback((saving_data: RouteDataType, totalTime, distance, animation: boolean = true, stopSignDuration: number = 0) => {
         if (!mapRef.current) return saving_data;
         if (marker.current) marker.current.remove();
         
@@ -724,7 +817,7 @@ const Replay = (props: any) => {
             const temp = calculateCustomElevation({ lng, lat });
             const elevation = Math.floor(temp || 0);
             marker.current?.setLngLat([lng, lat]);
-            popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm');
+            popup.setHTML('Distance: ' + Math.ceil(distanceCovered) + 'm<br/>Altitude: ' + elevation + 'm' + "<br/>Speed: " + saving_data.speedLimits + "km/h<br/>Current Time: " + Math.ceil(animationRef.current.elapsedTime / 1000) + 's' + (stopSignDuration != 0 ? ("<br/>Stop Sign Duration: " + stopSignDuration + 's') : ''));
     
             if (progress < 1) {
                 animationRef.current.elapsedTime += deltaTime;
@@ -740,11 +833,11 @@ const Replay = (props: any) => {
                 }
     
                 if (animation) {
-                    // const rotation = 150 - progress * 10.0;
-                    // mapRef.current.setBearing(rotation % 360);
+                    const rotation = 150 - progress * 10.0;
+                    mapRef.current.setBearing(rotation % 360);
                     mapRef.current.flyTo({
                         center: [lng, lat],
-                        speed: 10,
+                        speed: 5,
                         curve: 1,
                         easing: t => t
                     });
@@ -850,7 +943,7 @@ const Replay = (props: any) => {
                                 <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
                                     Routes
                                 </div>
-                                <div style={{height: 'calc(100% - 100px)', overflow: 'auto'}}>
+                                <div style={{overflow: 'auto'}}>
                                     <Collapse accordion style={{border: 'none', borderRadius: 'none'}}>
                                         {_.map(routeData, (dt, index) => (
                                         <Panel header={dt.id} key={dt.id}>
@@ -859,7 +952,7 @@ const Replay = (props: any) => {
                                                     <Menu.Item
                                                         onClick={() => selectTrip(route)}
                                                         key={`${dt.id}-${index}`}
-                                                        className={selectedTrip?.id === route.id ? 'selected' : ''}
+                                                        className={"replay-menu-item " + (selectedTrip?.id === route.id ? 'selected' : '')}
                                                     >
                                                         {route ? route.name : 'Test'}
                                                     </Menu.Item>

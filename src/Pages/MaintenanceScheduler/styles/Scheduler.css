@@ -30,7 +30,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  /* Adjust spacing between Month and Create New Event button */
 }
 
 .calender-left {
@@ -181,8 +180,8 @@
   min-height: 90px;
 }
 
-.rbc-allday-cell {
-  display: none !important;
+.rbc-allday-cell .rbc-row-bg {
+  width: calc(100% - -4px);
 }
 
 .calender-right .view-buttons .ant-switch-handle {
@@ -261,14 +260,6 @@
   border-left: 1px solid #4b4b4b;
 }
 
-.page-content .rbc-time-view .rbc-time-header-content {
-  border-left: 1px solid transparent;
-}
-
-.page-content .rbc-time-view .rbc-time-header.rbc-overflowing {
-  border-right: 1px solid transparent;
-}
-
 .page-content .rbc-header {
   padding: 13px;
   color: #fff;
@@ -291,6 +282,10 @@
   color: #fff;
 }
 
+.page-content .rbc-month-view .rbc-date-cell {
+  padding: 16px 32px 0;
+}
+
 [data-layout-mode="light"] .page-content .rbc-label,
 [data-layout-mode="light"] .page-content .rbc-header,
 [data-layout-mode="light"] .page-content .rbc-month-view .rbc-date-cell,
@@ -298,8 +293,8 @@
   color: #495057;
 }
 
-.rbc-events-container .rbc-event,
-.rbc-events-container .rbc-event.rbc-selected {
+.rbc-day-slot .rbc-events-container .rbc-event,
+.rbc-day-slot .rbc-events-container .rbc-event.rbc-selected {
   background: #535e77;
   border-radius: 0;
   border: none;
@@ -357,7 +352,7 @@
   display: none;
 }
 
-.rbc-time-view .rbc-addons-dnd-resizable::before {
+.rbc-time-view .rbc-day-slot .rbc-addons-dnd-resizable::before {
   content: "";
   position: absolute;
   top: 4px;
@@ -368,8 +363,10 @@
   background-color: #fff;
 }
 
-.rbc-time-view .rbc-addons-dnd-resizable::after,
-.rbc-time-view .rbc-addons-dnd-resize-ns-anchor:last-child::after {
+.rbc-time-view .rbc-day-slot .rbc-addons-dnd-resizable::after,
+.rbc-time-view
+  .rbc-day-slot
+  .rbc-addons-dnd-resize-ns-anchor:last-child::after {
   content: "";
   position: absolute;
   top: 0;
@@ -378,10 +375,6 @@
   border-width: 2px 2px 0 0;
   padding: 2px;
   transform: rotate(-45deg);
-}
-
-.rbc-time-view .rbc-addons-dnd-resize-ns-anchor {
-  position: relative;
 }
 
 .rbc-time-view .rbc-addons-dnd-resize-ns-anchor:last-child::after {
@@ -407,7 +400,7 @@
 }
 
 .event-ready-btn {
-  margin-bottom: 15px;
+  margin-bottom: 0.5rem;
 }
 
 .event-ready-btn button {
@@ -441,7 +434,7 @@
 .event-title-month {
   display: block;
   width: 100%;
-  padding: 4px 8px;
+  padding: 2px 8px;
 }
 
 .event-completed.event-title-month {
@@ -476,12 +469,22 @@
   box-shadow: none !important;
 }
 
-.rbc-time-view .rbc-current-time-indicator,
-.rbc-time-view .rbc-now {
+.rbc-time-view .rbc-current-time-indicator {
   display: none;
 }
 
 .event-direction {
   width: 92%;
   margin-left: auto;
+}
+
+.rbc-allday-cell .event-chip-wrap,
+.rbc-allday-cell .event-ready-btn,
+.rbc-allday-cell .event-status {
+  display: none !important;
+}
+
+.rbc-allday-cell .event-title {
+  background-color: transparent;
+  padding: 0 !important;
 }

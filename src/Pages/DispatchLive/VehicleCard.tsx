@@ -110,18 +110,12 @@ const VehicleCard: FC<VehicleCardProps> = ({
     >
       <div className="vehicle-card-header">
         <div className="vehicle-header-image">
-          <img src={pc2000} alt="pc2000" style={{width: 40, height:40}}/>
+          <img src={pc2000} alt="pc2000" style={{ width: 40, height: 40 }} />
         </div>
         <div className="vehicle-name">
-          <div className="vehicle-id">
-            {id}
-          </div>
-          <div className="vehicle-category">
-            PC1250-8
-          </div>
-          <div className="vehicle-driver">
-            James Taylor
-          </div>
+          <div className="vehicle-id">{id}</div>
+          <div className="vehicle-category">PC1250-8</div>
+          <div className="vehicle-driver">James Taylor</div>
         </div>
         <span
           className="vehicle-card-status"
@@ -151,7 +145,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
           <Progress percent={20} showInfo={false} />
         </div>
         <div className="vehicle-card-props">
-          <div className="vehicle-medium-label">Total Tonnes Loaded in Shift</div>
+          <div className="vehicle-medium-label">
+            Total Tonnes Loaded in Shift
+          </div>
           <div className="vehicle-chips-value">548.2</div>
         </div>
         <p className="vehicle-card-props">

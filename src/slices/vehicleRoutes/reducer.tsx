@@ -11,6 +11,7 @@ export interface VehicleRoute {
     distance: number,
     duration: number,
     speedLimits: number,
+    category: string,
     geoJson: object
 }
 
@@ -49,7 +50,6 @@ const vehicleRoutesSlice = createSlice({
             state.loading = true;
         },
         allSuccess(state, action) {
-            console.log(action.payload)
             state.data = action.payload
             state.total = action.payload.length
             state.loading = false;

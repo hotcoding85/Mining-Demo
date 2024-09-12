@@ -1,0 +1,43 @@
+#auto-routing-category > div, #auto-routing-category > div > button{
+    width: 100%;
+}
+.route-item.dark-mode{
+    color: white;
+    border-bottom: 1px dashed #787878;
+    cursor: pointer;
+}
+.route-item.dark-mode > i {
+    right: 25px;
+    font-size: 20px;
+    position: absolute;
+}
+.route-item.dark-mode:hover {
+    background-color: #212529;
+}
+
+.route-item.light-mode{
+    color: white;
+    border-bottom: 1px dashed #787878;
+    cursor: pointer;
+}
+.route-item.light-mode > i {
+    right: 25px;
+    font-size: 20px;
+    position: absolute;
+}
+.route-item.light-mode:hover {
+    background-color: #e2e2e2 !important;
+}
+.my-stopsign-point-group{
+    position: absolute;
+    z-index: 9;
+    right: 10px;
+    top: 335px;
+}
+
+.my-custom-ctrl-group {
+    position: absolute;
+    z-index: 9;
+    right: 10px;
+    top: 378px !important;
+}

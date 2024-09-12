@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Slider, Button, Select } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined, RightOutlined, LeftOutlined } from '@ant-design/icons';
 import './TimeSlider.css'; // For custom styling
+import { LAYOUT_MODE_TYPES } from 'Components/constants/layout';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 interface TimeSliderProps {
     isPlaying: boolean;
@@ -30,6 +33,16 @@ const TimeSlider: React.FC<TimeSliderProps> = (
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
   const { Option } = Select;
+
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
   const numSegments = 6;
 
@@ -70,21 +83,21 @@ const TimeSlider: React.FC<TimeSliderProps> = (
     <div className="time-slider-container">
       <Button
         type="text"
-        icon={<LeftOutlined style={{color: 'white'}} />}
+        icon={<LeftOutlined style={{color: isLight ? 'black' : 'white'}} />}
         onClick={onPrev}
       />
 
       {/* Play/Pause Button */}
       <Button
         type="text"
-        icon={isPlaying ? <PauseCircleOutlined style={{color: 'white'}}  /> : <PlayCircleOutlined style={{color: 'white'}}  />}
+        icon={isPlaying ? <PauseCircleOutlined style={{color: isLight ? 'black' : 'white'}}  /> : <PlayCircleOutlined style={{color: isLight ? 'black' : 'white'}}  />}
         onClick={onPlayPauseToggle}
       />
 
       {/* Next Button */}
       <Button
         type="text"
-        icon={<RightOutlined style={{color: 'white'}}  />}
+        icon={<RightOutlined style={{color: isLight ? 'black' : 'white'}}  />}
         onClick={onNext}
       />
 
@@ -92,7 +105,7 @@ const TimeSlider: React.FC<TimeSliderProps> = (
       <Select
         className={'speed-indicator'}
         value={speed}
-        style={{color: 'white'}} 
+        style={{color: isLight ? 'black' : 'white'}} 
         onChange={onSpeedChange}
       >
         <Option value={1}>1X</Option>

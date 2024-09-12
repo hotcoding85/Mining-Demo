@@ -17,23 +17,40 @@ export interface Task {
   span: number;
 }
 
-export interface Data {
-  _type: string
-  capacity: number;
-  category: string;
-  createdAt: string;
+export interface Truck {
   id: string;
-  make: string;
   model: string;
-  name: string;
-  assignTruck: string;
-  truckModel: string;
-  serial: string;
-  state: string;
-  status: string;
-  updatedAt: string;
-  plannedTonnes: number;
-  plannedLoads: number;
+  plannedLoads: string;
+  operator: string;
 }
 
-export type ShiftType = 'DAY_SHIFT' | 'NIGHT_SHIFT' | 'WORK_DAY' | 'WORK_WEEK';
+export interface Excavator {
+  id: string;
+  operator: string;
+  location: string;
+  etaStart: string;
+  etaFinish: string;
+  totalLoads: string;
+  totalTonnes: string;
+}
+
+export interface ShiftInfoData {
+  excavator: Excavator;
+  trucks: Truck[];
+}
+
+export interface SideMenu {
+  locations: string[];
+  excavators: string[];
+  truckOperators: string[];
+  trainers: string[];
+  trucks: string[];
+  dozers: string[];
+  drillers: string[];
+  standByTrucks: string[];
+  standByDozers: string[];
+  standByDrillers: string[];
+  repairTrucks: string[];
+  repairDozers: string[];
+  repairDrillers: string[];
+}

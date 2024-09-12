@@ -150,19 +150,27 @@ const SidebarContent = (props: any) => {
                   <Link to="/fleet-status">{props.t("Fleet Status")}</Link>
                 </li>
                 <li>
-                  <Link to="/realtime-postioning">{props.t("Real-time Positioning")}</Link>
+                  <Link to="/realtime-postioning">
+                    {props.t("Real-time Positioning")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/trucking">{props.t("Trucking Plan vs Actual")}</Link>
+                  <Link to="/trucking">
+                    {props.t("Trucking Plan vs Actual")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/digging">{props.t("Digging Plan vs Actual")}</Link>
                 </li>
                 <li>
-                  <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
+                  <Link to="/equipment-gantt">
+                    {props.t("Equipment Activity Gantt")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/operator-report">{props.t("Operator Report")}</Link>
+                  <Link to="/operator-report">
+                    {props.t("Operator Report")}
+                  </Link>
                 </li>
                 {/* <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
@@ -176,11 +184,13 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Mine Control")}</span>
               </Link>
               <ul className="sub-menu">
-              <li>
+                <li>
                   <Link to="/dispatch-live">{props.t("Dispatch Live")}</Link>
                 </li>
                 <li>
-                  <Link to="/gantt-scheduler">{props.t("Gantt Scheduler")}</Link>
+                  <Link to="/gantt-scheduler">
+                    {props.t("Gantt Scheduler")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/shift-planner">{props.t("Shift Planner")}</Link>
@@ -195,10 +205,24 @@ const SidebarContent = (props: any) => {
                   <Link to="/targets">{props.t("Production Targets")}</Link>
                 </li>
                 <li>
-                  <Link to="/rom-mill-targets">{props.t("ROM/Mill Targets")}</Link>
+                  <Link to="/rom-mill-targets">
+                    {props.t("ROM/Mill Targets")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/preshift-info">{props.t("Pre Shift Information (PSI)")}</Link>
+                  <Link to="/preshift-info">
+                    {props.t("Pre Shift Information (PSI)")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/waste-dump-management">
+                    {props.t("Waste Dump Management")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/rom-management">
+                    {props.t("ROM Management")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
@@ -216,9 +240,6 @@ const SidebarContent = (props: any) => {
                   <Link to="/daily-production">
                     {props.t("Daily Snapshot")}
                   </Link>
-                </li>
-                <li>
-                  <Link to="/production-summary">{props.t("Production Summary")}</Link>
                 </li>
                 <li>
                   <Link to="/digging-performance">
@@ -284,7 +305,6 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/materials">{props.t("Materials")}</Link>
                 </li>
-
                 <li>
                   <Link to="/material-inventory">
                     {props.t("Material Inventory")}
@@ -304,20 +324,28 @@ const SidebarContent = (props: any) => {
                 <span>{props.t("Mine Dynamics")}</span>
               </Link>
               <ul className="sub-menu">
-              <li>
+                <li>
                   <Link to="/sic">{props.t("Short Interval Control")}</Link>
                 </li>
                 <li>
-                  <Link to="/fleet-optimisation">{props.t("Haul Road Optimization")}</Link>
+                  <Link to="/fleet-optimisation">
+                    {props.t("Haul Road Optimization")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/auto-routing">{props.t("Haul Route Management")}</Link>
+                  <Link to="/auto-routing">
+                    {props.t("Haul Route Management")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/payload-optimisation">{props.t("Payload Optimisation")}</Link>
+                  <Link to="/payload-optimisation">
+                    {props.t("Payload Optimisation")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/haul-road-intelligence">{props.t("Haul Road Intelligence")}</Link>
+                  <Link to="/haul-road-intelligence">
+                    {props.t("Haul Road Intelligence")}
+                  </Link>
                 </li>
               </ul>
             </li>
@@ -335,7 +363,9 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/maintenance-status">{props.t("Maintenance Status")}</Link>
+                  <Link to="/maintenance-status">
+                    {props.t("Maintenance Status")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/maintenance-scheduler">
@@ -343,7 +373,9 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/maintenance-fuel-status">{props.t("Fuel Status")}</Link>
+                  <Link to="/maintenance-fuel-status">
+                    {props.t("Fuel Status")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/oil-analysis">{props.t("Oil Analysis")}</Link>
@@ -374,12 +406,8 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/kpi">{props.t("Manager KPI's")}</Link>
                 </li>
-                <li>
-                  <Link to="/equipment-gantt">{props.t("Equipment Activity Gantt")}</Link>
-                </li>
               </ul>
             </li>
-
 
             <li>
               <Link to="/reports" className="has-arrow">

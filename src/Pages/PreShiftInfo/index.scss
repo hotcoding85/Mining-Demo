@@ -69,9 +69,14 @@ body[data-layout-mode="light"] {
     border-radius: 50px;
     text-align: center;
 
-    &.fill {
+    &.empty {
       background: #283655;
       color: #ffffff;
+    }
+
+     &.fill {
+      background: #283655;
+      color: #FFFFFF !important;
       font-weight: 700;
     }
   }
@@ -85,15 +90,15 @@ body[data-layout-mode="light"] {
     background-color: #fff;
     border: 2px dashed #C1C1C1;
     border-radius: 8px;
-    width: 30%;
+    width: 31%;
     height: fit-content;
     color: #656565;
     &.pre-shift-data {
       padding: 0 !important;
       border: none !important;
       &.assign-arrow {
-        &::after {
-          top: 27px;
+        &::before {
+          left: -5px;
         }
       }
     }
@@ -106,8 +111,8 @@ body[data-layout-mode="light"] {
     &::before {
       content: "";
       position: absolute;
-      top: 49.6%;
-      right: 5px;
+      top: 49%;
+      right: 6px;
       border: solid #828282;
       border-width: 0 2px 2px 0;
       padding: 2px;
@@ -120,7 +125,7 @@ body[data-layout-mode="light"] {
       top: 50%;
       left: 99%;
       transform: translate(-50%, -50%);
-      width: 34px;
+      width: 31px;
       height: 1px;
       background-color: #828282;
       border-radius: 50%;
@@ -130,10 +135,10 @@ body[data-layout-mode="light"] {
 
   .assign-arrow {
     &::before {
-      top: 24.5px;
-      left: -8px;
+      top: 49.5%;
+      left: -6px;
       right: unset;
-      transform: rotate(-45deg);
+      transform: rotate(-45deg) translateY(-49%);
     }
 
     &::after {
@@ -148,17 +153,30 @@ body[data-layout-mode="light"] {
     &::before {
       content: "";
       position: absolute;
-      top: 28px;
+      top: 29px;
       left: 1px;
       border-left: 1px solid #828282;
       width: 4px;
-      height: calc(100% - 56px);
+      height: calc(100% - 57px);
+    }
+  }
+
+  .shift-1 {
+    &::before {
+    top: 67px;
+    height: calc(100% - 95px);
+    }
+  }
+
+  .shift-2 {
+    &::before {
+    top: 67px;
+    height: calc(100% - 134px);
     }
   }
 }
 
 .schedule-filter {
-  padding-top: 31px;
   margin: 0 0 31px;
   .ant-select-show-search,
   .ant-picker {
@@ -201,11 +219,17 @@ body[data-layout-mode="light"] {
 }
 
 .data-section {
-  width: calc(100% - 314px);
+  width: calc(100% - 324px);
   flex: 1 0;
 }
 .sidebar-section {
-  width: 314px;
+  width: 324px;
+}
+
+.side-scroll {
+  height: calc(100vh - 120px);
+  overflow: auto;
+  margin: -24px -24px 0 0 !important;
 }
 
 [data-layout-mode="dark"] {
@@ -223,6 +247,11 @@ body[data-layout-mode="light"] {
     .shift-value {
       color: #6F788D;
       background: #24314D;
+      &.fill {
+        background: #535E77;
+        color: #FFFFFF !important;
+        font-weight: 700;
+      }
     }
 
     .shift-time {

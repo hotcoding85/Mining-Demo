@@ -39,7 +39,7 @@ function buildGraph(roadData) {
                 graph.set(point2, []);
             }
             const color = route.color;
-            graph.get(point1).push({ weight, point: point2, color });
+            graph.get(point1).push({ weight, point: point2, color, speedLimit: speedLimit });
             // graph.get(point2).push({ weight, point: point1 });
         }
     });
@@ -74,7 +74,7 @@ function dijkstra(graph, start: any, end: any) {
     graph.forEach((_, vertex) => {
         distances.set(vertex, Infinity);
         previousVertices.set(vertex, null);
-        previousEdges.set(vertex, null); // Initialize with null color
+        previousEdges.set(vertex, {color: null, speedLimit: null}); // Initialize with object containing null values
     });
     distances.set(JSON.stringify(start), 0);
     pq.set(JSON.stringify(start), 0);
@@ -86,13 +86,13 @@ function dijkstra(graph, start: any, end: any) {
         if (currentDistance > distances.get(currentVertex)) continue;
   
         _.map(graph.get(currentVertex), neighbor => {
-            const { weight, point: neighborPoint, color } = neighbor;
+            const { weight, point: neighborPoint, color, speedLimit } = neighbor;
             const distance = currentDistance + weight;
     
             if (distance < distances.get(neighborPoint)) {
                 distances.set(neighborPoint, distance);
                 previousVertices.set(neighborPoint, currentVertex);
-                previousEdges.set(neighborPoint, color); // Store the color of the edge
+                previousEdges.set(neighborPoint, {color, speedLimit}); // Store the color of the edge
                 pq.set(neighborPoint, distance);
             }
         });
@@ -104,14 +104,15 @@ function dijkstra(graph, start: any, end: any) {
   
     while (previousVertices.get(currentVertex) !== null) {
         const prevVertex = previousVertices.get(currentVertex);
-        const color = previousEdges.get(currentVertex);
+        const {color, speedLimit} = previousEdges.get(currentVertex);
         path.unshift(JSON.parse(currentVertex));
-        pathWithColors.unshift({ point: JSON.parse(currentVertex), color });
+        pathWithColors.unshift({ point: JSON.parse(currentVertex), color, speedLimit });
         currentVertex = prevVertex;
     }
     if (path.length) {
         path.unshift(start);
-        pathWithColors.unshift({ point: start, color: previousEdges.get(JSON.stringify(start)) });
+        const {color, speedLimit} = previousEdges.get(JSON.stringify(start));
+        pathWithColors.unshift({ point: start, color: color, speedLimit });
     }
   
     return { path: pathWithColors, distance: distances.get(JSON.stringify(end)) };
