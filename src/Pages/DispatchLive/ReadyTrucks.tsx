@@ -28,7 +28,7 @@ const ReadyTrucks : React.FC<ReadyTrucksProps> = ({
             <div>
             <div>
                 <p className="right-board-topic">Ready for dispatch on Go-Line</p>
-                <div className="d-flex flex-row justify-content-between flex-wrap">
+                <div className="d-flex flex-row flex-wrap" style={{gap: 10}}>
                     {readyTrucks.slice(0, showSize).map((truck) => (
                         <TruckItemForReady key={truck.id} truck={truck} />
                     ))}
