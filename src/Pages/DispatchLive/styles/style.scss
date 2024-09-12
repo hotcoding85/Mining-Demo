@@ -135,6 +135,19 @@ body[data-layout-mode="dark"] {
   .vehicle-card-progress {
     margin-bottom: 32px;
   }
+
+  .vehicle-card-progress .ant-progress-inner {
+    background-color: #535e77 !important;
+  }
+
+  .fuel-level-progress-bar .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
+  .total-cycles-progress-bar .ant-progress-bg {
+    background-color: white !important;
+  }
+
   .vehicle-progress-text {
     display: flex;
     justify-content: space-between;
@@ -312,6 +325,14 @@ body[data-layout-mode="dark"] {
     line-height: 24px;
   }
 
+  .truck-items-container {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    column-gap: 46px;
+    flex-wrap: wrap;
+  }
+
   .assign-truck-item-header,
   .assign-material-item-header,
   .assign-location-item-header,
@@ -479,6 +500,15 @@ body[data-layout-mode="light"] {
   .vehicle-card-progress {
     margin-bottom: 32px;
   }
+
+  .vehicle-card-progress .ant-progress-inner {
+    background-color: #e0e0e0 !important;
+  }
+
+  .vehicle-card-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .vehicle-progress-text {
     display: flex;
     justify-content: space-between;
@@ -659,6 +689,14 @@ body[data-layout-mode="light"] {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+  }
+
+  .truck-items-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    flex-wrap: wrap;
+    column-gap: 16px;
   }
 
   .assign-truck-item-header,

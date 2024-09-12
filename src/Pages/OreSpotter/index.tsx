@@ -24,7 +24,7 @@ const OreSpotter: React.FC = () => {
   document.title = "Ore tracker | FMS Live";
   const dispatch = useDispatch<any>();
 
-  const [readyTrucks, setreadyTrucks] = useState<Truck[]>(sampleReadyTrucks);
+  const [readyTrucks, setReadyTrucks] = useState<Truck[]>(sampleReadyTrucks);
   const [targetMaterials, setTargetMaterials] = useState<Material[]>(
     sampleTargetMaterials
   );
@@ -45,12 +45,28 @@ const OreSpotter: React.FC = () => {
     [data]
   );
 
+  const trucks = useMemo(
+    () => data.filter((item) => item.category === "DUMP_TRUCK"),
+    [data]
+  );
+
+  useEffect(() => {
+    setReadyTrucks(
+      trucks.map((truck) => ({
+        id: truck.id,
+        assignedId: 0,
+        truckId: truck.name,
+        operator: "J.Taylor",
+      }))
+    );
+  }, [trucks]);
+
   useEffect(() => {
     dispatch(getAllFleet(1, 50));
   }, []);
 
   const updateReadyTrucks = (updatedTruck: Truck) => {
-    setreadyTrucks((prevTrucks: Truck[]) =>
+    setReadyTrucks((prevTrucks: Truck[]) =>
       prevTrucks.map((truck) =>
         truck.id === updatedTruck.id ? updatedTruck : truck
       )
@@ -136,8 +152,10 @@ const OreSpotter: React.FC = () => {
               </div>
               <div className="dispatch-live-right">
                 <RightBoard
-                  readyTrucks={readyTrucks}
-                  targetMaterials={targetMaterials}
+                  readyTrucks={readyTrucks.filter((item) => !item.diggerId)}
+                  targetMaterials={targetMaterials.filter(
+                    (item) => !item.diggerId
+                  )}
                   dumpLocationsForAssign={dumpLocationsForAssign}
                 />
               </div>

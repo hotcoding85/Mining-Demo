@@ -10,7 +10,8 @@ import {
   placeHolder,
   wa600,
 } from "assets/images/equipment";
-import { Progress, Divider } from "antd";
+import { Progress, Divider, MenuProps, Dropdown, Button, Space } from "antd";
+import { MenuOutlined, MoreOutlined, UserOutlined } from "@ant-design/icons";
 
 interface AssignTruckItemProps {
   diggerId: string;
@@ -18,6 +19,7 @@ interface AssignTruckItemProps {
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
   collapse?: boolean;
+  displayName?: "wrap" | "inline";
 }
 
 const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
@@ -26,6 +28,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   readyTrucks,
   updateReadyTrucks,
   collapse = true,
+  displayName = "inline",
 }) => {
   const truckForAssign = readyTrucks.find(
     (truck) => truck.assignId === sourceId && truck.diggerId === diggerId
@@ -34,18 +37,36 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "READYTRUCK",
     drop: (draggedTruck: Truck) => {
-      const updatedTruck = {
-        ...draggedTruck,
-        assignId: sourceId,
-        diggerId: diggerId,
-      };
-      updateReadyTrucks(updatedTruck);
+      if (!truckForAssign) {
+        const updatedTruck = {
+          ...draggedTruck,
+          assignId: sourceId,
+          diggerId: diggerId,
+        };
+        updateReadyTrucks(updatedTruck);
+      }
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
     }),
   });
+
+  const items: MenuProps["items"] = [
+    {
+      label: "Unassign Trucks",
+      key: "1",
+      onClick: () => {
+        if (truckForAssign) {
+          updateReadyTrucks({
+            ...truckForAssign,
+            assignId: 0,
+            diggerId: undefined,
+          });
+        }
+      },
+    },
+  ];
 
   return (
     <div
@@ -59,18 +80,41 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
       {truckForAssign ? (
         <div className="assigned-truck-item-container">
           <div className="assigned-truck-header">
-            <div className="assigned-truck-header-image">
-              <img src={hd785} alt="hd785" style={{ width: 24, height: 24 }} />
-            </div>
-            <div className="assigned-truck-name">
-              <div className="assigned-truck-id-status">
-                <p className="assigned-truck-id">
-                  {truckForAssign.truckId + "(HD785-2)"}
-                </p>
-                <p className="assigned-truck-status">Active</p>
+            <div className={displayName}>
+              <div className="assigned-truck-header-image-wrapper">
+                <div className="assigned-truck-header-image">
+                  <img
+                    src={hd785}
+                    alt="hd785"
+                    style={{ width: 24, height: 24 }}
+                  />
+                </div>
+                {displayName === "wrap" && (
+                  <p className="assigned-truck-status">Active</p>
+                )}
               </div>
-              <div className="vehicle-driver">{truckForAssign.operator}</div>
+              <div className="assigned-truck-name">
+                <div className="assigned-truck-id-status">
+                  <p className="assigned-truck-id">
+                    {truckForAssign.truckId + "(HD785-2)"}
+                  </p>
+                  {displayName === "inline" && (
+                    <p className="assigned-truck-status">Active</p>
+                  )}
+                </div>
+                <div className="vehicle-driver">{truckForAssign.operator}</div>
+              </div>
             </div>
+            <Dropdown
+              menu={{ items }}
+              placement="bottomRight"
+              className="assigned-truck-action-button"
+              trigger={["click"]}
+            >
+              <Button>
+                <MoreOutlined />
+              </Button>
+            </Dropdown>
           </div>
           <div className="assigned-truck-details">
             <div className="assigned-truck-progress">

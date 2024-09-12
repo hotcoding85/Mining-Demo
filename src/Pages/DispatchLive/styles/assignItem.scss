@@ -46,8 +46,16 @@ body[data-layout-mode="dark"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+    width: 100%;
   }
   .assigned-truck-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .assigned-truck-header .inline {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -61,11 +69,35 @@ body[data-layout-mode="dark"] {
     align-items: center;
   }
 
+  .assigned-truck-header .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .assigned-truck-header-image-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .assigned-truck-action-button {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: white !important;
+    padding: 0px;
+  }
+
+  .assigned-truck-action-button .anticon-more svg {
+    width: 24px;
+    height: 24px;
+  }
+
   .assigned-truck-name {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
   }
 
   .assigned-truck-id-status {
@@ -107,6 +139,14 @@ body[data-layout-mode="dark"] {
     margin: 0;
   }
 
+  .assigned-truck-details .assigned-truck-progress .ant-progress-inner {
+    background-color: #535e77 !important;
+  }
+
+  .assigned-truck-details .assigned-truck-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .assigned-truck-details
     .assigned-truck-progress
     .progress-text
@@ -132,6 +172,7 @@ body[data-layout-mode="dark"] {
     align-items: flex-start;
     margin: 0;
     margin-bottom: 16px;
+    gap: 6px;
   }
 
   .cycle-time {
@@ -250,11 +291,44 @@ body[data-layout-mode="light"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+    width: 100%;
   }
   .assigned-truck-header {
     display: flex;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .assigned-truck-header .inline {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .assigned-truck-header .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .assigned-truck-header-image-wrapper {
+    display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .assigned-truck-action-button {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: #1c263c !important;
+    padding: 0px;
+  }
+
+  .assigned-truck-action-button .anticon-more svg {
+    width: 24px;
+    height: 24px;
   }
 
   .assigned-truck-header-image {
@@ -269,7 +343,6 @@ body[data-layout-mode="light"] {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
   }
 
   .assigned-truck-id-status {
@@ -313,6 +386,14 @@ body[data-layout-mode="light"] {
     margin: 0;
   }
 
+  .assigned-truck-details .assigned-truck-progress .ant-progress-inner {
+    background-color: #e0e0e0 !important;
+  }
+
+  .assigned-truck-details .assigned-truck-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .assigned-truck-details
     .assigned-truck-progress
     .progress-text
@@ -339,6 +420,7 @@ body[data-layout-mode="light"] {
     align-items: flex-start;
     margin: 0;
     margin-bottom: 16px;
+    gap: 6px;
   }
 
   .cycle-time {

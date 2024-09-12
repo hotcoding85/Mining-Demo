@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TruckItemForReady from "./TruckItemForReady";
 import { Button } from "antd";
 import { Truck } from "./interfaces/type";
@@ -8,19 +8,25 @@ interface ReadyTrucksProps {
 }
 
 const ReadyTrucks: React.FC<ReadyTrucksProps> = ({ readyTrucks }) => {
-  const handleShowMore = () => {};
+  const [isShowMore, setIsShowMore] = useState<boolean>(false);
+
+  const handleShowMore = () => {
+    setIsShowMore(!isShowMore);
+  };
 
   return (
     <React.Fragment>
       <div className="px-3">
         <p className="right-board-topic">Ready for dispatch on Go-Line</p>
-        <div className="d-flex flex-row justify-content-between">
-          {readyTrucks.map((truck) => (
-            <TruckItemForReady key={truck.id} truck={truck} />
-          ))}
+        <div className="truck-items-container">
+          {readyTrucks
+            .slice(0, isShowMore ? readyTrucks.length : 3)
+            .map((truck) => (
+              <TruckItemForReady key={truck.id} truck={truck} />
+            ))}
         </div>
         <Button className="show-more-button" onClick={handleShowMore}>
-          Show more
+          {isShowMore ? "Show less" : "Show more"}
         </Button>
       </div>
     </React.Fragment>

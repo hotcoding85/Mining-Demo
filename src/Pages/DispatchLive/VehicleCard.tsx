@@ -98,14 +98,22 @@ const VehicleCard: FC<VehicleData> = ({
             <span className="vehicle-progress-label">Fuel Level</span>
             <span className="vehicle-progress-value">{fuelLevel}%</span>
           </p>
-          <Progress percent={fuelLevel} showInfo={false} />
+          <Progress
+            percent={fuelLevel}
+            showInfo={false}
+            className="fuel-level-progress-bar"
+          />
         </div>
         <div className="vehicle-card-progress">
           <p className="vehicle-progress-text">
             <span className="vehicle-progress-label">Total Cycles</span>
             <span className="vehicle-progress-value">9/45</span>
           </p>
-          <Progress percent={20} showInfo={false} />
+          <Progress
+            percent={20}
+            showInfo={false}
+            className="total-cycles-progress-bar"
+          />
         </div>
         <div className="vehicle-card-props">
           <div className="vehicle-medium-label">

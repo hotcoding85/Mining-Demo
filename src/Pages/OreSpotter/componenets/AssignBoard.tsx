@@ -45,6 +45,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           readyTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           collapse={collapse}
+          displayName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -66,6 +67,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           readyTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           collapse={collapse}
+          displayName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -87,6 +89,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           readyTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           collapse={collapse}
+          displayName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -108,6 +111,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           readyTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           collapse={collapse}
+          displayName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
