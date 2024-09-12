@@ -8,21 +8,51 @@ body[data-layout-mode="dark"] {
   }
 
   .dispatch-live-left {
-    width: 80%;
+    width: calc(100% - 376px);
     margin-right: 20px;
     height: 100%;
+  }
+
+  .dispatch-digger-container {
+    padding-right: 8px;
+    height: calc(100% - 85px);
     overflow-y: scroll;
     overflow-x: hidden;
-    padding-right: 4px;
+  }
+
+  .dispatch-digger-container::-webkit-scrollbar {
+    width: 2px !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: white;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #535e77;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #bfbfbf;
   }
 
   .dispatch-live-right {
     width: 376px;
     flex: none;
-    position: sticky;
+    position: fixed;
     top: 0px;
+    right: 0px;
     height: 100%;
-    overflow-y: scroll;
+    padding-top: 70px;
+    padding-bottom: 60px;
   }
 
   .vehicle-card {
@@ -268,7 +298,9 @@ body[data-layout-mode="dark"] {
   }
 
   .dispatch-right-board {
-    padding: 24px 16px;
+    padding: 24px 0px;
+    overflow-y: scroll;
+    height: 100%;
     background-color: #283655;
   }
 
@@ -328,12 +360,20 @@ body[data-layout-mode="light"] {
   }
 
   .dispatch-live-left {
-    width: 80%;
+    width: calc(100% - 376px);
     margin-right: 20px;
     height: 100%;
+  }
+
+  .dispatch-digger-container {
+    padding-right: 8px;
+    height: calc(100% - 85px);
     overflow-y: scroll;
     overflow-x: hidden;
-    padding-right: 4px;
+  }
+
+  .dispatch-digger-container::-webkit-scrollbar {
+    width: 2px !important;
   }
 
   ::-webkit-scrollbar {
@@ -359,10 +399,12 @@ body[data-layout-mode="light"] {
   .dispatch-live-right {
     width: 376px;
     flex: none;
-    position: sticky;
+    position: fixed;
     top: 0px;
+    right: 0px;
     height: 100%;
-    overflow-y: scroll;
+    padding-top: 70px;
+    padding-bottom: 60px;
   }
 
   .vehicle-card {
@@ -605,7 +647,10 @@ body[data-layout-mode="light"] {
   }
 
   .dispatch-right-board {
-    padding: 24px 16px;
+    padding: 24px 0px;
+    overflow-y: scroll;
+    height: 100%;
+    border-left: 1px solid #e0e0e0;
   }
 
   .right-board-topic {

@@ -98,6 +98,7 @@ const MainCard: React.FC<MainCardProps> = ({
             />
           </div>
           <AssignBoard
+            digger={digger}
             readyTrucks={readyTrucks}
             updateReadyTrucks={updateReadyTrucks}
             targetMaterials={targetMaterials}

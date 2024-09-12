@@ -30,11 +30,11 @@ body[data-layout-mode="dark"] {
   }
 
   .assign-location-item .empty,
+  .assign-material-item .empty,
   .assign-truck-item .empty {
     text-align: center;
     margin: 0px;
     width: 100%;
-    white-space: nowrap;
   }
 
   .assign-location-item .empty {
@@ -234,6 +234,7 @@ body[data-layout-mode="light"] {
   }
 
   .assign-location-item .empty,
+  .assign-material-item .empty,
   .assign-truck-item .empty {
     text-align: center;
     margin: 0px;

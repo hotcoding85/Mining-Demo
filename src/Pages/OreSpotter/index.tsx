@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { Col, Container, Row } from "reactstrap";
 import MainCard from "./componenets/MainCard";
-import RightBoard from "./componenets/RightBoard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import {
@@ -12,14 +11,14 @@ import {
 } from "../DispatchLive/data/sampleData";
 import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd";
-import { Truck, DumpLocation } from "../DispatchLive/interfaces/type";
+import { Truck, DumpLocation, Material } from "../DispatchLive/interfaces/type";
 import "../DispatchLive/styles/style.scss";
 import "./styles/style.scss";
-import { Material } from "./interfaces/type";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import { getAllFleet } from "slices/thunk";
+import RightBoard from "Pages/DispatchLive/RightBoard";
 
 const OreSpotter: React.FC = () => {
   document.title = "Ore tracker | FMS Live";
@@ -87,14 +86,14 @@ const OreSpotter: React.FC = () => {
 
   return (
     <React.Fragment>
-      <div className="page-content">
-        <Container fluid>
-          <DndProvider backend={HTML5Backend}>
+      <DndProvider backend={HTML5Backend}>
+        <div className="page-content">
+          <Container fluid>
             <div className="ore-trakcer-content dispatch-live-content">
               <div className="dispatch-live-left">
                 <Breadcrumb breadcrumbItem="Ore Spotter" title="Operations" />
                 <Row>
-                  <Col md="12" className="mb-4 d-flex">
+                  <Col md="12" className="d-flex">
                     <Space>
                       <Tabs
                         defaultActiveKey="1"
@@ -104,11 +103,27 @@ const OreSpotter: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                {selectedTab === 1
-                  ? diggers.map((digger, index) => (
-                      <div className={index !== 0 ? "mt-4" : "mt-0"}>
+                <div className="dispatch-digger-container">
+                  {selectedTab === 1
+                    ? diggers.map((digger, index) => (
+                        <div
+                          key={index}
+                          className={index !== 0 ? "mt-4" : "mt-0"}
+                        >
+                          <MainCard
+                            digger={digger}
+                            readyTrucks={readyTrucks}
+                            updateReadyTrucks={updateReadyTrucks}
+                            targetMaterials={targetMaterials}
+                            updateTargetMaterials={updateTargetMaterials}
+                            dumpLocations={dumpLocations}
+                            addDumpLocation={addDumpLocation}
+                          />
+                        </div>
+                      ))
+                    : selectedTab && (
                         <MainCard
-                          digger={digger}
+                          digger={diggers[selectedTab - 2]}
                           readyTrucks={readyTrucks}
                           updateReadyTrucks={updateReadyTrucks}
                           targetMaterials={targetMaterials}
@@ -116,19 +131,8 @@ const OreSpotter: React.FC = () => {
                           dumpLocations={dumpLocations}
                           addDumpLocation={addDumpLocation}
                         />
-                      </div>
-                    ))
-                  : selectedTab && (
-                      <MainCard
-                        digger={diggers[selectedTab - 2]}
-                        readyTrucks={readyTrucks}
-                        updateReadyTrucks={updateReadyTrucks}
-                        targetMaterials={targetMaterials}
-                        updateTargetMaterials={updateTargetMaterials}
-                        dumpLocations={dumpLocations}
-                        addDumpLocation={addDumpLocation}
-                      />
-                    )}
+                      )}
+                </div>
               </div>
               <div className="dispatch-live-right">
                 <RightBoard
@@ -138,9 +142,9 @@ const OreSpotter: React.FC = () => {
                 />
               </div>
             </div>
-          </DndProvider>
-        </Container>
-      </div>
+          </Container>
+        </div>
+      </DndProvider>
     </React.Fragment>
   );
 };

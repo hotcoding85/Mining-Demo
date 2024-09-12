@@ -7,8 +7,10 @@ import { Row, Col } from "reactstrap";
 import { Select, Progress } from "antd";
 import { DumpLocation, Truck } from "./interfaces/type";
 import AssignBoard from "./AssignBoard";
+import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
+  digger: Vehicle;
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
   dumpLocations: DumpLocation[];
@@ -16,6 +18,7 @@ interface MainCardProps {
 }
 
 const MainCard: React.FC<MainCardProps> = ({
+  digger,
   readyTrucks,
   updateReadyTrucks,
   dumpLocations,
@@ -83,6 +86,7 @@ const MainCard: React.FC<MainCardProps> = ({
             ></VehicleCard>
           </div>
           <AssignBoard
+            digger={digger}
             readyTrucks={readyTrucks}
             updateReadyTrucks={updateReadyTrucks}
             dumpLocations={dumpLocations}

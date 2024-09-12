@@ -13,6 +13,7 @@ import {
 import { Progress, Divider } from "antd";
 
 interface AssignTruckItemProps {
+  diggerId: string;
   sourceId: number;
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
@@ -20,13 +21,14 @@ interface AssignTruckItemProps {
 }
 
 const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
+  diggerId,
   sourceId,
   readyTrucks,
   updateReadyTrucks,
   collapse = true,
 }) => {
   const truckForAssign = readyTrucks.find(
-    (truck) => truck.assignId === sourceId
+    (truck) => truck.assignId === sourceId && truck.diggerId === diggerId
   );
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -35,6 +37,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
       const updatedTruck = {
         ...draggedTruck,
         assignId: sourceId,
+        diggerId: diggerId,
       };
       updateReadyTrucks(updatedTruck);
     },
@@ -112,7 +115,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
           </div>
         </div>
       ) : (
-        <p className="empty">+Assign truck here</p>
+        <p className="empty">+ Assign truck here</p>
       )}
     </div>
   );
