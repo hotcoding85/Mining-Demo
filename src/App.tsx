@@ -47,37 +47,39 @@ function App() {
   const Layout = getLayout(layoutTypes);
   return (
     <React.Fragment>
-      <Routes>
-        {publicRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            key={idx}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-          ></Route>
-        ))}
-        {authProtectedRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            key={idx}
-            element={
-              <React.Fragment>
-                <AuthProtected>
-                  <ThemeProvider
-                    theme={
-                      layoutModeType === LAYOUT_MODE_TYPES.LIGHT
-                        ? lightTheme
-                        : darkTheme
-                    }
-                  >
-                    <Layout>{route.component}</Layout>
-                  </ThemeProvider>
-                </AuthProtected>
-              </React.Fragment>
-            }
-          />
-        ))}
-      </Routes>
-      <ToastContainer />
+      <React.Suspense fallback={<div className="d-flex justify-content-center align-items-center">Loading</div>}>
+        <Routes>
+          {publicRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              key={idx}
+              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+            ></Route>
+          ))}
+          {authProtectedRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              key={idx}
+              element={
+                <React.Fragment>
+                  <AuthProtected>
+                    <ThemeProvider
+                      theme={
+                        layoutModeType === LAYOUT_MODE_TYPES.LIGHT
+                          ? lightTheme
+                          : darkTheme
+                      }
+                    >
+                      <Layout>{route.component}</Layout>
+                    </ThemeProvider>
+                  </AuthProtected>
+                </React.Fragment>
+              }
+            />
+          ))}
+        </Routes>
+        <ToastContainer />
+      </React.Suspense>
     </React.Fragment>
   );
 }

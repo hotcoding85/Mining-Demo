@@ -215,12 +215,12 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/preshift-info">
+                  <Link to="/waste-dump-management">
                     {props.t("Waste Dump Management")}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/preshift-info">
+                  <Link to="/rom-management">
                     {props.t("ROM Management")}
                   </Link>
                 </li>
@@ -239,11 +239,6 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/daily-production">
                     {props.t("Daily Snapshot")}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/production-summary">
-                    {props.t("Production Summary")}
                   </Link>
                 </li>
                 <li>
@@ -310,7 +305,6 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/materials">{props.t("Materials")}</Link>
                 </li>
-
                 <li>
                   <Link to="/material-inventory">
                     {props.t("Material Inventory")}
@@ -320,9 +314,6 @@ const SidebarContent = (props: any) => {
                   <Link to="/material-movement">
                     {props.t("Material Movement")}
                   </Link>
-                </li>
-                <li>
-                  <Link to="/ore-tracker">{props.t("Ore tracker")}</Link>
                 </li>
               </ul>
             </li>
