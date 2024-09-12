@@ -63,25 +63,28 @@ body[data-layout-mode='light'] .ant-tabs-tab-active > div {
     background-color: purple;
 }
   
-.ant-checkbox-wrapper {
+body[data-layout-mode='dark'] .ant-checkbox-wrapper {
     color: white;
 }
+body[data-layout-mode='light'] .ant-checkbox-wrapper {
+    color: gray;
+}
   
-.ant-list-item {
+.message-panel-item {
     padding: 5px !important;
     border-bottom: 1px solid #535E77 !important;
     cursor: pointer;
 }
   
-.ant-list-item-meta-title {
+.message-panel-item .ant-list-item-meta-title {
     color: white;
 }
   
-.ant-list-item-meta-description {
+.message-panel-item.ant-list-item-meta-description {
     color: gray;
 }
 
-.ant-list-item:hover{
+.message-panel-item.ant-list-item:hover{
     background: #21252930;
 }
 /* Custom styling for horizontal scrollbar */
