@@ -47,7 +47,7 @@ function App() {
   const Layout = getLayout(layoutTypes);
   return (
     <React.Fragment>
-      <React.Suspense fallback={<div className="d-flex justify-content-center align-items-center">Loading</div>}>
+      <React.Suspense fallback={<div className="d-flex justify-content-center align-items-center">FMS Live</div>}>
         <Routes>
           {publicRoutes.map((route, idx) => (
             <Route
