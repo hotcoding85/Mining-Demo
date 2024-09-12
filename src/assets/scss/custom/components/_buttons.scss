@@ -112,3 +112,23 @@ $value in $theme-colors {
         }
     }
 }
+
+.paginate_button {
+    &.disabled{
+        a, a:active, a:hover {
+          opacity: .65;
+          background-color: $light !important;;
+          color: $dark !important;
+          cursor: not-allowed !important;
+        }
+    }
+        
+}
+.paginate_button {
+    &.enabled{
+    a, a:active, a:hover {
+            color: $dark !important;
+            background-color: $white !important;
+    }
+}
+}
