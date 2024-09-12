@@ -1,20 +1,21 @@
 import React from "react";
-import MessageBoardChips from "./MessageBoardChips";
-import TruckItemForReady from "./TruckItemForReady";
-import { Button } from "antd";
-import StandbyTrucks from "./StandbyTrucks";
-import UnavailableTrucks from "./UnavailableTrucks";
-import ActiveBenches from "./ActiveBenches";
-import { activeBenches } from "./data/sampleData";
-import WasteDumpLocations from "./WasteDumpLocations";
-import OreBodies from "./OreBodies";
-import ReadyTrucks from "./ReadyTrucks";
-import MessageBoard from "./MessageBoard";
-import { DumpLocation, Material, Truck } from "./interfaces/type";
+import StandbyTrucks from "../../DispatchLive/StandbyTrucks";
+import UnavailableTrucks from "../../DispatchLive/UnavailableTrucks";
+import ActiveBenches from "../../DispatchLive/ActiveBenches";
+import { activeBenches } from "../../DispatchLive/data/sampleData";
+import WasteDumpLocations from "../../DispatchLive/WasteDumpLocations";
+import OreBodies from "../../DispatchLive/OreBodies";
+import ReadyTrucks from "../../DispatchLive/ReadyTrucks";
+import MessageBoard from "../../DispatchLive/MessageBoard";
+import {
+  DumpLocation,
+  Material,
+  Truck,
+} from "../../DispatchLive/interfaces/type";
 
 interface RightBoardProps {
   readyTrucks: Truck[];
-  targetMaterials: Material[];
+  targetMaterials?: Material[];
   dumpLocationsForAssign: DumpLocation[];
 }
 

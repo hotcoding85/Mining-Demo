@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { resources, sampleTaskLists, sampleTasks } from './data/sampleData';
 import ShiftSelector from './ShiftSelector';
 import ZoomControl from './ZoomControl';
@@ -25,7 +25,6 @@ const GanttScheduler : React.FC = () => {
 
   const addTask = (resourceId: string, startTime: Date, task?: Task) => {
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-    console.log(endTime);
 
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
@@ -34,7 +33,7 @@ const GanttScheduler : React.FC = () => {
       startTime,
       endTime,
       resourceId,
-      span: task?.span || 1,
+      span: 1,
     };
 
     setTasks((prevTasks) => [...prevTasks, newTask]);  
@@ -45,7 +44,6 @@ const GanttScheduler : React.FC = () => {
       setSelectedDate(date.toDate());
     }
   };
-
 
   return (
     <React.Fragment>

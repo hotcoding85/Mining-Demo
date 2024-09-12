@@ -5,53 +5,58 @@ import { DataSet, Timeline as VisTimeline, TimelineWindow } from "vis-timeline/s
 import CustomDropdown, { DropdownType } from "Components/Common/Dropdown/Dropdown";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
 import 'Pages/Reports/TimelineReport/index.css';
+import { generateTasks } from "./sample";
 
 const TimelineReport = () => {
     document.title = "Reports | Timeline Report";
 
     const timelineRef = useRef<HTMLDivElement | null>(null);
     const timelineInstance = useRef<VisTimeline | null>(null);
-    const [selectedInterval, setSelectedInterval] = useState<DropdownType>({ label: "Timeline Interval", value: "" });
+    const [selectedInterval, setSelectedInterval] = useState<DropdownType>({ label: "Timeline Interval", value: "60" });
 
     const timeIntervals: DropdownType[] = [
-        { label: "5 Min", value: "5" },
-        { label: "15 Min", value: "15" },
-        { label: "30 Min", value: "30" },
-        { label: "1 Hour", value: "60" },
+        { label: "5 Min", value: "60" },
+        { label: "15 Min", value: "120" },
+        { label: "30 Min", value: "180" },
+        { label: "1 Hour", value: "380" },
     ];
 
-    const groups = new DataSet([
-        { id: 0, content: "Truck 0" },
-        { id: 1, content: "Truck 1" },
-        { id: 2, content: "Truck 2" },
-        { id: 3, content: "Truck 3" },
-        { id: 4, content: "Truck 4" },
-    ]);
 
-    const items = new DataSet([
-        { id: 1, group: 0, content: "Order 0", start: "2024-09-11T15:00" },
-        { id: 2, group: 0, content: "Order 1", start: "2024-09-11T17:00", end: "2024-09-11T19:00" },
-        { id: 3, group: 1, content: "Order 2", start: "2024-09-11T22:00", end: "2024-09-12T00:00" },
-        { id: 4, group: 2, content: "Order 3", start: "2024-09-12T05:00", end: "2024-09-12T07:00" },
-        { id: 5, group: 3, content: "Order 4", start: "2024-09-12T09:00", end: "2024-09-12T10:00" },
-        { id: 6, group: 4, content: "Order 5", start: "2024-09-12T11:00", end: "2024-09-12T13:00" },
-        { id: 7, group: 4, content: "Order 6", start: "2024-09-12T14:00" },
-    ]);
+
+    let groupsData: DataSet = []
+    let tasksData: DataSet = []
+
+    for (let i = 0; i < 9; i++) {
+        groupsData.push({ id: i, content: "DT10" + (i + 1) })
+        const tasks = generateTasks(i)
+        tasksData.push(...tasks)
+    }
+
+    const groups = new DataSet(groupsData);
+    const items = new DataSet(tasksData);
 
     useEffect(() => {
         if (timelineRef.current && !timelineInstance.current) {
             const options = {
                 stack: false,
-                start: new Date(2024, 8, 11, 15, 0),
-                end: new Date(2024, 8, 12, 15, 0),
-                editable: true,
-                zoomMin: 1000 * 60 * 5,
-                zoomMax: 1000 * 60 * 60 * 24 * 7,
+                start: new Date(2024, 8, 12, 6, 0),
+                end: new Date(2024, 8, 13, 6, 0),
+                min: new Date(2024, 8, 12, 6, 0),
+                max: new Date(2024, 8, 13, 6, 0),
+                editable: false,
+                zoomable: false,
+                horizontalScroll: true,
+                verticalScroll: true
             };
 
             timelineInstance.current = new VisTimeline(timelineRef.current, items, groups, options);
+            setTimeInterval(selectedInterval)
         }
     }, [groups, items]);
+
+    useEffect(() => {
+        setTimeInterval(selectedInterval)
+    }, [selectedInterval])
 
     const setTimeInterval = (interval: DropdownType) => {
         const intervalInMinutes = parseInt(interval.value || "5", 10);
@@ -63,8 +68,6 @@ const TimelineReport = () => {
 
             timelineInstance.current.setWindow(start, end);
         }
-
-        setSelectedInterval(interval);
     };
     return (
         <Fragment>
@@ -78,7 +81,7 @@ const TimelineReport = () => {
                             <CustomDropdown
                                 items={timeIntervals}
                                 value={selectedInterval}
-                                onChange={setTimeInterval}
+                                onChange={(value) => setSelectedInterval(value)}
                             />
                         </Col>
                     </Row>

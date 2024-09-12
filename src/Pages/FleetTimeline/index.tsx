@@ -259,7 +259,7 @@ const FleetTimeline = (props: any) => {
             ))}
           </Row>
           <EquipmentTimeLine vehicles={fleet} />
-          <Row className="py-5 mt-5 d-flex align-items-center">
+          <Row className="d-flex align-items-center">
             <Col
               xs={5}
               className="fleet-state-pie-chart d-flex justify-content-center align-items-center"

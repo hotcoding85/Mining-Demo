@@ -25,6 +25,8 @@ const TableComponent: React.FC<TableComponentProps> = ({
   addTask,
 }) => {
   const timelineSlots: TimelineSlot[] = calculateTimelineSlots(selectedDate, shiftType, zoomSize);
+  console.log(timelineSlots);
+  console.log(tasks);
   const [isColumnsCollapsed, setColumnsCollapsed] = useState(false);
 
   const updateTask = (updatedTask: Task) => {
@@ -76,6 +78,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   addTask={addTask}
                   slotIndex={slotIndex}
                   totalSlots={timelineSlots.length}
+                  zoomSize={zoomSize}
                 />
               ))}
             </tr>

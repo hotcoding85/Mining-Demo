@@ -190,6 +190,28 @@ const TableContainer = ({
   //   Number(customPageSize) && setPageSize(Number(customPageSize));
   // }, [customPageSize, setPageSize]);
 
+
+  const visiblePageCount = 3;
+  // Determine the range of page numbers to display
+  const getPageRange = () => {
+    let start = Math.max(0, getState().pagination.pageIndex - Math.floor(visiblePageCount / 2));
+    let end = Math.min(data ? data.length - 1 : getRowModel().rows.length - 1, start + visiblePageCount - 1);
+
+    if (end - start + 1 < visiblePageCount) {
+      start = Math.max(0, end - visiblePageCount + 1);
+    }
+
+    return { start, end };
+  };
+  const { start, end } = getPageRange();
+
+
+  const handlePageChange = (newPageIndex) => {
+    if (newPageIndex >= 0 && ((newPageIndex * table.getState().pagination.pageSize) - 1 < (data ? data.length - 1 : getRowModel().rows.length - 1))) {
+      setPageIndex(newPageIndex);
+    }
+  };
+
   return (
     <Fragment>
       <Row className="mb-2">
@@ -197,7 +219,7 @@ const TableContainer = ({
           <Col sm={2}>
             <select
               className="form-select pageSize mb-2"
-              value={table.getState().pagination.pageSize}
+              value={table.getState().pagination.pageSize ? table.getState().pagination.pageSize : 10}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));
               }}
@@ -334,34 +356,18 @@ const TableContainer = ({
           <Col sm={12} md={7}>
             <div className={paginationWrapper}>
               <ul className={pagination}>
-                <li
-                  className={`paginate_button page-item previous ${!getCanPreviousPage() ? "disabled" : ""
-                    }`}
-                >
-                  <Link to="#" className="page-link" onClick={previousPage}>
+                <li className={`paginate_button ${!getCanPreviousPage() ? 'disabled' : 'enabled'}`}>
+                  <Link to="#" className="page-link" onClick={(e) => { e.preventDefault(); if (getCanPreviousPage()) previousPage(); }}>
                     <i className="mdi mdi-chevron-left"></i>
                   </Link>
                 </li>
-                {getPageOptions().map((item: any, key: number) => (
-                  <li
-                    key={key}
-                    className={`paginate_button page-item ${getState().pagination.pageIndex === item ? "active" : ""
-                      }`}
-                  >
-                    <Link
-                      to="#"
-                      className="page-link"
-                      onClick={() => setPageIndex(item)}
-                    >
-                      {item + 1}
-                    </Link>
+                {Array.from({ length: end - start + 1 }, (_, index) => (
+                  <li key={start + index} className={`paginate_button page-item ${getState().pagination.pageIndex === start + index ? 'active' : ''}`} >
+                    <Link to="#" className="page-link" onClick={() => handlePageChange(start + index)}>{start + index + 1}</Link>
                   </li>
                 ))}
-                <li
-                  className={`paginate_button page-item next ${!getCanNextPage() ? "disabled" : ""
-                    }`}
-                >
-                  <Link to="#" className="page-link" onClick={nextPage}>
+                <li className={`paginate_button ${!getCanNextPage() ? 'disabled' : 'enabled'}`}>
+                  <Link to="#" className="page-link" onClick={(e) => { e.preventDefault(); if (getCanNextPage()) nextPage(); }}>
                     <i className="mdi mdi-chevron-right"></i>
                   </Link>
                 </li>
@@ -369,8 +375,9 @@ const TableContainer = ({
             </div>
           </Col>
         </Row>
-      )}
-    </Fragment>
+      )
+      }
+    </Fragment >
   );
 };
 

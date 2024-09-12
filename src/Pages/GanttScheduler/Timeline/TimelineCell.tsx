@@ -14,6 +14,7 @@ interface TimelineCellProps {
   addTask: (resourceId: string, startTime: Date, task?: Task) => void;
   slotIndex: number;
   totalSlots: number;
+  zoomSize: number;
 }
 
 const TimelineCell: React.FC<TimelineCellProps> = ({
@@ -27,19 +28,35 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   addTask,
   slotIndex,
   totalSlots,
+  zoomSize
 }) => {
   const slotDateTime = new Date(slotDate);
   const [hours, minutes] = slotTime.split(':').map(Number);
   slotDateTime.setHours(hours, minutes, 0, 0);
+  const slotEndDateTime = new Date(
+    slotDateTime.getTime() + zoomSize * 60 * 1000
+  );
 
   const taskForSlot = tasks.find(
     (task) =>
       task.resourceId === resourceId &&
-      task.startTime <= slotDateTime &&
-      task.endTime > slotDateTime
+      ((task.startTime >= slotDateTime && new Date(task.startTime.getTime() - zoomSize * 60 * 1000) < slotDateTime) ||
+      (task.endTime <= slotEndDateTime && new Date(task.endTime.getTime()+zoomSize * 60 * 1000) > slotEndDateTime) ||
+      (slotDateTime >= task.startTime && slotDateTime < task.endTime)
+    )
   );
 
-  const isTaskStartSlot = taskForSlot && taskForSlot.startTime.getTime() === slotDateTime.getTime();
+  const isTaskStartSlot = taskForSlot && taskForSlot.startTime.getTime() >= slotDateTime.getTime();
+
+  let elementPos = 0;
+  let elementWidth = 0;
+  if(taskForSlot) {
+      elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (taskForSlot.startTime.getTime() - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
+      elementWidth = 100 - elementPos - 100 * (slotEndDateTime.getTime() - Math.min(slotEndDateTime.getTime(), taskForSlot.endTime.getTime())) / (60 * 1000 * zoomSize);
+      console.log(elementPos);
+      console.log(elementWidth);
+      console.log(isTaskStartSlot); 
+  }
 
   const [isResizing, setIsResizing] = useState(false);
   const [initialX, setInitialX] = useState<number | null>(null);
@@ -70,7 +87,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
     if (isResizing && initialX !== null && initialStartTime && initialEndTime) {
       const deltaX = e.clientX - initialX;
       const deltaMinutes = Math.round(
-        (deltaX / (taskElementRef.current?.offsetWidth || 1)) * 60
+        (deltaX / (taskElementRef.current?.offsetWidth || 1)) * zoomSize
       );
 
       if (resizeDirection === 'right') {
@@ -181,7 +198,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
     <td
       ref={drop}
       style={{
-        backgroundColor: isOver && canDrop ? 'lightblue' : taskForSlot ? 'green' : 'white',
+        backgroundColor: isOver && canDrop ? 'lightblue' : 'white',
         borderRight: taskForSlot ? '0px' : '1px solid #ddd',
         borderLeft: taskForSlot ? '0px' : '1px solid #ddd',
         cursor: taskForSlot ? (isResizing ? 'ew-resize' : 'pointer') : 'default',
@@ -189,7 +206,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
         opacity: isDragging ? 0.5 : 1,
       }}
       onClick={handleClick}
-      colSpan={isTaskStartSlot ? taskForSlot?.span || 1 : 1}
+      colSpan={1}
     >
       {taskForSlot && (
         <div
@@ -198,14 +215,15 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseOver}
           style={{
-            width: '100%',
+            width: elementWidth,
             height: '100%',
             position: 'absolute',
             top: 0,
-            left: 0,
+            left: elementPos,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            overflow:'hidden',
             zIndex: 1,
           }}
         >

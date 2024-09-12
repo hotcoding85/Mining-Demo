@@ -60,6 +60,7 @@ const RomStatus = ({ shiftDate, shift }) => {
                         <TableContainer
                             columns={columns}
                             data={data || []}
+                            isPagination={true}
                         />
                     </div>
                 </CardBody>

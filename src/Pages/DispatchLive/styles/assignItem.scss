@@ -1,386 +1,409 @@
 body[data-layout-mode="dark"] {
-    .assign-location-item,
-    .assign-truck-item {
-        display: flex;
-        justify-content: center;
-        height: auto;
-        padding: 16px;
-        border-radius: 8px;
-        border: 1px dashed #EAEBEE;
-        background-color: #24314D;
-        margin-bottom: 16px;
-        
-        &.can-drop{
-            background-color: #24314D;
-        }
-        &.filled{
-            border: 1px solid #535E77
-        }
-    }
+  .assign-location-item,
+  .assign-material-item,
+  .assign-truck-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px dashed #eaebee;
+    background-color: #24314d;
+    margin-bottom: 16px;
 
-    .assign-truck-item {
-        width: 65%;
+    &.can-drop {
+      background-color: #24314d;
     }
+    &.filled {
+      border: 1px solid #535e77;
+    }
+  }
 
-    .assign-location-item {
-        padding: 0px;
-        width: 35%;
-    }
+  .assign-truck-item {
+    width: 65%;
+  }
 
-    .assign-location-item .empty,
-    .assign-truck-item .empty {
-        text-align: center;
-        margin: 0px;
-        width: 100%;
-    }
+  .assign-location-item {
+    padding: 0px;
+    width: 35%;
+  }
 
-    .assign-location-item .empty{
-        padding: 16px;
-    }
+  .assign-location-item .empty,
+  .assign-truck-item .empty {
+    text-align: center;
+    margin: 0px;
+    width: 100%;
+    white-space: nowrap;
+  }
 
-    .assigned-truck-item-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 24px;
-    }
-    .assigned-truck-header {
-        display: flex;
-        align-items: center; 
-        gap: 8px;
-    }
+  .assign-location-item .empty {
+    padding: 16px;
+  }
 
-    .assigned-truck-header-image {
-        display: flex;
-        padding: 8px;
-        border-radius: 99px;
-        background-color: #535E77;
-        align-items: center;
-    }
+  .assigned-truck-item-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .assigned-truck-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-    .assigned-truck-name {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
+  .assigned-truck-header-image {
+    display: flex;
+    padding: 8px;
+    border-radius: 99px;
+    background-color: #535e77;
+    align-items: center;
+  }
 
-    .assigned-truck-id-status{
-        display: flex;
-        align-items: baseline;
-        gap: 8px;    
-    }
+  .assigned-truck-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-    .assigned-truck-id {
-        font-size: 16px;
-        font-weight: 600;
-        color: white;
-        margin: 0px;
-    }
+  .assigned-truck-id-status {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
 
-    .assigned-truck-status {
-        border-radius: 99px;
-        background-color: #389E0D;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 16px;
-        text-align: center;
-        padding: 2px 8px;
-        color: white;
-        margin: 0px;
-    }
+  .assigned-truck-id {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin: 0px;
+  }
 
-    .assigned-truck-details {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    .assigned-truck-details .assigned-truck-progress {
-        margin-bottom: 24px;
-    }
-    .assigned-truck-details .assigned-truck-progress .progress-text {
-        display: flex;
-        justify-content: space-between;
-        align-items: center; 
-        margin: 0;
-    }
+  .assigned-truck-status {
+    border-radius: 99px;
+    background-color: #389e0d;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    padding: 2px 8px;
+    color: white;
+    margin: 0px;
+  }
 
-    .assigned-truck-details .assigned-truck-progress .progress-text .progress-label {
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-    }
+  .assigned-truck-details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
-    .assigned-truck-details .assigned-truck-progress .progress-text .progress-value {
-        font-weight: 700;
-        font-size: 20px;
-        line-height: 24px;
-        color: white;
-    }
+  .assigned-truck-details .assigned-truck-progress .progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+  }
 
-    .assigned-truck-details .truck-props{
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start; 
-        margin: 0;
-        margin-bottom: 16px
-    }
+  .assigned-truck-details
+    .assigned-truck-progress
+    .progress-text
+    .progress-label {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+  }
 
-    .cycle-time{
-        flex-direction: column;
-    }
+  .assigned-truck-details
+    .assigned-truck-progress
+    .progress-text
+    .progress-value {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    color: white;
+  }
 
-    .assigned-truck-details .truck-props .props-label {
-        color: #9CA3B1;
-        font-weight: 400;
-        font-size: 16px;
-    }
-    
-    .assigned-truck-details .truck-props .props-value {
-        color: white  !important;
-        font-weight: 400;
-        font-size: 16px;
-    }
+  .assigned-truck-details .truck-props {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0;
+    margin-bottom: 16px;
+  }
 
-    .assigned-truck-details .truck-props .cycle-time-container {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
+  .cycle-time {
+    flex-direction: column;
+  }
 
-    .cycle-time-container .time-chips {
-        padding: 4px 16px;
-        border-radius: 99px;
-        background-color: #535E77;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 24px;
-        color: white;
-    }
+  .assigned-truck-details .truck-props-container {
+    margin-top: 24px;
+  }
 
-    .assigned-dump-item {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        position: relative;
-    }
+  .assigned-truck-details .truck-props .props-label {
+    color: #9ca3b1;
+    font-weight: 400;
+    font-size: 16px;
+  }
 
-    .assigned-dump-item img {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        object-fit:cover;
-    }
+  .assigned-truck-details .truck-props .props-value {
+    color: white !important;
+    font-weight: 400;
+    font-size: 16px;
+  }
 
-    .assigned-dump-item .assigned-dump-chips {
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        padding: 4px 16px;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 24px;
-        border-radius: 99px;
-        background-color: #2A2A2A;
-        color: white;
-        width: 70%;
-    }
+  .assigned-truck-details .truck-props .cycle-time-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .cycle-time-container .time-chips {
+    padding: 4px 16px;
+    border-radius: 99px;
+    background-color: #535e77;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    color: white;
+  }
+
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .assigned-dump-item img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .assigned-dump-item .assigned-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2a2a2a;
+    color: white;
+    width: 70%;
+  }
 }
 body[data-layout-mode="light"] {
-    .assign-location-item,
-    .assign-truck-item {
-        display: flex;
-        justify-content: center;
-        height: auto;
-        padding: 16px;
-        border-radius: 8px;
-        border: 1px dashed #E0E0E0;
-        background-color: #FFF;
-        margin-bottom: 16px;
+  .assign-location-item,
+  .assign-material-item,
+  .assign-truck-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px dashed #e0e0e0;
+    background-color: #fff;
+    margin-bottom: 16px;
 
-        &.can-drop{
-        background-color: #FFF;
-        }
-
-        &.filled{
-            border: 1px solid #E0E0E0
-        }
+    &.can-drop {
+      background-color: #fff;
     }
 
-    .assign-truck-item {
-        width: 65%;
+    &.filled {
+      border: 1px solid #e0e0e0;
     }
+  }
 
-    .assign-location-item {
-        padding: 0px;
-        width: 35%;
-    }
+  .assign-truck-item {
+    width: 65%;
+  }
 
-    .assign-location-item .empty,
-    .assign-truck-item .empty {
-        text-align: center;
-        margin: 0px;
-        width: 100%;
-    }
+  .assign-location-item {
+    padding: 0px;
+    width: 35%;
+  }
 
-    .assign-location-item .empty{
-        padding: 16px;
-    }
+  .assign-location-item .empty,
+  .assign-truck-item .empty {
+    text-align: center;
+    margin: 0px;
+    width: 100%;
+  }
 
-    .assigned-truck-item-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 24px;
-    }
-    .assigned-truck-header {
-        display: flex;
-        align-items: center; 
-        gap: 8px;
-    }
+  .assign-location-item .empty {
+    padding: 16px;
+  }
 
-    .assigned-truck-header-image {
-        display: flex;
-        padding: 8px;
-        border-radius: 99px;
-        background-color: #535E77;
-        align-items: center;
-    }
+  .assigned-truck-item-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .assigned-truck-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-    .assigned-truck-name {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
+  .assigned-truck-header-image {
+    display: flex;
+    padding: 8px;
+    border-radius: 99px;
+    background-color: #535e77;
+    align-items: center;
+  }
 
-    .assigned-truck-id-status{
-        display: flex;
-        align-items: baseline;
-        gap: 8px;    
-    }
+  .assigned-truck-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-    .assigned-truck-id {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1C263C;
-        margin: 0px;
-    }
+  .assigned-truck-id-status {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
 
-    .assigned-truck-status {
-        border-radius: 99px;
-        background-color: #389E0D;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 16px;
-        text-align: center;
-        padding: 2px 8px;
-        color: white;
-        margin: 0px;
-    }
+  .assigned-truck-id {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c263c;
+    margin: 0px;
+  }
 
-    .assigned-truck-details {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    .assigned-truck-details .assigned-truck-progress {
-        margin-bottom: 24px;
-    }
-    .assigned-truck-details .assigned-truck-progress .progress-text {
-        display: flex;
-        justify-content: space-between;
-        align-items: center; 
-        margin: 0;
-    }
+  .assigned-truck-status {
+    border-radius: 99px;
+    background-color: #389e0d;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    padding: 2px 8px;
+    color: white;
+    margin: 0px;
+  }
 
-    .assigned-truck-details .assigned-truck-progress .progress-text .progress-label {
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        color: #828282;
-    }
+  .assigned-truck-details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .assigned-truck-details .assigned-truck-progress {
+    margin-bottom: 24px;
+  }
+  .assigned-truck-details .assigned-truck-progress .progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+  }
 
-    .assigned-truck-details .assigned-truck-progress .progress-text .progress-value {
-        font-weight: 700;
-        font-size: 20px;
-        line-height: 24px;
-        color: #1C263C;
-    }
+  .assigned-truck-details
+    .assigned-truck-progress
+    .progress-text
+    .progress-label {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #828282;
+  }
 
-    .assigned-truck-details .truck-props{
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start; 
-        margin: 0;
-        margin-bottom: 16px
-    }
+  .assigned-truck-details
+    .assigned-truck-progress
+    .progress-text
+    .progress-value {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    color: #1c263c;
+  }
 
-    .cycle-time{
-        flex-direction: column;
-    }
+  .assigned-truck-details .truck-props {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0;
+    margin-bottom: 16px;
+  }
 
-    .assigned-truck-details .truck-props .props-label {
-        color: #828282;
-        font-weight: 400;
-        font-size: 16px;
-    }
-    
-    .assigned-truck-details .truck-props .props-value {
-        color: #2A2A2A  !important;
-        font-weight: 400;
-        font-size: 16px;
-    }
+  .cycle-time {
+    flex-direction: column;
+  }
 
-    .assigned-truck-details .truck-props .cycle-time-container {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
+  .assigned-truck-details .truck-props-container {
+    margin-top: 24px;
+  }
 
-    .cycle-time-container .time-chips {
-        padding: 4px 16px;
-        border-radius: 99px;
-        background-color: #E0E0E0;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 24px;
-        color: #1C263C;
-    }
+  .assigned-truck-details .truck-props .props-label {
+    color: #828282;
+    font-weight: 400;
+    font-size: 16px;
+  }
 
-    .assigned-dump-item {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        position: relative;
-    }
+  .assigned-truck-details .truck-props .props-value {
+    color: #2a2a2a !important;
+    font-weight: 400;
+    font-size: 16px;
+  }
 
-    .assigned-dump-item img {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        object-fit:cover;
-    }
+  .assigned-truck-details .truck-props .cycle-time-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 
-    .assigned-dump-item .assigned-dump-chips {
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        padding: 4px 16px;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 24px;
-        border-radius: 99px;
-        background-color: #2A2A2A;
-        color: white;
-        width: 70%;
-    }
+  .cycle-time-container .time-chips {
+    padding: 4px 16px;
+    border-radius: 99px;
+    background-color: #e0e0e0;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    color: #1c263c;
+  }
+
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .assigned-dump-item img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .assigned-dump-item .assigned-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2a2a2a;
+    color: white;
+    width: 70%;
+  }
 }
