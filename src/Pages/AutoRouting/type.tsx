@@ -26,5 +26,7 @@ export type RouteDataType = {
     name?: string,
     description?: string,
     color: string,
-    colors?: (string | null)[]
+    colors?: (string | null)[],
+    category?: string | null,
+    speeds: number[]
 }
