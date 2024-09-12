@@ -215,6 +215,16 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/preshift-info">
+                    {props.t("Waste Dump Management")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/preshift-info">
+                    {props.t("ROM Management")}
+                  </Link>
+                </li>
+                <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
                 </li>
               </ul>

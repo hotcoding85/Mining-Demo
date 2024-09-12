@@ -81,7 +81,6 @@ const authProtectedRoutes = [
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
   { path: "/gantt-scheduler", exact: true, component: <GanttScheduler /> },
   { path: "/dispatch-live", exact: true, component: <DispatchLive /> },
-  { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/sic", exact: true, component: <ShortIntervalControl /> },
   { path: "/descrepencies", exact: true, component: <CarryBackDescrepencies /> },
   { path: '/rom-mill-targets', exact: true, component: <ROMMillTargets /> },

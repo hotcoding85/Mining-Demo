@@ -117,7 +117,7 @@ const MessageComponent: React.FC<ChatComponentProps> = ({ currentEq, isLight, is
                             isBroadcast
                                 ? 'BroadCast'
                                 : currentEq.length === 0
-                                ? currentEq[0].id
+                                ? currentEq[0]?.id
                                 : _.map(currentEq, eq => eq.id).join(',')
                         }
                     >
@@ -134,7 +134,7 @@ const MessageComponent: React.FC<ChatComponentProps> = ({ currentEq, isLight, is
                             {isBroadcast
                                 ? 'BroadCast'
                                 : currentEq.length === 0
-                                ? currentEq[0].id
+                                ? currentEq[0]?.id
                                 : _.map(currentEq, eq => eq.id).join(',')}
                         </div>
                     </Tooltip>

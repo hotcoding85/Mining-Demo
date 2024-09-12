@@ -1,82 +1,98 @@
-import React, { useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import { DatePicker, DatePickerProps } from 'antd';
-import dayjs from "dayjs";
-import ShiftSelector from "Pages/GanttScheduler/ShiftSelector";
-import ZoomControl from "Pages/GanttScheduler/ZoomControl";
-import { ShiftType, Task } from "Pages/GanttScheduler/interfaces/type";
-import { resources, sampleTaskLists, sampleTasks } from "Pages/GanttScheduler/data/sampleData";
-import { DndProvider } from "react-dnd";
-import TableComponent from "Pages/GanttScheduler/TableComponent";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { DataSet, Timeline as VisTimeline, TimelineWindow } from "vis-timeline/standalone";
+import CustomDropdown, { DropdownType } from "Components/Common/Dropdown/Dropdown";
+import { generateTasks } from "Pages/Reports/TimelineReport/sample";
 
 const EquipmentGantt = (props: any) => {
-    document.title = "Equipment Gantt | FMS Live";
+    document.title = "Reports | Timeline Report";
 
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [shiftType, setShiftType] = useState<ShiftType>('DAY_SHIFT');
-    const [zoomSize, setZoomSize] = useState<number>(60);
-    const [tasks, setTasks] = useState<Task[]>(sampleTasks);
-    const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists)
+    const timelineRef = useRef<HTMLDivElement | null>(null);
+    const timelineInstance = useRef<VisTimeline | null>(null);
+    const [selectedInterval, setSelectedInterval] = useState<DropdownType>({ label: "Timeline Interval", value: "60" });
 
-    const onDateChange: DatePickerProps['onChange'] = (date, dateString) => {
-        if (date) {
-            setSelectedDate(date.toDate());
+    const timeIntervals: DropdownType[] = [
+        { label: "5 Min", value: "60" },
+        { label: "15 Min", value: "120" },
+        { label: "30 Min", value: "180" },
+        { label: "1 Hour", value: "380" },
+    ];
+
+
+
+    let groupsData: DataSet = []
+    let tasksData: DataSet = []
+
+    for (let i = 0; i < 9; i++) {
+        groupsData.push({ id: i, content: "DT10" + (i + 1) })
+        const tasks = generateTasks(i)
+        tasksData.push(...tasks)
+    }
+
+    const groups = new DataSet(groupsData);
+    const items = new DataSet(tasksData);
+
+    useEffect(() => {
+        if (timelineRef.current && !timelineInstance.current) {
+            const options = {
+                stack: false,
+                start: new Date(2024, 8, 12, 6, 0),
+                end: new Date(2024, 8, 13, 6, 0),
+                min: new Date(2024, 8, 12, 6, 0),
+                max: new Date(2024, 8, 13, 6, 0),
+                editable: false,
+                zoomable: false,
+                horizontalScroll: true,
+                verticalScroll: true
+            };
+
+            timelineInstance.current = new VisTimeline(timelineRef.current, items, groups, options);
+            setTimeInterval(selectedInterval)
+        }
+    }, [groups, items]);
+
+    useEffect(() => {
+        setTimeInterval(selectedInterval)
+    }, [selectedInterval])
+
+    const setTimeInterval = (interval: DropdownType) => {
+        const intervalInMinutes = parseInt(interval.value || "5", 10);
+        const intervalInMilliseconds = intervalInMinutes * 60 * 1000;
+        if (timelineInstance.current) {
+            const currentTime = new Date();
+            const start = new Date(currentTime.getTime() - intervalInMilliseconds / 2);
+            const end = new Date(currentTime.getTime() + intervalInMilliseconds / 2);
+
+            timelineInstance.current.setWindow(start, end);
         }
     };
-
-    const addTask = (resourceId: string, startTime: Date, task?: Task) => {
-        const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-        console.log(endTime);
-    
-        const newTask: Task = {
-          id: Math.random().toString(36).substring(7),
-          name: task?.name || 'Task Name',
-          label: task?.label || 'Task Label',
-          startTime,
-          endTime,
-          resourceId,
-          span: task?.span || 1,
-        };
-    
-        setTasks((prevTasks) => [...prevTasks, newTask]);  
-      };
-
     return (
-        <React.Fragment>
+        <Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Manager Centre" breadcrumbItem="Equipment Activity Gantt" />
-                    <Row>
-                        <Col lg="12">
-                            <DatePicker allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
-                            <ShiftSelector shiftType={shiftType} setShiftType={setShiftType} />
-                            <div className='scheduler-tool'>
-                                <ZoomControl onZoomChange={setZoomSize} />
-                            </div>
+                    <Breadcrumb title="Reports" breadcrumbItem="Timeline Report" />
+
+                    <Row className="mb-3">
+                        <Col className="d-flex justify-content-between align-items-center">
+
+                            <CustomDropdown
+                                items={timeIntervals}
+                                value={selectedInterval}
+                                onChange={(value) => setSelectedInterval(value)}
+                            />
                         </Col>
                     </Row>
 
-                    <DndProvider backend={HTML5Backend}>
-                        <Row className='mb-3'>
-                            <Col xs={12}>
-                                <TableComponent
-                                    data={resources}
-                                    tasks={tasks}
-                                    setTasks={setTasks}
-                                    selectedDate={selectedDate}
-                                    shiftType={shiftType}
-                                    zoomSize={zoomSize}
-                                    addTask={addTask}
-                                />
-                            </Col>
-                        </Row>
-                    </DndProvider>
+                    <Row>
+                        <Col>
+                            <div ref={timelineRef} className="timeline-container"></div>
+                        </Col>
+                    </Row>
                 </Container>
             </div>
-        </React.Fragment >
-    )
+        </Fragment>
+    );
 }
 
 export default EquipmentGantt;
