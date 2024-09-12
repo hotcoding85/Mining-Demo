@@ -9,6 +9,7 @@ import { ExtendedMarker } from './leaflet-extensions';
 import _ from 'lodash';
 import dayjs from "dayjs";
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import STOP_SIGN_PNG from 'assets/images/stop_sign.png'
 import { Radio, Segmented, Select, Space } from 'antd';
 import mapboxgl, { LngLatLike, Marker } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import { shiftTimings } from 'utils/common';
@@ -16,7 +17,7 @@ import { buildGraticule } from 'utils/mapUtils';
 import { Checkbox, Divider } from 'antd';
 import type { CheckboxProps } from 'antd';
 import { DropdownType } from 'Components/Common/Dropdown';
-
+import './index.css'
 const CheckboxGroup = Checkbox.Group;
 
 interface EquipmentLocation {
@@ -989,9 +990,9 @@ const Map = ({ socket }) => {
       })
       routes.filter(_route => _route.category === 'STOP_SIGNS').map((item, key) => {
         const map = mapRef.current;
-    
+
         if (!map) return;
-    
+
         // Convert LineString to Point assuming the first coordinate is the desired location
         const pointFeature = {
             type: "Feature",
@@ -1001,7 +1002,7 @@ const Map = ({ socket }) => {
             },
             properties: item.geoJson.properties
         };
-    
+
         // Check if the source does not exist before adding it
         if (!map.getSource(item.id)) {
             map.addSource(item.id, {
@@ -1009,21 +1010,36 @@ const Map = ({ socket }) => {
                 data: pointFeature
             });
         }
-    
+
+        // First, we need to make sure the image is added to the map
+        // Replace 'stop-sign' with the ID for your image
+        if (!map.hasImage('stop-sign')) {
+            map.loadImage(
+                STOP_SIGN_PNG,  // Path to your image file
+                (error, image) => {
+                    if (error) throw error;
+                    map.addImage('stop-sign', image);
+                }
+            );
+        }
+
         // Remove existing layer if it exists
         if (map.getLayer(item.id)) {
             map.removeLayer(item.id);
         }
-    
-        // Add a new circle layer for STOP_SIGNS
+        const iconSizeFactor = 40 / 80;
+        // Add a new symbol layer for STOP_SIGNS with the image icon
         map.addLayer({
             id: item.id,
-            type: 'circle',
+            type: 'symbol',
             source: item.id,
+            layout: {
+                'icon-image': 'stop-sign',   // ID for your loaded image
+                'icon-size': 0.05,              // Adjust as needed to scale the image
+                'icon-allow-overlap': true   // Optional: allows icons to overlap
+            },
             paint: {
-                'circle-radius': 20,  // This sets the radius in pixels
-                'circle-color': item.color,
-                'circle-opacity': 1
+                'icon-opacity': 0.75         // Set the desired opacity; 0.75 means 75% opacity
             }
         });
 
@@ -1215,7 +1231,9 @@ const Map = ({ socket }) => {
                     'line-opacity': 0.4,
                 }
             });
-        }
+
+            
+          }
       //layer.bindPopup("Name of the GeoFence");
       // drawItems.addLayer(layer);
     }
