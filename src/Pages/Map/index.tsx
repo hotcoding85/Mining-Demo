@@ -966,7 +966,7 @@ const Map = ({ socket }) => {
   useEffect(() => {
 
     if (mapStylesLoaded) {
-      routes.map((item, key) => {
+      routes.filter(_route => _route.category != 'STOP_SIGNS').map((item, key) => {
         if (!mapRef.current?.getSource(item.id)) {
           mapRef.current?.addSource(item.id, {
             type: 'geojson',
@@ -985,6 +985,47 @@ const Map = ({ socket }) => {
             }
           });
         }
+
+      })
+      routes.filter(_route => _route.category === 'STOP_SIGNS').map((item, key) => {
+        const map = mapRef.current;
+    
+        if (!map) return;
+    
+        // Convert LineString to Point assuming the first coordinate is the desired location
+        const pointFeature = {
+            type: "Feature",
+            geometry: {
+                type: "Point",
+                coordinates: item.geoJson.geometry.coordinates[0]
+            },
+            properties: item.geoJson.properties
+        };
+    
+        // Check if the source does not exist before adding it
+        if (!map.getSource(item.id)) {
+            map.addSource(item.id, {
+                type: 'geojson',
+                data: pointFeature
+            });
+        }
+    
+        // Remove existing layer if it exists
+        if (map.getLayer(item.id)) {
+            map.removeLayer(item.id);
+        }
+    
+        // Add a new circle layer for STOP_SIGNS
+        map.addLayer({
+            id: item.id,
+            type: 'circle',
+            source: item.id,
+            paint: {
+                'circle-radius': 20,  // This sets the radius in pixels
+                'circle-color': item.color,
+                'circle-opacity': 1
+            }
+        });
 
       })
 
@@ -1129,39 +1170,52 @@ const Map = ({ socket }) => {
   }, [mapStylesLoaded, filter]);
 
   const drawFeature = (geoFenceData: any) => {
+    if (!mapRef.current) return;
+
     let layer;
+    const map = mapRef.current;
+    const sourceId = `line-${geoFenceData.id}`;
+
     if (geoFenceData && geoFenceData.geoJson && geoFenceData.geoJson.properties && geoFenceData.geoJson.properties.radius) {
-      layer = Leaflet.geoJson(geoFenceData.geoJson, {
-        pointToLayer: function (feature, latlng) {
-          console.log('latlng', latlng);
-          return Leaflet.circle(latlng, { radius: geoFenceData.geoJson.properties.radius });
-        }
-      }).addTo(mapRef.current!);
-      layer.id = geoFenceData.id;
-      drawItems.addLayer(layer);
+        layer = Leaflet.geoJson(geoFenceData.geoJson, {
+            pointToLayer: function (feature, latlng) {
+                console.log('latlng', latlng);
+                return Leaflet.circle(latlng, { radius: geoFenceData.geoJson.properties.radius });
+            }
+        }).addTo(map);
+        layer.id = geoFenceData.id;
+        drawItems.addLayer(layer);
     } else {
-      // layer = Leaflet.polygon(geoFenceData.geoJson.geometry.coordinates).addTo(mapRef.current!);
-      layer = Leaflet.geoJson(geoFenceData.geoJson).addTo(mapRef.current!);
-      layer.id = geoFenceData.id;
+        layer = Leaflet.geoJson(geoFenceData.geoJson).addTo(map);
+        if (layer) {
+          // Set an ID for the layer associated with the geoFenceData
+          layer.id = geoFenceData.id;
+        }
 
-      if (mapRef.current.isStyleLoaded()) {
-        mapRef.current.addSource('line', {
-          type: 'geojson',
-          data: geoFenceData.geoJson
-        });
+        if (map.isStyleLoaded()) {
+            // Dynamically generate a unique source ID
+            if (map.getSource(sourceId)) {
+                map.removeSource(sourceId);
+            }
 
-        mapRef.current.addLayer({
-          type: 'fence',
-          source: geoFenceData.name,
-          id: 'fence',
-          paint: {
-            'line-color': 'yellow',
-            'line-width': 4,
-            'line-opacity': 0.4,
-            'fill': 'red'
-          }
-        });
-      }
+            map.addSource(sourceId, {
+                type: 'geojson',
+                data: geoFenceData.geoJson
+            });
+
+            const layerId = `fence-${geoFenceData.id}`;
+            
+            map.addLayer({
+                id: layerId,
+                type: 'line',
+                source: sourceId,
+                paint: {
+                    'line-color': 'yellow',
+                    'line-width': 4,
+                    'line-opacity': 0.4,
+                }
+            });
+        }
       //layer.bindPopup("Name of the GeoFence");
       // drawItems.addLayer(layer);
     }
