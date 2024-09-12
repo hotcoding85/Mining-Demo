@@ -5,21 +5,31 @@ import AssignLocationItem from "./AssignLocationItem";
 import { pc2000 } from "assets/images/equipment";
 import { Row, Col } from "reactstrap";
 import { Select, Progress } from "antd";
-import { DumpLocation, Truck } from './interfaces/type';
+import { ActiveBenchData, DumpLocation, Truck } from './interfaces/type';
 import AssignBoard from "./AssignBoard";
 
 interface MainCardProps {
-    readyTrucks : Truck[];
-    updateReadyTrucks : (updatedTask: Truck) => void;
+    index : number;
+    assignedTrucks : Truck[];
+    updateReadyTrucks : (updatedTruck: Truck) => void;
+    removeTruckFromAssigned : (removedTruck: Truck) => void;
     dumpLocations : DumpLocation[];
     addDumpLocation : (newDumpLocation: DumpLocation) => void;
+    assignedBenches : ActiveBenchData[];
+    addBenches : (newBenches: ActiveBenchData) => void;
+    diggerHeader : string;
 }  
 
 const MainCard : React.FC<MainCardProps> = ({
-    readyTrucks,
+    index,
+    assignedTrucks,
     updateReadyTrucks,
+    removeTruckFromAssigned,
     dumpLocations,
-    addDumpLocation
+    addDumpLocation,
+    assignedBenches,
+    addBenches,
+    diggerHeader
 }) => {
 
     function getRandomInt(min: number, max: number): number {
@@ -34,35 +44,11 @@ const MainCard : React.FC<MainCardProps> = ({
     return (
         <React.Fragment>
             <div className="dispatch-live-main-card">
-                <div className="dispatch-location">
-                    <div className="current-location-container">
-                        <div className="current-location-text">
-                            <p className="current-location-label">Current Work Location</p>
-                            <select name="current-work-location" id="currentWorkLocation">
-                                <option value="440_BLK1_HG01" selected>440_BLK1_HG01</option>
-                            </select>
-                        </div>
-                        <div className="current-location-progress">
-                            <p className="vehicle-progress-text" style={{color : "white"}}>
-                                <span className="vehicle-progress-label">Total Tonnes Moved</span>
-                                <span className="vehicle-progress-value">50t/100t</span>
-                            </p>
-                            <Progress percent={50} showInfo={false} />
-                        </div>
-                    </div>
-                    <div className="location-divider"></div>
-                    <div className="next-location-container">
-                        <p className="next-location-label">Next Work Location</p>
-                        <select name="next-work-location" id="nextWorkLocation">
-                                <option value="440_BLK1_HG02" selected>440_BLK1_HG01</option>
-                        </select>
-                    </div>
-                </div>
                 <div className="content-container">
                     <div className="vehicle-card-container">
-                        <p className="vehicle-card-name">Digger Fleet</p>
+                        <p className="vehicle-card-name">{diggerHeader}</p>
                         <VehicleCard
-                            key={1}
+                            index={index}
                             id={'EX201'}
                             status={'Healthy'}
                             smu={getRandomFloat(23000, 38000, 1)}
@@ -71,12 +57,16 @@ const MainCard : React.FC<MainCardProps> = ({
                             imageUrl={pc2000}
                             lastUpdated={getRandomInt(1, 2)+'m'}
                             sync={'active'}
+                            assignedBenches={assignedBenches}
+                            addBenches={addBenches}
                         >
                         </VehicleCard>
                     </div>
                     <AssignBoard 
-                        readyTrucks={readyTrucks}
+                        index={index}
+                        assignedTrucks={assignedTrucks}
                         updateReadyTrucks={updateReadyTrucks}
+                        removeTruckFromAssigned={removeTruckFromAssigned}
                         dumpLocations={dumpLocations}
                         addDumpLocation={addDumpLocation}
                     />

@@ -1,7 +1,4 @@
-import React from "react";
-import MessageBoardChips from "./MessageBoardChips";
-import TruckItemForReady from "./TruckItemForReady";
-import { Button } from "antd";
+import React, {useState} from "react";
 import StandbyTrucks from "./StandbyTrucks";
 import UnavailableTrucks from "./UnavailableTrucks";
 import ActiveBenches from "./ActiveBenches";
@@ -21,6 +18,11 @@ const RightBoard : React.FC<RightBoardProps> = ({
     readyTrucks,
     dumpLocationsForAssign
 }) => {
+    const [isShowMore, setIsShowMore] = useState<boolean>(true);
+
+    const onShowMoreOrLess = () => {
+        setIsShowMore(!isShowMore);
+    };
 
     return (
         <React.Fragment>
@@ -33,17 +35,16 @@ const RightBoard : React.FC<RightBoardProps> = ({
                 <div className="right-board-divider" />
                 <StandbyTrucks />
                 <div className="right-board-divider" />
+                <WasteDumpLocations 
+                    dumpLocationsForAssign = {dumpLocationsForAssign}
+                />
+                <div className="right-board-divider" />
                 <UnavailableTrucks />
                 <div className="right-board-divider" />
                 <ActiveBenches 
                     activeBenches={activeBenches}
                 />
                 <div className="right-board-divider" />
-                <WasteDumpLocations 
-                    dumpLocationsForAssign = {dumpLocationsForAssign}
-                />
-                <div className="right-board-divider" />
-                <OreBodies />
             </div>
         </React.Fragment>
     )

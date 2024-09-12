@@ -8,15 +8,19 @@ import { Select, Progress } from "antd";
 import { Truck, DumpLocation } from './interfaces/type';
 
 interface AssignBoardProps {
-    readyTrucks: Truck[];
+    index:number;
+    assignedTrucks: Truck[];
     updateReadyTrucks: (updatedTask: Truck) => void;
+    removeTruckFromAssigned : (removedTruck: Truck) => void;
     dumpLocations : DumpLocation[];
     addDumpLocation : (newDumpLocation: DumpLocation) => void;
 }  
 
 const AssignBoard : React.FC<AssignBoardProps> = ({
-    readyTrucks,
+    index,
+    assignedTrucks,
     updateReadyTrucks,
+    removeTruckFromAssigned,
     dumpLocations,
     addDumpLocation
 }) => {
@@ -30,60 +34,65 @@ const AssignBoard : React.FC<AssignBoardProps> = ({
 
             <div className="assign-item-pair">
                 <AssignTruckItem 
-                    sourceId={1}
-                    readyTrucks={readyTrucks}
+                    sourceId={(index-1) * 5 + 1}
+                    assignedTrucks={assignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
                 />
                 <AssignLocationItem 
-                    sourceId={1}
+                    sourceId={(index-1) * 5 + 1}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />
             </div>
             <div className="assign-item-pair">
                 <AssignTruckItem 
-                    sourceId={2}
-                    readyTrucks={readyTrucks}
+                    sourceId={(index-1) * 5 + 2}
+                    assignedTrucks={assignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
                 />
                 <AssignLocationItem 
-                    sourceId={2}
+                    sourceId={(index-1) * 5 + 2}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />
             </div>
             <div className="assign-item-pair">
                 <AssignTruckItem 
-                    sourceId={3}
-                    readyTrucks={readyTrucks}
+                    sourceId={(index-1) * 5 + 3}
+                    assignedTrucks={assignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
                 />
                 <AssignLocationItem 
-                    sourceId={3}
+                    sourceId={(index-1) * 5 + 3}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />
             </div>
             <div className="assign-item-pair">
                 <AssignTruckItem 
-                    sourceId={4}
-                    readyTrucks={readyTrucks}
+                    sourceId={(index-1) * 5 + 4}
+                    assignedTrucks={assignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
                 />
                 <AssignLocationItem 
-                    sourceId={4}
+                    sourceId={(index-1) * 5 + 4}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />
             </div>
             <div className="assign-item-pair">
                 <AssignTruckItem 
-                    sourceId={5}
-                    readyTrucks={readyTrucks}
+                    sourceId={(index-1) * 5 + 5}
+                    assignedTrucks={assignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
                 />
                 <AssignLocationItem 
-                    sourceId={5}
+                    sourceId={(index-1) * 5 + 5}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />

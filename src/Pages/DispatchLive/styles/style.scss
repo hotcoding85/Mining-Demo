@@ -25,6 +25,8 @@ body[data-layout-mode="dark"] {
     width: 232px;
     position: relative;
     margin-top: 16px;
+    padding: 10px 16px;
+    gap: 32px;
     /* margin: 20px; */
   }
 
@@ -32,7 +34,6 @@ body[data-layout-mode="dark"] {
     font-family: 'Poppins';
     display: flex;
     align-items: center; 
-    padding: 10px 16px;
     margin-top: 15px;
     margin-bottom: 22px;
     padding-right:0
@@ -117,8 +118,11 @@ body[data-layout-mode="dark"] {
   }
 
   .vehicle-card-details {
-      padding: 16px;
       gap: 10px; 
+  }
+
+  .vehicle-card-details .location-item {
+    margin-bottom: 32px;
   }
 
   .vehicle-card-details p {
@@ -172,10 +176,33 @@ body[data-layout-mode="dark"] {
     margin-bottom: 32px;
   }
 
+  .next-location-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    .item{
+      background-color: #535E77;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+    .label {
+      padding: 4px 8px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+      color: white;
+      margin: 0;
+    }
+  }
+
   .dispatch-live-main-card {
     background-color: #283655;
     padding: 24px;
     border-radius: 8px;
+    margin-bottom: 20px;
   }
 
   .dispatch-location {
@@ -238,7 +265,7 @@ body[data-layout-mode="dark"] {
     line-height: 32px;
   }
 
-  #nextWorkLocation {
+  .nextWorkLocation {
     border-radius: 99px;
     background-color: #535E77;
     color: white;
@@ -262,6 +289,7 @@ body[data-layout-mode="dark"] {
   .dispatch-right-board {
     padding: 24px 16px;
     background-color: #283655;
+    height: 100%;
   }
 
   .right-board-topic{
@@ -338,6 +366,7 @@ body[data-layout-mode="light"] {
     position: relative;
     margin-top: 16px;
     border: 1px solid #E0E0E0;
+    padding: 10px 16px;
     /* margin: 20px; */
   }
 
@@ -345,7 +374,6 @@ body[data-layout-mode="light"] {
     font-family: 'Poppins';
     display: flex;
     align-items: center; 
-    padding: 10px 16px;
     margin-top: 15px;
     margin-bottom: 22px;
     padding-right:0
@@ -423,8 +451,11 @@ body[data-layout-mode="light"] {
   }
 
   .vehicle-card-details {
-      padding: 16px;
       gap: 10px; 
+  }
+
+  .vehicle-card-details .location-item {
+    margin-bottom: 32px;
   }
 
   .vehicle-card-details p {
@@ -480,11 +511,34 @@ body[data-layout-mode="light"] {
     margin-bottom: 32px;
   }
 
+  .next-location-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    .item{
+      background-color: #535E77;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+    .label {
+      padding: 4px 8px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+      color: white;
+      margin: 0;
+    }
+  }
+  
   .dispatch-live-main-card {
     background-color: #FFF;
     padding: 24px;
     border-radius: 8px;
     border: 1px solid #E0E0E0;
+    margin-bottom: 20px;
   }
 
   .dispatch-location {
@@ -547,7 +601,7 @@ body[data-layout-mode="light"] {
     line-height: 32px;
   }
 
-  #nextWorkLocation {
+  .nextWorkLocation {
     border-radius: 99px;
     background-color: #828282;
     color: white;
@@ -572,6 +626,7 @@ body[data-layout-mode="light"] {
     padding: 24px 16px;
     background-color: #FFF;
     border: 1px solid #E0E0E0;
+    height: 100%;
   }
 
   .right-board-topic{
