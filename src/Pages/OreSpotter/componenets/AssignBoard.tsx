@@ -13,6 +13,7 @@ interface AssignBoardProps {
   digger: Vehicle;
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
+  removeTruckFromAssigned : (removedTruck: Truck) => void;
   targetMaterials: Material[];
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
@@ -29,6 +30,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   dumpLocations,
   addDumpLocation,
   collapse,
+  removeTruckFromAssigned,
 }) => {
   return (
     <div className="assign-item-container">
@@ -42,8 +44,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <AssignTruckItem
           diggerId={digger.id}
           sourceId={1}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
         />
@@ -64,8 +67,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <AssignTruckItem
           diggerId={digger.id}
           sourceId={2}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
         />
@@ -86,8 +90,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <AssignTruckItem
           diggerId={digger.id}
           sourceId={3}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
         />
@@ -108,8 +113,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <AssignTruckItem
           diggerId={digger.id}
           sourceId={4}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
         />

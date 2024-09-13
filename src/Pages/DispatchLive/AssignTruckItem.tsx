@@ -7,17 +7,23 @@ import { Progress, Divider, Dropdown} from "antd";
 import type { MenuProps } from 'antd';
 
 interface AssignTruckItemProps {
+    diggerId : string;
     sourceId: number;
     assignedTrucks: Truck[];
     updateReadyTrucks: (updatedTask: Truck) => void;
     removeTruckFromAssigned : (removedTruck: Truck) => void;
+    collapse?: boolean;
+    displayName: string;
 }
 
 const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
+    diggerId,
     sourceId,
     assignedTrucks,
     updateReadyTrucks,
-    removeTruckFromAssigned
+    removeTruckFromAssigned,
+    collapse,
+    displayName
 }) => {
 
     const [isShowMore, setIsShowMore] = useState<boolean>(true);

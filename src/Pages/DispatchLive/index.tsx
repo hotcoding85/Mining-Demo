@@ -5,11 +5,11 @@ import MainCard from "./MainCard";
 import RightBoard from "./RightBoard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { sampleReadyTrucks, dumpLocationsForAssign , sampleAssignedBenches, diggers} from './data/sampleData';
+import { sampleReadyTrucks, dumpLocationsForAssign , sampleAssignedBenches, diggers, sampleTargetMaterials} from './data/sampleData';
 import { Space, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import "./styles/style.scss"
-import { Truck, DumpLocation, ActiveBenchData, DiggerData } from './interfaces/type';
+import { Truck, DumpLocation, ActiveBenchData, DiggerData, Material } from './interfaces/type';
 
 const DispatchLive : React.FC = () => {
     document.title = "Dispatch Live | FMS Live";
@@ -18,6 +18,9 @@ const DispatchLive : React.FC = () => {
     const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
     const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(sampleAssignedBenches);
     const [diggersForShow, setdiggersForShow] = useState<DiggerData[]>(diggers);
+    const [targetMaterials, setTargetMaterials] = useState<Material[]>(
+        sampleTargetMaterials
+      );
 
     const updateReadyTrucks = (assignedTruck : Truck) => {
         setreadyTrucks((prevTrucks: Truck[]) =>
@@ -118,6 +121,9 @@ const DispatchLive : React.FC = () => {
                             <div className='dispatch-live-right'>
                                 <RightBoard 
                                     readyTrucks = {readyTrucks}
+                                    targetMaterials={targetMaterials.filter(
+                                        (item) => !item.diggerId
+                                      )}
                                     dumpLocationsForAssign = {dumpLocationsForAssign}
                                 />
                             </div>

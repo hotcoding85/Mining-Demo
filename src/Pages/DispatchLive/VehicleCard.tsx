@@ -31,6 +31,7 @@ interface VehicleCardProps {
     sync: "manual" | "inactive" | "active";
     assignedBenches : ActiveBenchData[];
     addBenches : (newBenches: ActiveBenchData) => void;
+    collapse : boolean;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   index,
@@ -43,7 +44,8 @@ const VehicleCard: FC<VehicleCardProps> = ({
   lastUpdated,
   sync,
   assignedBenches,
-  addBenches
+  addBenches,
+  collapse
 }) => {
   const statusColor = getStatusColor(status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);

@@ -13,11 +13,13 @@ import OreDumpLocations from "./OreDumpLocations";
 interface RightBoardProps {
   readyTrucks: Truck[];
   dumpLocationsForAssign: DumpLocation[];
+  targetMaterials : Material[];
 }
 
 const RightBoard: React.FC<RightBoardProps> = ({
   readyTrucks,
   dumpLocationsForAssign,
+  targetMaterials
 }) => {
     const [isShowMore, setIsShowMore] = useState<boolean>(true);
 

@@ -8,10 +8,11 @@ import {
   sampleReadyTrucks,
   dumpLocationsForAssign,
   sampleTargetMaterials,
+  sampleAssignedBenches
 } from "../DispatchLive/data/sampleData";
 import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd";
-import { Truck, DumpLocation, Material } from "../DispatchLive/interfaces/type";
+import { Truck, DumpLocation, Material, ActiveBenchData } from "../DispatchLive/interfaces/type";
 import "../DispatchLive/styles/style.scss";
 import "./styles/style.scss";
 import { useSelector } from "react-redux";
@@ -30,6 +31,7 @@ const OreSpotter: React.FC = () => {
   );
   const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
   const [selectedTab, setSelectedTab] = useState<number>(1);
+  const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(sampleAssignedBenches);
 
   const { data } = useSelector(
     createSelector(
@@ -72,6 +74,21 @@ const OreSpotter: React.FC = () => {
       )
     );
   };
+
+  
+  const removeTruckFromAssigned = (removedTruck : Truck) => {
+
+  }
+
+  const addBenches= (newBenches : ActiveBenchData) => {
+        const existItem = assignedBenches.find(
+            (item) =>
+              item.id === newBenches.id && item.assignId === newBenches.assignId
+        );
+        if(!existItem) {
+            setAssignedBenches((prevBenches) => [...prevBenches, newBenches]);
+        }
+    }
 
   const updateTargetMaterials = (updatedTruck: Material) => {
     setTargetMaterials((prevTrucks: Material[]) =>
@@ -130,10 +147,13 @@ const OreSpotter: React.FC = () => {
                             digger={digger}
                             readyTrucks={readyTrucks}
                             updateReadyTrucks={updateReadyTrucks}
+                            removeTruckFromAssigned={removeTruckFromAssigned}
                             targetMaterials={targetMaterials}
                             updateTargetMaterials={updateTargetMaterials}
                             dumpLocations={dumpLocations}
                             addDumpLocation={addDumpLocation}
+                            assignedBenches={assignedBenches}
+                            addBenches={addBenches}
                           />
                         </div>
                       ))
@@ -141,11 +161,14 @@ const OreSpotter: React.FC = () => {
                         <MainCard
                           digger={diggers[selectedTab - 2]}
                           readyTrucks={readyTrucks}
+                          removeTruckFromAssigned={removeTruckFromAssigned}
                           updateReadyTrucks={updateReadyTrucks}
                           targetMaterials={targetMaterials}
                           updateTargetMaterials={updateTargetMaterials}
                           dumpLocations={dumpLocations}
                           addDumpLocation={addDumpLocation}
+                          assignedBenches={assignedBenches}
+                          addBenches={addBenches}
                         />
                       )}
                 </div>

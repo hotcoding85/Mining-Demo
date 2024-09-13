@@ -60,6 +60,7 @@ const MainCard : React.FC<MainCardProps> = ({
                             sync={'active'}
                             assignedBenches={assignedBenches}
                             addBenches={addBenches}
+                            collapse={false}
                         >
                         </VehicleCard>
                     </div>

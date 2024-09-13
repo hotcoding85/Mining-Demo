@@ -3,12 +3,14 @@ import { DumpLocation } from "./interfaces/type";
 import { useDrop } from "react-dnd";
 
 interface AssignLocationItemProps {
+  diggerId : string;
   sourceId: number;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
 }
 
 const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
+  diggerId,
   sourceId,
   dumpLocations,
   addDumpLocation,
