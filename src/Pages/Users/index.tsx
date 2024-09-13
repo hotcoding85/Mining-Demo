@@ -86,7 +86,7 @@ const Users = (props: any) => {
         ? doc && doc.password
           ? doc.password
           : undefined
-        : undefined || undefined,
+        : undefined,
       skills: (doc && doc.skills) || undefined,
       role: (doc && doc.role) || "",
       email: (doc && doc.email) || undefined,
