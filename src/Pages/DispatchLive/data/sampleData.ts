@@ -51,6 +51,14 @@ export const dumpLocationsForAssign: DumpLocation[] = [
     { id: 5, assignId: 0, locationImg: dumpSouth, locationName : "Waste Dump - South"},
 ];
 
+export const OreDumpsForAssign: DumpLocation[] = [
+    { id: 1, assignId: 0, locationImg: dumpNorth, locationName : "Ore Dump - North"},
+    { id: 2, assignId: 0, locationImg: dumpCentral, locationName : "Ore Dump - Central"},
+    { id: 3, assignId: 0, locationImg: dumpSouth, locationName : "Ore Dump - East"},
+    { id: 4, assignId: 0, locationImg: dumpSouth, locationName : "Ore Dump - West"},
+    { id: 5, assignId: 0, locationImg: dumpSouth, locationName : "Ore Dump - South"},
+];
+
 export const diggers : DiggerData[] = [
     {no:1, diggerId : "Digger1", headerName:"Digger Fleet1"},
     {no:2, diggerId : "Digger2", headerName:"Digger Fleet2"},

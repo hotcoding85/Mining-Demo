@@ -41,12 +41,37 @@ const DispatchLive : React.FC = () => {
         );
         
         setAssignedTrucks((prevAssignedTrucks: Truck[]) => 
-            prevAssignedTrucks.filter((truck) => truck.assignId !== removedTruck.assignId )
+            prevAssignedTrucks.filter((truck) => truck.id !== removedTruck.id )
         );
     }
 
+    const assignTruckToFleet = (truck : Truck, diggerId : string) => {
+        const assignIds = assignedTrucks.filter(truck => truck.diggerId == diggerId).map(truck => {return truck.assignId});
+        const maxValue = assignIds.length > 0 ? Math.max(...assignIds) : -1; 
+        const updatedTruck = {
+            ...truck,
+            diggerId : diggerId,
+            assignId : maxValue + 1
+        }
+        setAssignedTrucks((prevAssignedTrucks) => (
+            prevAssignedTrucks.map(item => (item.id == truck.id) ? updatedTruck  : item)
+        ))
+        console.log(assignedTrucks);
+    }
+
     const addDumpLocation = (newDumpLocation: DumpLocation) => {
-        setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
+        const existItem = dumpLocations.find(
+            (item) =>
+              item.assignId === newDumpLocation.assignId && item.diggerId == newDumpLocation.diggerId
+        );
+        if(existItem) {
+            setDumpLocations((prevBenches) => (
+                prevBenches.map(item => (item.assignId === newDumpLocation.assignId && item.diggerId == newDumpLocation.diggerId) ? newDumpLocation : item)
+            ));
+        } else {
+            setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
+        }
+        
     };
 
     const addBenches= (newBenches : ActiveBenchData) => {
@@ -105,11 +130,12 @@ const DispatchLive : React.FC = () => {
                                 </Row>
                                 {diggersForShow.map((digger, index) => (
                                     <MainCard 
-                                        index = {digger.no}
+                                        digger = {digger}
                                         diggerHeader = {digger.headerName}
                                         assignedTrucks = {assignedTrucks}
                                         updateReadyTrucks = {updateReadyTrucks}
                                         removeTruckFromAssigned = {removeTruckFromAssigned}
+                                        assignTruckToFleet={assignTruckToFleet}
                                         dumpLocations={dumpLocations}
                                         addDumpLocation={addDumpLocation}
                                         assignedBenches={assignedBenches}

@@ -14,6 +14,7 @@ interface AssignBoardProps {
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
   removeTruckFromAssigned : (removedTruck: Truck) => void;
+  assignTruckToFleet : (truck : Truck, diggerId : string) => void;
   targetMaterials: Material[];
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
@@ -25,6 +26,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   digger,
   readyTrucks,
   updateReadyTrucks,
+  assignTruckToFleet,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
@@ -47,6 +49,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           removeTruckFromAssigned={removeTruckFromAssigned}
+          assignTruckToFleet={assignTruckToFleet}
           collapse={collapse}
           displayName="wrap"
         />
@@ -69,6 +72,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={2}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          assignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
@@ -92,6 +96,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={3}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
+          assignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           collapse={collapse}
           displayName="wrap"
@@ -116,6 +121,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
           removeTruckFromAssigned={removeTruckFromAssigned}
+          assignTruckToFleet={assignTruckToFleet}
           collapse={collapse}
           displayName="wrap"
         />

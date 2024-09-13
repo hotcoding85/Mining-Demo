@@ -31,12 +31,14 @@ const MessageBoard : React.FC = () => {
                 </div>
                 {isViewHistory ? allMessages.map((message, index) => (
                     <MessageBoardChips
+                        key={index}
                         message = {message}
                         backgroundColor = {index % 2 == 0 ? "#9254DE" : "#FF4D4F"}
                         closeMessage = {onCloseHistoryMessage}
                     />
                 )): newMessages.map((message, index) => (
                     <MessageBoardChips
+                        key={index}
                         message = {message}
                         backgroundColor={index % 2 == 0 ? "#9254DE" : "#FF4D4F"}
                         closeMessage = {onCloseNewMessage}

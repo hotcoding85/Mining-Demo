@@ -17,7 +17,7 @@ const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
 }) => {
   const locationForAssign = dumpLocations.find(
     (location) =>
-      location.assignId === sourceId
+      location.assignId === sourceId && location.diggerId === diggerId
   );
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -26,6 +26,7 @@ const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
       const newLocation = {
         ...draggedLocation,
         assignId: sourceId,
+        diggerId : diggerId
       };
       addDumpLocation(newLocation);
     },

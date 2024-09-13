@@ -180,6 +180,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
           <span className="vehicle-label">TPH</span>
           <span className="vehicle-value">329.5t</span>
         </p>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">Next Work Locations</span>
+        </p>
         {!isShowMore && (
           <div>
             <div className="next-location-container">

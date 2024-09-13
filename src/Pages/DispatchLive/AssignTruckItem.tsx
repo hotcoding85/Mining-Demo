@@ -12,6 +12,7 @@ interface AssignTruckItemProps {
     assignedTrucks: Truck[];
     updateReadyTrucks: (updatedTask: Truck) => void;
     removeTruckFromAssigned : (removedTruck: Truck) => void;
+    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
     collapse?: boolean;
     displayName: string;
 }
@@ -22,6 +23,7 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
     assignedTrucks,
     updateReadyTrucks,
     removeTruckFromAssigned,
+    assignTruckToFleet,
     collapse,
     displayName
 }) => {
@@ -31,25 +33,69 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
     const onShowMoreOrLess = () => {
         setIsShowMore(!isShowMore);
     };
-    
-    const items : MenuProps['items'] = [
-        {
-            key: '1',
-            label : 'Return to GO-Line'
-        },
-        {
-            key: '2',
-            label : 'Re-assign to Fleet 2'
-        },
-        {
-            key: '3',
-            label : 'Re-assign to Fleet 3'
+    let items : MenuProps['items'] = [];
+    switch(diggerId) {
+        case 'Digger1' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger2',
+                    label : 'Re-assign to Fleet 2'
+                },
+                {
+                    key: 'Digger3',
+                    label : 'Re-assign to Fleet 3'
+                }
+            ];
+            break;
         }
-    ];
+        case 'Digger2' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger1',
+                    label : 'Re-assign to Fleet 1'
+                },
+                {
+                    key: 'Digger3',
+                    label : 'Re-assign to Fleet 3'
+                }
+            ];
+            break;
+        }
+        case 'Digger3' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger1',
+                    label : 'Re-assign to Fleet 1'
+                },
+                {
+                    key: 'Digger2',
+                    label : 'Re-assign to Fleet 2'
+                }
+            ];
+            break;
+        }
+    }
     
     const handleMenuClick: MenuProps['onClick'] = (e) => {
-        if(e.key == '1' && truckForAssign) {
-            removeTruckFromAssigned(truckForAssign);
+        if(truckForAssign) {
+            if(e.key == 'Return') {
+                removeTruckFromAssigned(truckForAssign);
+            }
+            else {
+                assignTruckToFleet(truckForAssign, e.key);
+            }
         }
     };
     
@@ -60,7 +106,7 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
 
     const truckForAssign = assignedTrucks.find(
         (truck) =>
-          truck.assignId === sourceId
+          truck.assignId === sourceId && truck.diggerId === diggerId
     );
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -70,6 +116,7 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
         const updatedTruck = {
           ...draggedTruck,
           assignId: sourceId,
+          diggerId: diggerId
         };
         updateReadyTrucks(updatedTruck);
       }

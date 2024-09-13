@@ -80,6 +80,9 @@ const OreSpotter: React.FC = () => {
 
   }
 
+  const assignTruckToFleet = (truck : Truck, diggerId : string) => {
+
+  }
   const addBenches= (newBenches : ActiveBenchData) => {
         const existItem = assignedBenches.find(
             (item) =>
@@ -148,6 +151,7 @@ const OreSpotter: React.FC = () => {
                             readyTrucks={readyTrucks}
                             updateReadyTrucks={updateReadyTrucks}
                             removeTruckFromAssigned={removeTruckFromAssigned}
+                            assignTruckToFleet={assignTruckToFleet}
                             targetMaterials={targetMaterials}
                             updateTargetMaterials={updateTargetMaterials}
                             dumpLocations={dumpLocations}
@@ -163,6 +167,7 @@ const OreSpotter: React.FC = () => {
                           readyTrucks={readyTrucks}
                           removeTruckFromAssigned={removeTruckFromAssigned}
                           updateReadyTrucks={updateReadyTrucks}
+                          assignTruckToFleet={assignTruckToFleet}
                           targetMaterials={targetMaterials}
                           updateTargetMaterials={updateTargetMaterials}
                           dumpLocations={dumpLocations}
