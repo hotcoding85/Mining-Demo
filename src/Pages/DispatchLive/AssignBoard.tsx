@@ -29,8 +29,7 @@ const AssignBoard : React.FC<AssignBoardProps> = ({
 
     const filteredAssignedTrucks = assignedTrucks.filter(truck => truck.diggerId == digger.diggerId);
     const assignIds = filteredAssignedTrucks.map(truck => {return truck.assignId});
-    const maxValue = Math.max(...assignIds);
-    const itemLength = maxValue >= 4 ? maxValue + 2 : 5;
+    const itemLength = Math.max(...assignIds) >= 4 ? Math.max(...assignIds) + 2 : 5;
     const assignArr = Array.from({length:itemLength});
 
     return (
