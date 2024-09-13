@@ -53,7 +53,7 @@
 
     //topbar
     --#{$prefix}heading-bg:                                 #262b3c;
-    --#{$prefix}header-item-color:                          #{$gray-400};
+    --#{$prefix}header-item-color:                          #{$gray-900};
     --#{$prefix}topbar-search-bg:                           #{$gray-200};
 
     --#{$prefix}heading-dark-bg:                            #{$primary};
@@ -64,7 +64,7 @@
     --#{$prefix}menu-item-color:                            #a6b0cf;
 
     //footer
-    --#{$prefix}footer-bg:                                  #262b3c;
+    --#{$prefix}footer-bg:                                  #{$gray-300};
     --#{$prefix}footer-color:                               #{$gray-400};
 
     .card{

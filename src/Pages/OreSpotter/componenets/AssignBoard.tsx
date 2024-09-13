@@ -7,25 +7,26 @@ import {
   Material,
 } from "../../DispatchLive/interfaces/type";
 import AssignMaterialItem from "./AssignMaterialItem";
+import { Vehicle } from "slices/fleet/reducer";
 
 interface AssignBoardProps {
+  digger: Vehicle;
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
   targetMaterials: Material[];
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  collapse?: boolean;
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
+  digger,
   readyTrucks,
   updateReadyTrucks,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
   addDumpLocation,
-  collapse,
 }) => {
   return (
     <div className="assign-item-container">
@@ -37,17 +38,20 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
 
       <div className="assign-item-pair">
         <AssignTruckItem
+          diggerId={digger.id}
           sourceId={1}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          collapse={collapse}
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
+          diggerId={digger.id}
           sourceId={1}
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
         <AssignLocationItem
+          diggerId={digger.id}
           sourceId={1}
           dumpLocations={dumpLocations}
           addDumpLocation={addDumpLocation}
@@ -55,17 +59,20 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
+          diggerId={digger.id}
           sourceId={2}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          collapse={collapse}
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
+          diggerId={digger.id}
           sourceId={2}
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
         <AssignLocationItem
+          diggerId={digger.id}
           sourceId={2}
           dumpLocations={dumpLocations}
           addDumpLocation={addDumpLocation}
@@ -73,17 +80,20 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
+          diggerId={digger.id}
           sourceId={3}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          collapse={collapse}
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
+          diggerId={digger.id}
           sourceId={3}
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
         <AssignLocationItem
+          diggerId={digger.id}
           sourceId={3}
           dumpLocations={dumpLocations}
           addDumpLocation={addDumpLocation}
@@ -91,36 +101,21 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
+          diggerId={digger.id}
           sourceId={4}
-          readyTrucks={readyTrucks}
+          assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          collapse={collapse}
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
+          diggerId={digger.id}
           sourceId={4}
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
         <AssignLocationItem
+          diggerId={digger.id}
           sourceId={4}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          sourceId={5}
-          readyTrucks={readyTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          collapse={collapse}
-        />
-        <AssignMaterialItem
-          sourceId={5}
-          targetMaterials={targetMaterials}
-          updateTargetMaterials={updateTargetMaterials}
-        />
-        <AssignLocationItem
-          sourceId={5}
           dumpLocations={dumpLocations}
           addDumpLocation={addDumpLocation}
         />

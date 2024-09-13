@@ -17,6 +17,7 @@ const OreBodies: React.FC<OreBodiesProps> = ({ targetMaterials }) => {
         >
           {targetMaterials?.map((material: any) => (
             <OreBodyItem
+              key={material.materialId}
               oreBodyId={material.materialId}
               oreBody={material}
               fontColor="#FFFFFF"

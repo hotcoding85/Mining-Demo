@@ -8,21 +8,50 @@ body[data-layout-mode="dark"] {
   }
 
   .dispatch-live-left {
-    width: 80%;
+    width: calc(100% - 376px);
     margin-right: 20px;
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding-right: 4px;
+  }
+
+  .dispatch-digger-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
+    padding-right: 8px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: white;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #535e77;
+    border-radius: 50px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #bfbfbf;
   }
 
   .dispatch-live-right {
     width: 376px;
     flex: none;
-    position: sticky;
+    position: fixed;
     top: 0px;
+    right: 0px;
     height: 100%;
-    overflow-y: scroll;
+    padding-top: 70px;
+    padding-bottom: 60px;
   }
 
   .vehicle-card {
@@ -34,6 +63,8 @@ body[data-layout-mode="dark"] {
     width: 232px;
     position: relative;
     margin-top: 16px;
+    padding: 10px 16px;
+    gap: 32px;
     /* margin: 20px; */
   }
 
@@ -41,7 +72,6 @@ body[data-layout-mode="dark"] {
     font-family: "Poppins";
     display: flex;
     align-items: center;
-    padding: 10px 16px;
     margin-top: 15px;
     margin-bottom: 22px;
     padding-right: 0;
@@ -105,6 +135,19 @@ body[data-layout-mode="dark"] {
   .vehicle-card-progress {
     margin-bottom: 32px;
   }
+
+  .vehicle-card-progress .ant-progress-inner {
+    background-color: #535e77 !important;
+  }
+
+  .fuel-level-progress-bar .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
+  .total-cycles-progress-bar .ant-progress-bg {
+    background-color: white !important;
+  }
+
   .vehicle-progress-text {
     display: flex;
     justify-content: space-between;
@@ -125,8 +168,11 @@ body[data-layout-mode="dark"] {
   }
 
   .vehicle-card-details {
-    padding: 16px;
     gap: 10px;
+  }
+
+  .vehicle-card-details .location-item {
+    margin-bottom: 32px;
   }
 
   .vehicle-card-details p {
@@ -178,6 +224,28 @@ body[data-layout-mode="dark"] {
     background-color: #535e77;
     margin-top: 32px;
     margin-bottom: 32px;
+  }
+
+  .next-location-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    .item {
+      background-color: #535e77;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+    .label {
+      padding: 4px 8px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+      color: white;
+      margin: 0;
+    }
   }
 
   .dispatch-live-main-card {
@@ -246,7 +314,7 @@ body[data-layout-mode="dark"] {
     line-height: 32px;
   }
 
-  #nextWorkLocation {
+  .nextWorkLocation {
     border-radius: 99px;
     background-color: #535e77;
     color: white;
@@ -269,7 +337,10 @@ body[data-layout-mode="dark"] {
 
   .dispatch-right-board {
     padding: 24px 16px;
+    overflow-y: scroll;
+    height: 100%;
     background-color: #283655;
+    height: 100%;
   }
 
   .right-board-topic {
@@ -278,6 +349,14 @@ body[data-layout-mode="dark"] {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+  }
+
+  .truck-items-container {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    column-gap: 46px;
+    flex-wrap: wrap;
   }
 
   .assign-truck-item-header,
@@ -328,12 +407,22 @@ body[data-layout-mode="light"] {
   }
 
   .dispatch-live-left {
-    width: 80%;
+    width: calc(100% - 376px);
     margin-right: 20px;
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding-right: 4px;
+  }
+
+  .dispatch-digger-container {
+    padding-right: 8px;
+    height: calc(100% - 85px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  .dispatch-digger-container::-webkit-scrollbar {
+    width: 2px !important;
   }
 
   ::-webkit-scrollbar {
@@ -359,10 +448,12 @@ body[data-layout-mode="light"] {
   .dispatch-live-right {
     width: 376px;
     flex: none;
-    position: sticky;
+    position: fixed;
     top: 0px;
+    right: 0px;
     height: 100%;
-    overflow-y: scroll;
+    padding-top: 70px;
+    padding-bottom: 60px;
   }
 
   .vehicle-card {
@@ -375,6 +466,7 @@ body[data-layout-mode="light"] {
     position: relative;
     margin-top: 16px;
     border: 1px solid #e0e0e0;
+    padding: 10px 16px;
     /* margin: 20px; */
   }
 
@@ -382,7 +474,6 @@ body[data-layout-mode="light"] {
     font-family: "Poppins";
     display: flex;
     align-items: center;
-    padding: 10px 16px;
     margin-top: 15px;
     margin-bottom: 22px;
     padding-right: 0;
@@ -437,6 +528,15 @@ body[data-layout-mode="light"] {
   .vehicle-card-progress {
     margin-bottom: 32px;
   }
+
+  .vehicle-card-progress .ant-progress-inner {
+    background-color: #e0e0e0 !important;
+  }
+
+  .vehicle-card-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .vehicle-progress-text {
     display: flex;
     justify-content: space-between;
@@ -459,8 +559,11 @@ body[data-layout-mode="light"] {
   }
 
   .vehicle-card-details {
-    padding: 16px;
     gap: 10px;
+  }
+
+  .vehicle-card-details .location-item {
+    margin-bottom: 32px;
   }
 
   .vehicle-card-details p {
@@ -514,6 +617,28 @@ body[data-layout-mode="light"] {
     background-color: #e0e0e0;
     margin-top: 32px;
     margin-bottom: 32px;
+  }
+
+  .next-location-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    .item {
+      background-color: #535e77;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+    }
+    .label {
+      padding: 4px 8px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+      color: white;
+      margin: 0;
+    }
   }
 
   .dispatch-live-main-card {
@@ -583,7 +708,7 @@ body[data-layout-mode="light"] {
     line-height: 32px;
   }
 
-  #nextWorkLocation {
+  .nextWorkLocation {
     border-radius: 99px;
     background-color: #828282;
     color: white;
@@ -606,6 +731,9 @@ body[data-layout-mode="light"] {
 
   .dispatch-right-board {
     padding: 24px 16px;
+    overflow-y: scroll;
+    height: 100%;
+    border-left: 1px solid #e0e0e0;
   }
 
   .right-board-topic {
@@ -614,6 +742,14 @@ body[data-layout-mode="light"] {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+  }
+
+  .truck-items-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    flex-wrap: wrap;
+    column-gap: 16px;
   }
 
   .assign-truck-item-header,

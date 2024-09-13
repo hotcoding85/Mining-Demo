@@ -952,7 +952,7 @@ const Replay = (props: any) => {
                                                     <Menu.Item
                                                         onClick={() => selectTrip(route)}
                                                         key={`${dt.id}-${index}`}
-                                                        className={selectedTrip?.id === route.id ? 'selected' : ''}
+                                                        className={"replay-menu-item " + (selectedTrip?.id === route.id ? 'selected' : '')}
                                                     >
                                                         {route ? route.name : 'Test'}
                                                     </Menu.Item>

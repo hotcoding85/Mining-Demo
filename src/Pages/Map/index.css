@@ -1,0 +1,6 @@
+body[data-layout-mode='dark'] .ant-checkbox-wrapper {
+    color: white;
+}
+body[data-layout-mode='light'] .ant-checkbox-wrapper {
+    color: gray;
+}

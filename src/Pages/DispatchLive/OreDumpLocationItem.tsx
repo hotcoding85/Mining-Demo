@@ -1,0 +1,28 @@
+import React from "react";
+import "./styles/wasteDump.scss"
+import { DumpLocation } from "./interfaces/type";
+import { useDrag } from 'react-dnd';
+
+interface OreDumpLocationItemProps {
+    dumpLocation : DumpLocation;
+}
+const OreDumpLocationItem : React.FC<OreDumpLocationItemProps> = ({
+    dumpLocation
+}) => {
+    const [{ isDragging }, drag] = useDrag({
+        type: 'OREDUMP',
+        item: { ...dumpLocation },
+        collect: (monitor) => ({
+          isDragging: monitor.isDragging(),
+        }),
+    });
+
+    return (
+        <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="waste-dump-item">
+            <img src={dumpLocation.locationImg} alt="north" />
+            <p className="waste-dump-chips">{dumpLocation.locationName}</p>
+        </div>
+    )
+}
+
+export default OreDumpLocationItem

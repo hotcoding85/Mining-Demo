@@ -5,17 +5,20 @@ import { Material } from "Pages/DispatchLive/interfaces/type";
 
 interface AssignMaterialItemProps {
   sourceId: number;
+  diggerId: string;
   targetMaterials: Material[];
   updateTargetMaterials: (updatedTask: Material) => void;
 }
 
 const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
+  diggerId,
   sourceId,
   targetMaterials,
   updateTargetMaterials,
 }) => {
   const materialForAssign = targetMaterials.find(
-    (material) => material.assignId === sourceId
+    (material) =>
+      material.assignId === sourceId && material.diggerId === diggerId
   );
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -24,6 +27,7 @@ const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
       const updatedMaterial = {
         ...draggedMaterial,
         assignId: sourceId,
+        diggerId: diggerId,
       };
 
       updateTargetMaterials(updatedMaterial);
@@ -50,7 +54,7 @@ const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
           </div>
         </div>
       ) : (
-        <div className="empty">+Assign Mateiral here</div>
+        <div className="empty">+ Assign Mateiral here</div>
       )}
     </div>
   );

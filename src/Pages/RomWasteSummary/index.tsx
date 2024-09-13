@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Container, Card, CardBody, CardTitle, Progress, Row, Col } from 'reactstrap';
 
 import { PieChart } from "../../Components/Charts/PieChart";
@@ -9,6 +9,9 @@ import './index.css';
 import { RomStatusTableCard } from './components/RomStatusTableCard';
 import BarGraph from './components/BarGraph';
 import ProgressPieChart from 'Components/Charts/ProgressPieChart';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
+import { LAYOUT_MODE_TYPES } from 'Components/constants/layout';
 
 const RomWasteSummary = () => {
   document.title = "Rom & Waste Summary | FMS Live";
@@ -190,8 +193,21 @@ const RomWasteSummary = () => {
       setEndDate(date.toDate());
     }
   };
+  const { layoutModeType } = useSelector(
+    createSelector(
+      (state: any) => state.Layout,
+      (layout) => ({
+        layoutModeType: layout.layoutModeTypes,
+      })
+    )
+  );
+
+  const isLight = useMemo(
+    () => layoutModeType === LAYOUT_MODE_TYPES.LIGHT,
+    [layoutModeType]
+  );
   const colorRom = '#F44336'
-  const colorWaste = '#00b300'
+  const colorWaste ='#00b300'
 
   const [romTonnesExtraction, setRomTonnesExtraction] = useState(58.8);
 
@@ -238,7 +254,7 @@ const RomWasteSummary = () => {
               <h5 style={{marginBottom: 0}}>Rom Tonnes Extraction</h5>
               <Row style={{marginTop: '1rem'}}>
                 <Col md={8} xs={12}>
-                  <ProgressPieChart width={250} color={colorRom} bgColor={colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100}/>
+                  <ProgressPieChart width={250} color={colorRom} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100}/>
                 </Col>
                 <Col md={4} xs={12}  style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px'}}>
                   <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -256,7 +272,7 @@ const RomWasteSummary = () => {
               <h5 style={{marginBottom: 0}}>Waste Extraction to Dumps</h5>
               <Row style={{marginTop: '1rem'}}>
                 <Col md={8} xs={12}>
-                  <ProgressPieChart width={250} color={colorWaste} bgColor={colorWaste} textColor='#a6b0cf' value={wasteExtraction} maxValue={100} />
+                  <ProgressPieChart width={250} color={colorWaste} bgColor={isLight ? 'gray' : colorWaste} textColor='#a6b0cf' value={wasteExtraction} maxValue={100} />
                 </Col>
                 <Col md={4} xs={12}  style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px'}}>
                   <div style={{display: 'flex', flexDirection: 'column'}}>

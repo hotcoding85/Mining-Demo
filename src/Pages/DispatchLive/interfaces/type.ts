@@ -11,8 +11,15 @@ export interface VehicleData {
 }
 
 export interface ActiveBenchData {
-  id: number;
-  name: string;
+  id : number;
+  name : string;
+  assignId : number;
+}
+
+export interface MessageData {
+  id : number;
+  truckId : string;
+  status : string;
 }
 
 export interface WasteDumpLocationData {
@@ -26,6 +33,7 @@ export interface Truck {
   assignId: number;
   truckId: string;
   operator: string;
+  diggerId?: string;
 }
 
 export interface DumpLocation {
@@ -33,10 +41,18 @@ export interface DumpLocation {
   assignId: number;
   locationImg: string;
   locationName: string;
+  diggerId?: string;
 }
 
 export interface Material {
   id: number;
   assignId: number;
   materialId: string;
+  diggerId?: string;
+}
+
+export interface DiggerData {
+  diggerId : string;
+  headerName : string;
+  no : number;
 }

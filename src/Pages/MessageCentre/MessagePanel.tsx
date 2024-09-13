@@ -120,7 +120,7 @@ const MessagesPanel: React.FC<MessagePanelProps> = ({setIsBroadcast, showMessage
                 itemLayout="horizontal"
                 dataSource={filteredMessages}
                 renderItem={item => (
-                    <List.Item>
+                    <List.Item className='message-panel-item'>
                         <Checkbox
                             checked={selectedRowKeys.includes(item.key)}
                             onChange={(e) => onRowSelectChange(item.key, e.target.checked)}

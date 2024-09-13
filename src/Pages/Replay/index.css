@@ -29,20 +29,20 @@ body[data-layout-mode="light"] .ant-menu{
 body[data-layout-mode="light"] .ant-menu-title-content {
     color: black;
 }
-.ant-menu-item{
+.replay-menu-item{
     color: white !important;
     /* border-bottom: 1px solid white !important; */
     border-radius: 0px !important;
     margin: 0px !important;
     width: 100% !important;
 }
-.ant-menu-item-selected{
+.replay-menu-item-selected{
     background-color: #283655 !important;
 }
-.ant-menu-item.selected {
+.replay-menu-item.selected {
     background-color: #787d80 !important;
 }
-.ant-menu-item:hover {
+.replay-menu-item:hover {
     background-color: grey;
 }
 .mapboxgl-ctrl-bottom-right{

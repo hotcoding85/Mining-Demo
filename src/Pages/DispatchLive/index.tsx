@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { Col, Container, Row } from "reactstrap";
 import MainCard from "./MainCard";
@@ -8,25 +8,48 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import {
   sampleReadyTrucks,
   dumpLocationsForAssign,
+  sampleAssignedBenches,
+  diggers,
   sampleTargetMaterials,
 } from "./data/sampleData";
 import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd";
 import "./styles/style.scss";
-import { Truck, DumpLocation, Material } from "./interfaces/type";
+import {
+  Truck,
+  DumpLocation,
+  ActiveBenchData,
+  DiggerData,
+  Material,
+} from "./interfaces/type";
 
 const DispatchLive: React.FC = () => {
   document.title = "Dispatch Live | FMS Live";
   const [readyTrucks, setreadyTrucks] = useState<Truck[]>(sampleReadyTrucks);
-  const [targetMaterials, setTargetMaterials] = useState<Material[]>(
-    sampleTargetMaterials
-  );
+  const [assignedTrucks, setAssignedTrucks] = useState<Truck[]>([]);
   const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
+  const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(
+    sampleAssignedBenches
+  );
+  const [diggersForShow, setdiggersForShow] = useState<DiggerData[]>(diggers);
 
-  const updateReadyTrucks = (updatedTruck: Truck) => {
+  const updateReadyTrucks = (assignedTruck: Truck) => {
     setreadyTrucks((prevTrucks: Truck[]) =>
-      prevTrucks.map((truck) =>
-        truck.id === updatedTruck.id ? updatedTruck : truck
+      prevTrucks.filter((truck) => truck.id !== assignedTruck.id)
+    );
+
+    setAssignedTrucks((prevAssignedTrucks: Truck[]) => [
+      ...prevAssignedTrucks,
+      assignedTruck,
+    ]);
+  };
+
+  const removeTruckFromAssigned = (removedTruck: Truck) => {
+    setreadyTrucks((prevTrucks: Truck[]) => [...prevTrucks, removedTruck]);
+
+    setAssignedTrucks((prevAssignedTrucks: Truck[]) =>
+      prevAssignedTrucks.filter(
+        (truck) => truck.assignId !== removedTruck.assignId
       )
     );
   };
@@ -35,24 +58,41 @@ const DispatchLive: React.FC = () => {
     setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
   };
 
-  const onTabChange = (key: string) => {
-    console.log(key);
+  const addBenches = (newBenches: ActiveBenchData) => {
+    const existItem = assignedBenches.find(
+      (item) =>
+        item.id === newBenches.id && item.assignId === newBenches.assignId
+    );
+    if (!existItem) {
+      setAssignedBenches((prevBenches) => [...prevBenches, newBenches]);
+    }
   };
-  const items: TabsProps["items"] = [
+
+  const onTabChange = (key: string) => {
+    if (key === "All") {
+      setdiggersForShow(diggers);
+    } else {
+      const filteredDiggers = diggers.filter(
+        (digger) => digger.diggerId == key
+      );
+      setdiggersForShow(filteredDiggers);
+    }
+  };
+  const tabItems: TabsProps["items"] = [
     {
-      key: "1",
+      key: "All",
       label: "All",
     },
     {
-      key: "2",
+      key: "Digger1",
       label: "Digger1",
     },
     {
-      key: "3",
+      key: "Digger2",
       label: "Digger2",
     },
     {
-      key: "4",
+      key: "Digger3",
       label: "Digger3",
     },
   ];
@@ -69,23 +109,31 @@ const DispatchLive: React.FC = () => {
                     <Space>
                       <Tabs
                         defaultActiveKey="1"
-                        items={items}
+                        items={tabItems}
                         onChange={onTabChange}
                       ></Tabs>
                     </Space>
                   </Col>
                 </Row>
-                <MainCard
-                  readyTrucks={readyTrucks}
-                  updateReadyTrucks={updateReadyTrucks}
-                  dumpLocations={dumpLocations}
-                  addDumpLocation={addDumpLocation}
-                />
+                <div className="dispatch-digger-container ">
+                  {diggersForShow.map((digger, index) => (
+                    <MainCard
+                      index={digger.no}
+                      diggerHeader={digger.headerName}
+                      assignedTrucks={assignedTrucks}
+                      updateReadyTrucks={updateReadyTrucks}
+                      removeTruckFromAssigned={removeTruckFromAssigned}
+                      dumpLocations={dumpLocations}
+                      addDumpLocation={addDumpLocation}
+                      assignedBenches={assignedBenches}
+                      addBenches={addBenches}
+                    />
+                  ))}
+                </div>
               </div>
               <div className="dispatch-live-right">
                 <RightBoard
                   readyTrucks={readyTrucks}
-                  targetMaterials={targetMaterials}
                   dumpLocationsForAssign={dumpLocationsForAssign}
                 />
               </div>

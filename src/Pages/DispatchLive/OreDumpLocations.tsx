@@ -1,15 +1,16 @@
 import React, {useState} from "react";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 import WasteDumpLocationItem from "./WasteDumpLocationItem";
-import "./styles/wasteDump.scss";
+import "./styles/wasteDump.scss"
 import { DumpLocation } from "./interfaces/type";
+import OreDumpLocationItem from "./OreDumpLocationItem";
 
-interface WasteDumpLocationsProps {
-  dumpLocationsForAssign: DumpLocation[];
+interface OreDumpLocationsProps {
+    dumpLocationsForAssign : DumpLocation[];
 }
 
-const WasteDumpLocations: React.FC<WasteDumpLocationsProps> = ({
-  dumpLocationsForAssign,
+const OreDumpLocations : React.FC<OreDumpLocationsProps> = ({
+    dumpLocationsForAssign
 }) => {
 
     const [showSize, setShowSize] = useState<number>(3);
@@ -28,12 +29,12 @@ const WasteDumpLocations: React.FC<WasteDumpLocationsProps> = ({
         <React.Fragment>
             <div>
                 <div className="d-flex flex-row justify-content-between">
-                    <p className="right-board-topic">Waste Dump Locations</p>
+                    <p className="right-board-topic">Ore Dump Locations</p>
                     <div className="show-more-btn" onClick={!showedAll?handleShowMore : handleShowLess}>{!showedAll ? "View more" : "View Less"}</div>
                 </div>
                 <div className="waste-dump-container">
                     {dumpLocationsForAssign.slice(0, showSize).map((location) => (
-                        <WasteDumpLocationItem key={location.id} dumpLocation={location} />
+                        <OreDumpLocationItem key={location.id} dumpLocation={location} />
                     ))}   
                 </div>
             </div>
@@ -41,4 +42,4 @@ const WasteDumpLocations: React.FC<WasteDumpLocationsProps> = ({
     )
 }
 
-export default WasteDumpLocations;
+export default OreDumpLocations;
