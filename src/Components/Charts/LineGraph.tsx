@@ -53,7 +53,7 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   return (
     <Card>
       <div className="BarGraphContainer">
-        {header && <div className="progress-header">{header}</div>}
+        {header && <h4 className="progress-header">{header}</h4>}
         <div className="LegendContainer">
           {textColor.map((item, index) => (
             <div className="LegendItem" key={index}>

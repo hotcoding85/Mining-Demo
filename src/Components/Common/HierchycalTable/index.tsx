@@ -19,6 +19,9 @@ import {
 
 import { rankItem } from "@tanstack/match-sorter-utils";
 import JobListGlobalFilter from "../GlobalSearchFilter";
+import { Dropdown } from "antd";
+import { SearchDropdown } from "../Dropdown";
+import { UploadOutlined } from "@ant-design/icons";
 
 // Column Filter
 const Filter = ({
@@ -71,12 +74,16 @@ const DebouncedInput = ({
 
   return (
     <React.Fragment>
-      <Col sm={4}>
+      <Col sm={5} className="position-relative">
         <input
           {...props}
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.9167 9.66667H10.2583L10.025 9.44167C10.8417 8.49167 11.3333 7.25833 11.3333 5.91667C11.3333 2.925 8.90833 0.5 5.91667 0.5C2.925 0.5 0.5 2.925 0.5 5.91667C0.5 8.90833 2.925 11.3333 5.91667 11.3333C7.25833 11.3333 8.49167 10.8417 9.44167 10.025L9.66667 10.2583V10.9167L13.8333 15.075L15.075 13.8333L10.9167 9.66667ZM5.91667 9.66667C3.84167 9.66667 2.16667 7.99167 2.16667 5.91667C2.16667 3.84167 3.84167 2.16667 5.91667 2.16667C7.99167 2.16667 9.66667 3.84167 9.66667 5.91667C9.66667 7.99167 7.99167 9.66667 5.91667 9.66667Z" fill="#BCC1CA"/>
+        </svg>
+
       </Col>
     </React.Fragment>
   );
@@ -212,9 +219,36 @@ const HierarchycalTable = ({
     }
   };
 
+  const filters = {
+    model: [
+      {
+        label: "HD1500",
+        value: "HD1500",
+      },
+      {
+        label: "HD785",
+        value: "HD785",
+      },
+    ],
+    fleet: [
+      {
+        label: "Fleet1",
+        value: "TD001",
+      },
+      {
+        label: "Fleet2",
+        value: "TD002",
+      },
+      {
+        label: "Fleet3",
+        value: "TD003",
+      },
+    ],
+  };
+
   return (
     <Fragment>
-      <Row className="mb-2">
+      <Row className="py-4 mx-0">
         {isCustomPageSize && (
           <Col sm={2}>
             <select
@@ -233,18 +267,45 @@ const HierarchycalTable = ({
           </Col>
         )}
 
-        {isGlobalFilter && (
-          <DebouncedInput
-            value={globalFilter ?? ""}
-            onChange={(value) => setGlobalFilter(String(value))}
-            className="form-control search-box me-2 mb-2 d-inline-block"
-            placeholder={SearchPlaceholder}
-          />
-        )}
         {isJobListGlobalFilter && (
           <JobListGlobalFilter setGlobalFilter={setGlobalFilter} />
         )}
-        <Col sm={8}>
+        {
+          <Col sm={6} >
+
+            <h3 className="report-heading mb-0">
+            Carryback Discrepancy Report
+            </h3>
+          </Col>
+        }
+        {
+          <Col sm={6}>
+            <div className="d-flex align-items-center gap-3 justify-content-end">
+              <SearchDropdown
+                itemsGroup={filters}
+                disableTitle={false}
+                disableDivider={false}
+              />
+
+              <div className="export-csv">
+                <Button>
+                  Export CSV
+                  <UploadOutlined />
+                </Button>
+              </div>
+
+              {(
+                <DebouncedInput
+                  value={globalFilter ?? ""}
+                  onChange={(value) => setGlobalFilter(String(value))}
+                  className="form-control search-box d-inline-block"
+                  placeholder={SearchPlaceholder}
+                />
+              )}
+            </div>
+          </Col>
+        }
+        {/* <Col sm={8}>
           <div className="d-flex justify-content-end text-sm-end gap-2">
             {isAddButton && (
               <Button
@@ -265,7 +326,7 @@ const HierarchycalTable = ({
               </Button>
             )}
           </div>
-        </Col>
+        </Col> */}
       </Row>
 
       <div className={divClassName ? divClassName : "table-responsive"}>
@@ -322,7 +383,7 @@ const HierarchycalTable = ({
           <tbody>
             {getRowModel().rows.map((row) => {
               return (
-                <tr key={row.id}>
+                <tr key={row.id} id={'parent'}>
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <td key={cell.id}>
@@ -343,7 +404,7 @@ const HierarchycalTable = ({
       {isPagination && (
         <Row>
           <Col sm={12} md={5}>
-            {getState().pagination.pageSize < Number({ total }) ? (
+            {/* {getState().pagination.pageSize < Number({ total }) ? (
               <div className="dataTables_info">
                 Showing {getState().pagination.pageSize} of {total} Results
               </div>
@@ -351,7 +412,7 @@ const HierarchycalTable = ({
               <div className="dataTables_info">
                 Showing {total} of {total} Results
               </div>
-            )}
+            )} */}
           </Col>
           <Col sm={12} md={7}>
             <div className={paginationWrapper}>
