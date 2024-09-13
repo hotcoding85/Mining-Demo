@@ -16,14 +16,11 @@ body[data-layout-mode="dark"] {
   }
 
   .dispatch-digger-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
     padding-right: 8px;
-    height: calc(100% - 85px);
-    overflow-y: scroll;
-    overflow-x: hidden;
-  }
-
-  .dispatch-digger-container::-webkit-scrollbar {
-    width: 2px !important;
   }
 
   ::-webkit-scrollbar {

@@ -25,6 +25,7 @@ import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import { getAllFleet } from "slices/thunk";
 import RightBoard from "Pages/DispatchLive/RightBoard";
+import { Vehicle } from "slices/fleet/reducer";
 
 const OreSpotter: React.FC = () => {
   document.title = "Ore tracker | FMS Live";
@@ -35,10 +36,10 @@ const OreSpotter: React.FC = () => {
     sampleTargetMaterials
   );
   const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
-  const [selectedTab, setSelectedTab] = useState<number>(1);
   const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(
     sampleAssignedBenches
   );
+  const [diggersForShow, setDiggersForShow] = useState<Vehicle[]>([]);
 
   const { data } = useSelector(
     createSelector(
@@ -53,6 +54,10 @@ const OreSpotter: React.FC = () => {
     () => data.filter((item) => item.category === "EXCAVATOR"),
     [data]
   );
+
+  useEffect(() => {
+    setDiggersForShow(diggers);
+  }, [diggers]);
 
   const trucks = useMemo(
     () => data.filter((item) => item.category === "DUMP_TRUCK"),
@@ -105,16 +110,21 @@ const OreSpotter: React.FC = () => {
   };
 
   const onTabChange = (key: string) => {
-    setSelectedTab(Number(key));
+    if (key === "All") {
+      setDiggersForShow(diggers);
+    } else {
+      const filteredDiggers = diggers.filter((digger) => digger.name == key);
+      setDiggersForShow(filteredDiggers);
+    }
   };
 
   const items: TabsProps["items"] = [
     {
-      key: "1",
+      key: "All",
       label: "All",
     },
     ...diggers.map((item, idx) => ({
-      key: idx + 2,
+      key: item.name,
       label: item.name,
     })),
   ];
@@ -138,38 +148,21 @@ const OreSpotter: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                {selectedTab === 1
-                  ? diggers.map((digger, index) => (
-                      <div
-                        key={index}
-                        className={index !== 0 ? "mt-4" : "mt-0"}
-                      >
-                        <MainCard
-                          digger={digger}
-                          readyTrucks={readyTrucks}
-                          updateReadyTrucks={updateReadyTrucks}
-                          targetMaterials={targetMaterials}
-                          updateTargetMaterials={updateTargetMaterials}
-                          dumpLocations={dumpLocations}
-                          addDumpLocation={addDumpLocation}
-                          assignedBenches={assignedBenches}
-                          addBenches={addBenches}
-                        />
-                      </div>
-                    ))
-                  : selectedTab && (
-                      <MainCard
-                        digger={diggers[selectedTab - 2]}
-                        readyTrucks={readyTrucks}
-                        updateReadyTrucks={updateReadyTrucks}
-                        targetMaterials={targetMaterials}
-                        updateTargetMaterials={updateTargetMaterials}
-                        dumpLocations={dumpLocations}
-                        addDumpLocation={addDumpLocation}
-                        assignedBenches={assignedBenches}
-                        addBenches={addBenches}
-                      />
-                    )}
+                <div className="dispatch-digger-container">
+                  {diggersForShow.map((digger, index) => (
+                    <MainCard
+                      digger={digger}
+                      readyTrucks={readyTrucks}
+                      updateReadyTrucks={updateReadyTrucks}
+                      targetMaterials={targetMaterials}
+                      updateTargetMaterials={updateTargetMaterials}
+                      dumpLocations={dumpLocations}
+                      addDumpLocation={addDumpLocation}
+                      assignedBenches={assignedBenches}
+                      addBenches={addBenches}
+                    />
+                  ))}
+                </div>
               </div>
               <div className="dispatch-live-right">
                 <RightBoard

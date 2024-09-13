@@ -115,19 +115,21 @@ const DispatchLive: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                {diggersForShow.map((digger, index) => (
-                  <MainCard
-                    index={digger.no}
-                    diggerHeader={digger.headerName}
-                    assignedTrucks={assignedTrucks}
-                    updateReadyTrucks={updateReadyTrucks}
-                    removeTruckFromAssigned={removeTruckFromAssigned}
-                    dumpLocations={dumpLocations}
-                    addDumpLocation={addDumpLocation}
-                    assignedBenches={assignedBenches}
-                    addBenches={addBenches}
-                  />
-                ))}
+                <div className="dispatch-digger-container ">
+                  {diggersForShow.map((digger, index) => (
+                    <MainCard
+                      index={digger.no}
+                      diggerHeader={digger.headerName}
+                      assignedTrucks={assignedTrucks}
+                      updateReadyTrucks={updateReadyTrucks}
+                      removeTruckFromAssigned={removeTruckFromAssigned}
+                      dumpLocations={dumpLocations}
+                      addDumpLocation={addDumpLocation}
+                      assignedBenches={assignedBenches}
+                      addBenches={addBenches}
+                    />
+                  ))}
+                </div>
               </div>
               <div className="dispatch-live-right">
                 <RightBoard
