@@ -203,7 +203,7 @@ export const CardSampleData = [
     fuelLevel: 64,
     fuelRate: 79.7,
     fuelTruckAssign: "FT001",
-    priority: "High",
+    priority: "",
   },
   {
     id: 2,
@@ -214,7 +214,7 @@ export const CardSampleData = [
     fuelLevel: 30,
     fuelRate: 81.3,
     fuelTruckAssign: "FT002",
-    priority: "Medium",
+    priority: "",
   },
   {
     id: 3,
@@ -224,8 +224,8 @@ export const CardSampleData = [
     isRequestingFuel: false,
     fuelLevel: 70,
     fuelRate: 75.5,
-    fuelTruckAssign: "FT003",
-    priority: "Low",
+    fuelTruckAssign: "",
+    priority: "",
   },
   {
     id: 4,
@@ -235,7 +235,7 @@ export const CardSampleData = [
     isRequestingFuel: true,
     fuelLevel: 45,
     fuelRate: 78.2,
-    fuelTruckAssign: "FT004",
+    fuelTruckAssign: "",
     priority: "High",
   },
   {
