@@ -123,7 +123,7 @@ const authProtectedRoutes = [
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
-  { path: "/details/:id", exact: true, component: <PreStartDetails /> },  // Assuming you have a details page
+  { path: "/details/prestarts", exact: true, component: <PreStartDetails /> }, 
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
