@@ -1052,7 +1052,7 @@ const Target = (props: any) => {
                   <h2>Trucks</h2>
                   <TableContainer
                     columns={currentTruckColumns}
-                    data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : [] || []}
+                    data={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'] : []}
                     total={data && data['DUMP_TRUCK'] ? data['DUMP_TRUCK'].length : 0}
                     theadClass="theadCenterAlign"
                     isGlobalFilter={false}
@@ -1069,7 +1069,7 @@ const Target = (props: any) => {
                   <h2>Excavators</h2>
                   <TableContainer
                     columns={diggerColumns}
-                    data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : [] || []}
+                    data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : []}
                     total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
                     theadClass="theadCenterAlign"
                     isGlobalFilter={false}

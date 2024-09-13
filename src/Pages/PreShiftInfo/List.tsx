@@ -9,7 +9,7 @@ import {
   placeHolder,
 } from "assets/images/equipment";
 import "./index.scss";
-import { Button, DatePicker, Select } from "antd";
+import { Button, DatePicker, Modal, Select } from "antd";
 import dayjs from "dayjs";
 import { useDrop } from "react-dnd";
 import { Excavator, ShiftInfoData, Truck } from "./interfaces/type";
@@ -19,6 +19,10 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | string>("");
   const [shiftInfo, setShiftInfo] = useState<ShiftInfoData[]>(data);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [targetTruckFileds, setTargetTruckFileds] = useState<any>({shiftIndex: 0, field: '', value: '' });
+  const [targetExcavatoreFileds, setTargetExcavatoreFileds] = useState<any>({shiftIndex: 0, field: '', value: '', index: 0 });
+  const [targetEquipment, setTargetEquipment] = useState<string>('');
 
   const DropTarget = ({
     dropId,
@@ -54,11 +58,18 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
     value: string
   ) => {
     if (id === dropId) {
-      setShiftInfo((prevState) => {
-        const updatedData = [...prevState];
-        updatedData[shiftIndex].trucks[index][field] = value;
-        return updatedData;
-      });
+      if(shiftInfo[shiftIndex].trucks[index][field] === '' || shiftInfo[shiftIndex].trucks[index][field] === value ){
+        setShiftInfo((prevState) => {
+          const updatedData = [...prevState];
+          updatedData[shiftIndex].trucks[index][field]= value;
+          return updatedData;
+        });
+      }else{
+        setTargetEquipment('truck');
+        setIsModalVisible(true);
+        const  updateElementFields = {shiftIndex, field, value, index};
+        setTargetTruckFileds(updateElementFields);
+      }
     }
   };
 
@@ -71,13 +82,32 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
     value: string
   ) => {
     if (id === dropId) {
-      setShiftInfo((prevState) => {
-        const updatedData = [...prevState];
-        updatedData[shiftIndex].excavator[field] = value;
-        return updatedData;
-      });
+      if(shiftInfo[shiftIndex].excavator[field] === '' || shiftInfo[shiftIndex].excavator[field] === value ){
+        setShiftInfo((prevState) => {
+          const updatedData = [...prevState];
+          updatedData[shiftIndex].excavator[field] = value;
+          return updatedData;
+        });
+      }else{
+        setTargetEquipment('excavator');
+        setIsModalVisible(true);
+        const  updateElementFields = {shiftIndex, field, value};
+        setTargetExcavatoreFileds(updateElementFields);
+      }
     }
   };
+
+  const updateTargetExcavator = () => {
+    const updatedData = [...shiftInfo];
+    const {shiftIndex, field, value} = targetExcavatoreFileds;
+    updatedData[shiftIndex].excavator[field] = value;
+  }
+
+  const updateTargetTruck = () => {
+    const updatedData = [...shiftInfo];
+    const {shiftIndex, field, value, index} = targetTruckFileds;
+    updatedData[shiftIndex].trucks[index][field] = value;
+  }
 
   const containsCaseInsensitive = (str: string, substr: string): boolean => {
     return str.toLowerCase().includes(substr.toLowerCase());
@@ -120,6 +150,9 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
     }
     if (firstThreeNonEmpty) {
       return `shift-1`;
+    }
+    if(lastThreeNonEmpty){
+      return `shift-3`;
     }
     return "";
   };
@@ -346,6 +379,40 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
           </>
         )
       )}
+
+      <Row>
+        <Col>
+          <Modal
+            centered
+            title="Update Shift Information"
+            open={isModalVisible}
+            onOk={() => {
+              if (targetEquipment === "truck") {
+                updateTargetTruck();
+              } else if (targetEquipment === "excavator") {
+                updateTargetExcavator();
+              }
+              setIsModalVisible(false);
+            }}
+            onCancel={() => {
+              setIsModalVisible(false);
+            }}
+            okText="Confirm"
+            cancelText="Cancel"
+            className="modal-lists"
+          >
+            <p>{`Do you want to replace ${targetEquipment} ${
+              targetEquipment === "excavator"
+                ? `${targetExcavatoreFileds.field === 'id'? 'model' : targetExcavatoreFileds.field}`
+                : `${targetTruckFileds.field === 'id'? 'model' : targetExcavatoreFileds.field }`
+            } with ${
+              targetEquipment === "excavator"
+                ? targetExcavatoreFileds.value
+                : targetTruckFileds.value
+            }`}</p>
+          </Modal>
+        </Col>
+      </Row>
     </React.Fragment>
   );
 };

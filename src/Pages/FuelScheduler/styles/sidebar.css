@@ -1,0 +1,187 @@
+.task-list {
+  width: 96%;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  height: calc(100vh - 250px);
+}
+
+.task-wrapper {
+  border-bottom: 1px solid #d9d9d985;
+}
+
+.task-list-title {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: start;
+  padding: 0;
+}
+
+.task-list-title img {
+  height: 20px;
+  width: 20px;
+  margin-right: 8px;
+}
+
+.equip-lists {
+  gap: 21px;
+}
+
+.equip-lists .task-chips {
+  cursor: pointer;
+  border: 1px solid #d9d9d985;
+  border-radius: 8px;
+  padding: 8px 16px;
+  min-width: 80px;
+}
+
+.equip-lists .task-chips:hover {
+  background-color: #ddd;
+}
+
+.btn.maintenance-show-btn,
+.btn.maintenance-show-btn:hover {
+  border: 1px solid #d9d9d985;
+  border-radius: 8px;
+  font-weight: 400;
+}
+
+.task-wrapper input {
+  font-size: 12px;
+  line-height: 16px;
+  color: #535e77;
+  background-color: #d9d9d985;
+  border-radius: 100px;
+  padding: 12px 16px;
+  outline: none;
+}
+
+.task-wrapper input::placeholder {
+  color: #535e77;
+}
+
+.task-list-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.list-item-span {
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+
+.fuel-section .task-chips {
+  border-radius: 35px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: #535e77;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* .fuel-section .fuel-done {
+  background-color: #34c759;
+} */
+
+/* .fuel-section .fuel-alert {
+  background-color: #f7b31a;
+} */
+/* 
+.fuel-section .fuel-danger {
+  background-color: #CF1322;
+} */
+
+.fuel-section .task-list-title {
+  font-weight: 600;
+  width: 70%;
+}
+
+.fuel-section .equip-lists {
+  gap: 20px 8px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+[data-layout-mode="dark"] .task-list {
+  color: #fff;
+  background-color: #283655;
+  border: 1px solid #283655;
+}
+
+[data-layout-mode="dark"] .task-list-title {
+  color: #fff;
+}
+
+[data-layout-mode="dark"] .task-list-item {
+  background-color: #283655;
+  border: 1px solid #283655;
+}
+
+[data-layout-mode="dark"] .task-wrapper {
+  border-bottom: 1px solid #535e77;
+}
+
+[data-layout-mode="dark"] .task-wrapper input,
+[data-layout-mode="dark"] .task-wrapper input::placeholder {
+  color: #fff;
+  background-color: #535e77;
+}
+
+[data-layout-mode="dark"] .equip-lists .task-chips,
+[data-layout-mode="dark"] .btn.maintenance-show-btn,
+[data-layout-mode="dark"] .btn.maintenance-show-btn:hover {
+  cursor: pointer;
+  border: 1px solid #535e77;
+}
+
+[data-layout-mode="dark"] .equip-lists .task-chips:hover {
+  background-color: #434f6b;
+}
+
+.task-list {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.task-list-item {
+  padding: 8px;
+  margin-bottom: 4px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  cursor: grab;
+}
+
+.task-list-item:hover {
+  background-color: #eee;
+}
+
+.task-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: #24314d;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: #596379;
+  border-radius: 6px;
+}
+
+.message-board .right-board-topic {
+  color: #fff;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.message-board .show-more-btn {
+  cursor: pointer;
+}

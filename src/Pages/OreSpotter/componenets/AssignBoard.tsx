@@ -19,7 +19,6 @@ interface AssignBoardProps {
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  collapse?: boolean;
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
@@ -27,12 +26,11 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   readyTrucks,
   updateReadyTrucks,
   assignTruckToFleet,
+  removeTruckFromAssigned,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
   addDumpLocation,
-  collapse,
-  removeTruckFromAssigned,
 }) => {
   return (
     <div className="assign-item-container">
@@ -50,8 +48,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           updateReadyTrucks={updateReadyTrucks}
           removeTruckFromAssigned={removeTruckFromAssigned}
           assignTruckToFleet={assignTruckToFleet}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -74,8 +71,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           updateReadyTrucks={updateReadyTrucks}
           assignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -98,8 +94,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           updateReadyTrucks={updateReadyTrucks}
           assignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -122,8 +117,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           updateReadyTrucks={updateReadyTrucks}
           removeTruckFromAssigned={removeTruckFromAssigned}
           assignTruckToFleet={assignTruckToFleet}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}

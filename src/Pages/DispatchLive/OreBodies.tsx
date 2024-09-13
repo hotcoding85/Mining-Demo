@@ -9,7 +9,7 @@ interface OreBodiesProps {
 const OreBodies: React.FC<OreBodiesProps> = ({ targetMaterials }) => {
   return (
     <React.Fragment>
-      <div className="px-3">
+      <div>
         <p className="right-board-topic">Ore Bodies Material Grades</p>
         <div
           className="d-flex flex-row justify-content-between"

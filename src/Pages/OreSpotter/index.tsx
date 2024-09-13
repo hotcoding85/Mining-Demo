@@ -8,11 +8,16 @@ import {
   sampleReadyTrucks,
   dumpLocationsForAssign,
   sampleTargetMaterials,
-  sampleAssignedBenches
+  sampleAssignedBenches,
 } from "../DispatchLive/data/sampleData";
 import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd";
-import { Truck, DumpLocation, Material, ActiveBenchData } from "../DispatchLive/interfaces/type";
+import {
+  Truck,
+  DumpLocation,
+  Material,
+  ActiveBenchData,
+} from "../DispatchLive/interfaces/type";
 import "../DispatchLive/styles/style.scss";
 import "./styles/style.scss";
 import { useSelector } from "react-redux";
@@ -20,6 +25,7 @@ import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import { getAllFleet } from "slices/thunk";
 import RightBoard from "Pages/DispatchLive/RightBoard";
+import { Vehicle } from "slices/fleet/reducer";
 
 const OreSpotter: React.FC = () => {
   document.title = "Ore tracker | FMS Live";
@@ -30,8 +36,10 @@ const OreSpotter: React.FC = () => {
     sampleTargetMaterials
   );
   const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
-  const [selectedTab, setSelectedTab] = useState<number>(1);
-  const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(sampleAssignedBenches);
+  const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(
+    sampleAssignedBenches
+  );
+  const [diggersForShow, setDiggersForShow] = useState<Vehicle[]>([]);
 
   const { data } = useSelector(
     createSelector(
@@ -46,6 +54,10 @@ const OreSpotter: React.FC = () => {
     () => data.filter((item) => item.category === "EXCAVATOR"),
     [data]
   );
+
+  useEffect(() => {
+    setDiggersForShow(diggers);
+  }, [diggers]);
 
   const trucks = useMemo(
     () => data.filter((item) => item.category === "DUMP_TRUCK"),
@@ -91,7 +103,7 @@ const OreSpotter: React.FC = () => {
         if(!existItem) {
             setAssignedBenches((prevBenches) => [...prevBenches, newBenches]);
         }
-    }
+  };
 
   const updateTargetMaterials = (updatedTruck: Material) => {
     setTargetMaterials((prevTrucks: Material[]) =>
@@ -106,16 +118,21 @@ const OreSpotter: React.FC = () => {
   };
 
   const onTabChange = (key: string) => {
-    setSelectedTab(Number(key));
+    if (key === "All") {
+      setDiggersForShow(diggers);
+    } else {
+      const filteredDiggers = diggers.filter((digger) => digger.name == key);
+      setDiggersForShow(filteredDiggers);
+    }
   };
 
   const items: TabsProps["items"] = [
     {
-      key: "1",
+      key: "All",
       label: "All",
     },
     ...diggers.map((item, idx) => ({
-      key: idx + 2,
+      key: item.name,
       label: item.name,
     })),
   ];
@@ -140,42 +157,21 @@ const OreSpotter: React.FC = () => {
                   </Col>
                 </Row>
                 <div className="dispatch-digger-container">
-                  {selectedTab === 1
-                    ? diggers.map((digger, index) => (
-                        <div
-                          key={index}
-                          className={index !== 0 ? "mt-4" : "mt-0"}
-                        >
-                          <MainCard
-                            digger={digger}
-                            readyTrucks={readyTrucks}
-                            updateReadyTrucks={updateReadyTrucks}
-                            removeTruckFromAssigned={removeTruckFromAssigned}
-                            assignTruckToFleet={assignTruckToFleet}
-                            targetMaterials={targetMaterials}
-                            updateTargetMaterials={updateTargetMaterials}
-                            dumpLocations={dumpLocations}
-                            addDumpLocation={addDumpLocation}
-                            assignedBenches={assignedBenches}
-                            addBenches={addBenches}
-                          />
-                        </div>
-                      ))
-                    : selectedTab && (
-                        <MainCard
-                          digger={diggers[selectedTab - 2]}
-                          readyTrucks={readyTrucks}
-                          removeTruckFromAssigned={removeTruckFromAssigned}
-                          updateReadyTrucks={updateReadyTrucks}
-                          assignTruckToFleet={assignTruckToFleet}
-                          targetMaterials={targetMaterials}
-                          updateTargetMaterials={updateTargetMaterials}
-                          dumpLocations={dumpLocations}
-                          addDumpLocation={addDumpLocation}
-                          assignedBenches={assignedBenches}
-                          addBenches={addBenches}
-                        />
-                      )}
+                  {diggersForShow.map((digger, index) => (
+                    <MainCard
+                      digger={digger}
+                      readyTrucks={readyTrucks}
+                      updateReadyTrucks={updateReadyTrucks}
+                      removeTruckFromAssigned = {removeTruckFromAssigned}
+                      assignTruckToFleet={assignTruckToFleet}
+                      targetMaterials={targetMaterials}
+                      updateTargetMaterials={updateTargetMaterials}
+                      dumpLocations={dumpLocations}
+                      addDumpLocation={addDumpLocation}
+                      assignedBenches={assignedBenches}
+                      addBenches={addBenches}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="dispatch-live-right">

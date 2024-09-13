@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import StandbyTrucks from "./StandbyTrucks";
 import UnavailableTrucks from "./UnavailableTrucks";
 import ActiveBenches from "./ActiveBenches";
@@ -14,19 +14,19 @@ import { OreDumpsForAssign } from "./data/sampleData";
 interface RightBoardProps {
   readyTrucks: Truck[];
   dumpLocationsForAssign: DumpLocation[];
-  targetMaterials : Material[];
+  targetMaterials?: Material[];
 }
 
 const RightBoard: React.FC<RightBoardProps> = ({
   readyTrucks,
   dumpLocationsForAssign,
-  targetMaterials
+  targetMaterials,
 }) => {
-    const [isShowMore, setIsShowMore] = useState<boolean>(true);
+  const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
-    const onShowMoreOrLess = () => {
-        setIsShowMore(!isShowMore);
-    };
+  const onShowMoreOrLess = () => {
+    setIsShowMore(!isShowMore);
+  };
 
     return (
         <React.Fragment>
@@ -52,7 +52,12 @@ const RightBoard: React.FC<RightBoardProps> = ({
                 <ActiveBenches 
                     activeBenches={activeBenches}
                 />
-                <div className="right-board-divider" />
+                {targetMaterials && (
+                <>
+                    <div className="right-board-divider" />
+                    <OreBodies targetMaterials={targetMaterials} />
+                </>
+                )}
             </div>
         </React.Fragment>
     )

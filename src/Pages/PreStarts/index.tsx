@@ -30,7 +30,7 @@ const PreStarts = (props: any) => {
   };
 
   const handleRowClick = (id: number) => {
-    navigate(`/details/:id`);
+    navigate(`/details/prestarts`);
   };
 
   const formatDate = (dateString: string) => {

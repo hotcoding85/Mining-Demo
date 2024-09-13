@@ -5,32 +5,57 @@ import MainCard from "./MainCard";
 import RightBoard from "./RightBoard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { sampleReadyTrucks, dumpLocationsForAssign , sampleAssignedBenches, diggers, sampleTargetMaterials} from './data/sampleData';
-import { Space, Tabs } from 'antd';
-import type { TabsProps } from 'antd';
-import "./styles/style.scss"
-import { Truck, DumpLocation, ActiveBenchData, DiggerData, Material } from './interfaces/type';
+import {
+  sampleReadyTrucks,
+  dumpLocationsForAssign,
+  sampleAssignedBenches,
+  diggers,
+  sampleTargetMaterials,
+} from "./data/sampleData";
+import { Space, Tabs } from "antd";
+import type { TabsProps } from "antd";
+import "./styles/style.scss";
+import {
+  Truck,
+  DumpLocation,
+  ActiveBenchData,
+  DiggerData,
+  Material,
+} from "./interfaces/type";
 
-const DispatchLive : React.FC = () => {
-    document.title = "Dispatch Live | FMS Live";
-    const [readyTrucks, setreadyTrucks] = useState<Truck[]>(sampleReadyTrucks);
-    const [assignedTrucks, setAssignedTrucks] = useState<Truck[]>([]);
-    const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
-    const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(sampleAssignedBenches);
-    const [diggersForShow, setdiggersForShow] = useState<DiggerData[]>(diggers);
-    const [targetMaterials, setTargetMaterials] = useState<Material[]>(
-        sampleTargetMaterials
-      );
+const DispatchLive: React.FC = () => {
+  document.title = "Dispatch Live | FMS Live";
+  const [readyTrucks, setreadyTrucks] = useState<Truck[]>(sampleReadyTrucks);
+  const [assignedTrucks, setAssignedTrucks] = useState<Truck[]>([]);
+  const [dumpLocations, setDumpLocations] = useState<DumpLocation[]>([]);
+  const [assignedBenches, setAssignedBenches] = useState<ActiveBenchData[]>(
+    sampleAssignedBenches
+  );
+  const [targetMaterials, setTargetMaterials] = useState<Material[]>(
+    sampleTargetMaterials
+  );
+  const [diggersForShow, setdiggersForShow] = useState<DiggerData[]>(diggers);
 
-    const updateReadyTrucks = (assignedTruck : Truck) => {
-        setreadyTrucks((prevTrucks: Truck[]) =>
-            prevTrucks.filter((truck) => truck.id !== assignedTruck.id )
+  const updateReadyTrucks = (assignedTruck: Truck) => {
+    setreadyTrucks((prevTrucks: Truck[]) =>
+      prevTrucks.filter((truck) => truck.id !== assignedTruck.id)
+    );
+
+    setAssignedTrucks((prevAssignedTrucks: Truck[]) => [
+      ...prevAssignedTrucks,
+      assignedTruck,
+    ]);
+  };
+
+    const onTabChange = (key: string) => {
+        if (key === "All") {
+        setdiggersForShow(diggers);
+        } else {
+        const filteredDiggers = diggers.filter(
+            (digger) => digger.diggerId == key
         );
-        
-        setAssignedTrucks((prevAssignedTrucks: Truck[]) => [
-            ...prevAssignedTrucks, 
-            assignedTruck
-        ]);
+        setdiggersForShow(filteredDiggers);
+        }
     }
 
     const removeTruckFromAssigned = (removedTruck : Truck) => {
@@ -56,7 +81,6 @@ const DispatchLive : React.FC = () => {
         setAssignedTrucks((prevAssignedTrucks) => (
             prevAssignedTrucks.map(item => (item.id == truck.id) ? updatedTruck  : item)
         ))
-        console.log(assignedTrucks);
     }
 
     const addDumpLocation = (newDumpLocation: DumpLocation) => {
@@ -84,17 +108,6 @@ const DispatchLive : React.FC = () => {
         }
     }
 
-    const onTabChange = (key: string) => {
-        if(key === 'All'){
-            setdiggersForShow(diggers);
-        } 
-        else {
-            const filteredDiggers = diggers.filter(
-                digger => digger.diggerId == key
-            );
-            setdiggersForShow(filteredDiggers);
-        }
-    }
     const tabItems: TabsProps['items'] = [
         {
             key: 'All',
@@ -113,6 +126,7 @@ const DispatchLive : React.FC = () => {
             label: 'Digger3'
         }
     ];
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -157,8 +171,8 @@ const DispatchLive : React.FC = () => {
                     </DndProvider>
                     
                 </Container>
-            </div>
-    </React.Fragment>
-  );
+             </div>
+        </React.Fragment>
+    );
 };
 export default DispatchLive;

@@ -49,8 +49,7 @@ const AssignBoard : React.FC<AssignBoardProps> = ({
                     updateReadyTrucks={updateReadyTrucks}
                     removeTruckFromAssigned={removeTruckFromAssigned}
                     assignTruckToFleet={assignTruckToFleet}
-                    collapse={true}
-                    displayName="Truck1"
+                    directionDispalyName="inline"
                 />
                 <AssignLocationItem 
                     diggerId={digger.diggerId}
