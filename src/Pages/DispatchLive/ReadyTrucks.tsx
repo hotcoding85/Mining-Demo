@@ -4,7 +4,7 @@ import { Button } from "antd";
 import { Truck } from "./interfaces/type";
 
 interface ReadyTrucksProps {
-    readyTrucks : Truck[];
+  readyTrucks: Truck[];
 }
 
 const ReadyTrucks : React.FC<ReadyTrucksProps> = ({

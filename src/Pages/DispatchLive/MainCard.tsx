@@ -7,6 +7,7 @@ import { Row, Col } from "reactstrap";
 import { Select, Progress } from "antd";
 import { ActiveBenchData, DumpLocation, Truck } from './interfaces/type';
 import AssignBoard from "./AssignBoard";
+import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
     index : number;

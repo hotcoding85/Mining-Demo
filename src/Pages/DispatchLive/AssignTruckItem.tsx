@@ -60,11 +60,13 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "READYTRUCK",
     drop: (draggedTruck: Truck) => {
-      const updatedTruck = {
-        ...draggedTruck,
-        assignId: sourceId,
-      };
-      updateReadyTrucks(updatedTruck);
+      if (!truckForAssign) {
+        const updatedTruck = {
+          ...draggedTruck,
+          assignId: sourceId,
+        };
+        updateReadyTrucks(updatedTruck);
+      }
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -145,7 +147,7 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
                 </div>
           </div>
       ) : (
-        <p className="empty">+Assign truck here</p>
+        <p className="empty">+ Assign truck here</p>
       )}
     </div>
   );

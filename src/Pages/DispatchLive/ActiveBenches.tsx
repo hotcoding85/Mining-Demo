@@ -4,7 +4,7 @@ import ActiveBenchItem from "./ActiveBenchItem";
 import "./styles/benches.scss"
 
 interface ActiveBenchesProps {
-    activeBenches : ActiveBenchData[]
+  activeBenches: ActiveBenchData[];
 }
 const ActiveBenches : React.FC<ActiveBenchesProps> = ({
     activeBenches
@@ -23,8 +23,8 @@ const ActiveBenches : React.FC<ActiveBenchesProps> = ({
                     
                 </div>
             </div>
-        </React.Fragment>
-    )
-}
+    </React.Fragment>
+  );
+};
 
 export default ActiveBenches;

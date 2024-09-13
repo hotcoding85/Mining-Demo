@@ -5,7 +5,8 @@ import AssignLocationItem from "./AssignLocationItem";
 import { pc2000 } from "assets/images/equipment";
 import { Row, Col } from "reactstrap";
 import { Select, Progress } from "antd";
-import { Truck, DumpLocation } from './interfaces/type';
+import { Truck, DumpLocation } from "./interfaces/type";
+import { Vehicle } from "slices/fleet/reducer";
 
 interface AssignBoardProps {
     index:number;

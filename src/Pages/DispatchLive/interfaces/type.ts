@@ -33,6 +33,7 @@ export interface Truck {
   assignId: number;
   truckId: string;
   operator: string;
+  diggerId?: string;
 }
 
 export interface DumpLocation {
@@ -40,12 +41,14 @@ export interface DumpLocation {
   assignId: number;
   locationImg: string;
   locationName: string;
+  diggerId?: string;
 }
 
 export interface Material {
   id: number;
   assignId: number;
   materialId: string;
+  diggerId?: string;
 }
 
 export interface DiggerData {
