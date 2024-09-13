@@ -42,9 +42,9 @@ const DispatchLive : React.FC = () => {
         );
     }
 
-  const addDumpLocation = (newDumpLocation: DumpLocation) => {
-    setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
-  };
+    const addDumpLocation = (newDumpLocation: DumpLocation) => {
+        setDumpLocations((prevLocations) => [...prevLocations, newDumpLocation]);
+    };
 
     const addBenches= (newBenches : ActiveBenchData) => {
         const existItem = assignedBenches.find(

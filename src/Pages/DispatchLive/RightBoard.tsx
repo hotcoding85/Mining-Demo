@@ -8,6 +8,7 @@ import OreBodies from "./OreBodies";
 import ReadyTrucks from "./ReadyTrucks";
 import MessageBoard from "./MessageBoard";
 import { DumpLocation, Material, Truck } from "./interfaces/type";
+import OreDumpLocations from "./OreDumpLocations";
 
 interface RightBoardProps {
   readyTrucks: Truck[];
@@ -36,6 +37,10 @@ const RightBoard: React.FC<RightBoardProps> = ({
                 <StandbyTrucks />
                 <div className="right-board-divider" />
                 <WasteDumpLocations 
+                    dumpLocationsForAssign = {dumpLocationsForAssign}
+                />
+                <div className="right-board-divider" />
+                <OreDumpLocations 
                     dumpLocationsForAssign = {dumpLocationsForAssign}
                 />
                 <div className="right-board-divider" />
