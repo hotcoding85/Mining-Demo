@@ -9,7 +9,7 @@ import {
   DumpLocation,
   Material,
   Truck,
-  ActiveBenchData
+  ActiveBenchData,
 } from "../../DispatchLive/interfaces/type";
 import AssignBoard from "./AssignBoard";
 import { Vehicle } from "slices/fleet/reducer";
@@ -22,22 +22,20 @@ interface MainCardProps {
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  removeTruckFromAssigned : (removedTruck: Truck) => void;
-  assignedBenches : ActiveBenchData[];
-    addBenches : (newBenches: ActiveBenchData) => void;
+  assignedBenches: ActiveBenchData[];
+  addBenches: (newBenches: ActiveBenchData) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
   digger,
   readyTrucks,
   updateReadyTrucks,
-  removeTruckFromAssigned,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
   addDumpLocation,
   assignedBenches,
-  addBenches
+  addBenches,
 }) => {
   const [collapseView, setCollapseView] = useState<boolean>(true);
 
@@ -111,12 +109,10 @@ const MainCard: React.FC<MainCardProps> = ({
             digger={digger}
             readyTrucks={readyTrucks}
             updateReadyTrucks={updateReadyTrucks}
-            removeTruckFromAssigned={removeTruckFromAssigned}
             targetMaterials={targetMaterials}
             updateTargetMaterials={updateTargetMaterials}
             dumpLocations={dumpLocations}
             addDumpLocation={addDumpLocation}
-            collapse={collapseView}
           />
         </div>
       </div>

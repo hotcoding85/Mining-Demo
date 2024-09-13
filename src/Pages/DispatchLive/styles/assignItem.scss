@@ -62,21 +62,20 @@ body[data-layout-mode="dark"] {
     width: 100%;
   }
 
-    .assigned-truck-name {
-        display: flex;
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
+  .assigned-truck-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-    .assigned-truck-id-status{
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 8px;    
-    }
+  .assigned-truck-id-status {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
   .assigned-truck-header-image {
     display: flex;
     padding: 8px;
@@ -109,8 +108,6 @@ body[data-layout-mode="dark"] {
     width: 24px;
     height: 24px;
   }
-
-
 
   .assigned-truck-id {
     font-size: 16px;
@@ -189,13 +186,13 @@ body[data-layout-mode="dark"] {
     margin-top: 24px;
   }
 
-    .assigned-dump-item {
-        width: 100%;
-        height: 100%;
-        min-height: 100px;
-        border-radius: 8px;
-        position: relative;
-    }
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    border-radius: 8px;
+    position: relative;
+  }
   .assigned-truck-details .truck-props .props-label {
     color: #9ca3b1;
     font-weight: 400;
@@ -208,33 +205,33 @@ body[data-layout-mode="dark"] {
     font-size: 16px;
   }
 
-    .assigned-dump-item .assigned-dump-chips {
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        padding: 4px 16px;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 24px;
-        border-radius: 99px;
-        background-color: #2A2A2A;
-        color: white;
-        width: 70%;
-    }
-    .show-more-btn {
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
-        color:#FFF;
-        cursor: pointer;
-    }
-    .dropdown-img {
-        width: 15px;
-        height: 20px;
-        background-image: url("./more_vert_dark.png");
-    }
+  .assigned-dump-item .assigned-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2a2a2a;
+    color: white;
+    width: 70%;
+  }
+  .show-more-btn {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    color: #fff;
+    cursor: pointer;
+  }
+  .dropdown-img {
+    width: 15px;
+    height: 20px;
+    background-image: url("./more_vert_dark.png");
+  }
   .assigned-truck-details .truck-props .cycle-time-container {
     display: flex;
     align-items: flex-start;
@@ -253,14 +250,12 @@ body[data-layout-mode="dark"] {
     color: white;
   }
 
-
   .assigned-dump-item img {
     width: 100%;
     height: 100%;
     border-radius: 8px;
     object-fit: cover;
   }
-
 }
 body[data-layout-mode="light"] {
   .assign-location-item,
@@ -313,6 +308,7 @@ body[data-layout-mode="light"] {
     gap: 24px;
     width: 100%;
   }
+
   .assigned-truck-header {
     display: flex;
     align-items: start;
@@ -340,21 +336,20 @@ body[data-layout-mode="light"] {
     width: 100%;
   }
 
-    .assigned-truck-name {
-        display: flex;
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
+  .assigned-truck-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-    .assigned-truck-id-status{
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 8px;    
-    }
+  .assigned-truck-id-status {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
   .assigned-truck-action-button {
     background-color: transparent !important;
     border: transparent !important;
@@ -461,13 +456,13 @@ body[data-layout-mode="light"] {
     font-size: 16px;
   }
 
-    .assigned-dump-item {
-        width: 100%;
-        height: 100%;
-        min-height: 100px;
-        border-radius: 8px;
-        position: relative;
-    }
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    border-radius: 8px;
+    position: relative;
+  }
   .assigned-truck-details .truck-props .props-value {
     color: #2a2a2a !important;
     font-weight: 400;
@@ -481,33 +476,33 @@ body[data-layout-mode="light"] {
     flex-wrap: wrap;
   }
 
-    .assigned-dump-item .assigned-dump-chips {
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        padding: 4px 16px;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 24px;
-        border-radius: 99px;
-        background-color: #2A2A2A;
-        color: white;
-        width: 70%;
-    }
-    .show-more-btn {
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
-        color:#1C263C;
-        cursor: pointer;
-    }
-    .dropdown-img {
-        width: 15px;
-        height: 20px;
-        background-image: url("./more_vert_light.png");
-    }
+  .assigned-dump-item .assigned-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2a2a2a;
+    color: white;
+    width: 70%;
+  }
+  .show-more-btn {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    color: #1c263c;
+    cursor: pointer;
+  }
+  .dropdown-img {
+    width: 15px;
+    height: 20px;
+    background-image: url("./more_vert_light.png");
+  }
   .cycle-time-container .time-chips {
     padding: 4px 16px;
     border-radius: 99px;
@@ -525,5 +520,4 @@ body[data-layout-mode="light"] {
     border-radius: 8px;
     object-fit: cover;
   }
-
 }

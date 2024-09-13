@@ -13,12 +13,10 @@ interface AssignBoardProps {
   digger: Vehicle;
   readyTrucks: Truck[];
   updateReadyTrucks: (updatedTask: Truck) => void;
-  removeTruckFromAssigned : (removedTruck: Truck) => void;
   targetMaterials: Material[];
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  collapse?: boolean;
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
@@ -29,8 +27,6 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   updateTargetMaterials,
   dumpLocations,
   addDumpLocation,
-  collapse,
-  removeTruckFromAssigned,
 }) => {
   return (
     <div className="assign-item-container">
@@ -46,9 +42,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={1}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -69,9 +63,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={2}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -92,9 +84,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={3}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -115,9 +105,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           sourceId={4}
           assignedTrucks={readyTrucks}
           updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          collapse={collapse}
-          displayName="wrap"
+          directionDispalyName="wrap"
         />
         <AssignMaterialItem
           diggerId={digger.id}
