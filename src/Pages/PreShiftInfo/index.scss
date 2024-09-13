@@ -183,6 +183,13 @@ body[data-layout-mode="light"] {
   }
 }
 
+.shift-3 {
+  &::before {
+  top: 29px;
+  height: calc(100% - 95px);
+  }
+}
+
 .schedule-filter {
   margin: 0 0 31px;
   .ant-select-show-search,
@@ -326,7 +333,7 @@ body[data-layout-mode="light"] {
     }
     button {
       color: #283655;
-      background-color: #fff;
+      background-color: #fff;equip-lists .task-chips 
       &:hover {
         color: #283655 !important;
         background-color: #fff !important;
@@ -351,6 +358,27 @@ body[data-layout-mode="light"] {
           color: #fff;
           background-color: #434F6B;
         }
+      }
+    }
+  }
+}
+.modal-lists {
+  .ant-modal-content,
+  .ant-modal-header {
+    color: #fff;
+    background-color: #24314D;
+    .ant-modal-title ,
+    .ant-modal-close-x{
+      color: #fff;
+    }
+    .ant-btn {
+      font-weight: 700;
+      &.ant-btn-default {
+        color: #283655;
+      }
+      &.ant-btn-primary {
+        color: #fff;
+        background-color: #434F6B;
       }
     }
   }
