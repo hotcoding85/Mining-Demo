@@ -66,6 +66,7 @@ const FuelScheduler = (props: any) => {
     },
     [events]
   );
+
   const isEventOverlapping = useCallback(
     (newEvent) => {
       return events.find((existingEvent) => {
@@ -180,7 +181,7 @@ const FuelScheduler = (props: any) => {
   return (
     <React.Fragment>
       <div className="page-content">
-        <Container fluid>
+        <Container className="fuel-scheduler" fluid>
           <Breadcrumb title="Mine Control" breadcrumbItem="Fuel Scheduler" />
           <Row className="mb-3">
             <Col className="d-flex flex-row-reverse">
@@ -197,11 +198,11 @@ const FuelScheduler = (props: any) => {
           </Row>
           <Row>
             <DndProvider backend={HTML5Backend}>
-              <Col>
+              <Col className="fuel-scheduler-calendar">
                 {displayType === "CALENDAR" ? (
-                  <Card>
+                  <Card className="mb-1">
                     <CardBody className="p-0">
-                      <div style={{ height: "720px" }}>
+                      <div style={{ height: "calc(100vh - 260px)" }}>
                         <DragAndDropCalendar
                           localizer={localizer}
                           view={view}
@@ -238,7 +239,7 @@ const FuelScheduler = (props: any) => {
                     </CardBody>
                   </Card>
                 ) : (
-                  <SchedulerDashboard />
+                  <SchedulerDashboard draggedEvent={draggedEvent} />
                 )}
               </Col>
               <Col lg="3">

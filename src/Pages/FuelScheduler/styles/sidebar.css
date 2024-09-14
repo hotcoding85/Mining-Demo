@@ -2,7 +2,7 @@
   width: 96%;
   background-color: #fff;
   border: 1px solid #ddd;
-  height: calc(100vh - 250px);
+  height: calc(100vh - 260px);
 }
 
 .task-wrapper {
@@ -84,18 +84,6 @@
   justify-content: center;
   gap: 2px;
 }
-
-/* .fuel-section .fuel-done {
-  background-color: #34c759;
-} */
-
-/* .fuel-section .fuel-alert {
-  background-color: #f7b31a;
-} */
-/* 
-.fuel-section .fuel-danger {
-  background-color: #CF1322;
-} */
 
 .fuel-section .task-list-title {
   font-weight: 600;

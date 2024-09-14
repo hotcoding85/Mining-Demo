@@ -51,13 +51,13 @@ const SchedulerSidebar = ({ setDraggedEvent }) => {
       </div>
 
       <SchedulerSidebarItem
-        type="title"
-        title="Fuel Truck Requested sent too"
+        type="fuelTruckAssign"
+        title="Fuel Truck"
         items={fuelTruckList}
         setDraggedEvent={setDraggedEvent}
       />
       <SchedulerSidebarItem
-        type="priorityrequested"
+        type="priority"
         title="Priority Requested"
         items={priorityrequested}
         setDraggedEvent={setDraggedEvent}

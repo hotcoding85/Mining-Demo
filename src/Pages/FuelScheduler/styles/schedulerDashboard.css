@@ -130,6 +130,35 @@
   /* margin-bottom: 20px;  */
 }
 
+.fuel-schedular-calendar {
+  height: calc(100vh - 260px);
+  overflow: auto;
+}
+
+.fuel-card-footer {
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fuel-schedular-calendar .fuel-card-footer {
+  min-height: 100px;
+}
+
+.fuel-schedular-calendar .event-status::before {
+  left: 92%;
+}
+
+.fuel-truck-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 20px;
+  background-color: #34c759;
+  border-radius: 99px;
+}
+
 @media screen and (max-width: 1200px) {
   .fuel-card {
     flex: 1 1 calc(48% - 10px);
