@@ -1,21 +1,10 @@
 import { useState, FC } from "react";
 import { VehicleData } from "./interfaces/type";
-import {
-  hd1500,
-  hd785,
-  pc1250,
-  pc2000,
-  placeHolder,
-  wa600,
-} from "assets/images/equipment";
-import { Progress, Divider } from "antd";
-import {
-  Accordion,
-  AccordionBody,
-  AccordionHeader,
-  AccordionItem,
-} from "reactstrap";
-import { DownOutlined } from "@ant-design/icons";
+import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
+import { Progress, Divider} from "antd";
+import { ActiveBenchData } from "./interfaces/type";
+import { useDrop } from "react-dnd";
+import { apiError } from "slices/users/reducer";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -30,7 +19,22 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const VehicleCard: FC<VehicleData> = ({
+interface VehicleCardProps {
+    index : number;
+    id: string;
+    status: string;
+    smu: number;
+    fuelLevel: number;
+    fuelRate: number;
+    imageUrl: string;
+    lastUpdated: string;
+    sync: "manual" | "inactive" | "active";
+    assignedBenches : ActiveBenchData[];
+    addBenches : (newBenches: ActiveBenchData) => void;
+    collapse : boolean;
+}
+const VehicleCard: FC<VehicleCardProps> = ({
+  index,
   id,
   status,
   smu,
@@ -39,10 +43,17 @@ const VehicleCard: FC<VehicleData> = ({
   imageUrl,
   lastUpdated,
   sync,
-  collapse = false,
+  assignedBenches,
+  addBenches,
+  collapse
 }) => {
   const statusColor = getStatusColor(status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
+  const [isShowMore, setIsShowMore] = useState<boolean>(true);
+
+  const onShowMoreOrLess = () => {
+      setIsShowMore(!isShowMore);
+  };
 
   const handleSyncHover = () => {
     setIsHoveringSync(!isHoveringSync);
@@ -74,8 +85,31 @@ const VehicleCard: FC<VehicleData> = ({
     }
   };
 
+  const nextLocations = assignedBenches.filter(
+    (location) =>
+      location.assignId === index
+  );
+
+  const [{ isOver, canDrop }, drop] = useDrop({
+      accept: 'BENCHITEM',
+      drop: (draggedBenches: ActiveBenchData) => {
+          const newBenches = {
+          ...draggedBenches,
+          assignId : index
+          };
+          addBenches(newBenches);
+      },
+      collect: (monitor) => ({
+          isOver: !!monitor.isOver(),
+          canDrop: !!monitor.canDrop(),
+      }),
+  });
+
   return (
-    <div className="vehicle-card">
+    <div
+      ref={drop} 
+      className="vehicle-card"
+    >
       <div className="vehicle-card-header">
         <div className="vehicle-header-image">
           <img src={pc2000} alt="pc2000" style={{ width: 40, height: 40 }} />
@@ -93,19 +127,32 @@ const VehicleCard: FC<VehicleData> = ({
         </span>
       </div>
       <div className="vehicle-card-details">
+        <div className="location-item">
+          <select name="current-work-location" id="currentWorkLocation">
+              <option value="440_BLK1_HG01" selected>440_BLK1_HG01</option>
+          </select>
+        </div>
         <div className="vehicle-card-progress">
           <p className="vehicle-progress-text">
             <span className="vehicle-progress-label">Fuel Level</span>
             <span className="vehicle-progress-value">{fuelLevel}%</span>
           </p>
-          <Progress percent={fuelLevel} showInfo={false} />
+          <Progress
+            percent={fuelLevel}
+            showInfo={false}
+            className="fuel-level-progress-bar"
+          />
         </div>
         <div className="vehicle-card-progress">
           <p className="vehicle-progress-text">
             <span className="vehicle-progress-label">Total Cycles</span>
             <span className="vehicle-progress-value">9/45</span>
           </p>
-          <Progress percent={20} showInfo={false} />
+          <Progress
+            percent={20}
+            showInfo={false}
+            className="total-cycles-progress-bar"
+          />
         </div>
         <div className="vehicle-card-props">
           <div className="vehicle-medium-label">
@@ -113,28 +160,38 @@ const VehicleCard: FC<VehicleData> = ({
           </div>
           <div className="vehicle-chips-value">548.2</div>
         </div>
-        {collapse && (
-          <>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">Waiting Events</span>
+          <span className="vehicle-value">08:53</span>
+        </p>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">AVG Load Time</span>
+          <span className="vehicle-value">04:21</span>
+        </p>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">Hang Time</span>
+          <span className="vehicle-value">22.56</span>
+        </p>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">Avg Load per Bucket</span>
+          <span className="vehicle-value">10.2t</span>
+        </p>
+        <p className="vehicle-card-props">
+          <span className="vehicle-label">TPH</span>
+          <span className="vehicle-value">329.5t</span>
+        </p>
+        {!isShowMore && (
+          <div>
             <p className="vehicle-card-props">
-              <span className="vehicle-label">Waiting Events</span>
-              <span className="vehicle-value">08:53</span>
+              <span className="vehicle-label">Next Work Locations</span>
             </p>
-            <p className="vehicle-card-props">
-              <span className="vehicle-label">AVG Load Time</span>
-              <span className="vehicle-value">04:21</span>
-            </p>
-            <p className="vehicle-card-props">
-              <span className="vehicle-label">Hang Time</span>
-              <span className="vehicle-value">22.56</span>
-            </p>
-            <p className="vehicle-card-props">
-              <span className="vehicle-label">Avg Load per Bucket</span>
-              <span className="vehicle-value">10.2t</span>
-            </p>
-            <p className="vehicle-card-props">
-              <span className="vehicle-label">TPH</span>
-              <span className="vehicle-value">329.5t</span>
-            </p>
+            <div className="next-location-container">
+              {nextLocations.map((location) => (
+                <div className="item">
+                  <p className="label">{location.name}</p>
+              </div>
+              ))}
+            </div>
             <div className="divider"></div>
             <div className="vehicle-card-props">
               <div className="vehicle-medium-label">Last 5 Loads</div>
@@ -164,8 +221,11 @@ const VehicleCard: FC<VehicleData> = ({
               <span className="vehicle-value">159.1t</span>
               <span className="vehicle-value">04:32</span>
             </p>
-          </>
+          </div>
         )}
+      </div>
+      <div className="d-flex flex-row-reverse">
+            <div className="show-more-btn" onClick={onShowMoreOrLess}>{isShowMore ? 'View More' : 'View Less'}</div>
       </div>
     </div>
   );

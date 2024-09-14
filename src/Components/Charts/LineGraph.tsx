@@ -37,6 +37,7 @@ interface LineGraphProps {
   options: ChartOptions<"line">;
   textColor: TextColor[];
   widthVal?: string;
+  header?: string,
   backgroundCol?: string;
 }
 
@@ -46,11 +47,13 @@ export const LineGraph: React.FC<LineGraphProps> = ({
   textColor,
   widthVal,
   backgroundCol,
+  header="",
 }) => {
 
   return (
     <Card>
       <div className="BarGraphContainer">
+        {header && <h4 className="progress-header">{header}</h4>}
         <div className="LegendContainer">
           {textColor.map((item, index) => (
             <div className="LegendItem" key={index}>

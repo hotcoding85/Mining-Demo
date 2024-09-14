@@ -1,31 +1,31 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { TextColor } from "Components/Charts/interfaces/general";
 import { LineGraph } from "Components/Charts/LineGraph";
-import TableContainer, { TableColumn } from "Components/Common/TableContainer";
 import { round2Two } from "utils/common";
 import { createSelector } from "reselect";
 import { useSelector } from "react-redux";
-
+import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
+import { data } from "./sampleData";
 const CarryBackDescrepencies = (props: any) => {
 
-    const [bench, setBench] = useState<any>();
+  const [bench, setBench] = useState<any>();
 
-    const [modal, setModal] = useState<boolean>(false);
-    const [isEdit, setIsEdit] = useState<boolean>(false);
-    const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [modal, setModal] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [tableData, setTableData] = useState<any>();
 
+  const selectProperties = createSelector(
+    (state: any) => state.Benches,
+    (benches) => ({
+      data: benches.data,
+      total: benches.total,
+      loading: benches.loading,
+    })
+  );
 
-    const selectProperties = createSelector(
-        (state: any) => state.Benches,
-        (benches) => ({
-            data: benches.data,
-            total: benches.total,
-            loading: benches.loading,
-        })
-    );
-    const { data } = useSelector(selectProperties);
     document.title = "Pre Starts | FMS Live";
     const lineOptions = {
         responsive: true,
@@ -136,130 +136,84 @@ const CarryBackDescrepencies = (props: any) => {
     //     [dispatch]
     // );
 
-
-    const columns: TableColumn[] = useMemo(
-        () => [
-            {
-                header: "Name",
-                accessorKey: "name",
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: "Block ID",
-                accessorKey: "blockId",
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: "Source",
-                accessorKey: "source",
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: "Category",
-                accessorKey: "category",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    return (
-                        <div className="badge badge-soft-primary font-size-11 m-1">
-                            {cellProps.row.original.category}
-                        </div>
-                    );
-                },
-            },
-            {
-                header: "Grade",
-                accessorKey: "augt",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    const augt = cellProps.row.original.augt as number
-                    return (
-                        <div style={{ textAlign: 'right' }}>{round2Two(augt)}</div>
-                    )
-                }
-            },
-            {
-                header: "Density",
-                accessorKey: "density",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    const density = cellProps.row.original.density as number
-                    return (
-                        <div style={{ textAlign: 'right' }}>{round2Two(density)}</div>
-                    )
-                }
-            },
-            {
-                header: "Tonnes",
-                accessorKey: "tonnes",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    const tonnes = cellProps.row.original.tonnes as number
-                    return (
-                        <div style={{ textAlign: 'right' }}>{round2Two(tonnes)}</div>
-                    )
-                }
-            },
-            {
-                header: "Volume",
-                accessorKey: "volume",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    const volume = cellProps.row.original.volume as number
-                    return (
-                        <div style={{ textAlign: 'right' }}>{round2Two(volume)}</div>
-                    )
-                }
-            },
-            {
-                header: "Status",
-                accessorKey: "status",
-                enableColumnFilter: false,
-                enableSorting: true,
-                cell: (cellProps: any) => {
-                    return (
-                        <div className="badge badge-soft-primary font-size-11 m-1">
-                            {cellProps.row.original.status}
-                        </div>
-                    );
-                },
-            },
-            {
-                header: "Actions",
-                enableColumnFilter: false,
-                accessorKey: "",
-                enableSorting: false,
-                // cell: (cellProps: any) => {
-                //   const name = `${cellProps.row.original.name}`;
-                //   const id = cellProps.row.original.id;
-                //   return (
-                //     <div className="d-flex gap-3">
-                //       <Link
-                //         to="#!"
-                //         className="text-success"
-                //         onClick={(event: any) => {
-                //           event.preventDefault();
-                //           const benchData = cellProps.row.original;
-                //           handleOnEdit(benchData);
-                //         }}
-                //       >
-                //         <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-                //       </Link>
-                //       <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
-                //     </div>
-                //   );
-                // },
-            },
-        ],
-        // [handleOnEdit, handleOnDelete]
-        []
+    const columns: HierarchycalTableColumn[] = useMemo(
+      () => [
+        {
+          header: "Model",
+          accessorKey: "model",
+          enableColumnFilter: false,
+          enableSorting: true,
+          cell: ({ row }: any) => {
+            return (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler(),
+                  style: { cursor: "pointer" },
+                }}
+              >
+                {row.getCanExpand() ? `${row.getIsExpanded() ? "▼" : "▶"}` : ""}
+                <span className="ms-2">{row.original.model}</span>
+              </button>
+            );
+          },
+        },
+        {
+          header: "Equipment Name",
+          accessorKey: "equipmentName",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Loads Completed",
+          accessorKey: "loadsCompleted",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Trips",
+          accessorKey: "trips",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Material Type",
+          accessorKey: "materialType",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Actual(Tonnes)",
+          accessorKey: "actual",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Planned (Tonnes)",
+          accessorKey: "planned",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Tonnes Indicated",
+          accessorKey: "tonnesIndicated",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Avg Load Carried Back",
+          accessorKey: "avgLoadCarriedBack",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+        {
+          header: "Actual Tonnes",
+          accessorKey: "actualTonnes",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
+      ],
+      // [handleOnEdit, handleOnDelete]
+      []
     );
 
     const handleOnAdd = () => {
@@ -280,6 +234,34 @@ const CarryBackDescrepencies = (props: any) => {
         importCsvModalToggle();
     };
 
+    function createHierarchicalData(arrays) {
+      return arrays.map(subArray => {
+        const result = {
+          id: "1",
+          subRows: subArray
+        };
+
+        subArray.reduce((acc, subRow) => {
+          Object.entries(subRow).forEach(([key, value] : any) => {
+            if (key === 'id' || key === 'subRows') {
+              result[key] = value;
+            } else if (!isNaN(value)) {
+              result[key] = (result[key] || 0) + parseFloat(value);
+            } else {
+              result[key] = value;
+            }
+          });
+          return acc;
+        }, result);
+        return result;
+      });
+    }
+
+    useEffect(() => {
+      const rowData = createHierarchicalData(data);
+      setTableData(rowData)
+    },[])
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -289,6 +271,7 @@ const CarryBackDescrepencies = (props: any) => {
                         <Col lg="6">
                             <div>
                                 <LineGraph
+                                    header="ROM Discrepancies"
                                     data={lineData}
                                     options={lineOptions}
                                     widthVal={'100%'}
@@ -300,6 +283,7 @@ const CarryBackDescrepencies = (props: any) => {
                         <Col lg="6">
                             <div>
                                 <LineGraph
+                                    header="Waste Discrepancies"
                                     data={lineData}
                                     options={lineOptions}
                                     widthVal={'100%'}
@@ -310,10 +294,10 @@ const CarryBackDescrepencies = (props: any) => {
                         </Col>
                         <Col lg="12">
                             <Card>
-                                <CardBody>
-                                    <TableContainer
+                                <CardBody className="descrepencies-wrapper">
+                                    <HierarchycalTable
                                         columns={columns}
-                                        data={data || []}
+                                        data={tableData || []}
                                         // total={total || 0}
                                         isGlobalFilter={true}
                                         handleOnAddClick={handleOnAdd}

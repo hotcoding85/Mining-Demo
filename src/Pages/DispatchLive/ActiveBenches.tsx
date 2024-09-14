@@ -1,9 +1,10 @@
 import React from "react";
 import { ActiveBenchData } from "./interfaces/type";
+import ActiveBenchItem from "./ActiveBenchItem";
 import "./styles/benches.scss"
 
 interface ActiveBenchesProps {
-    activeBenches : ActiveBenchData[]
+  activeBenches: ActiveBenchData[];
 }
 const ActiveBenches : React.FC<ActiveBenchesProps> = ({
     activeBenches
@@ -14,15 +15,16 @@ const ActiveBenches : React.FC<ActiveBenchesProps> = ({
                 <p className="right-board-topic">Active Benches Locations in Pit</p>
                 <div className="benches-container">
                     {activeBenches.map((item, index) => (
-                        <div className="benches-item">
-                            <p className="benches-item-label">{item.name}</p>
-                        </div>
+                        <ActiveBenchItem
+                            key={index}
+                            benchItem={item} 
+                        />
                     ))}
                     
                 </div>
             </div>
-        </React.Fragment>
-    )
-}
+    </React.Fragment>
+  );
+};
 
 export default ActiveBenches;

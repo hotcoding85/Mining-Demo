@@ -1,25 +1,36 @@
-import React from "react";
-import VehicleCard from "./VehicleCard";
+import React, { useState } from "react";
 import AssignTruckItem from "./AssignTruckItem";
 import AssignLocationItem from "./AssignLocationItem";
-import { pc2000 } from "assets/images/equipment";
-import { Row, Col } from "reactstrap";
-import { Select, Progress } from "antd";
-import { Truck, DumpLocation } from './interfaces/type';
+import { Truck, DumpLocation, DiggerData } from "./interfaces/type";
+import { diggers } from "./data/sampleData";
+import { filter, max } from "lodash";
+import { array } from "yup";
+import { truckIcon } from "assets/images/equipment";
 
 interface AssignBoardProps {
-    readyTrucks: Truck[];
+    digger : DiggerData;
+    assignedTrucks: Truck[];
     updateReadyTrucks: (updatedTask: Truck) => void;
+    removeTruckFromAssigned : (removedTruck: Truck) => void;
+    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
     dumpLocations : DumpLocation[];
     addDumpLocation : (newDumpLocation: DumpLocation) => void;
 }  
 
 const AssignBoard : React.FC<AssignBoardProps> = ({
-    readyTrucks,
+    digger,
+    assignedTrucks,
     updateReadyTrucks,
+    removeTruckFromAssigned,
+    assignTruckToFleet,
     dumpLocations,
     addDumpLocation
 }) => {
+
+    const filteredAssignedTrucks = assignedTrucks.filter(truck => truck.diggerId == digger.diggerId);
+    const assignIds = filteredAssignedTrucks.map(truck => {return truck.assignId});
+    const itemLength = Math.max(...assignIds) >= 4 ? Math.max(...assignIds) + 2 : 5;
+    const assignArr = Array.from({length:itemLength});
 
     return (
         <div className="assign-item-container">
@@ -28,66 +39,25 @@ const AssignBoard : React.FC<AssignBoardProps> = ({
                 <p className="assign-location-item-header">Hauling to Location</p>
             </div>
 
-            <div className="assign-item-pair">
-                <AssignTruckItem 
-                    sourceId={1}
-                    readyTrucks={readyTrucks}
+            {assignArr.map((item, index) => (
+              <div className="assign-item-pair">
+                <AssignTruckItem
+                    diggerId={digger.diggerId}
+                    sourceId={ index}
+                    assignedTrucks={filteredAssignedTrucks}
                     updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
+                    assignTruckToFleet={assignTruckToFleet}
+                    directionDispalyName="inline"
                 />
                 <AssignLocationItem 
-                    sourceId={1}
+                    diggerId={digger.diggerId}
+                    sourceId={index}
                     dumpLocations={dumpLocations}
                     addDumpLocation={addDumpLocation}
                 />
-            </div>
-            <div className="assign-item-pair">
-                <AssignTruckItem 
-                    sourceId={2}
-                    readyTrucks={readyTrucks}
-                    updateReadyTrucks={updateReadyTrucks}
-                />
-                <AssignLocationItem 
-                    sourceId={2}
-                    dumpLocations={dumpLocations}
-                    addDumpLocation={addDumpLocation}
-                />
-            </div>
-            <div className="assign-item-pair">
-                <AssignTruckItem 
-                    sourceId={3}
-                    readyTrucks={readyTrucks}
-                    updateReadyTrucks={updateReadyTrucks}
-                />
-                <AssignLocationItem 
-                    sourceId={3}
-                    dumpLocations={dumpLocations}
-                    addDumpLocation={addDumpLocation}
-                />
-            </div>
-            <div className="assign-item-pair">
-                <AssignTruckItem 
-                    sourceId={4}
-                    readyTrucks={readyTrucks}
-                    updateReadyTrucks={updateReadyTrucks}
-                />
-                <AssignLocationItem 
-                    sourceId={4}
-                    dumpLocations={dumpLocations}
-                    addDumpLocation={addDumpLocation}
-                />
-            </div>
-            <div className="assign-item-pair">
-                <AssignTruckItem 
-                    sourceId={5}
-                    readyTrucks={readyTrucks}
-                    updateReadyTrucks={updateReadyTrucks}
-                />
-                <AssignLocationItem 
-                    sourceId={5}
-                    dumpLocations={dumpLocations}
-                    addDumpLocation={addDumpLocation}
-                />
-            </div>
+              </div>
+            ))}
         </div>
     )
 }

@@ -1,25 +1,36 @@
-import React from "react";
+import React ,{useState} from "react";
 import TruckItem from "./TruckItem";
 
 const UnavailableTrucks : React.FC = () => {
+    const [isShowMore, setIsShowMore] = useState<boolean>(false);
+
+    const onShowMoreOrLess = () => {
+        setIsShowMore(!isShowMore);
+    };
+
     return (
         <React.Fragment>
             <div>
-                <p className="right-board-topic">Standby No Operator Assigned</p>
-                <div className="d-flex flex-row justify-content-between" style={{height : 64}}>
-                    <TruckItem
-                        truckId="DT110"
-                        fontColor="#FF4D4F"
-                    />
-                    <TruckItem
-                        truckId="DT111"
-                        fontColor="#FF4D4F"
-                    />
-                    <TruckItem
-                        truckId=""
-                        fontColor="#FF4D4F"
-                    />
+                <div className="d-flex flex-row justify-content-between">
+                    <p className="right-board-topic">Trucks NOT Available</p>
+                    <div className="show-more-btn" onClick={onShowMoreOrLess}>{!isShowMore ? "View more" : "View Less"}</div>
                 </div>
+                {isShowMore && (
+                    <div className="d-flex flex-row justify-content-between" style={{height : 64}}>
+                        <TruckItem
+                            truckId="DT110"
+                            fontColor="#FF4D4F"
+                        />
+                        <TruckItem
+                            truckId="DT111"
+                            fontColor="#FF4D4F"
+                        />
+                        <TruckItem
+                            truckId=""
+                            fontColor="#FF4D4F"
+                        />
+                    </div>
+                )}
             </div>
         </React.Fragment>
     )

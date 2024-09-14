@@ -30,11 +30,11 @@ body[data-layout-mode="dark"] {
   }
 
   .assign-location-item .empty,
+  .assign-material-item .empty,
   .assign-truck-item .empty {
     text-align: center;
     margin: 0px;
     width: 100%;
-    white-space: nowrap;
   }
 
   .assign-location-item .empty {
@@ -46,19 +46,20 @@ body[data-layout-mode="dark"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+    width: 100%;
   }
   .assigned-truck-header {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
   }
 
-  .assigned-truck-header-image {
+  .assigned-truck-header .inline {
     display: flex;
-    padding: 8px;
-    border-radius: 99px;
-    background-color: #535e77;
     align-items: center;
+    gap: 8px;
+    width: 100%;
   }
 
   .assigned-truck-name {
@@ -70,8 +71,42 @@ body[data-layout-mode="dark"] {
 
   .assigned-truck-id-status {
     display: flex;
+    width: 100%;
+    justify-content: space-between;
     align-items: baseline;
     gap: 8px;
+  }
+  .assigned-truck-header-image {
+    display: flex;
+    padding: 8px;
+    border-radius: 99px;
+    background-color: #535e77;
+    align-items: center;
+  }
+
+  .assigned-truck-header .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .assigned-truck-header-image-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .assigned-truck-action-button {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: white !important;
+    padding: 0px;
+  }
+
+  .assigned-truck-action-button .anticon-more svg {
+    width: 24px;
+    height: 24px;
   }
 
   .assigned-truck-id {
@@ -107,6 +142,14 @@ body[data-layout-mode="dark"] {
     margin: 0;
   }
 
+  .assigned-truck-details .assigned-truck-progress .ant-progress-inner {
+    background-color: #535e77 !important;
+  }
+
+  .assigned-truck-details .assigned-truck-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .assigned-truck-details
     .assigned-truck-progress
     .progress-text
@@ -132,6 +175,7 @@ body[data-layout-mode="dark"] {
     align-items: flex-start;
     margin: 0;
     margin-bottom: 16px;
+    gap: 6px;
   }
 
   .cycle-time {
@@ -142,6 +186,13 @@ body[data-layout-mode="dark"] {
     margin-top: 24px;
   }
 
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    border-radius: 8px;
+    position: relative;
+  }
   .assigned-truck-details .truck-props .props-label {
     color: #9ca3b1;
     font-weight: 400;
@@ -154,6 +205,33 @@ body[data-layout-mode="dark"] {
     font-size: 16px;
   }
 
+  .assigned-dump-item .assigned-dump-chips {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    padding: 4px 16px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    border-radius: 99px;
+    background-color: #2a2a2a;
+    color: white;
+    width: 70%;
+  }
+  .show-more-btn {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    color: #fff;
+    cursor: pointer;
+  }
+  .dropdown-img {
+    width: 15px;
+    height: 20px;
+    background-image: url("./more_vert_dark.png");
+  }
   .assigned-truck-details .truck-props .cycle-time-container {
     display: flex;
     align-items: flex-start;
@@ -172,33 +250,11 @@ body[data-layout-mode="dark"] {
     color: white;
   }
 
-  .assigned-dump-item {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    position: relative;
-  }
-
   .assigned-dump-item img {
     width: 100%;
     height: 100%;
     border-radius: 8px;
     object-fit: cover;
-  }
-
-  .assigned-dump-item .assigned-dump-chips {
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    padding: 4px 16px;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 24px;
-    border-radius: 99px;
-    background-color: #2a2a2a;
-    color: white;
-    width: 70%;
   }
 }
 body[data-layout-mode="light"] {
@@ -234,6 +290,7 @@ body[data-layout-mode="light"] {
   }
 
   .assign-location-item .empty,
+  .assign-material-item .empty,
   .assign-truck-item .empty {
     text-align: center;
     margin: 0px;
@@ -249,19 +306,34 @@ body[data-layout-mode="light"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+    width: 100%;
   }
+
   .assigned-truck-header {
     display: flex;
-    align-items: center;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .assigned-truck-header .inline {
+    display: flex;
+    align-items: start;
     gap: 8px;
   }
 
-  .assigned-truck-header-image {
+  .assigned-truck-header .wrap {
     display: flex;
-    padding: 8px;
-    border-radius: 99px;
-    background-color: #535e77;
+    flex-direction: column;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .assigned-truck-header-image-wrapper {
+    display: flex;
     align-items: center;
+    gap: 8px;
+    width: 100%;
   }
 
   .assigned-truck-name {
@@ -273,8 +345,29 @@ body[data-layout-mode="light"] {
 
   .assigned-truck-id-status {
     display: flex;
+    width: 100%;
+    justify-content: space-between;
     align-items: baseline;
     gap: 8px;
+  }
+  .assigned-truck-action-button {
+    background-color: transparent !important;
+    border: transparent !important;
+    color: #1c263c !important;
+    padding: 0px;
+  }
+
+  .assigned-truck-action-button .anticon-more svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .assigned-truck-header-image {
+    display: flex;
+    padding: 8px;
+    border-radius: 99px;
+    background-color: #535e77;
+    align-items: center;
   }
 
   .assigned-truck-id {
@@ -312,6 +405,14 @@ body[data-layout-mode="light"] {
     margin: 0;
   }
 
+  .assigned-truck-details .assigned-truck-progress .ant-progress-inner {
+    background-color: #e0e0e0 !important;
+  }
+
+  .assigned-truck-details .assigned-truck-progress .ant-progress-bg {
+    background-color: #389e0d !important;
+  }
+
   .assigned-truck-details
     .assigned-truck-progress
     .progress-text
@@ -338,6 +439,7 @@ body[data-layout-mode="light"] {
     align-items: flex-start;
     margin: 0;
     margin-bottom: 16px;
+    gap: 6px;
   }
 
   .cycle-time {
@@ -354,6 +456,13 @@ body[data-layout-mode="light"] {
     font-size: 16px;
   }
 
+  .assigned-dump-item {
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    border-radius: 8px;
+    position: relative;
+  }
   .assigned-truck-details .truck-props .props-value {
     color: #2a2a2a !important;
     font-weight: 400;
@@ -365,31 +474,6 @@ body[data-layout-mode="light"] {
     align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
-  }
-
-  .cycle-time-container .time-chips {
-    padding: 4px 16px;
-    border-radius: 99px;
-    background-color: #e0e0e0;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 24px;
-    color: #1c263c;
-  }
-
-  .assigned-dump-item {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    position: relative;
-  }
-
-  .assigned-dump-item img {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    object-fit: cover;
   }
 
   .assigned-dump-item .assigned-dump-chips {
@@ -405,5 +489,35 @@ body[data-layout-mode="light"] {
     background-color: #2a2a2a;
     color: white;
     width: 70%;
+  }
+  .show-more-btn {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    color: #1c263c;
+    cursor: pointer;
+  }
+  .dropdown-img {
+    width: 15px;
+    height: 20px;
+    background-image: url("./more_vert_light.png");
+  }
+  .cycle-time-container .time-chips {
+    padding: 4px 16px;
+    border-radius: 99px;
+    background-color: #e0e0e0;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 24px;
+    color: #1c263c;
+  }
+
+  .assigned-dump-item img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
   }
 }

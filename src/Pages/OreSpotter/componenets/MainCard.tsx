@@ -9,6 +9,7 @@ import {
   DumpLocation,
   Material,
   Truck,
+  ActiveBenchData,
 } from "../../DispatchLive/interfaces/type";
 import AssignBoard from "./AssignBoard";
 import { Vehicle } from "slices/fleet/reducer";
@@ -21,16 +22,24 @@ interface MainCardProps {
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
+  removeTruckFromAssigned : (removedTruck: Truck) => void;
+  assignTruckToFleet : (truck : Truck, diggerId : string) => void;
+  assignedBenches : ActiveBenchData[];
+  addBenches : (newBenches: ActiveBenchData) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
   digger,
   readyTrucks,
   updateReadyTrucks,
+  removeTruckFromAssigned,
+  assignTruckToFleet,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
   addDumpLocation,
+  assignedBenches,
+  addBenches,
 }) => {
   const [collapseView, setCollapseView] = useState<boolean>(true);
 
@@ -86,6 +95,7 @@ const MainCard: React.FC<MainCardProps> = ({
             <p className="vehicle-card-name">Digger Fleet</p>
             <VehicleCard
               key={1}
+              index={1}
               id={digger.name || "Unknown"}
               status={"Healthy"}
               smu={getRandomFloat(23000, 38000, 1)}
@@ -95,16 +105,20 @@ const MainCard: React.FC<MainCardProps> = ({
               lastUpdated={getRandomInt(1, 2) + "m"}
               sync={digger.status.toLowerCase() as any}
               collapse={collapseView}
+              assignedBenches={assignedBenches}
+              addBenches={addBenches}
             />
           </div>
           <AssignBoard
+            digger={digger}
             readyTrucks={readyTrucks}
             updateReadyTrucks={updateReadyTrucks}
+            assignTruckToFleet={assignTruckToFleet}
+            removeTruckFromAssigned={removeTruckFromAssigned}
             targetMaterials={targetMaterials}
             updateTargetMaterials={updateTargetMaterials}
             dumpLocations={dumpLocations}
             addDumpLocation={addDumpLocation}
-            collapse={collapseView}
           />
         </div>
       </div>

@@ -1,0 +1,55 @@
+.shift-plan-box select,
+.shift-plan-box .shift-value,
+.shift-plan-box .ant-tag {
+    background-color: #283655;
+    color: #fff;
+    font-size: 14px;
+    padding: 5px 15px;
+    border-radius: 25px;
+    border: none;
+    appearance: none;
+    width: 100%;
+}
+
+.shift-plan-box select {
+    background-color: rgb(247, 179, 26)
+}
+
+.shift-plan-box select option {
+    background-color: #283655;
+}
+
+.shift-plan-box select option.select-alert  {
+    color: rgb(247, 179, 26);
+}
+
+.shift-plan-box select.select-danger {
+    background-color: #CF1322;
+}
+
+.shift-plan-box select option.select-danger {
+    color: #CF1322;
+}
+
+.shift-plan-box .select-icon {
+    position: relative;
+}
+
+.shift-plan-box .select-icon::before {
+  content: " ";
+  position: absolute;
+  top: 60%;
+  left: 85%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+  transform: translateY(-50%);
+}
+
+.equipment-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 75%;
+}
