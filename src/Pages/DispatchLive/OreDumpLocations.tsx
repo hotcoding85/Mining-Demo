@@ -16,9 +16,8 @@ const OreDumpLocations : React.FC<OreDumpLocationsProps> = ({
     const [showSize, setShowSize] = useState<number>(3);
     const [showedAll, setShowedAll] = useState<boolean>(false);
     const handleShowMore = () => {
-        const newShowSize = showSize + 3;
-        setShowSize(newShowSize);
-        setShowedAll(newShowSize >= dumpLocationsForAssign.length); 
+        setShowSize(dumpLocationsForAssign.length);
+        setShowedAll(true); 
     }
     const handleShowLess = () => {
         setShowSize(3);

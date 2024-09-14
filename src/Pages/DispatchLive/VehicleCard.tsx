@@ -182,6 +182,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
         </p>
         {!isShowMore && (
           <div>
+            <p className="vehicle-card-props">
+              <span className="vehicle-label">Next Work Locations</span>
+            </p>
             <div className="next-location-container">
               {nextLocations.map((location) => (
                 <div className="item">

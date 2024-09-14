@@ -9,6 +9,7 @@ import ReadyTrucks from "./ReadyTrucks";
 import MessageBoard from "./MessageBoard";
 import { DumpLocation, Material, Truck } from "./interfaces/type";
 import OreDumpLocations from "./OreDumpLocations";
+import { OreDumpsForAssign } from "./data/sampleData";
 
 interface RightBoardProps {
   readyTrucks: Truck[];
@@ -27,31 +28,39 @@ const RightBoard: React.FC<RightBoardProps> = ({
     setIsShowMore(!isShowMore);
   };
 
-  return (
-    <React.Fragment>
-      <div className="dispatch-right-board">
-        <MessageBoard />
-        <div className="right-board-divider" />
-        <ReadyTrucks readyTrucks={readyTrucks} />
-        <div className="right-board-divider" />
-        <StandbyTrucks />
-        <div className="right-board-divider" />
-        <WasteDumpLocations dumpLocationsForAssign={dumpLocationsForAssign} />
-        <div className="right-board-divider" />
-        <OreDumpLocations dumpLocationsForAssign={dumpLocationsForAssign} />
-        <div className="right-board-divider" />
-        <UnavailableTrucks />
-        <div className="right-board-divider" />
-        <ActiveBenches activeBenches={activeBenches} />
-        {targetMaterials && (
-          <>
-            <div className="right-board-divider" />
-            <OreBodies targetMaterials={targetMaterials} />
-          </>
-        )}
-      </div>
-    </React.Fragment>
-  );
-};
+    return (
+        <React.Fragment>
+            <div className="dispatch-right-board">
+                <MessageBoard />
+                <div className="right-board-divider" />
+                <ReadyTrucks 
+                    readyTrucks = {readyTrucks}
+                />
+                <div className="right-board-divider" />
+                <StandbyTrucks />
+                <div className="right-board-divider" />
+                <WasteDumpLocations 
+                    dumpLocationsForAssign = {dumpLocationsForAssign}
+                />
+                <div className="right-board-divider" />
+                <OreDumpLocations 
+                    dumpLocationsForAssign = {OreDumpsForAssign}
+                />
+                <div className="right-board-divider" />
+                <UnavailableTrucks />
+                <div className="right-board-divider" />
+                <ActiveBenches 
+                    activeBenches={activeBenches}
+                />
+                {targetMaterials && (
+                <>
+                    <div className="right-board-divider" />
+                    <OreBodies targetMaterials={targetMaterials} />
+                </>
+                )}
+            </div>
+        </React.Fragment>
+    )
+}
 
 export default RightBoard;

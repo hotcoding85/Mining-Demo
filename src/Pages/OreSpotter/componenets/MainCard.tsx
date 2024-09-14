@@ -22,14 +22,18 @@ interface MainCardProps {
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  assignedBenches: ActiveBenchData[];
-  addBenches: (newBenches: ActiveBenchData) => void;
+  removeTruckFromAssigned : (removedTruck: Truck) => void;
+  assignTruckToFleet : (truck : Truck, diggerId : string) => void;
+  assignedBenches : ActiveBenchData[];
+  addBenches : (newBenches: ActiveBenchData) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
   digger,
   readyTrucks,
   updateReadyTrucks,
+  removeTruckFromAssigned,
+  assignTruckToFleet,
   targetMaterials,
   updateTargetMaterials,
   dumpLocations,
@@ -109,6 +113,8 @@ const MainCard: React.FC<MainCardProps> = ({
             digger={digger}
             readyTrucks={readyTrucks}
             updateReadyTrucks={updateReadyTrucks}
+            assignTruckToFleet={assignTruckToFleet}
+            removeTruckFromAssigned={removeTruckFromAssigned}
             targetMaterials={targetMaterials}
             updateTargetMaterials={updateTargetMaterials}
             dumpLocations={dumpLocations}

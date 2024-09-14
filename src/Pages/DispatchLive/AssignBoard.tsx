@@ -1,119 +1,65 @@
-import React from "react";
-import VehicleCard from "./VehicleCard";
+import React, { useState } from "react";
 import AssignTruckItem from "./AssignTruckItem";
 import AssignLocationItem from "./AssignLocationItem";
-import { pc2000 } from "assets/images/equipment";
-import { Row, Col } from "reactstrap";
-import { Select, Progress } from "antd";
-import { Truck, DumpLocation } from "./interfaces/type";
-import { Vehicle } from "slices/fleet/reducer";
+import { Truck, DumpLocation, DiggerData } from "./interfaces/type";
+import { diggers } from "./data/sampleData";
+import { filter, max } from "lodash";
+import { array } from "yup";
+import { truckIcon } from "assets/images/equipment";
 
 interface AssignBoardProps {
-  index: number;
-  assignedTrucks: Truck[];
-  updateReadyTrucks: (updatedTask: Truck) => void;
-  removeTruckFromAssigned: (removedTruck: Truck) => void;
-  dumpLocations: DumpLocation[];
-  addDumpLocation: (newDumpLocation: DumpLocation) => void;
-}
+    digger : DiggerData;
+    assignedTrucks: Truck[];
+    updateReadyTrucks: (updatedTask: Truck) => void;
+    removeTruckFromAssigned : (removedTruck: Truck) => void;
+    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
+    dumpLocations : DumpLocation[];
+    addDumpLocation : (newDumpLocation: DumpLocation) => void;
+}  
 
-const AssignBoard: React.FC<AssignBoardProps> = ({
-  index,
-  assignedTrucks,
-  updateReadyTrucks,
-  removeTruckFromAssigned,
-  dumpLocations,
-  addDumpLocation,
+const AssignBoard : React.FC<AssignBoardProps> = ({
+    digger,
+    assignedTrucks,
+    updateReadyTrucks,
+    removeTruckFromAssigned,
+    assignTruckToFleet,
+    dumpLocations,
+    addDumpLocation
 }) => {
-  return (
-    <div className="assign-item-container">
-      <div className="assign-item-pair">
-        <p className="assign-truck-item-header">Assigned Trucks to Circuit</p>
-        <p className="assign-location-item-header">Hauling to Location</p>
-      </div>
 
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 1}
-          assignedTrucks={assignedTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="inline"
-        />
-        <AssignLocationItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 1}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 2}
-          assignedTrucks={assignedTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="inline"
-        />
-        <AssignLocationItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 2}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 3}
-          assignedTrucks={assignedTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="inline"
-        />
-        <AssignLocationItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 3}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 4}
-          assignedTrucks={assignedTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="inline"
-        />
-        <AssignLocationItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 4}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 5}
-          assignedTrucks={assignedTrucks}
-          updateReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="inline"
-        />
-        <AssignLocationItem
-          diggerId={"1"}
-          sourceId={(index - 1) * 5 + 5}
-          dumpLocations={dumpLocations}
-          addDumpLocation={addDumpLocation}
-        />
-      </div>
-    </div>
-  );
-};
+    const filteredAssignedTrucks = assignedTrucks.filter(truck => truck.diggerId == digger.diggerId);
+    const assignIds = filteredAssignedTrucks.map(truck => {return truck.assignId});
+    const itemLength = Math.max(...assignIds) >= 4 ? Math.max(...assignIds) + 2 : 5;
+    const assignArr = Array.from({length:itemLength});
+
+    return (
+        <div className="assign-item-container">
+            <div className="assign-item-pair">
+                <p className="assign-truck-item-header">Assigned Trucks to Circuit</p>
+                <p className="assign-location-item-header">Hauling to Location</p>
+            </div>
+
+            {assignArr.map((item, index) => (
+              <div className="assign-item-pair">
+                <AssignTruckItem
+                    diggerId={digger.diggerId}
+                    sourceId={ index}
+                    assignedTrucks={filteredAssignedTrucks}
+                    updateReadyTrucks={updateReadyTrucks}
+                    removeTruckFromAssigned={removeTruckFromAssigned}
+                    assignTruckToFleet={assignTruckToFleet}
+                    directionDispalyName="inline"
+                />
+                <AssignLocationItem 
+                    diggerId={digger.diggerId}
+                    sourceId={index}
+                    dumpLocations={dumpLocations}
+                    addDumpLocation={addDumpLocation}
+                />
+              </div>
+            ))}
+        </div>
+    )
+}
 
 export default AssignBoard;

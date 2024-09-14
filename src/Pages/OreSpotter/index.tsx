@@ -87,14 +87,22 @@ const OreSpotter: React.FC = () => {
     );
   };
 
-  const addBenches = (newBenches: ActiveBenchData) => {
-    const existItem = assignedBenches.find(
-      (item) =>
-        item.id === newBenches.id && item.assignId === newBenches.assignId
-    );
-    if (!existItem) {
-      setAssignedBenches((prevBenches) => [...prevBenches, newBenches]);
-    }
+  
+  const removeTruckFromAssigned = (removedTruck : Truck) => {
+
+  }
+
+  const assignTruckToFleet = (truck : Truck, diggerId : string) => {
+
+  }
+  const addBenches= (newBenches : ActiveBenchData) => {
+        const existItem = assignedBenches.find(
+            (item) =>
+              item.id === newBenches.id && item.assignId === newBenches.assignId
+        );
+        if(!existItem) {
+            setAssignedBenches((prevBenches) => [...prevBenches, newBenches]);
+        }
   };
 
   const updateTargetMaterials = (updatedTruck: Material) => {
@@ -154,6 +162,8 @@ const OreSpotter: React.FC = () => {
                       digger={digger}
                       readyTrucks={readyTrucks}
                       updateReadyTrucks={updateReadyTrucks}
+                      removeTruckFromAssigned = {removeTruckFromAssigned}
+                      assignTruckToFleet={assignTruckToFleet}
                       targetMaterials={targetMaterials}
                       updateTargetMaterials={updateTargetMaterials}
                       dumpLocations={dumpLocations}
