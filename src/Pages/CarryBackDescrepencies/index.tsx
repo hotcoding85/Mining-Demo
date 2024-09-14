@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { TextColor } from "Components/Charts/interfaces/general";
@@ -7,150 +7,24 @@ import { round2Two } from "utils/common";
 import { createSelector } from "reselect";
 import { useSelector } from "react-redux";
 import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
+import { data } from "./sampleData";
 const CarryBackDescrepencies = (props: any) => {
 
-    const [bench, setBench] = useState<any>();
+  const [bench, setBench] = useState<any>();
 
-    const [modal, setModal] = useState<boolean>(false);
-    const [isEdit, setIsEdit] = useState<boolean>(false);
-    const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [modal, setModal] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [importCsvModal, setImportFileModal] = useState<boolean>(false);
+  const [tableData, setTableData] = useState<any>();
 
-
-    const selectProperties = createSelector(
-        (state: any) => state.Benches,
-        (benches) => ({
-            data: benches.data,
-            total: benches.total,
-            loading: benches.loading,
-        })
-    );
-    // const { data } = useSelector(selectProperties);
-
-    const data: any = [
-        {
-          "id": "1",
-          "model": "HD1500",
-          "equipmentName": "DT101",
-          "loadsCompleted": "9/35",
-          "trips": "Trip1",
-          "materialType": "Waste",
-          "actual": "38,125",
-          "planned": "35,000",
-          "tonnesIndicated": "84.2",
-          "avgLoadCarriedBack": "1.4",
-          "actualTonnes": "82.8",
-          "subRows": [
-            {
-                "id": "1a",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            },
-            {
-                "id": "1b",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            }
-          ]
-        },
-        {
-           "id": "2",
-          "model": "HD1500",
-          "equipmentName": "DT101",
-          "loadsCompleted": "9/35",
-          "trips": "Trip1",
-          "materialType": "Waste",
-          "actual": "38,125",
-          "planned": "35,000",
-          "tonnesIndicated": "84.2",
-          "avgLoadCarriedBack": "1.4",
-          "actualTonnes": "82.8",
-          "subRows": [
-            {
-              "id": "2a",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            },
-            {
-              "id": "2b",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            }
-          ]
-        },
-        {
-          "id": "3",
-          "model": "HD1500",
-          "equipmentName": "DT101",
-          "loadsCompleted": "9/35",
-          "trips": "Trip1",
-          "materialType": "Waste",
-          "actual": "38,125",
-          "planned": "35,000",
-          "tonnesIndicated": "84.2",
-          "avgLoadCarriedBack": "1.4",
-          "actualTonnes": "82.8",
-          "subRows": [
-            {
-              "id": "3a",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            },
-            {
-              "id": "3a",
-              "model": "HD1500",
-              "equipmentName": "DT101",
-              "loadsCompleted": "9/35",
-              "trips": "Trip1",
-              "materialType": "Waste",
-              "actual": "38,125",
-              "planned": "35,000",
-              "tonnesIndicated": "84.2",
-              "avgLoadCarriedBack": "1.4",
-              "actualTonnes": "82.8"
-            }
-          ]
-        }
-      ];
+  const selectProperties = createSelector(
+    (state: any) => state.Benches,
+    (benches) => ({
+      data: benches.data,
+      total: benches.total,
+      loading: benches.loading,
+    })
+  );
 
     document.title = "Pre Starts | FMS Live";
     const lineOptions = {
@@ -331,6 +205,12 @@ const CarryBackDescrepencies = (props: any) => {
           enableColumnFilter: false,
           enableSorting: true,
         },
+        {
+          header: "Actual Tonnes",
+          accessorKey: "actualTonnes",
+          enableColumnFilter: false,
+          enableSorting: true,
+        },
       ],
       // [handleOnEdit, handleOnDelete]
       []
@@ -353,6 +233,34 @@ const CarryBackDescrepencies = (props: any) => {
         // show import csv dialog
         importCsvModalToggle();
     };
+
+    function createHierarchicalData(arrays) {
+      return arrays.map(subArray => {
+        const result = {
+          id: "1",
+          subRows: subArray
+        };
+
+        subArray.reduce((acc, subRow) => {
+          Object.entries(subRow).forEach(([key, value] : any) => {
+            if (key === 'id' || key === 'subRows') {
+              result[key] = value;
+            } else if (!isNaN(value)) {
+              result[key] = (result[key] || 0) + parseFloat(value);
+            } else {
+              result[key] = value;
+            }
+          });
+          return acc;
+        }, result);
+        return result;
+      });
+    }
+
+    useEffect(() => {
+      const rowData = createHierarchicalData(data);
+      setTableData(rowData)
+    },[])
 
     return (
         <React.Fragment>
@@ -389,7 +297,7 @@ const CarryBackDescrepencies = (props: any) => {
                                 <CardBody className="descrepencies-wrapper">
                                     <HierarchycalTable
                                         columns={columns}
-                                        data={data || []}
+                                        data={tableData || []}
                                         // total={total || 0}
                                         isGlobalFilter={true}
                                         handleOnAddClick={handleOnAdd}
