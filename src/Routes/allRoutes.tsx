@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom"
 import path from "path";
 import React, { Component } from "react";
 import socketIO from 'socket.io-client';
+import { ThreeJS } from "Pages/ThreeJS";
 
 const FMS = React.lazy(() => import("Pages/FleetStatus"));
 
@@ -138,6 +139,8 @@ const authProtectedRoutes = [
 
   // Production
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
+  // ThreeJS View
+  { path: "/threejs-view", exact: true, component: <ThreeJS /> },
 ];
 
 const publicRoutes = [

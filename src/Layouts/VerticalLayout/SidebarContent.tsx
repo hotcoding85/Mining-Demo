@@ -317,7 +317,12 @@ const SidebarContent = (props: any) => {
                 </li>
               </ul>
             </li>
-
+            <li>
+              <Link to="/threejs-view">
+                <i className="bx bxs-map"></i>
+                <span>{props.t("ThreeJS View")}</span>
+              </Link>
+            </li>
             <li>
               <Link to="/" className="has-arrow">
                 <i className="bx bx-bolt-circle"></i>
