@@ -27,9 +27,8 @@ const AssignBoard : React.FC<AssignBoardProps> = ({
     addDumpLocation
 }) => {
 
-    const filteredAssignedTrucks = assignedTrucks.filter(truck => truck.diggerId == digger.diggerId);
-    const assignIds = filteredAssignedTrucks.map(truck => {return truck.assignId});
-    const itemLength = Math.max(...assignIds) >= 4 ? Math.max(...assignIds) + 2 : 5;
+    const filteredAssignedTrucks = assignedTrucks.filter(truck => truck.diggerId == digger.diggerId).map((truck, index) => ({...truck, assignId : index}));
+    const itemLength = filteredAssignedTrucks.length >= 5 ? filteredAssignedTrucks.length + 1 : 5;
     const assignArr = Array.from({length:itemLength});
 
     return (
