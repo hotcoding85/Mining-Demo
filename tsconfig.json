@@ -24,9 +24,14 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/Pages/Allcharts/knob/knob.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/Pages/Allcharts/knob/knob.tsx",
+    "webpack.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
-
-
-
