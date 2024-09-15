@@ -1,15 +1,10 @@
-import {
-  PlaneBufferGeometry,
-  Mesh,
-  MeshNormalMaterial,
-  Vector3,
-} from 'three'
+import * as THREE from 'three'
 import RBush from 'rbush';
 import bbox from '@turf/bbox';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import getPixels from 'image-pixels'
 import QuadTextureMaterial from './QuadTextureMaterial'
-const tileMaterial = new MeshNormalMaterial({wireframe: true})
+const tileMaterial = new THREE.MeshNormalMaterial({wireframe: true})
 const baseTileSize = 512
 const token = 'sk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTExNjUwODgwbHN0MmxzZ3l1YzFmdmlsIn0.pbDu9G65zies9q30ZwlbQA'
 export class Source {
@@ -209,7 +204,7 @@ class Tile {
 
   buildGeometry() {
     if (!this.shape) return
-    const geometry = new PlaneBufferGeometry(
+    const geometry = new THREE.PlaneGeometry(
       this.size,
       this.size,
       this.shape[0] / 2,
@@ -263,7 +258,7 @@ class Tile {
     this.buildMaterial().then((material) => {
       this.mesh.material = material
     })
-    this.mesh = new Mesh(this.geometry, tileMaterial)
+    this.mesh = new THREE.Mesh(this.geometry, tileMaterial)
   }
 
   fetch() {
@@ -473,18 +468,40 @@ export class Map {
     })
     this.tileCache = {}
   }
+
+  getElevationAt(point) {
+    const tileKey = Utils.position2tile(this.zoom, point.x, point.y, this.center, this.tileSize);
+    const tile = this.tileCache[`${tileKey.z}/${tileKey.x}/${tileKey.y}`];
+
+    if (!tile || !tile.elevation) {
+      console.error("No elevation data found for this tile.");
+      return 0; // Return a default elevation
+    }
+
+    // Convert point's position to pixel coordinates within the tile
+    const pixelX = (point.x % tile.size) / tile.size * tile.shape[1];
+    const pixelY = (point.y % tile.size) / tile.size * tile.shape[0];
+    
+    // Fetch the elevation from the tile's elevation map
+    const elevationIndex = Math.floor(pixelY) * tile.shape[1] + Math.floor(pixelX);
+    // console.log(pixelX, pixelY)
+    
+    return tile.elevation[elevationIndex] * 2 || 300;
+  }
 }
 export class MapPicker {
   constructor(camera, map, domElement, controls) {
-    this.vec = new Vector3(); // create once and reuse
-    this.position = new Vector3(); // create once and reuse
+    this.vec = new THREE.Vector3(); // create once and reuse
+    this.position = new THREE.Vector3(); // create once and reuse
     this.camera = camera
     this.map = map
     this.domElement = domElement
     this.controls = controls
 
+    this.selectedPoints = [];
     this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this))
-    this.domElement.addEventListener('dblclick', this.onMouseClick.bind(this))
+    this.domElement.addEventListener('dblclick', this.onMouseDblClick.bind(this))
+    // this.domElement.addEventListener('click', this.onMouseClick.bind(this))
   }
 
   computeWorldPosition(event) {
@@ -507,11 +524,45 @@ export class MapPicker {
     // this.computeWorldPosition(event)
   }
 
+  onMouseDblClick (event) {
+
+  }
   onMouseClick(event) {
     this.computeWorldPosition(event)
-    this.map.addFromPosition(this.position.x, this.position.y)
+    // this.map.addFromPosition(this.position.x, this.position.y)
+    console.log(this.position.x, this.position.y)
+    this.computeWorldPosition(event);
+    const position = new THREE.Vector3(this.position.x, this.position.y, this.position.z);
+    this.selectedPoints.push(position);
+
+    // If two points are selected, draw the line
+    if (this.selectedPoints.length === 2) {
+      this.drawLineBetweenPoints(this.selectedPoints[0], this.selectedPoints[1]);
+      this.selectedPoints = []; // Reset points
+    }
+
+  }
+  
+  drawLineBetweenPoints(point1, point2) {
+    const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 4,depthTest: false });
     
-    console.log(Utils.position2tile(15, this.position.x, this.position.y,this.position  ,baseTileSize))
+    const points = [];
+    const numPoints = 1; // Number of points to sample along the line
+  
+    for (let i = 0; i <= numPoints; i++) {
+      const t = i / numPoints;
+      const interpolatedPoint = new THREE.Vector3().lerpVectors(point1, point2, t);
+  
+      // Get the elevation for this point from the terrain
+      const elevation = this.map.getElevationAt(interpolatedPoint);
+      interpolatedPoint.z = elevation; // Adjust Z based on elevation
+  
+      points.push(interpolatedPoint);
+    }
+  
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geometry, material);
+    this.map.scene.add(line);
   }
 
   go(lat, lon) {

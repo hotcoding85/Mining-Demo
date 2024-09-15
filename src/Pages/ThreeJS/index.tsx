@@ -8,25 +8,7 @@ import mapboxgl from 'mapbox-gl';
 import {WindowResize} from './modules/WindowResize'
 import * as turf from '@turf/turf';
 import {InfiniteGridHelper} from './modules/InfiniteGridHelper'
-import {
-    Scene,
-    PerspectiveCamera,
-    Vector3,
-    WebGLRenderer,
-    PCFSoftShadowMap,
-    ACESFilmicToneMapping,
-    Color,
-    FogExp2,
-    LineSegments,
-    BoxGeometry,
-    LinearEncoding,
-    AmbientLight,
-    DirectionalLight,
-    AxesHelper,
-    Object3D,
-    EdgesGeometry,
-    LineBasicMaterial
-} from "three";
+import * as THREE from "three";
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
 import _ from 'lodash';
 
@@ -56,15 +38,15 @@ export const ThreeJS = () => {
                 .then((_geojsonData: turf.AllGeoJSON) => {
                     geojsonData.current = _geojsonData
 
-                    const scene = new Scene();
-                    const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
+                    const scene = new THREE.Scene();
+                    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
                 
-                    camera.up = new Vector3(0, 0, 1);
+                    camera.up = new THREE.Vector3(0, 0, 1);
                     camera.position.set(0, -1000, 700);
                     camera.updateMatrixWorld();
                     camera.updateProjectionMatrix();
                 
-                    const renderer = new WebGLRenderer({
+                    const renderer = new THREE.WebGLRenderer({
                     antialias: true,
                     alpha: true,
                     logarithmicDepthBuffer: false,
@@ -76,9 +58,9 @@ export const ThreeJS = () => {
                     }
                 
                     // Renderer Settings
-                    renderer.outputEncoding = LinearEncoding;
+                    // renderer.outputEncoding = LinearEncoding;
                     renderer.shadowMap.enabled = true;
-                    renderer.shadowMap.type = PCFSoftShadowMap;
+                    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 
                     // Performance Stats
@@ -90,16 +72,16 @@ export const ThreeJS = () => {
                     window.controls = controls
                 
                     // Axes Helper
-                    const axesHelper = new AxesHelper(2000);
+                    const axesHelper = new THREE.AxesHelper(2000);
                     // scene.add(axesHelper);
                 
                     // Scene Background and Fog
-                    scene.background = new Color(0x91abb5);
-                    scene.fog = new FogExp2(0x91abb5, 0.0000001);
+                    scene.background = new THREE.Color(0x91abb5);
+                    scene.fog = new THREE.FogExp2(0x91abb5, 0.0000001);
                 
                     // Lighting
-                    const ambientLight = new AmbientLight(0x404040, 2); // Soft white light
-                    const dirLight = new DirectionalLight(0xffffff, 1.5);
+                    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+                    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
                     dirLight.castShadow = true;
                     dirLight.position.set(10000, 10000, 10000);
                     scene.add(ambientLight);
