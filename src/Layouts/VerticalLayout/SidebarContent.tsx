@@ -199,7 +199,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/ore-spotter">{props.t("Ore Spotter")}</Link>
                 </li>
                 <li>
-                  <Link to="/fuel-scheduler">{props.t("Fuel Scheduler")}</Link>
+                  <Link to="/fuel-scheduler">{props.t("Fuel Dispatcher")}</Link>
                 </li>
                 <li>
                   <Link to="/targets">{props.t("Production Targets")}</Link>

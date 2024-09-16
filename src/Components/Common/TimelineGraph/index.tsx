@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DataSet, Timeline as VisTimeline, DataGroup, DataItem } from "vis-timeline/standalone";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
+import "./index.css"
 
 interface TimelineGraphProps {
   groupsData: DataGroup[];

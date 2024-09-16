@@ -28,13 +28,17 @@
   color: #61dafb;
 }
 
-.auth-logo > img{
+.auth-logo>img {
   max-width: 250px;
   width: 100%;
 }
-.mapboxgl-ctrl-scale, .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib-inner{
+
+.mapboxgl-ctrl-scale,
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib-inner {
   display: none !important;
 }
+
 body[data-layout-mode="dark"] {
   .customSegmentBackground {
     background-color: #283655;
@@ -59,34 +63,40 @@ body[data-layout-mode="dark"] {
 
 }
 
-body[data-layout-mode= "dark"] {
+body[data-layout-mode="dark"] {
   .dropDownArrow {
-                color: white !important; 
-        }
+    color: white !important;
+  }
+
 
   .ant-select-item-option-selected {
-      background-color: #5e6c86 !important; /*Customize background color of selected item*/
-      color: white !important; /* Customize text color of selected item */
-      font-weight:normal !important;
-    }
+    background-color: #5e6c86 !important;
+    /*Customize background color of selected item*/
+    color: white !important;
+    /* Customize text color of selected item */
+    font-weight: normal !important;
+  }
 }
 
-body[data-layout-mode= "light"] {
+body[data-layout-mode="light"] {
   .dropDownArrow {
-                color: grey !important;
-        }
+    color: grey !important;
+  }
 
   .ant-select-item-option-selected {
-      background-color: #9A9A9A !important; /* Customize background color of selected item */
-      color: white !important; /* Customize text color of selected item */
-      font-weight:normal !important;
-    }
+    background-color: #9A9A9A !important;
+    /* Customize background color of selected item */
+    color: white !important;
+    /* Customize text color of selected item */
+    font-weight: normal !important;
+  }
 }
 
 body[data-layout-mode="light"] {
   .customSegmentBackground {
     background-color: #c3c3c3;
   }
+
 
   /* .leaflet-layer,
   .leaflet-control-zoom-in,
@@ -105,12 +115,12 @@ body[data-layout-mode="light"] {
   cursor: pointer;
 }
 
-.animationmarker{
+.animationmarker {
   background-image: url('./assets/images/map/active_truck.png');
   background-size: cover;
   width: 50px;
   height: 60px;
-  left:0;
+  left: 0;
   cursor: pointer;
 }
 
@@ -134,47 +144,57 @@ body[data-layout-mode="light"] {
   right: 10px;
   top: 335px;
 }
-.my-bounding-box-group{
+
+.my-bounding-box-group {
   position: absolute;
   z-index: 9;
   right: 10px;
   top: 157px;
 }
-.my-custom-point-group{
+
+.my-custom-point-group {
   position: absolute;
   z-index: 9;
   right: 10px;
   top: 197px;
 }
-.mapboxgl-ctrl > button {
+
+.mapboxgl-ctrl>button {
   width: 32px !important;
   height: 32px !important;
 }
-.ant-color-picker{
+
+.ant-color-picker {
   position: absolute;
   z-index: 9999999;
 }
-.route-item{
+
+.route-item {
   color: white;
   border-bottom: 1px dashed #787878;
   cursor: pointer;
 }
-.route-item > i {
+
+.route-item>i {
   right: 25px;
   font-size: 20px;
   position: absolute;
 }
+
 .route-item:hover {
   background-color: #212529;
 }
+
 .arrow-png {
   width: 20px;
   height: 20px;
-  background-image: url('./assets/images/right-arrow-svgrepo-com.svg'); /* Use absolute path here */
+  background-image: url('./assets/images/right-arrow-svgrepo-com.svg');
+  /* Use absolute path here */
   background-size: cover;
   background-repeat: no-repeat;
   transform-origin: center;
 }
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -183,6 +203,10 @@ body[data-layout-mode="light"] {
   to {
     transform: rotate(360deg);
   }
+}
+
+.form-control {
+  color: #333 !important;
 }
 
 /* .form-control {
