@@ -199,8 +199,6 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
       ref={drop}
       style={{
         backgroundColor: isOver && canDrop ? 'lightblue' : 'white',
-        borderRight: taskForSlot ? '0px' : '1px solid #ddd',
-        borderLeft: taskForSlot ? '0px' : '1px solid #ddd',
         cursor: taskForSlot ? (isResizing ? 'ew-resize' : 'pointer') : 'default',
         position: 'relative',
         opacity: isDragging ? 0.5 : 1,
