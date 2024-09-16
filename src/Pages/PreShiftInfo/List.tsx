@@ -198,7 +198,7 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
           <Button className="schedule-btn w-100">Schedule Shift</Button>
         </Col>
       </Row>
-
+      <div className="data-assign-area">
       {shiftInfo?.map(
         (
           { excavator, trucks }: { excavator: Excavator; trucks: Truck[] },
@@ -379,7 +379,7 @@ const List = ({ data }: { data: ShiftInfoData[] }) => {
           </>
         )
       )}
-
+      </div>
       <Row>
         <Col>
           <Modal
