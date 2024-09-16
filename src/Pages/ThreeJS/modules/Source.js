@@ -185,12 +185,12 @@ class Tile {
               }
           });
           if (nearestFeature) {
-            elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 400;
+            elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
           }
 
           if (!nearestFeature || isNaN(elevationValue)) {
             // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-            elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 400;
+            elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 500;
           }
 
           // Here you can decide how to use rgba values if needed

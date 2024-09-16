@@ -19,7 +19,7 @@ const TruckItemForReady : React.FC<TruckItemForReadyProps> = ({
 
     return (
         <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="truck-item">
-            <p className="truck">{truck.truckId}</p>
+            <p className="truck-active">{truck.truckId}</p>
             <p className="operator">{truck.operator}</p>
         </div>
     )

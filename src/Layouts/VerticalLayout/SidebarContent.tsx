@@ -199,7 +199,7 @@ const SidebarContent = (props: any) => {
                   <Link to="/ore-spotter">{props.t("Ore Spotter")}</Link>
                 </li>
                 <li>
-                  <Link to="/fuel-scheduler">{props.t("Fuel Scheduler")}</Link>
+                  <Link to="/fuel-scheduler">{props.t("Fuel Dispatcher")}</Link>
                 </li>
                 <li>
                   <Link to="/targets">{props.t("Production Targets")}</Link>
@@ -318,9 +318,9 @@ const SidebarContent = (props: any) => {
               </ul>
             </li>
             <li>
-              <Link to="/threejs-view">
+              <Link to="/3d-pit-view">
                 <i className="bx bxs-map"></i>
-                <span>{props.t("ThreeJS View")}</span>
+                <span>{props.t("3D Pit View")}</span>
               </Link>
             </li>
             <li>

@@ -5,15 +5,15 @@
     border-radius: 25px !important;
 }
 .threejs-view-body > div{
-    border-radius: 25px;
+    border-radius: 10px;
 }
 .threejs-view-card-header {
-    border-radius: 25px !important;
+    border-radius: 10px !important;
 }
 .threejs-view{
     width: 100% !important;
     height: 100% !important;
-    border-radius: 25px;
+    border-radius: 10px;
 }
 .map-loading-bar, .map-loading-bar .ant-spin-dot-holder{
     color: gold;
@@ -39,4 +39,5 @@
 }
 :where(.css-dev-only-do-not-override-pw1gpe).ant-spin-nested-loading .ant-spin-blur::after {
     opacity: 0;
+    
 }

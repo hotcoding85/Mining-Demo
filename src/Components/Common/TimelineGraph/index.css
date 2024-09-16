@@ -1,0 +1,39 @@
+body[data-layout-mode="light"] {
+
+    .vis-time-axis .vis-text {
+        color: #333;
+    }
+
+    .vis-labelset .vis-label {
+        color: #333;
+    }
+}
+
+
+body[data-layout-mode="dark"] {
+
+    .vis-time-axis .vis-text {
+        color: white;
+    }
+
+    .vis-labelset .vis-label {
+        color: white;
+        font-size: 20px;
+    }
+
+    .ant-slider .ant-slider-mark-text {
+        color: white !important;
+    }
+    .ant-slider-rail {
+        background-color: gray;
+    }
+    .ant-tooltip-arrow {
+        color: white;
+    }
+
+    .ant-tooltip .ant-tooltip-inner {
+        background-color: white;
+        color: #333;
+        --antd-arrow-background-color: white !important;
+    }
+}
