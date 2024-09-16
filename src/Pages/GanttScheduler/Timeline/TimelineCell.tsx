@@ -16,6 +16,7 @@ interface TimelineCellProps {
   totalSlots: number;
   zoomSize: number;
   endSlotTime : Date;
+  startSlotTime : Date;
 }
 
 const TimelineCell: React.FC<TimelineCellProps> = ({
@@ -30,7 +31,8 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   slotIndex,
   totalSlots,
   zoomSize,
-  endSlotTime
+  endSlotTime,
+  startSlotTime,
 }) => {
   const slotDateTime = new Date(slotDate);
   const [hours, minutes] = slotTime.split(':').map(Number);
@@ -47,15 +49,15 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
       (slotDateTime >= task.startTime && slotDateTime < task.endTime)
     )
   );
-
-  const isTaskStartSlot = taskForSlot && taskForSlot.startTime.getTime() >= slotDateTime.getTime();
+  
+  const isTaskStartSlot = (taskForSlot && taskForSlot.startTime.getTime() >= slotDateTime.getTime()) || (taskForSlot && taskForSlot.startTime.getTime() < slotDateTime.getTime() && slotDateTime.getTime() == startSlotTime.getTime());
 
   let elementPos = 0;
   let elementWidth = 0;
   let colSpan = 1;
   if(taskForSlot) {
-      elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (taskForSlot.startTime.getTime() - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
-      elementWidth = 100 * (Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - taskForSlot.startTime.getTime()) / (60 * 1000* zoomSize);
+      elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (Math.max(taskForSlot.startTime.getTime(),startSlotTime.getTime()) - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
+      elementWidth = 100 * (Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - Math.max(taskForSlot.startTime.getTime(),startSlotTime.getTime())) / (60 * 1000* zoomSize);
       colSpan = (taskForSlot && isTaskStartSlot) ? Math.ceil((Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
   }
 

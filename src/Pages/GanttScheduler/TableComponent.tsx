@@ -34,6 +34,11 @@ const TableComponent: React.FC<TableComponentProps> = ({
     slotDateTime.getTime() + zoomSize * 60 * 1000
   );
 
+  const startSlotOfTimeline = timelineSlots.at(0);
+  const startSlotDateTime = new Date(startSlotOfTimeline? startSlotOfTimeline.date : selectedDate);
+  const [startHours, startMinutes] = startSlotOfTimeline? startSlotOfTimeline.time.split(':').map(Number) : [6, 0];
+  startSlotDateTime.setHours(startHours, startMinutes, 0, 0);
+
   const [isColumnsCollapsed, setColumnsCollapsed] = useState(false);
 
   const updateTask = (updatedTask: Task) => {
@@ -87,6 +92,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   totalSlots={timelineSlots.length}
                   zoomSize={zoomSize}
                   endSlotTime={endSlotDateTime }
+                  startSlotTime={startSlotDateTime}
                 />
               ))}
             </tr>
