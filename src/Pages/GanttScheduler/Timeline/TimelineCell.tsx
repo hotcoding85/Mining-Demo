@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Task } from '../interfaces/type';
 import '../styles/TimelineCell.css';
+import { none } from 'chartist/dist/interpolation';
 
 interface TimelineCellProps {
   resourceId: string;
@@ -50,12 +51,11 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
 
   let elementPos = 0;
   let elementWidth = 0;
+  let colSpan = 1;
   if(taskForSlot) {
       elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (taskForSlot.startTime.getTime() - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
-      elementWidth = 100 - elementPos - 100 * (slotEndDateTime.getTime() - Math.min(slotEndDateTime.getTime(), taskForSlot.endTime.getTime())) / (60 * 1000 * zoomSize);
-      console.log(elementPos);
-      console.log(elementWidth);
-      console.log(isTaskStartSlot); 
+      elementWidth = 100 * (taskForSlot.endTime.getTime() - taskForSlot.startTime.getTime()) / (60 * 1000* zoomSize);
+      colSpan = (taskForSlot && isTaskStartSlot) ? Math.ceil((taskForSlot.endTime.getTime() - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
   }
 
   const [isResizing, setIsResizing] = useState(false);
@@ -87,7 +87,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
     if (isResizing && initialX !== null && initialStartTime && initialEndTime) {
       const deltaX = e.clientX - initialX;
       const deltaMinutes = Math.round(
-        (deltaX / (taskElementRef.current?.offsetWidth || 1)) * zoomSize
+        (deltaX / 100) * zoomSize
       );
 
       if (resizeDirection === 'right') {
@@ -204,9 +204,10 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
         cursor: taskForSlot ? (isResizing ? 'ew-resize' : 'pointer') : 'default',
         position: 'relative',
         opacity: isDragging ? 0.5 : 1,
+        display : (taskForSlot && !isTaskStartSlot) ? 'none':''
       }}
       onClick={handleClick}
-      colSpan={1}
+      colSpan={colSpan}
     >
       {taskForSlot && (
         <div
