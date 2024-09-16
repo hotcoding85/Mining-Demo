@@ -21,11 +21,11 @@ const GanttScheduler : React.FC = () => {
   const [shiftType, setShiftType] = useState<ShiftType>('DAY_SHIFT');
   const [zoomSize, setZoomSize] = useState<number>(60);
   const [tasks, setTasks] = useState<Task[]>(sampleTasks);
-  const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists)
+  const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists);
 
   const addTask = (resourceId: string, startTime: Date, task?: Task) => {
+    
     const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-
     const newTask: Task = {
       id: Math.random().toString(36).substring(7),
       name: task?.name || 'Task Name',

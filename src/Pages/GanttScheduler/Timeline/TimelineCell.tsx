@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Task } from '../interfaces/type';
 import '../styles/TimelineCell.css';
-import { none } from 'chartist/dist/interpolation';
 
 interface TimelineCellProps {
   resourceId: string;
@@ -16,6 +15,7 @@ interface TimelineCellProps {
   slotIndex: number;
   totalSlots: number;
   zoomSize: number;
+  endSlotTime : Date;
 }
 
 const TimelineCell: React.FC<TimelineCellProps> = ({
@@ -29,7 +29,8 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   addTask,
   slotIndex,
   totalSlots,
-  zoomSize
+  zoomSize,
+  endSlotTime
 }) => {
   const slotDateTime = new Date(slotDate);
   const [hours, minutes] = slotTime.split(':').map(Number);
@@ -54,8 +55,8 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   let colSpan = 1;
   if(taskForSlot) {
       elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (taskForSlot.startTime.getTime() - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
-      elementWidth = 100 * (taskForSlot.endTime.getTime() - taskForSlot.startTime.getTime()) / (60 * 1000* zoomSize);
-      colSpan = (taskForSlot && isTaskStartSlot) ? Math.ceil((taskForSlot.endTime.getTime() - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
+      elementWidth = 100 * (Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - taskForSlot.startTime.getTime()) / (60 * 1000* zoomSize);
+      colSpan = (taskForSlot && isTaskStartSlot) ? Math.ceil((Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
   }
 
   const [isResizing, setIsResizing] = useState(false);
