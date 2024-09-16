@@ -127,7 +127,7 @@ const authProtectedRoutes = [
   { path: "/details/prestarts", exact: true, component: <PreStartDetails /> }, 
   { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
-  { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
+  // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
@@ -140,7 +140,7 @@ const authProtectedRoutes = [
   // Production
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
   // ThreeJS View
-  { path: "/threejs-view", exact: true, component: <ThreeJS /> },
+  { path: "//3d-pit-view", exact: true, component: <ThreeJS /> },
 ];
 
 const publicRoutes = [
