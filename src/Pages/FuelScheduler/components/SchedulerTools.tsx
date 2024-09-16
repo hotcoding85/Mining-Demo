@@ -3,13 +3,8 @@ import { ToolbarProps } from "react-big-calendar";
 import moment from "moment";
 import * as Yup from "yup";
 import FormModal from "Components/Common/FormModal";
-import {
-  equipmentList,
-  reasons,
-  repairAndServiceInterval,
-  resourceLaborAllocation,
-  workLocation,
-} from "Pages/MaintenanceScheduler/data/sampleData";
+import { equipmentList } from "Pages/MaintenanceScheduler/data/sampleData";
+import { fuelTruckList } from "../data/sampleData";
 
 interface CalendarHeaderProps extends ToolbarProps {
   newEvent: any;
@@ -23,13 +18,8 @@ const SchedulerTools: React.FC<CalendarHeaderProps> = (props) => {
     props;
 
   const validationSchema = Yup.object().shape({
-    title: Yup.string().required("Please enter a title"),
-    resourceLabor: Yup.string().required("Please allocate resource labor"),
-    reason: Yup.string().required("Please select a reason"),
-    serviceInterval: Yup.string().required(
-      "Please select a repair and service interval"
-    ),
-    workLocation: Yup.string().required("Please select a work location"),
+    title: Yup.string().required("Please select the fuel truck"),
+    equipment: Yup.string().required("Please select the equipment"),
     start: Yup.date().required("Please select a start date"),
     end: Yup.date().required("Please select an end date"),
   });
@@ -38,37 +28,16 @@ const SchedulerTools: React.FC<CalendarHeaderProps> = (props) => {
     {
       id: "title",
       name: "title",
+      label: "Fuel Truck",
+      type: "select",
+      options: fuelTruckList,
+    },
+    {
+      id: "equipment",
+      name: "equipment",
       label: "Equipment List",
       type: "select",
       options: equipmentList,
-    },
-    {
-      id: "workLocation",
-      name: "workLocation",
-      label: "Work Locations",
-      type: "select",
-      options: workLocation,
-    },
-    {
-      id: "resourceLabor",
-      name: "resourceLabor",
-      label: "Resource labor Allocation",
-      type: "select",
-      options: resourceLaborAllocation,
-    },
-    {
-      id: "serviceInterval",
-      name: "serviceInterval",
-      label: "Repair And Service Interval",
-      type: "select",
-      options: repairAndServiceInterval,
-    },
-    {
-      id: "reason",
-      name: "reason",
-      label: "Reasons",
-      type: "select",
-      options: reasons,
     },
     {
       id: "start",
@@ -175,7 +144,7 @@ const SchedulerTools: React.FC<CalendarHeaderProps> = (props) => {
                 fields={fields}
                 modalOpen={modal}
                 isEdit={false}
-                resource={"Maintenance Scheduler"}
+                resource={"Fuel Scheduler"}
                 initialValues={modalInitialValues}
                 schema={validationSchema}
                 handleOnSubmit={handleCreateNewEvent}

@@ -6,8 +6,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   color: #ffffff;
   overflow: hidden;
-  /* width: 300px; */
-  /* margin: 20px; */
+  height: fit-content;
 }
 
 .fuel-card-header {
@@ -63,29 +62,8 @@
   white-space: nowrap;
 }
 
-.vehicle-image {
-  width: 100%;
-  height: auto;
-  min-height: 200px;
-  max-height: 250px;
-  padding: 10px;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.fuel-card-image {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center;
-  width: 60%;
-  height: auto;
-  margin: auto;
-  max-height: 100%;
-  object-fit: cover;
-}
-
 .fuel-card-details {
-  padding: 20px;
+  padding: 2px 20px;
   gap: 10px;
 }
 
@@ -114,7 +92,6 @@
 .fuel-cards-container {
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: space-between; */
   margin: 0 auto;
   gap: 25px;
 }
@@ -141,10 +118,12 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 4px;
 }
 
 .fuel-schedular-calendar .fuel-card-footer {
-  min-height: 100px;
+  min-height: 70px;
+  max-height: 100px;
 }
 
 .fuel-schedular-calendar .event-status::before {
