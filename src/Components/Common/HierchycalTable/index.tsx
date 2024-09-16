@@ -191,6 +191,7 @@ const HierarchycalTable = ({
     previousPage,
     // setPageSize,
     getState,
+    getFooterGroups
   } = table;
 
   // useEffect(() => {
@@ -305,28 +306,6 @@ const HierarchycalTable = ({
             </div>
           </Col>
         }
-        {/* <Col sm={8}>
-          <div className="d-flex justify-content-end text-sm-end gap-2">
-            {isAddButton && (
-              <Button
-                type="button"
-                className={buttonClass}
-                onClick={handleOnAddClick}
-              >
-                <i className="mdi mdi-plus me-1"></i> {buttonName}
-              </Button>
-            )}
-            {isImportButton && (
-              <Button
-                type="button"
-                className={buttonClass}
-                onClick={handleOnImportClick}
-              >
-                <i className="mdi mdi-plus me-1"></i> {importButtonName}
-              </Button>
-            )}
-          </div>
-        </Col> */}
       </Row>
 
       <div className={divClassName ? divClassName : "table-responsive"}>
@@ -398,23 +377,23 @@ const HierarchycalTable = ({
               );
             })}
           </tbody>
+
+          <tfoot>
+            {getFooterGroups().map(group => (
+              <tr {...group}>
+                {group.headers.map((columnData: any) => (
+                  <td >{columnData.column.columnDef.footer}</td>
+                ))}
+              </tr>
+            ))}
+          </tfoot>
         </Table>
       </div>
 
       {isPagination && (
         <Row>
-          <Col sm={12} md={5}>
-            {/* {getState().pagination.pageSize < Number({ total }) ? (
-              <div className="dataTables_info">
-                Showing {getState().pagination.pageSize} of {total} Results
-              </div>
-            ) : (
-              <div className="dataTables_info">
-                Showing {total} of {total} Results
-              </div>
-            )} */}
-          </Col>
-          <Col sm={12} md={7}>
+       
+          <Col sm={12} md={12} className="text-end">
             <div className={paginationWrapper}>
               <ul className={pagination}>
                 <li className={`paginate_button ${!getCanPreviousPage() ? 'disabled' : 'enabled'}`}>
