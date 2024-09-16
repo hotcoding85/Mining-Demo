@@ -136,6 +136,11 @@ const CarryBackDescrepencies = (props: any) => {
     //     [dispatch]
     // );
 
+    const calculateSum = (key: any) => {
+      let value =  tableData?.reduce((sum: any, item: any) => sum + (item[key] || 0), 0);
+      return typeof value === 'string'? "" : value
+    };
+
     const columns: HierarchycalTableColumn[] = useMemo(
       () => [
         {
@@ -156,64 +161,74 @@ const CarryBackDescrepencies = (props: any) => {
               </button>
             );
           },
+          footer: "Total"
         },
         {
           header: "Equipment Name",
           accessorKey: "equipmentName",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum('equipmentName')
         },
         {
           header: "Loads Completed",
           accessorKey: "loadsCompleted",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("loadsCompleted")
         },
         {
           header: "Trips",
           accessorKey: "trips",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("trips")
         },
         {
           header: "Material Type",
           accessorKey: "materialType",
           enableColumnFilter: false,
           enableSorting: true,
+          footer:  calculateSum("materialType")
         },
         {
           header: "Actual(Tonnes)",
           accessorKey: "actual",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("actual")
         },
         {
           header: "Planned (Tonnes)",
           accessorKey: "planned",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("planned")
         },
         {
           header: "Tonnes Indicated",
           accessorKey: "tonnesIndicated",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("tonnesIndicated")
         },
         {
           header: "Avg Load Carried Back",
           accessorKey: "avgLoadCarriedBack",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("avgLoadCarriedBack")
         },
         {
           header: "Actual Tonnes",
           accessorKey: "actualTonnes",
           enableColumnFilter: false,
           enableSorting: true,
+          footer: calculateSum("actualTonnes")
         },
       ],
       // [handleOnEdit, handleOnDelete]
-      []
+      [tableData]
     );
 
     const handleOnAdd = () => {
@@ -235,7 +250,7 @@ const CarryBackDescrepencies = (props: any) => {
     };
 
     function createHierarchicalData(arrays) {
-      return arrays.map(subArray => {
+      return arrays.map((subArray: any) => {
         const result = {
           id: "1",
           subRows: subArray
