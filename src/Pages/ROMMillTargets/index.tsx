@@ -141,7 +141,7 @@ const ROMMillTargets = (props: any) => {
             </Col>
           </Row>
 
-          <Row className="mt-3">
+          <Row className="mt-3 rommil-load-targets">
             <Col lg="12">
               <LoadTarget />
             </Col>

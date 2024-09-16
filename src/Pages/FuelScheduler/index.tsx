@@ -89,7 +89,6 @@ const FuelScheduler = (props: any) => {
 
   const onDropFromOutside = useCallback(
     ({ start, end }) => {
-      debugger;
       if (!draggedEvent) return;
 
       const { name } = draggedEvent;
