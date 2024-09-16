@@ -5,7 +5,7 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import getPixels from 'image-pixels'
 import QuadTextureMaterial from './QuadTextureMaterial'
 const tileMaterial = new THREE.MeshNormalMaterial({wireframe: true})
-const baseTileSize = 512
+const baseTileSize = 600
 const token = 'sk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTExNjUwODgwbHN0MmxzZ3l1YzFmdmlsIn0.pbDu9G65zies9q30ZwlbQA'
 export class Source {
     constructor(api, token, options) {
@@ -265,7 +265,7 @@ class Tile {
     return new Promise((resolve, reject) => {
       getPixels(this.url(), (err, pixels) => {
         if (err) console.error(err)
-        
+        this.map.progress ++
         this.computeElevation(pixels)
         this.buildGeometry()
         this.buildmesh()
@@ -397,6 +397,7 @@ export class Map {
     this.tileSize = baseTileSize
     this.geojson = geojson
     this.tileCache = {};
+    this.progress = 1;
     this.init()
 
     geojson.features.map((feature) => {
@@ -467,12 +468,13 @@ export class Map {
       tile.mesh.material.dispose()
     })
     this.tileCache = {}
+    this.progress = 1;
   }
 
   getElevationAt(point) {
     const tileKey = Utils.position2tile(this.zoom, point.x, point.y, this.center, this.tileSize);
     const tile = this.tileCache[`${tileKey.z}/${tileKey.x}/${tileKey.y}`];
-
+    console.log(tile)
     if (!tile || !tile.elevation) {
       console.error("No elevation data found for this tile.");
       return 0; // Return a default elevation
@@ -486,7 +488,8 @@ export class Map {
     const elevationIndex = Math.floor(pixelY) * tile.shape[1] + Math.floor(pixelX);
     // console.log(pixelX, pixelY)
     
-    return tile.elevation[elevationIndex] * 2 || 300;
+    // return tile.elevation[elevationIndex] * 2 || 300;
+    return 0
   }
 }
 export class MapPicker {
@@ -499,8 +502,8 @@ export class MapPicker {
     this.controls = controls
 
     this.selectedPoints = [];
-    this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this))
-    this.domElement.addEventListener('dblclick', this.onMouseDblClick.bind(this))
+    // this.domElement.addEventListener('mousemove', this.onMouseMove.bind(this))
+    // this.domElement.addEventListener('dblclick', this.onMouseDblClick.bind(this))
     // this.domElement.addEventListener('click', this.onMouseClick.bind(this))
   }
 
@@ -509,42 +512,39 @@ export class MapPicker {
     this.vec.set(
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1,
-      0.5);
+      1);
 
     this.vec.unproject(this.camera);
-
     this.vec.sub(this.camera.position).normalize();
-
+    
     var distance = -this.camera.position.z / this.vec.z;
 
     this.position.copy(this.camera.position).add(this.vec.multiplyScalar(distance));
   }
 
   onMouseMove(event) {
-    // this.computeWorldPosition(event)
+    this.computeWorldPosition(event)
   }
 
   onMouseDblClick (event) {
-
+    this.computeWorldPosition(event)
+    this.map.addFromPosition(this.position.x, this.position.y)
   }
   onMouseClick(event) {
     this.computeWorldPosition(event)
-    // this.map.addFromPosition(this.position.x, this.position.y)
-    console.log(this.position.x, this.position.y)
-    this.computeWorldPosition(event);
     const position = new THREE.Vector3(this.position.x, this.position.y, this.position.z);
     this.selectedPoints.push(position);
 
     // If two points are selected, draw the line
     if (this.selectedPoints.length === 2) {
-      this.drawLineBetweenPoints(this.selectedPoints[0], this.selectedPoints[1]);
+      // this.drawLineBetweenPoints(this.selectedPoints[0], this.selectedPoints[1]);
       this.selectedPoints = []; // Reset points
     }
 
   }
   
   drawLineBetweenPoints(point1, point2) {
-    const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 4,depthTest: false });
+    const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 10, depthTest: false, depthWrite: false });
     
     const points = [];
     const numPoints = 1; // Number of points to sample along the line
