@@ -591,7 +591,7 @@ export class Map {
               // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
               elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
             }
-            sprite.position.set(worldPos.x, worldPos.y, (elevationValue * 2 + 20));
+            sprite.position.set(worldPos.x, worldPos.y, (elevationValue * 2 + 60));
             sprite.scale.set(50, 50, 1);
             sprite.renderOrder = 999
             // Add the sprite to the scene
