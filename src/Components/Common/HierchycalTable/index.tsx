@@ -249,9 +249,9 @@ const HierarchycalTable = ({
 
   return (
     <Fragment>
-      <Row className="py-4 mx-0">
+      <Row className="px-3 py-3 mx-0 mb-4 align-items-center report-head">
         {isCustomPageSize && (
-          <Col sm={2}>
+          <Col sm={2} className="pl-0">
             <select
               className="form-select pageSize mb-2"
               value={table.getState().pagination.pageSize ? table.getState().pagination.pageSize : 10}
@@ -272,7 +272,7 @@ const HierarchycalTable = ({
           <JobListGlobalFilter setGlobalFilter={setGlobalFilter} />
         )}
         {
-          <Col sm={6} >
+          <Col sm={6} className="ps-0">
 
             <h3 className="report-heading mb-0">
             Carryback Discrepancy Report
@@ -280,7 +280,7 @@ const HierarchycalTable = ({
           </Col>
         }
         {
-          <Col sm={6}>
+          <Col sm={6} className="pe-0">
             <div className="d-flex align-items-center gap-3 justify-content-end">
               <SearchDropdown
                 itemsGroup={filters}
@@ -308,7 +308,7 @@ const HierarchycalTable = ({
         }
       </Row>
 
-      <div className={divClassName ? divClassName : "table-responsive"}>
+      <div className={`carryback-report ${divClassName ? `${divClassName}` : "table-responsive"}`}>
         <Table hover className={tableClass} bordered={isBordered}>
           <thead className={theadClass}>
             {getHeaderGroups().map((headerGroup) => (
@@ -382,7 +382,11 @@ const HierarchycalTable = ({
             {getFooterGroups().map(group => (
               <tr {...group}>
                 {group.headers.map((columnData: any) => (
-                  <td >{columnData.column.columnDef.footer}</td>
+                  <td >
+                    {columnData.column.columnDef.footer !== ""? <span>{columnData.column.columnDef.footer}</span>
+                    : <></>
+                  }
+                  </td>
                 ))}
               </tr>
             ))}
