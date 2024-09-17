@@ -119,7 +119,7 @@ const WasteDumpManagement = () => {
       container: mapContainer.current!,
       style: "mapbox://styles/mykytas/cm0o2duin00ga01pw7e6s5gj1", //'mapbox://styles/mapbox/standard-satellite',
       center: [lng, lat],
-      zoom: 18, // Adjust zoom level
+      zoom: 14, // Adjust zoom level
       interactive: true,
       pitch: 45,
       bearing: 150,

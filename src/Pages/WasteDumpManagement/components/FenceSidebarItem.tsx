@@ -35,13 +35,14 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
         alignItems: "center",
         fontSize: "14px",
         padding: "6px",
+        backgroundColor:'white'
       }}
     >
       <div style={{ flex: "1" }} onClick={() => onClick(fence)}>
         <div style={{ color: fence.color, display: "block" }}>
           {fence.name} - {fence.blockId}
         </div>
-        <div
+        {/* <div
           style={{
             fontSize: "12px",
             display: "block",
@@ -76,9 +77,9 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
           }}
         >
           Density: {density}
-        </div>
+        </div> */}
       </div>
-      <div style={{ flex: "0.1" }}>
+      <div style={{ flex: "0.1", color:'#333' }}>
         <i className="bx bx-trash" onClick={() => onRemove(fence)}></i>
       </div>
     </div>

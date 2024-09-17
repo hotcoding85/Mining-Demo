@@ -158,10 +158,10 @@ const AutoRouting = () => {
             container: mapContainer.current!,
             style: 'mapbox://styles/mykytas/cm0o2duin00ga01pw7e6s5gj1', //'mapbox://styles/mapbox/standard-satellite',
             center: [lng, lat],
-            zoom: 18, // Adjust zoom level
+            zoom: 15, // Adjust zoom level
             interactive: true,
             pitch: 45,
-            bearing: 150,
+            bearing: 50,
             antialias: true, // create the gl context with MSAA antialiasing, so custom layers are antialiased
             minZoom: 0,
 
@@ -1411,6 +1411,7 @@ const AutoRouting = () => {
     }, [stopSignDuration])
 
     const handleSaveStopSign = useCallback(() => {
+        
         if (!newTitle) return
         if (!stopSignDuration || stopSignDuration <= 0) {
             setNotificationType('warning')
@@ -1428,9 +1429,10 @@ const AutoRouting = () => {
             }
         }
         else{
+            
             if (!stopSignPoint) return
             const doesStopSignExist = (point, routes) => {
-                return routes.some(route =>
+                return routes.current.some(route =>
                     route.geoJson.geometry.coordinates.some(coord =>
                         coord[0] === point[0] && coord[1] === point[1]
                     )
