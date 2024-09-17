@@ -180,25 +180,27 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
                     Totals
                   </div>
                 </td>
-                <td width={120}>
+                <td width={120} className="dig-footer">
+                  <div>
                   120/350
+                  </div>
                 </td>
-                <td width={120}>
+                <td width={120} className="dig-footer">
                   <div>
                     264,875
                   </div>
                 </td>
-                <td width={120}>
+                <td width={120} className="dig-footer">
                   <div>
                     2,564,875
                   </div>
                 </td>
-                <td>
+                <td className="dig-footer">
                   <div>
                     48
                   </div>
                 </td>
-                <td>
+                <td className="dig-footer">
                   <div>
                     369
                   </div>
