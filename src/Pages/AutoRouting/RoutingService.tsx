@@ -8,7 +8,6 @@ export const getRoutes = (data: RouteDataType[], startPoint: [number, number], e
     endPoint = findNearestPoint(endPoint, roadData);
     const graph = buildGraph(roadData);
     const { path, distance } = dijkstra(graph, startPoint, endPoint);
-    console.log('Calculated Route:', path, distance);
 
     return { route: path, status: true, distance: distance };
 }

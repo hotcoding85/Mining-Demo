@@ -80,8 +80,6 @@ const Item = (data: any) => {
     return info ? info.hours : "00:00";
   };
 
-  console.log(data.data.model)
-
   const statusColor = "#F7B31A";
   return (
     <React.Fragment>

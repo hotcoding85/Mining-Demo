@@ -102,7 +102,6 @@ export const ThreeJS = () => {
         let nTiles = 28;
         let zoom = 18
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, geojsonData);
-        console.log(map)
         window.map = map;
         const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
         window.mapPicker = mapPicker;

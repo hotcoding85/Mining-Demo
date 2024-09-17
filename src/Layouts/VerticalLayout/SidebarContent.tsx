@@ -279,9 +279,6 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/pit-view">{props.t("3D Pit View")}</Link>
-                </li>
-                <li>
                   <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>

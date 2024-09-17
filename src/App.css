@@ -69,6 +69,16 @@ body[data-layout-mode="dark"] {
   }
 
 
+  .table {
+
+    th,
+    td {
+      color: white !important;
+      font-size: 0.9rem;
+    }
+
+  }
+
   .ant-select-item-option-selected {
     background-color: #5e6c86 !important;
     /*Customize background color of selected item*/
@@ -81,6 +91,15 @@ body[data-layout-mode="dark"] {
 body[data-layout-mode="light"] {
   .dropDownArrow {
     color: grey !important;
+  }
+
+  .table {
+
+    th,
+    td {
+      color: #333 !important;
+      font-size: 0.9rem;
+    }
   }
 
   .ant-select-item-option-selected {
@@ -220,7 +239,16 @@ body[data-layout-mode="light"] {
 .ant-switch.ant-switch-checked:hover {
   background-color: white;
 }
-/* .form-control {
-  color:#232323 !important;
-  border-radius: 6px !important;
-} */
+
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}

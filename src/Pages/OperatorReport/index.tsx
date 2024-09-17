@@ -84,7 +84,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'left' }}>{cellProps.row.original.operatorName}</div>
+            <div className="text-left" style={{paddingLeft:'20px'}}>{cellProps.row.original.operatorName}</div>
           )
         }
       },
@@ -95,7 +95,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'left', marginLeft:'10px' }}>{cellProps.row.original.vehicleName}</div>
+            <div className="text-center">{cellProps.row.original.vehicleName}</div>
           )
         }
       },
@@ -109,7 +109,7 @@ const OperatorReport = (props: any) => {
           return (
             <div style={{ display:'flex', alignItems: 'center', justifyContent: 'left' }}>
               <span style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></span>
-              <span style={{ textAlign: 'center', marginLeft: '6px' }}>{displayContent.displayState}</span>
+              <span className="text-center px-2">{displayContent.displayState}</span>
             </div>
           )
         }
@@ -121,7 +121,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.active}</div>
+            <div className="text-center">{cellProps.row.original.active}</div>
           )
         }
       },
@@ -132,7 +132,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.standby}</div>
+            <div className="text-center">{cellProps.row.original.standby}</div>
           )
         }
       },
@@ -143,7 +143,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.idle}</div>
+            <div className="text-center">{cellProps.row.original.idle}</div>
           )
         }
       },
@@ -154,7 +154,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.delay}</div>
+            <div className="text-center">{cellProps.row.original.delay}</div>
           )
         }
       },
@@ -176,7 +176,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedTonnes}</div>
+            <div className="text-center">{cellProps.row.original.plannedTonnes}</div>
           )
         }
       },
@@ -187,7 +187,7 @@ const OperatorReport = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualLoads}</div>
+            <div className="text-center">{cellProps.row.original.actualLoads}</div>
           )
         }
       },

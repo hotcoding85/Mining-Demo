@@ -86,7 +86,6 @@ const Geofences = ({ socket }) => {
     const { data: fences } = useSelector(selectProperties);
 
     useEffect(() => {
-        console.log('GEOFences >>', fences)
         fences.map((feature) => {
             mapRef.current?.addSource(feature.id, {
                 type: "geojson",
@@ -277,7 +276,6 @@ const Geofences = ({ socket }) => {
 
         });
 
-        return () => mapRef.current.remove();
     }, []);
 
     return (

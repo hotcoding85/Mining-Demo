@@ -126,7 +126,7 @@ export const getContentByState = (state) => {
       displayState = 'Standby';
       break;
     case "DOWN":
-      color = "#FF5733";
+      color = "#F00";
       displayState = 'Down';
       break;
     default:

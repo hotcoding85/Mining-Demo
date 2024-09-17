@@ -13,6 +13,7 @@ import { round2One, round2Two, roundOff, shiftDuration, shifts, shiftsInFormat, 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
+import './index.css'
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -57,7 +58,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ row, getValue }) => {
           return (
-            <>
+            <div style={{fontSize: '14px'}}>
               {row.getCanExpand() ? (
                 <button {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -70,7 +71,7 @@ const Target = (props: any) => {
                 ''
               )}
               {getValue()}
-            </>
+            </div>
           )
         }
       },
@@ -81,7 +82,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -92,7 +93,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -103,7 +104,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -114,7 +115,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -125,7 +126,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -136,7 +137,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -147,7 +148,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -158,7 +159,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -169,7 +170,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -180,7 +181,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -758,7 +759,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ row, getValue }) => {
           return (
-            <>
+            <div style={{fontSize:'14px'}}>
               {row.getCanExpand() ? (
                 <button {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -771,7 +772,7 @@ const Target = (props: any) => {
                 ''
               )}
               {getValue()}
-            </>
+            </div>
           )
         }
       },
@@ -782,7 +783,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -793,7 +794,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -804,7 +805,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -815,7 +816,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -826,7 +827,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -837,7 +838,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -848,7 +849,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -859,7 +860,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },
@@ -870,7 +871,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ getValue, row, column }) => {
           return (
-            <Input type='number' style={{ textAlign: 'center' }} onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
+            <Input type='number' className='targets-input-control' onChange={(event) => onFieldChange(row, column.id, event.target.value)} onWheel={event => event.currentTarget.blur()} value={getValue()}> </Input>
           );
         }
       },

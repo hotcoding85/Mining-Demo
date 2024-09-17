@@ -44,8 +44,6 @@ const TimelineGraph: React.FC<TimelineGraphProps> = ({ groupsData, tasksData, se
     
     const end = new Date(Math.max(start.getTime(), now.getTime())); 
   
-    console.log(`Setting timeline window: Start ${start}, End ${end}, Now ${now}`); 
-
     if (timelineInstance.current && timelineInitialized) {
       timelineInstance.current.setWindow(start, end);
       timelineInstance.current.redraw(); 

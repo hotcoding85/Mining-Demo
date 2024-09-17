@@ -33,8 +33,6 @@ const stateConfig = [
 
 const FleetList = ({ data = [] }: any) => {
 
-    console.log(data);
-
     const getStateColor = (state) => {
         switch (state) {
             case "ACTIVE":

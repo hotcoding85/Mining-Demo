@@ -14,7 +14,12 @@ const PitStatus = ({ shiftDate, shift }) => {
                 header: "Pit",
                 accessorKey: 'locationName',
                 enableColumnFilter: false,
-                enableSorting: true
+                enableSorting: true,
+                cell: (cellProps: any) => {
+                    return (
+                        <div className="text-center">{cellProps.row.original.locationName}</div>
+                    )
+                }
             },
             {
                 header: "Material",
@@ -23,13 +28,23 @@ const PitStatus = ({ shiftDate, shift }) => {
                         header: 'Target',
                         accessorKey: 'materialTarget',
                         enableColumnFilter: false,
-                        enableSorting: true
+                        enableSorting: true,
+                        cell: (cellProps: any) => {
+                            return (
+                                <div className="text-center">{cellProps.row.original.materialTarget}</div>
+                            )
+                        }
                     },
                     {
                         header: 'Actual',
                         accessorKey: 'materialName',
                         enableColumnFilter: false,
-                        enableSorting: true
+                        enableSorting: true,
+                        cell: (cellProps: any) => {
+                            return (
+                                <div className="text-center">{cellProps.row.original.materialName}</div>
+                            )
+                        }
                     }
                 ]
             },
@@ -41,13 +56,23 @@ const PitStatus = ({ shiftDate, shift }) => {
                             header: 'Target',
                             accessorKey: 'target',
                             enableColumnFilter: false,
-                            enableSorting: true
+                            enableSorting: true,
+                            cell: (cellProps: any) => {
+                                return (
+                                    <div className="text-center">{cellProps.row.original.target}</div>
+                                )
+                            }
                         },
                         {
                             header: 'Actual',
                             accessorKey: category,
                             enableColumnFilter: false,
-                            enableSorting: true
+                            enableSorting: true,
+                            cell: (cellProps: any) => {
+                                return (
+                                    <div className="text-center">{cellProps.row.original[category]}</div>
+                                )
+                            }
                         }
                     ]
                 }
@@ -71,6 +96,7 @@ const PitStatus = ({ shiftDate, shift }) => {
                     <CardTitle className="h4">Pit Status</CardTitle>
                     <div className="table-responsive">
                         <TableContainer
+                            theadClass={"text-center"}
                             columns={columns}
                             data={data || []}
                         />

@@ -6,6 +6,7 @@ body[data-layout-mode="light"] {
 
     .vis-labelset .vis-label {
         color: #333;
+        font-size: 18px;
     }
 }
 
@@ -18,7 +19,7 @@ body[data-layout-mode="dark"] {
 
     .vis-labelset .vis-label {
         color: white;
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .ant-slider .ant-slider-mark-text {
