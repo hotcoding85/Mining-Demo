@@ -106,7 +106,7 @@ const DailyProductionDashboard = () => {
         align: "end" as const,
         color: "#fff",
         font: {
-          size: 10,
+          size: 14,
           weight: "bold" as const,
         },
         formatter: (value: number) => value,
@@ -253,6 +253,7 @@ const DailyProductionDashboard = () => {
           planned={400}
           forecast={380}
           total={1000}
+          useCustomLabels={false}
           type={"Production"}
           subHeader={`${200} of ${700} completed`}
           header={"Overall Load Target (Planned vs. Actual vs. Forecast)"}
@@ -262,6 +263,7 @@ const DailyProductionDashboard = () => {
           completed={83000}
           planned={80000}
           total={200000}
+          useCustomLabels={false}
           forecast={83000}
           subHeader={`${200} of ${700} completed`}
           type={"Production"}
