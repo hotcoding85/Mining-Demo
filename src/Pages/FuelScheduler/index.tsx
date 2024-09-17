@@ -5,10 +5,6 @@ import { Segmented } from "antd";
 import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import {
-  DraggedEvent,
-  Events,
-} from "Pages/MaintenanceScheduler/interfaces/types";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -17,6 +13,7 @@ import SchedulerTools from "./components/SchedulerTools";
 import SchedulerDashboard from "./components/SchedulerDashboard";
 import SchedulerSidebar from "./components/SchedulerSidebar";
 import "./styles/scheduler.css";
+import { DraggedEvent, Events } from "./interfaces/types";
 
 moment.updateLocale("en-gb", {
   week: {

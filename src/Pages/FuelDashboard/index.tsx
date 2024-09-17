@@ -5,10 +5,7 @@ import { Segmented } from "antd";
 import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import {
-  DraggedEvent,
-  Events,
-} from "Pages/MaintenanceScheduler/interfaces/types";
+
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -17,6 +14,7 @@ import SchedulerTools from "Pages/FuelScheduler/components/SchedulerTools";
 import SchedulerDashboard from "Pages/FuelScheduler/components/SchedulerDashboard";
 import SchedulerSidebar from "Pages/FuelScheduler/components/SchedulerSidebar";
 import { sampleEvents } from "Pages/FuelScheduler/data/sampleData";
+import { Events, DraggedEvent } from "Pages/FuelScheduler/interfaces/types";
 
 moment.updateLocale("en-gb", {
   week: {
@@ -28,7 +26,7 @@ const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
 const FuelDashboard = (props: any) => {
-  document.title = "Fuel Scheduler | FMS Live";
+  document.title = "Fuel Dashboard | FMS Live";
   const [displayType, setDisplayType] = useState<string>("DASHBOARD");
   const [events, setEvents] = useState<Events[]>(sampleEvents);
   const [view, setView] = useState<View>("day");
