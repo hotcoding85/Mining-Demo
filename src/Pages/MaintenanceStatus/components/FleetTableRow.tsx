@@ -1,3 +1,5 @@
+import { Space, Tooltip } from "antd";
+import { errorDefinitions } from "Pages/TelemetryReport/errorDefinitions";
 import React from "react";
 import styled from "styled-components";
 import { getSyncIcon, MaintenanceStatusConfig } from "utils/fleet";
@@ -23,8 +25,45 @@ const Synced: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
-const FaultCode: React.FC<{ code: string }> = ({ code }) => (
-  <div className="fault-code">{code}</div>
+const Chip = ({ label }) => {
+  let getTitle = errorDefinitions[label];
+  return (
+    <Tooltip title={getTitle}>
+      <span
+        style={{
+          display: "inline-block",
+          padding: "5px 10px",
+          margin: "2px",
+          borderRadius: "16px",
+          backgroundColor: "red",
+          color: "white",
+          fontSize: "12px",
+          width: "72px",
+          textAlign: "center",
+          alignContent: "center",
+        }}
+      >
+        {label}
+      </span>
+    </Tooltip>
+  );
+};
+
+const FaultCode: React.FC<{ codes: string[] }> = ({ codes }) => (
+  <Space direction="horizontal" style={{ width: "100%" }}>
+    {codes && codes.length > 0 ? (
+      codes.length === 1 ? (
+        <Chip label={codes[0]} />
+      ) : (
+        <Space>
+          <Chip label={codes[0]} />
+          <div style={{ fontSize: "10px" }}>+ {codes.length - 1} more</div>
+        </Space>
+      )
+    ) : (
+      ""
+    )}
+  </Space>
 );
 
 interface FleetTableRowProps {
@@ -91,9 +130,7 @@ const FleetTableRow: React.FC<FleetTableRowProps> = ({
     />
     <td width={150}>
       <div className="d-flex justify-content-start align-items-center flex-wrap gap-1 p-1">
-        {faultCodes?.map((code, index) => (
-          <FaultCode key={index} code={code} />
-        ))}
+        {faultCodes && <FaultCode codes={faultCodes} />}
       </div>
     </td>
   </tr>

@@ -11,7 +11,7 @@ import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "moment/locale/en-gb";
 import Sidebar from "./Sidebar";
 import CalendarHeader from "./CalendarHeader/CalendarHeader";
-import "./styles/Scheduler.css";
+import "./styles/Scheduler.scss";
 import { equipmentList, sampleEvents } from "./data/sampleData";
 import { DraggedEvent, Events } from "./interfaces/types";
 
