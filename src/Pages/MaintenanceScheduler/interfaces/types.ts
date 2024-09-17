@@ -11,11 +11,12 @@ export interface Events {
   title: string;
   workLocation?: string;
   serviceInterval?: string;
-  resourceLabor?: string;
+  resourceLabor?: string[];
   reason?: string;
   start: Date;
   end: Date;
   status?: string;
+  equipmentInfo: DraggableItem;
 }
 
 export interface DraggedEvent {

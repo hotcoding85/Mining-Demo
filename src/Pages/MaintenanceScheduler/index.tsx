@@ -12,7 +12,7 @@ import "moment/locale/en-gb";
 import Sidebar from "./Sidebar";
 import CalendarHeader from "./CalendarHeader/CalendarHeader";
 import "./styles/Scheduler.css";
-import { sampleEvents } from "./data/sampleData";
+import { equipmentList, sampleEvents } from "./data/sampleData";
 import { DraggedEvent, Events } from "./interfaces/types";
 
 //to start week from monday
@@ -33,6 +33,8 @@ const MaintenanceScheduler = () => {
 
   const [view, setView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  const [equipments, setEquipments] = useState(equipmentList);
 
   const [modal, setModal] = useState<boolean>(false);
 
@@ -98,13 +100,27 @@ const MaintenanceScheduler = () => {
 
   const newEvent = useCallback(
     (event) => {
+      const equipmentInfo = equipments.filter(
+        (equipment) => equipment.name === event.title
+      );
+
+      const updatedEquipments = equipments.filter(
+        (equipment) => equipment.name !== event.title
+      );
+
       setEvents((prev) => {
         const idList = prev.map((item) => item.id);
         const newId = Math.max(...idList) + 1;
-        return [...prev, { ...event, id: newId, status: "in Progress" }];
+
+        return [
+          ...prev,
+          { ...event, id: newId, status: "In Progress", equipmentInfo },
+        ];
       });
+
+      setEquipments(updatedEquipments);
     },
-    [setEvents]
+    [setEvents, equipments]
   );
 
   const isEventOverlapping = useCallback(
@@ -133,7 +149,6 @@ const MaintenanceScheduler = () => {
           end,
         };
         setDraggedEvent(null);
-
         newEvent(event);
       } else {
         const overlappedEvent = isEventOverlapping(draggedEventDeatils);
@@ -141,7 +156,14 @@ const MaintenanceScheduler = () => {
 
         const updatedOverlappedEvent = {
           ...overlappedEvent,
-          [type]: name,
+          [type]:
+            type === "resourceLabor"
+              ? overlappedEvent.resourceLabor
+                ? overlappedEvent.resourceLabor.includes(name)
+                  ? overlappedEvent.resourceLabor
+                  : [...overlappedEvent.resourceLabor, name]
+                : [name]
+              : name,
         };
 
         setEvents((prevEvents) =>
@@ -187,6 +209,24 @@ const MaintenanceScheduler = () => {
     setModal(!modal);
   }, [modal]);
 
+  const handleReadyToWorkClick = (completedEvent) => {
+    setEvents((prevState) =>
+      prevState.filter((event) => event.id !== completedEvent.event.id)
+    );
+    setEquipments((prevState) => [
+      ...prevState,
+      completedEvent.event.equipmentInfo,
+    ]);
+  };
+
+  const onEventClick = useCallback(
+    (event) => {
+      setView("day");
+      setCurrentDate(new Date(event.start));
+    },
+    [setView, setCurrentDate]
+  );
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -200,7 +240,10 @@ const MaintenanceScheduler = () => {
               <Col lg="9">
                 <Card className="h-100">
                   <CardBody className="p-0">
-                    <div style={{ height: "720px" }}>
+                    <div
+                      className="maintenance-scheduler-calendar"
+                      style={{ height: "720px" }}
+                    >
                       <DragAndDropCalendar
                         localizer={localizer}
                         view={view}
@@ -213,6 +256,7 @@ const MaintenanceScheduler = () => {
                         onSelectSlot={handleSelectSlot}
                         selectable
                         onEventResize={onEventResize}
+                        onSelectEvent={onEventClick}
                         step={60}
                         timeslots={1}
                         showMultiDayTimes
@@ -229,11 +273,16 @@ const MaintenanceScheduler = () => {
                               newEvent={newEvent}
                               onView={setView}
                               view={view}
+                              equipments={equipments}
                             />
                           ),
 
                           event: (event) => (
-                            <CustomEvent event={event} view={view} />
+                            <CustomEvent
+                              event={event}
+                              view={view}
+                              handleReadyToWorkClick={handleReadyToWorkClick}
+                            />
                           ),
                         }}
                       />
@@ -242,7 +291,10 @@ const MaintenanceScheduler = () => {
                 </Card>
               </Col>
               <Col lg="3">
-                <Sidebar setDraggedEvent={setDraggedEvent} />
+                <Sidebar
+                  setDraggedEvent={setDraggedEvent}
+                  equipments={equipments}
+                />
               </Col>
             </DndProvider>
           </Row>
@@ -252,7 +304,7 @@ const MaintenanceScheduler = () => {
   );
 };
 
-const CustomEvent = ({ event, view }) => {
+const CustomEvent = ({ event, view, handleReadyToWorkClick }) => {
   const eventStatusClass =
     event.event.status === "completed"
       ? "event-completed"
@@ -275,25 +327,38 @@ const CustomEvent = ({ event, view }) => {
             </span>
           </div>
           <div className="d-flex flex-column align-items-center gap-2 event-chip-wrap">
-            <p className="text-center mb-0 p-2 event-chip">
-              {event.event.workLocation}
-            </p>
+            {event.event.workLocation && (
+              <p className="text-center mb-0 p-2 event-chip">
+                {event.event.workLocation}
+              </p>
+            )}
 
             <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
-              <p className="text-center mb-0 p-2 event-chip">
-                {event.event.serviceInterval}
-              </p>
-              <p className="text-center mb-0 p-2 event-chip event-chip-filter">
-                {event.event.resourceLabor}
-              </p>
+              {event.event.serviceInterval && (
+                <p className="text-center mb-0 p-2 event-chip">
+                  {event.event.serviceInterval}
+                </p>
+              )}
+              {event.event.resourceLabor &&
+                event.event.resourceLabor.map((labor) => (
+                  <p className="text-center mb-0 p-2 event-chip event-chip-filter">
+                    {labor}
+                  </p>
+                ))}
             </div>
-            <p className="text-center mb-0 p-2 event-chip">
-              {event.event.reason}
-            </p>
+            {event.event.reason && (
+              <p className="text-center mb-0 p-2 event-chip">
+                {event.event.reason}
+              </p>
+            )}
           </div>
         </div>
         <div className="event-ready-btn ms-auto">
-          <button type="button">
+          <button
+            type="button"
+            onClick={() => handleReadyToWorkClick(event)}
+            disabled={event.event.status === "In Progress"}
+          >
             Ready to Return to Work
             <svg
               width="21"
