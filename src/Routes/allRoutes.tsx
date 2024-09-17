@@ -6,6 +6,7 @@ import { ThreeJS } from "Pages/ThreeJS";
 import TruckLoadOptimisation from "Pages/TruckLoadOptimisation";
 import DiggingOptimisation from "Pages/DiggingOptimisation";
 import PayloadOptimsation from "Pages/PayloadOptimisation";
+import FuelDashboard from "Pages/FuelDashboard";
 
 const FMS = React.lazy(() => import("Pages/FleetStatus"));
 
@@ -132,6 +133,8 @@ const authProtectedRoutes = [
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/truck-load-optimisation", exact: true, component: <TruckLoadOptimisation /> },
   { path: "/digging-optimisation", exact: true, component: <DiggingOptimisation /> },
+  { path: "/fuel-dashboard", exact: true, component: <FuelDashboard /> },
+
 
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
