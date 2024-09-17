@@ -332,3 +332,18 @@ body[data-layout-mode="light"] .rating-bar-label {
 body[data-layout-mode="light"] .ant-progress-dot {
   background-color: white !important;
 }
+
+.trucking-summary-table tfoot td.truck-footer div {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid #828282;
+  border-radius: 3px;
+  text-align: right;
+  margin: auto;
+  width: 90%;
+}
+
+.trucking-summary-table tfoot tr td.truck-footer:first-child div {
+  border: none;
+  text-align: center;
+}
