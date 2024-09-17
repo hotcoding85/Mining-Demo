@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { Input } from "antd";
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "reactstrap";
+import { Bench } from "slices/benches/reducer";
 
 const content: any = {
   top: "50%",
@@ -14,7 +25,8 @@ const content: any = {
 interface WasteEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave?: () => void;
+  onSave?: (bench: any, color: string) => void;
+  benches: any[];
   wasteData?: any;
 }
 
@@ -22,32 +34,37 @@ const WasteEditModal: React.FC<WasteEditModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  benches,
   wasteData,
 }) => {
-  const [newTitle, setNewTitle] = useState<string>("");
   const [newColor, setNewColor] = useState<string>("");
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [selectedBench, setSelectedBench] = useState<any>();
 
   useEffect(() => {
     if (wasteData?.color) {
       setNewColor(wasteData.color);
     }
 
-    if (wasteData?.name) {
-      setNewTitle(wasteData.name);
+    if (wasteData?.benchId) {
+      console.log(benches);
+      setSelectedBench(
+        benches.find((bench) => bench.id === wasteData.benchId) as Bench
+      );
     }
-  }, [wasteData]);
-
-  const handleNewTitleChange = (e) => {
-    setNewTitle(e.target.value);
-  };
+  }, [wasteData, benches]);
 
   const handleColorChange = (e) => {
     setNewColor(e.target.value);
   };
 
   const handleSave = () => {
-    console.log(newTitle, newColor);
+    if (selectedBench && onSave) {
+      onSave(selectedBench, newColor);
+    }
   };
+
+  const toggle = () => setDropdownOpen((prevState) => !prevState);
 
   return (
     <Modal
@@ -58,16 +75,33 @@ const WasteEditModal: React.FC<WasteEditModalProps> = ({
         content: content,
       }}
     >
-      <ModalHeader tag="h4">Edit Waste Dump</ModalHeader>
+      <ModalHeader tag="h4">
+        {wasteData?.benchId ? "Edit Waste Dump" : "Add Waste Dump"}
+      </ModalHeader>
       <ModalBody>
-        <Input
-          type="text"
-          value={newTitle}
-          placeholder="Waste Name"
-          onChange={handleNewTitleChange}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
-
+        <label>Associate bench:</label>
+        <Dropdown
+          isOpen={dropdownOpen}
+          toggle={toggle}
+          direction={"down"}
+          style={{ width: "100%", marginBottom: "10px" }}
+        >
+          <DropdownToggle caret style={{ width: "100%" }}>
+            {selectedBench
+              ? `${selectedBench.name} - ${selectedBench.blockId}`
+              : "Select bench"}
+          </DropdownToggle>
+          <DropdownMenu
+            style={{ width: "100%", maxHeight: "450px", overflowY: "scroll" }}
+          >
+            {benches.map((bench) => (
+              <DropdownItem onClick={() => setSelectedBench(bench)}>
+                {bench.name} - {bench.blockId}
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </Dropdown>
+        <label>Waste dump color:</label>
         <Input
           type="color"
           value={newColor}
