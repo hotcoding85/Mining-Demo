@@ -197,7 +197,7 @@ export const ThreeJS = () => {
         const cubeRenderer = new THREE.WebGLRenderer({ alpha: true });
         cubeRenderer.setSize(150, 150);
         cubeRenderer.domElement.className = 'cube-camera'
-        mapContainer.current && mapContainer.current.appendChild(cubeRenderer.domElement);
+        // mapContainer.current && mapContainer.current.appendChild(cubeRenderer.domElement);
 
         // Cube for controlling camera
         const cubeControlGeometry = new THREE.BoxGeometry();
@@ -211,12 +211,12 @@ export const ThreeJS = () => {
         // Sync camera rotation with the cube control
         function syncCameraWithCube() {
         const euler = new THREE.Euler().setFromQuaternion(cubeControl.quaternion);
-        camera.rotation.set(euler.x, euler.y, euler.z);
+            camera.rotation.set(euler.x, euler.y, euler.z);
         }
 
         function syncCubeWithCamera() {
         const euler = new THREE.Euler().setFromQuaternion(camera.quaternion);
-        cubeControl.rotation.set(euler.x, euler.y, euler.z);
+            cubeControl.rotation.set(euler.x, euler.y, euler.z);
         }
 
         // Add event listener to detect clicks on cube faces

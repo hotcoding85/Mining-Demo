@@ -4,8 +4,10 @@ import bbox from '@turf/bbox';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import getPixels from 'image-pixels'
 import QuadTextureMaterial from './QuadTextureMaterial'
+import _ from 'lodash';
+import STOP_SIGN_PNG from 'assets/images/stop_sign.png'
 const tileMaterial = new THREE.MeshNormalMaterial({wireframe: true})
-const baseTileSize = 600
+const baseTileSize = 512
 const token = 'sk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTExNjUwODgwbHN0MmxzZ3l1YzFmdmlsIn0.pbDu9G65zies9q30ZwlbQA'
 export class Source {
     constructor(api, token, options) {
@@ -383,6 +385,36 @@ class Utils {
     const deltaY = Math.round(-(y - centerPosition.y) / tileSize)
     return {x: deltaX + center.x, y: deltaY + center.y, z}
   }
+
+  static latLngToTilePixel(latitude, longitude, zoom, tileSize = baseTileSize) {
+    const sinLat = Math.sin(latitude * Math.PI / 180);
+    
+    // Normalize world X (longitude)
+    const worldX = (longitude + 180) / 360;
+    
+    // Project latitude to world Y using Mercator projection
+    const worldY = 0.5 - (Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI));
+    
+    // Calculate world pixel coordinates
+    const scale = tileSize * Math.pow(2, zoom);
+    const pixelX = Math.floor(worldX * scale);
+    const pixelY = Math.floor(worldY * scale);
+    
+    // Calculate the tile coordinates
+    const tileX = Math.floor(pixelX / tileSize);
+    const tileY = Math.floor(pixelY / tileSize);
+    
+    // Calculate the pixel coordinates within the tile
+    const tilePixelX = pixelX % tileSize;
+    const tilePixelY = pixelY % tileSize;
+    
+    return {
+        tileX,
+        tileY,
+        tilePixelX,
+        tilePixelY
+    };
+  }
 }
 
 export class Map {
@@ -398,6 +430,10 @@ export class Map {
     this.geojson = geojson
     this.tileCache = {};
     this.progress = 1;
+    this.routes = []
+    this.tubeMeshes = [];
+    this.stopSignSprites = [];
+    this.filteredCategories = []
     this.init()
 
     geojson.features.map((feature) => {
@@ -411,6 +447,192 @@ export class Map {
       };
       index.insert(item);
     });
+  }
+
+  setRoutes(_routes) {
+    if (_routes.length !== this.routes.length){
+      this.routes = _routes
+    }
+  }
+
+  calculateWorldPosition(centerTile, tileX, tileY, tilePixelX, tilePixelY, tileSize) {
+    // Calculate the offset of the current tile relative to the center tile
+    const tileOffsetX = (tileX - centerTile.tileX) * tileSize;
+    const tileOffsetY = -(tileY - centerTile.tileY) * tileSize;
+  
+    // Calculate the total world position by adding the pixel offset inside the tile
+    const worldX = tileOffsetX + tilePixelX - tileSize / 2;
+    const worldY = tileOffsetY - tilePixelY + tileSize / 2;
+  
+    // Assuming z=0 for 2D tile map, adjust if 3D height is needed
+    return { x: worldX, y: worldY, z: 0 };
+  }
+
+  drawRoutes() {
+    if (!this.routes || this.routes.length === 0) {
+      return;
+    }
+    // Get the top-left corner's tile coordinates (view's origin)
+    const centerLatLng = this.geoLocation; // Assuming getCenter() gets the current view center position
+    const centerPixel = Utils.latLngToTilePixel(centerLatLng[0], centerLatLng[1], this.zoom);
+    _.map(this.routes, (_route) => {
+        if (_route.category !== 'STOP_SIGNS') {
+            const points = [];
+            const coordinates = _route.geoJson.geometry.coordinates;
+            // Loop over each coordinate and calculate its pixel position relative to the current view
+            for (let i = 0; i < coordinates.length; i++) {
+                const lat = coordinates[i][1]; // Latitude
+                const lng = coordinates[i][0]; // Longitude
+
+                // Convert lat/lng to tile pixel
+                const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
+                const tileX = tilePixel.tileX;          // tile X coordinate of the point
+                const tileY = tilePixel.tileY;          // tile Y coordinate of the point
+                const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+                const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+                const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
+                // Create a THREE.Vector3 using view-relative pixel coordinates
+                const point = new THREE.Vector3(worldPos.x, worldPos.y, 0);
+
+                // Get the elevation for this point and set the Z coordinate
+                let elevationValue = 0
+                const candidates = index.search({
+                  minX: lng,
+                  minY: lat,
+                  maxX: lng,
+                  maxY: lat
+                });
+      
+                let nearestFeature = null;
+      
+                candidates.forEach((item) => {
+                    const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
+                    if (isInside) {
+                        nearestFeature = item.feature;
+                        return false; // Exit loop early if point is inside a polygon
+                    }
+                });
+                if (nearestFeature) {
+                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+                }
+      
+                if (!nearestFeature || isNaN(elevationValue)) {
+                  // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
+                  elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+                }
+                point.z = elevationValue * 2
+                points.push(point);
+            }
+
+            // Create a curve from the points for TubeGeometry
+            const curve = new THREE.CatmullRomCurve3(points);
+
+            // Tube Geometry parameters: path, tubular segments, radius, radial segments, closed
+            const tubeGeometry = new THREE.TubeGeometry(curve, 100, 15, 10, false);
+
+            // Create the tube material with color from _route.color
+            const tubeMaterial = new THREE.MeshBasicMaterial({ color: _route.color, opacity: 0.4, transparent: true, depthTest: false, depthWrite: false });
+
+            // Create the tube mesh
+            const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
+
+            // Add the tube mesh to the scene
+            this.tubeMeshes.push({
+              index: _route.category,
+              value: tubeMesh
+            })
+            this.scene.add(tubeMesh);
+        } else {
+          // Handle the STOP_SIGNS category by showing an image at the point
+          const coordinates = _route.geoJson.geometry.coordinates;
+          if (coordinates.length === 1) { // Assuming there's only one point for STOP_SIGNS
+            const lat = coordinates[0][1];
+            const lng = coordinates[0][0];
+
+            // Convert lat/lng to tile pixel
+            const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
+            const tileX = tilePixel.tileX;          // tile X coordinate of the point
+            const tileY = tilePixel.tileY;          // tile Y coordinate of the point
+            const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+            const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+            const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
+
+            // Create a sprite or mesh for the image
+            const imageTexture = new THREE.TextureLoader().load(STOP_SIGN_PNG); // Load your image
+            const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Set the sprite position at the calculated world position
+            // Get the elevation for this point and set the Z coordinate
+            const candidates = index.search({
+              minX: lng,
+              minY: lat,
+              maxX: lng,
+              maxY: lat
+            });
+  
+            let nearestFeature = null;
+  
+            candidates.forEach((item) => {
+                const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
+                if (isInside) {
+                    nearestFeature = item.feature;
+                    return false; // Exit loop early if point is inside a polygon
+                }
+            });
+            let elevationValue = 0
+            if (nearestFeature) {
+              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+            }
+  
+            if (!nearestFeature || isNaN(elevationValue)) {
+              // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
+              elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+            }
+            sprite.position.set(worldPos.x, worldPos.y, elevationValue * 2);
+            sprite.scale.set(50, 50, 1);
+            sprite.renderOrder = 999
+            // Add the sprite to the scene
+            this.scene.add(sprite);
+
+            // Optionally, you can push this into an array like `this.tubeMeshes` if you want to toggle its visibility later
+            this.stopSignSprites.push(sprite);
+
+          }
+        }
+        this.setFilteredCategories(this.filteredCategories)
+    });
+  }
+
+
+  
+  setFilteredCategories(_categories) {
+    this.filteredCategories = _categories;
+    
+    if (this.tubeMeshes.length > 0) {
+        _.map(this.tubeMeshes, _tube => {
+            // Check if the category of the current tube is in the filtered categories
+            if (this.filteredCategories.includes(_tube.index)) {
+                // Show the tube
+                _tube.value.visible = true;
+            } else {
+                // Hide the tube
+                _tube.value.visible = false;
+            }
+        });
+    }
+    // Filter stopSignSprites
+    if (this.stopSignSprites.length > 0) {
+      _.map(this.stopSignSprites, (_sprite) => {
+        if (this.filteredCategories.includes('STOP_SIGNS')) {
+          _sprite.visible = true; // Show the stop sign sprite if 'STOP_SIGNS' is in the filtered list
+        } else {
+          _sprite.visible = false; // Hide the stop sign sprite if 'STOP_SIGNS' is not in the filtered list
+        }
+      });
+    }
   }
 
   init() {
@@ -471,25 +693,15 @@ export class Map {
     this.progress = 1;
   }
 
-  getElevationAt(point) {
-    const tileKey = Utils.position2tile(this.zoom, point.x, point.y, this.center, this.tileSize);
-    const tile = this.tileCache[`${tileKey.z}/${tileKey.x}/${tileKey.y}`];
-    console.log(tile)
+  getElevationAt(point, x, y) {
+    const tile = this.tileCache[`${this.zoom}/${x}/${y}`];
     if (!tile || !tile.elevation) {
-      console.error("No elevation data found for this tile.");
+      // console.error("No elevation data found for this tile.");
       return 0; // Return a default elevation
     }
-
-    // Convert point's position to pixel coordinates within the tile
-    const pixelX = (point.x % tile.size) / tile.size * tile.shape[1];
-    const pixelY = (point.y % tile.size) / tile.size * tile.shape[0];
-    
     // Fetch the elevation from the tile's elevation map
-    const elevationIndex = Math.floor(pixelY) * tile.shape[1] + Math.floor(pixelX);
-    // console.log(pixelX, pixelY)
-    
-    // return tile.elevation[elevationIndex] * 2 || 300;
-    return 0
+    const elevationIndex = Math.floor(point[1]) * tile.shape[1] + Math.floor(point[0]);
+    return tile.elevation[elevationIndex] || 0;
   }
 }
 export class MapPicker {
@@ -556,7 +768,6 @@ export class MapPicker {
       // Get the elevation for this point from the terrain
       const elevation = this.map.getElevationAt(interpolatedPoint);
       interpolatedPoint.z = elevation; // Adjust Z based on elevation
-  
       points.push(interpolatedPoint);
     }
   
