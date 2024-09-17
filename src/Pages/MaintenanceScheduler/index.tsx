@@ -238,11 +238,11 @@ const MaintenanceScheduler = () => {
           <Row>
             <DndProvider backend={HTML5Backend}>
               <Col lg="9">
-                <Card className="h-100">
+                <Card className="h-99">
                   <CardBody className="p-0">
                     <div
                       className="maintenance-scheduler-calendar"
-                      style={{ height: "720px" }}
+                      style={{ height: "calc(100vh - 260px)" }}
                     >
                       <DragAndDropCalendar
                         localizer={localizer}
