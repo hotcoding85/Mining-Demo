@@ -356,8 +356,8 @@ const Dispatch = () => {
     let rosterTrucks = shiftrosters.map((roster) => {
       return roster.trucks && roster.trucks[0]
         ? roster.trucks.map((truck) => {
-            return truck.id;
-          })
+          return truck.id;
+        })
         : undefined;
     });
 
@@ -725,18 +725,18 @@ const Dispatch = () => {
             </Row>
 
             <Row className="equipment-status text-black mx-auto pb-4">
-              <Col className="d-flex flex-column gap-2 align-items-center bg-white rounded-1 p-3 fs-5">
+              <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Equipment Available
-                <span className="fs-2">{equipmentList.length || "0"}</span>
-              </Col>
-              <Col className="d-flex flex-column gap-2 align-items-center bg-white rounded-1 p-3 fs-5">
+                <span className="fs-2 text-color">{equipmentList.length || "0"}</span>
+              </Card>
+              <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Operators Available
-                <span className="fs-2">{filteredOperators.length || "0"}</span>
-              </Col>
-              <Col className="d-flex flex-column gap-2 align-items-center bg-white rounded-1 p-3 fs-5">
+                <span className="fs-2 text-color">{filteredOperators.length || "0"}</span>
+              </Card>
+              <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Equipment Allocated
-                <span className="fs-2">{countOperators(equipmentList)}</span>
-              </Col>
+                <span className="fs-2 text-color">{countOperators(equipmentList)}</span>
+              </Card>
             </Row>
 
             <Row>
@@ -745,10 +745,10 @@ const Dispatch = () => {
                   <Col lg={12}>
                     <Card>
                       <CardBody className="rounded-1">
-                        <span style={{ fontSize: "20px" }}>Equipment</span>
+                        <span style={{ fontSize: "20px" }}>Fleet</span>
                         <Row className="">
                           {equipmentList.map((equipment: any, key: number) => (
-                            <Col md="3" className="px-2">
+                            <Col md="2" className="px-2">
                               <div className="my-2 equipment-cards-bg">
                                 <DropTarget2
                                   dropId="operator"
@@ -760,17 +760,20 @@ const Dispatch = () => {
                                     <div className="d-flex flex-column shift-plan-box gap-2">
                                       {/* {equipment?.operator !== "" ? ( */}
                                       <>
-                                        <div className="fw-medium rounded-2 status-active">
+                                        {/* <div className="fw-medium rounded-2 status-active">
                                           {equipment.status}
+                                        </div> */}
+                                        <div>
+                                          <span className="fs-4 text-color">{equipment.name}<span className="fs-6">({equipment.model})</span></span>
                                         </div>
-                                        <Tag>{equipment.name}</Tag>
+                                        {/* <Tag></Tag> */}
                                         <div className="select-icon">
                                           <select
                                             className={
                                               equipment.state.toLowerCase() ===
-                                              "standby"
+                                                "standby"
                                                 ? "select-alert"
-                                                : equipment.state.toLowerCase() === "down"? "select-danger" : ""
+                                                : equipment.state.toLowerCase() === "down" ? "select-danger" : ""
                                             }
                                             value={equipment.state}
                                             onChange={(event) =>
@@ -790,9 +793,7 @@ const Dispatch = () => {
                                           {equipment?.operator ? (
                                             <>
                                               <span className="shift-value fill">
-                                                {equipment?.operator.firstName +
-                                                  " " +
-                                                  equipment?.operator.lastName}
+                                                {equipment?.operator.lastName}
                                               </span>
                                               <Button
                                                 style={{
@@ -843,7 +844,7 @@ const Dispatch = () => {
                           disabled={false}
                           name={person.firstName + " " + person.lastName}
                           person={person}
-                          onDragStart={() => {}}
+                          onDragStart={() => { }}
                         >
                           <>
                             <div style={{ textAlign: "center" }}>

@@ -124,8 +124,6 @@ const Item = (data: any) => {
           </div>
         </div>
 
-
-
         <div className="d-flex justify-content-between gap-2 text-muted" style={{ padding: '0px 16px', marginTop: '8px' }}>
           {stateConfig.map((config) => {
             return (

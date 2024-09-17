@@ -68,6 +68,9 @@ body[data-layout-mode="dark"] {
     color: white !important;
   }
 
+  .text-color {
+    color: white;
+  }
 
   .table {
 
@@ -102,6 +105,10 @@ body[data-layout-mode="light"] {
     }
   }
 
+  .text-color {
+    color: #333;
+  }
+
   .ant-select-item-option-selected {
     background-color: #9A9A9A !important;
     /* Customize background color of selected item */
@@ -109,21 +116,10 @@ body[data-layout-mode="light"] {
     /* Customize text color of selected item */
     font-weight: normal !important;
   }
-}
 
-body[data-layout-mode="light"] {
   .customSegmentBackground {
     background-color: #c3c3c3;
   }
-
-
-  /* .leaflet-layer,
-  .leaflet-control-zoom-in,
-  .leaflet-control-zoom-out,
-  .leaflet-control-attribution {
-    filter: invert(80%) hue-rotate(180deg) brightness(95%) contrast(50%);
-  } */
-
 }
 
 .activemarker {

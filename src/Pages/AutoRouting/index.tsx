@@ -1468,7 +1468,7 @@ const AutoRouting = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Auto Routing" />
+                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Auto Routing" />
                     <Row>
                         <Col md="12" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 230px)', width: '80%' }} >

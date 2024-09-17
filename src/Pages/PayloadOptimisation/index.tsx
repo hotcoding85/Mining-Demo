@@ -10,7 +10,7 @@ const PayloadOptimsation
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Mine Controle" breadcrumbItem="Payload Optimsation" />
+                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Payload Optimsation" />
                     <Row>
                         <Col lg="12">
 

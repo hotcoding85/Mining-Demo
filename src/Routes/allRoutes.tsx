@@ -3,6 +3,9 @@ import path from "path";
 import React, { Component } from "react";
 import socketIO from 'socket.io-client';
 import { ThreeJS } from "Pages/ThreeJS";
+import TruckLoadOptimisation from "Pages/TruckLoadOptimisation";
+import DiggingOptimisation from "Pages/DiggingOptimisation";
+import PayloadOptimsation from "Pages/PayloadOptimisation";
 
 const FMS = React.lazy(() => import("Pages/FleetStatus"));
 
@@ -49,7 +52,7 @@ const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler
 const OilAnalysis = React.lazy(() => import("Pages/OilAnalysis"));
 const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
-const FleetOptimisation = React.lazy(() => import("Pages/FleetOptimisation"));
+const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 const AutoRouting = React.lazy(() => import("Pages/AutoRouting"));
 const HaulRoadIntelligence = React.lazy(() => import("Pages/HaulRoad"));
 const PitView = React.lazy(() => import("Pages/PitView"));
@@ -87,7 +90,7 @@ const authProtectedRoutes = [
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/rom-management", exact: true, component: <ROMManagement /> },
   { path: "/waste-dump-management", exact: true, component: <WasteDumpManagement /> },
-  { path: "/payload-optimisation", exact: true, component: <WasteDumpManagement /> },
+  { path: "/payload-optimisation", exact: true, component: <PayloadOptimsation /> },
   { path: "/fleet", exact: true, component: <Fleet /> },
   { path: "/trackers", exact: true, component: <Trackers /> },
   { path: "/shiftrosters", exact: true, component: <ShiftRoster /> },
@@ -125,8 +128,11 @@ const authProtectedRoutes = [
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
   { path: "/details/prestarts", exact: true, component: <PreStartDetails /> }, 
-  { path: "/fleet-optimisation", exact: true, component: <FleetOptimisation /> },
+  { path: "/haul-road-optimisation", exact: true, component: <HaulRoadOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
+  { path: "/truck-load-optimisation", exact: true, component: <TruckLoadOptimisation /> },
+  { path: "/digging-optimisation", exact: true, component: <DiggingOptimisation /> },
+
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
   { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
