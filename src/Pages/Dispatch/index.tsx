@@ -34,127 +34,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { equipmentStateProps, OperatorStateProps } from "./types";
 // import { equipmentStateProps, OperatorStateProps } from "./types";
 
-function Draggable({ id, name, model, disabled, onDragStart, ...props }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={{
-        transform: CSS.Translate.toString(transform),
-        padding: "8px",
-        margin: "4px",
-        backgroundColor: disabled ? "#d0d0d0" : "#F7B31A",
-        borderRadius: "4px",
-        cursor: disabled ? "not-allowed" : "move",
-        opacity: disabled ? 0.5 : 1,
-        color: disabled ? "black" : "white",
-        fontWeight: "bold",
-      }}
-      onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
-    >
-      {name}{" "}
-      {model != "" ? (
-        <span
-          style={{ fontSize: "8px", marginLeft: "4px", fontStyle: "normal" }}
-        >
-          ({model})
-        </span>
-      ) : (
-        ""
-      )}
-      {props.children}
-    </div>
-  );
-}
-
-function DropTarget({ id, children }) {
-  const { isOver, setNodeRef } = useDroppable({ id });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        border: "1px solid #ccc",
-        padding: "16px",
-        minHeight: "100px",
-        alignContent: "center",
-        backgroundColor: isOver ? "#e0ffe0" : "#283655",
-        marginBottom: "20px",
-        borderStyle: "dashed",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function DragTarget({
-  id,
-  name,
-  disabled,
-  onDragStart,
-  style,
-  children,
-  person,
-}) {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "image",
-    item: { id: id, value: name, person },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
-
-  return (
-    <div
-      className={style}
-      style={{
-        padding: "8px",
-        margin: "4px",
-        backgroundColor: disabled ? "#d0d0d0" : "rgb(83, 94, 119)",
-        borderRadius: "24px",
-        cursor: disabled ? "not-allowed" : "move",
-        opacity: disabled ? 0.5 : 1,
-        color: disabled ? "black" : "white",
-        fontWeight: "bold",
-      }}
-      draggable
-      ref={drag}
-      onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
-    >
-      {children}
-    </div>
-  );
-}
-
-const DropTarget2 = ({
-  dropId,
-  shiftIndex,
-  index = 0,
-  field,
-  children,
-  updateShiftInfo,
-  style = "",
-}) => {
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: "image",
-    drop: ({ id, value, person }: any) => {
-      updateShiftInfo(id, dropId, shiftIndex, index, field, value, person);
-    },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
-  }));
-
-  return (
-    <div ref={drop} className={style}>
-      {children}
-    </div>
-  );
-};
 
 const Dispatch = () => {
   document.title = "Dispatch | FMS Live";
@@ -201,8 +80,9 @@ const Dispatch = () => {
     field: "",
     value: "",
     index: 0,
+    operator: {}
   });
-  const [targetEquipment, setTargetEquipment] = useState<string>("");
+  const [targetEquipment, setTargetEquipment] = useState<any>();
 
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>("DS");
@@ -215,6 +95,71 @@ const Dispatch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedCrew, setSelectedCrew] = useState<any>();
+
+  function DragTarget({
+    id,
+    name,
+    disabled,
+    onDragStart,
+    style,
+    children,
+    person,
+  }) {
+    const [{ isDragging }, drag] = useDrag(() => ({
+      type: "image",
+      item: { id: id, value: name, person },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+    }));
+  
+    return (
+      <div
+        className={style}
+        style={{
+          padding: "8px",
+          margin: "4px",
+          backgroundColor: disabled ? "#d0d0d0" : "rgb(83, 94, 119)",
+          borderRadius: "24px",
+          cursor: disabled ? "not-allowed" : "move",
+          opacity: disabled ? 0.5 : 1,
+          color: disabled ? "black" : "white",
+          fontWeight: "bold",
+        }}
+        draggable
+        ref={drag}
+        onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
+      >
+        {children}
+      </div>
+    );
+  }
+  
+  const DropTarget = ({
+    dropId,
+    shiftIndex,
+    index = 0,
+    field,
+    children,
+    updateShiftInfo,
+    style = "",
+  }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+      accept: "image",
+      drop: ({ id, value, person }: any) => {
+        updateShiftInfo(id, dropId, shiftIndex, index, field, value, person);
+      },
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+      }),
+    }));
+  
+    return (
+      <div ref={drop} className={style}>
+        {children}
+      </div>
+    );
+  };
 
   useEffect(() => {
     dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
@@ -526,12 +471,30 @@ const Dispatch = () => {
     index: number = 0,
     field: string,
     value: string,
-    person: []
+    person: any
   ) => {
     if (id === dropId) {
-      setIsModalVisible(true);
       const updateElementFields = { shiftIndex, field, value, person };
       setTargetOperatorFileds(updateElementFields);
+
+      let equiments = JSON.parse(JSON.stringify(equipmentList));
+      setTargetEquipment(equiments[shiftIndex]);
+
+      if(equiments[shiftIndex].state.toLowerCase() !== 'down'){
+        if (
+          equiments[shiftIndex].operator !== undefined &&
+          equiments[shiftIndex].operator.id !== undefined
+        ) {
+          setIsModalVisible(true);
+        } else {
+          equiments[shiftIndex].operator = person;
+          setEquipmentList(equiments);
+          const updatedOperators = filteredOperators?.filter(
+            (operator: any) => operator.id !== person.id
+          );
+          setFilteredOperators(updatedOperators);
+        }
+      }
     }
   };
 
@@ -647,22 +610,25 @@ const Dispatch = () => {
     }
   };
   const updateTargetOperator = () => {
-    const updatedData = JSON.parse(JSON.stringify(equipmentList));
+    const equiments = JSON.parse(JSON.stringify(equipmentList));
     const { shiftIndex, field, value, person } = targetOperatorFileds;
-    updatedData[shiftIndex].operator = person;
-    setEquipmentList(updatedData);
+
+    let operator:any = {};
+    if(equiments[shiftIndex].operator !== undefined && equiments[shiftIndex].operator.id !== ''){
+      operator = equipmentList[shiftIndex].operator
+    }
+    equiments[shiftIndex].operator = person;
+    setEquipmentList(equiments);
+    return operator;
   };
 
-  const handlefilteredOperator = () => {
-    const data = usersList.filter(
-      ({ firstName, lastName }: OperatorStateProps) =>
-        !equipmentList.some(
-          ({ operator }: any) =>
-            firstName + " " + lastName ===
-            operator?.firstName + " " + operator?.lastName
-        )
-    );
-    setFilteredOperators([...data]);
+  const handlefilteredOperator = (operator: any) => {
+    const updatedOperators = filteredOperators?.filter((operator: any) => operator.id !== targetOperatorFileds.person.id)
+    if(operator !== undefined && Object.keys(operator).length){
+      setFilteredOperators([...updatedOperators, operator])
+    }else {
+      setFilteredOperators([...updatedOperators]);
+    }
   };
 
   const updateState = (key: number, value: string) => {
@@ -683,10 +649,10 @@ const Dispatch = () => {
 
   const handleRemoveOperator = (key: number) => {
     const updatedEquipmentList = JSON.parse(JSON.stringify(equipmentList));
+    let operatorData = updatedEquipmentList[key].operator;
+    setFilteredOperators([...filteredOperators, operatorData]);
     updatedEquipmentList[key].operator = "";
-
     setEquipmentList(updatedEquipmentList);
-    handlefilteredOperator();
   };
 
   return (
@@ -750,7 +716,7 @@ const Dispatch = () => {
                           {equipmentList.map((equipment: any, key: number) => (
                             <Col md="2" className="px-2">
                               <div className="my-2 equipment-cards-bg">
-                                <DropTarget2
+                                <DropTarget
                                   dropId="operator"
                                   shiftIndex={key}
                                   field={"operator"}
@@ -819,7 +785,7 @@ const Dispatch = () => {
                                       </>
                                     </div>
                                   </CardBody>
-                                </DropTarget2>
+                                </DropTarget>
                                 {/* <Tag>HDPC1250</Tag> */}
                               </div>
                             </Col>
@@ -867,8 +833,8 @@ const Dispatch = () => {
                 title="Update Equipment Information"
                 open={isModalVisible}
                 onOk={() => {
-                  updateTargetOperator();
-                  handlefilteredOperator();
+                  const operator = updateTargetOperator();
+                  handlefilteredOperator(operator);
                   setIsModalVisible(false);
                 }}
                 onCancel={() => {
@@ -878,7 +844,7 @@ const Dispatch = () => {
                 cancelText="Cancel"
                 className="modal-lists"
               >
-                <p>{`Do you want to replace operator with ${targetOperatorFileds.value}`}</p>
+                <p>{`Do you want to replace ${targetEquipment?.name} operator ${targetEquipment?.operator?.lastName} with ${targetOperatorFileds?.person?.lastName}.`}</p>
               </Modal>
             </Col>
           </Row>
