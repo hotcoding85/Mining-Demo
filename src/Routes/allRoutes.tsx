@@ -9,23 +9,41 @@ import PayloadOptimsation from "Pages/PayloadOptimisation";
 import OilAnalysisReportPage from "Pages/OilAnalysis/OilAnalysisReportPage";
 import FuelDashboard from "Pages/FuelDashboard";
 
-const FMS = React.lazy(() => import("Pages/FleetStatus"));
+import FMS from "Pages/FleetStatus";
+// const FMS = React.lazy(() => import("Pages/FleetStatus"));
+
+import DispatchLive from "Pages/DispatchLive";
+// const DispatchLive = React.lazy(() => import("Pages/DispatchLive"));
+
+import Map from "Pages/Map";
+// const Map = React.lazy(() => import("Pages/Map"));
+
+import Geofences from "Pages/Geofences";
+// const Geofences = React.lazy(() => import("Pages/Geofences"));
+
+import AutoRouting from "Pages/AutoRouting";
+// const AutoRouting = React.lazy(() => import("Pages/AutoRouting"));
+
+import TruckingDashboard from "Pages/TruckingDashboard";
+// const TruckingDashboard = React.lazy(() => import("Pages/TruckingDashboard"));
+
+import DiggingDashboard from "Pages/DiggingDashboard";
+// const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
+
+import EquipmentGantt from "Pages/Equipment Gantt";
+// const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
 
 // Auth
 const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
 const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
 const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
-// const Materials = React.lazy(() => import("Pages/"));
 const Materials = React.lazy(() => import("Pages/Materials"));
 const Benches = React.lazy(() => import("Pages/Benches"));
 const Users = React.lazy(() => import("Pages/Users"));
 const Fleet = React.lazy(() => import("Pages/Fleet"));
 const Trackers = React.lazy(() => import("Pages/Trackers"));
-const Map = React.lazy(() => import("Pages/Map"));
-const DispatchLive = React.lazy(() => import("Pages/DispatchLive"));
 const Dashboard = React.lazy(() => import("Pages/Dashboard"));
 const MaterialInventory = React.lazy(() => import("Pages/MaterialInventory"));
-const Geofences = React.lazy(() => import("Pages/Geofences"));
 const DiggingPerformance = React.lazy(() => import("Pages/DiggingPerformance"));
 const OreTracker = React.lazy(() => import("Pages/OreTracker"));
 const ShiftRoster = React.lazy(() => import("Pages/ShiftRoster"));
@@ -41,7 +59,6 @@ const Reports = React.lazy(() => import("Pages/Reports"));
 const Replay = React.lazy(() => import("Pages/Replay"));
 const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
 
-
 const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
 const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
 const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
@@ -49,21 +66,21 @@ const DailyProductionDashboard = React.lazy(() => import("Pages/Daily Production
 const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
 const FuelStatusDashboard = React.lazy(() => import("Pages/Fuel Status"));
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
-const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
+
 const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
 const OilAnalysis = React.lazy(() => import("Pages/OilAnalysis"));
 const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
 const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
-const AutoRouting = React.lazy(() => import("Pages/AutoRouting"));
+
 const HaulRoadIntelligence = React.lazy(() => import("Pages/HaulRoad"));
-const PitView = React.lazy(() => import("Pages/PitView"));
+// const PitView = React.lazy(() => import("Pages/PitView"));
 const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
 const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
 const FuelScheduler = React.lazy(() => import("Pages/FuelScheduler"));
 const MessageCentre = React.lazy(() => import("Pages/MessageCentre"));
-const TruckingDashboard = React.lazy(() => import("Pages/TruckingDashboard"));
-const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
+
+
 const TelemetryDetails = React.lazy(() => import("Pages/TelemetryDetails"));
 const RomWasteSummary = React.lazy(() => import("Pages/RomWasteSummary"));
 const PreShiftInfo = React.lazy(() => import("Pages/PreShiftInfo"));
