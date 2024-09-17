@@ -9,7 +9,7 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import DiggerState from "./DiggerState";
+import RadicalGraph from 'Components/Common/RadicalGraph'
 import EfficiencyRating from "./EfficiencyRating";
 import DiggingSummary from "./DiggingSummary";
 import EfficiencyMetrics from "./EfficiencyMetrics";
@@ -92,7 +92,7 @@ const DiggingDashboard = (props: any) => {
           <Row>
             <Col lg="12" className="mt-3">
 
-              <DiggerState truckStates={StateTimes} />
+              <RadicalGraph truckStates={StateTimes} />
             </Col>
           </Row>
 

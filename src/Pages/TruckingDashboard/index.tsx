@@ -9,7 +9,7 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import TruckingState from "./componenets/TruckingState";
+import RadicalGraph from "Components/Common/RadicalGraph"
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";
 import { Select, Space } from "antd";
@@ -119,7 +119,7 @@ const TruckingDashboard = (props: any) => {
           </Row>
           <Row>
             <Col lg="12" className="mt-3">
-              <TruckingState truckStates={StateTimes} />
+              <RadicalGraph truckStates={StateTimes} />
             </Col>
           </Row>
 
