@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { TripProgressBarProps } from "../../Components/Charts/interfaces/general";
 import "./style.css";
+import { formatNumber } from "utils/common";
 
 const ProgressBarInner = styled.div<{ width: string; background?: string }>`
   background-color: ${(props) =>
@@ -145,7 +146,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
                         : "0",
                   }}
                 >
-                  {Math.round((index * total) / 10)}
+                  {formatNumber(Math.round((index * total) / 10))}
                 </span>
               </div>
             ))}

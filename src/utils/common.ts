@@ -135,6 +135,12 @@ export const getContentByState = (state) => {
   return { color, displayState };
 }
 
+export const formatNumber = (value: number): string => {
+  let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  let formattedNumber: string = formatter.format(value);
+  return formattedNumber
+}
+
 export const roundOff = (value: number): number => {
   let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   let formattedNumber: string = formatter.format(value);
