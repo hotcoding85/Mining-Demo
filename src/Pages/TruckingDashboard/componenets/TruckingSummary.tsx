@@ -220,24 +220,24 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
             </tbody>
             <tfoot>
               <tr>
-                <td>
+                <td className="truck-footer">
                   <div>
                     Totals
                   </div>
                 </td>
                 <td>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     120/350
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     264,875
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     297,500
                   </div>
@@ -272,22 +272,22 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
                     
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     234
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     34
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     94
                   </div>
                 </td>
-                <td>
+                <td className="truck-footer">
                   <div>
                     324
                   </div>
