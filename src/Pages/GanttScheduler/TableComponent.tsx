@@ -25,8 +25,20 @@ const TableComponent: React.FC<TableComponentProps> = ({
   addTask,
 }) => {
   const timelineSlots: TimelineSlot[] = calculateTimelineSlots(selectedDate, shiftType, zoomSize);
-  console.log(timelineSlots);
-  console.log(tasks);
+
+  const endSlotOfTimeline = timelineSlots.at(-1);
+  const slotDateTime = new Date(endSlotOfTimeline? endSlotOfTimeline.date : selectedDate);
+  const [hours, minutes] = endSlotOfTimeline? endSlotOfTimeline.time.split(':').map(Number) : [18, 0];
+  slotDateTime.setHours(hours, minutes, 0, 0);
+  const endSlotDateTime = new Date(
+    slotDateTime.getTime() + zoomSize * 60 * 1000
+  );
+
+  const startSlotOfTimeline = timelineSlots.at(0);
+  const startSlotDateTime = new Date(startSlotOfTimeline? startSlotOfTimeline.date : selectedDate);
+  const [startHours, startMinutes] = startSlotOfTimeline? startSlotOfTimeline.time.split(':').map(Number) : [6, 0];
+  startSlotDateTime.setHours(startHours, startMinutes, 0, 0);
+
   const [isColumnsCollapsed, setColumnsCollapsed] = useState(false);
 
   const updateTask = (updatedTask: Task) => {
@@ -79,6 +91,8 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   slotIndex={slotIndex}
                   totalSlots={timelineSlots.length}
                   zoomSize={zoomSize}
+                  endSlotTime={endSlotDateTime }
+                  startSlotTime={startSlotDateTime}
                 />
               ))}
             </tr>
