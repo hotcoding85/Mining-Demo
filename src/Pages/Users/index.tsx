@@ -376,6 +376,7 @@ const Users = (props: any) => {
         accessorKey: "employeeId",
         enableColumnFilter: false,
         enableSorting: true,
+        customStyle: ""
       },
       {
         header: "Username",
@@ -384,7 +385,7 @@ const Users = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'left', }}>{cellProps.row.original.username}</div>
+            <div>{cellProps.row.original.username}</div>
           );
         },
       },
@@ -395,7 +396,7 @@ const Users = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'left', }}>{cellProps.row.original.firstName}</div>
+            <div className="text-left">{cellProps.row.original.firstName}</div>
           );
         },
       },
@@ -406,7 +407,7 @@ const Users = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div style={{ textAlign: 'left', }}>{cellProps.row.original.lastName}</div>
+            <div className="text-left">{cellProps.row.original.lastName}</div>
           );
         },
       },
@@ -428,7 +429,6 @@ const Users = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           const skillsData = cellProps.row.original.skills
-          console.log('columns props', skillsData)
           return (
             <>
               {
@@ -527,6 +527,7 @@ const Users = (props: any) => {
                     columns={columns}
                     data={xda || []}
                     // total={total || 0}
+                    theadClass={"text-left"}
                     isGlobalFilter={true}
                     handleOnAddClick={handleOnAdd}
                     handleOnImportClick={handleOnImport}

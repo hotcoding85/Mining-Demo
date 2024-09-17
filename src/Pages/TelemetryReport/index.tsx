@@ -6,7 +6,7 @@ import { getTonnesMoved } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { } from "../../Helpers/api_events_helper";
-import { Button, Checkbox, DatePicker, Dropdown, Menu, Segmented, Select, Space } from "antd";
+import { Button, Checkbox, DatePicker, Dropdown, Menu, Segmented, Select, Space, Tooltip } from "antd";
 import { getContentByState, msToTime, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
@@ -15,6 +15,7 @@ import { EyeOutlined, FilterFilled, FilterOutlined, LaptopOutlined, UserOutlined
 import "./telemetry.css";
 import { Link } from "react-router-dom";
 import Item from "antd/es/list/Item";
+import { errorDefinitions } from "./errorDefinitions";
 
 const TelemetryReport = (props: any) => {
   document.title = "Telemetry Report | FMS Live";
@@ -46,7 +47,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '184',
     oilTemperature: '140',
     oilPressure: '21',
-    faultCodes: ['C143']
+    faultCodes: ['CA271']
   },
   {
     vehicleName: 'DT104',
@@ -62,7 +63,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['DASRKR']
+    faultCodes: ['B@BAZG']
   },
   {
     vehicleName: 'DT102',
@@ -94,7 +95,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C155', 'C235']
+    faultCodes: ['CA331', 'CA432']
   },
   {
     vehicleName: 'DT104',
@@ -110,7 +111,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158', 'DASRKR', 'C125']
+    faultCodes: ['CA452', 'CA697', 'CA757']
   },
   {
     vehicleName: 'DT105',
@@ -126,7 +127,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['DASRKR', 'C2158']
+    faultCodes: ['CA271', 'CA132']
   },
   {
     vehicleName: 'DT106',
@@ -142,7 +143,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C125']
+    faultCodes: ['CA122']
   },
   {
     vehicleName: 'DT107',
@@ -174,7 +175,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158']
+    faultCodes: ['CA111']
   },
   {
     vehicleName: 'DT109',
@@ -190,7 +191,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C143']
+    faultCodes: ['CA757']
   },
   {
     vehicleName: 'DT103',
@@ -206,7 +207,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C125']
+    faultCodes: ['CA442']
   },
   {
     vehicleName: 'DT101',
@@ -222,7 +223,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158', 'DASRKR', 'C125']
+    faultCodes: ['CA325', 'B@BCNS', 'CA449']
   },
   {
     vehicleName: 'DT110',
@@ -238,7 +239,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158']
+    faultCodes: ['CA689']
   },
   {
     vehicleName: 'DT111',
@@ -254,7 +255,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C783']
+    faultCodes: ['CA331']
   },
   {
     vehicleName: 'DT112',
@@ -270,7 +271,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2159']
+    faultCodes: ['CA274']
   },
   {
     vehicleName: 'DT113',
@@ -286,7 +287,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['1500L0']
+    faultCodes: ['CA323']
   },
   {
     vehicleName: 'DT114',
@@ -302,7 +303,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['DASRKR']
+    faultCodes: ['CA132']
   },
   {
     vehicleName: 'DT115',
@@ -318,7 +319,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158', 'DASRKR', 'C125']
+    faultCodes: ['CA238', 'CA273', 'CA342']
   },
   {
     vehicleName: 'EX03',
@@ -334,7 +335,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C556']
+    faultCodes: ['CA123']
   },
   {
     vehicleName: 'DT115',
@@ -350,7 +351,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C783']
+    faultCodes: ['CA234']
   },
   {
     vehicleName: 'DT117',
@@ -366,7 +367,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['DASRKR', 'C125']
+    faultCodes: ['CA115', 'CA115']
   },
   {
     vehicleName: 'DT116',
@@ -382,7 +383,7 @@ const TelemetryReport = (props: any) => {
     blowPressure: '212',
     oilTemperature: '103',
     oilPressure: '18',
-    faultCodes: ['C2158', 'C125']
+    faultCodes: ['CA432', 'CA441']
   }];
 
   const allColumns: TableColumn[] = useMemo(
@@ -662,27 +663,29 @@ const TelemetryReport = (props: any) => {
     return color;
   }
 
-  const Chip = ({ label }) => (
-    <span style={{
-      display: 'inline-block',
-      padding: '5px 10px',
-      margin: '2px',
-      borderRadius: '16px',
-      backgroundColor: 'red',
-      color: 'white',
-      fontSize: '12px',
-      alignContent: 'center'
-    }} > {label}</span >
-  );
+  const Chip = ({ label }) => {
+    let getTitle = errorDefinitions[label];
+    return (<Tooltip title={getTitle}>
+      <span style={{
+        display: 'inline-block',
+        padding: '5px 10px',
+        margin: '2px',
+        borderRadius: '16px',
+        backgroundColor: 'red',
+        color: 'white',
+        fontSize: '12px',
+        width: '72px',
+        textAlign: 'center',
+        alignContent: 'center'
+      }} > {label}</span >
+    </Tooltip>)
+  };
 
   const FaultCodeCell = (cellProps) => {
     const faultCodes = cellProps.row.original.faultCodes;
     return (
       <Space direction="horizontal" style={{ width: '100%' }}>
         {faultCodes && faultCodes.length > 0 ? faultCodes.length === 1 ? <Chip label={faultCodes[0]} /> : <Space><Chip label={faultCodes[0]} /> <div style={{ fontSize: '10px' }} >+ {faultCodes.length - 1} more</div></Space> : ''}
-        {/* {faultCodes.map((code, index) => (
-          <Chip label={code} />
-        ))} */}
       </Space>
     );
   };

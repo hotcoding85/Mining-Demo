@@ -172,6 +172,11 @@ const SidebarContent = (props: any) => {
                     {props.t("Operator Report")}
                   </Link>
                 </li>
+                <li>
+                  <Link to="/fuel-dashboard">
+                    {props.t("Fuel Dashboard")}
+                  </Link>
+                </li>
                 {/* <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
                 </li> */}
@@ -279,9 +284,6 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/pit-view">{props.t("3D Pit View")}</Link>
-                </li>
-                <li>
                   <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>
@@ -330,26 +332,32 @@ const SidebarContent = (props: any) => {
               </Link>
               <ul className="sub-menu">
                 <li>
-                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
-                </li>
-                <li>
-                  <Link to="/fleet-optimisation">
-                    {props.t("Haul Road Optimization")}
-                  </Link>
-                </li>
-                <li>
                   <Link to="/auto-routing">
                     {props.t("Haul Route Management")}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/payload-optimisation">
-                    {props.t("Payload Optimisation")}
+                  <Link to="/truck-load-optimisation">{props.t("Truck Load Optimisation")}</Link>
+                </li>
+                <li>
+                  <Link to="/digging-optimisation">{props.t("Digging Optimisation")}</Link>
+                </li>
+                <li>
+                  <Link to="/sic">{props.t("Short Interval Control")}</Link>
+                </li>
+                <li>
+                  <Link to="/haul-road-optimisation">
+                    {props.t("Haul Road Optimization")}
                   </Link>
                 </li>
                 <li>
                   <Link to="/haul-road-intelligence">
                     {props.t("Haul Road Intelligence")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/payload-optimisation">
+                    {props.t("Payload Optimisation")}
                   </Link>
                 </li>
               </ul>

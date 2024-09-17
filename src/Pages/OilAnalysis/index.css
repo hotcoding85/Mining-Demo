@@ -1,0 +1,386 @@
+.date-picker-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .date-picker-input {
+    width: 100%;
+    padding: 8px 36px 8px 10px;
+    border: 1px solid #a0a0a0;
+    border-radius: 4px;
+    background-color: #1C263C;
+    color: #ffffff;
+  }
+  
+  .date-label {
+    display: block;
+    color: #ffffff;
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+  
+  .calendar-icon {
+    position: absolute;
+    right: 10px;
+    top: 70%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #ffffff;
+  }
+
+
+  .oil-analysis-table {
+    color: #fff;
+  }
+  
+  th {
+    color: #fff;
+    font-weight: bold;
+    background-color: #1C263C;
+  }
+  
+  td {
+    color: #fff;
+  }
+  
+  .status {
+    font-weight: bold;
+  }
+  
+  .status.caution {
+    color: #ffb400;
+  }
+  
+  .status.normal {
+    color: #00ff00;
+  }
+  
+  .status.critical {
+    color: #ff0000;
+  }
+  tr {
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  tr:hover {
+    background-color: #1C263C;
+  }
+  
+  .oil-analysis-card {
+    background-color: #1C263C;
+    color: #fff;
+    border-radius: 8px;
+    border: none;
+  }
+  
+  .oil-analysis-scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .oil-analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th {
+    color: #fff;
+    font-weight: bold;
+    background-color: #283655;
+    padding: 15px;
+    text-align: left;
+  }
+  
+  td {
+    color: #fff;
+    padding: 15px;
+  }
+  
+  tbody tr {
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer; 
+  }
+  
+  tbody tr:hover {
+    background-color: #1C263C; 
+  }
+  
+  tbody tr.highlighted-row {
+    background-color: #283655;
+  }
+  
+  tbody tr td {
+    border: none;
+  }
+  
+  .status {
+    font-weight: bold;
+  }
+  
+  .status.caution {
+    color: #ffb400;
+  }
+  
+  .status.normal {
+    color: #00ff00;
+  }
+  
+  .status.critical {
+    color: #ff0000;
+  }
+  .oil-analysis-table tbody tr:hover {
+    background-color: #1C263C !important; 
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+tbody tr {
+    background-color: #283655; 
+    transition: background-color 0.3s ease; 
+}
+
+tbody tr:hover {
+    background-color: #1C263C; 
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.oil-analysis-table thead th {
+    background-color:  #24314D;
+    ;
+    color: #fff;
+}
+
+.oil-analysis-card{
+    background-color: #283655;
+    ;
+}
+
+/* Container styling */
+.page-content {
+    padding: 20px;
+    background-color: #1C263C;
+  }
+  
+  /* Header section styling */
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  /* Dropdown for Day/Night */
+  .shift-dropdown {
+    background-color: #1C263C;
+    color: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 20px;
+  }
+  
+  .dropdown-menu {
+    background-color: #1C263C;
+    color: white;
+  }
+  
+  /* Shift button styling */
+  .shift-btn {
+    padding: 8px 20px;
+    font-weight: bold;
+    border: none;
+    color: white;
+  }
+  
+  .shift-btn.active {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .shift-btn:not(.active) {
+    background-color: transparent;
+    border: 1px solid #6c757d;
+  }
+  
+  /* Date pickers */
+  .date-picker-section {
+    align-items: center;
+  }
+  
+  .date-picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .date-picker-label {
+    margin-bottom: 4px;
+    color: #ccc;
+    font-size: 14px;
+  }
+  
+  .date-picker-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .date-picker-input {
+    background-color: #1C263C;
+    border: 1px solid #5A6E84;
+    padding: 8px 36px 8px 12px;  /* Padding adjusted to fit the icon inside */
+    font-size: 14px;
+    border-radius: 8px;  /* Rounded corners */
+    width: 160px;
+  }
+  
+  .calendar-icon {
+    position: absolute;
+    right: 12px;
+    width: 36px;
+    font-size: 18px;
+    color: #fff;
+  }
+  
+  .date-picker-input:focus {
+    outline: none;
+    border-color: #2a7ade;
+  }
+  
+  .form-control {
+    box-shadow: none;
+  }
+  
+  /* Card for report data */
+  .oil-analysis-report-card {
+    background-color: #283655;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  /* Additional Table Styling */
+.detailed-analysis-table {
+    margin-top: 30px;
+  }
+  
+  .detailed-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .detailed-table td {
+    padding: 12px;
+    border-bottom: 1px solid #6c757d;
+    border-right: 1px solid #6c757d;
+    color: #fff;
+    /* background-color: #1C263C; */
+  }
+  
+  .detailed-table tr:nth-child(even) {
+    background-color: #283655;
+  }
+  
+  .detailed-analysis-table .section-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+
+  .page-content {
+    padding: 20px;
+    background-color: #1C263C;
+  }
+  
+  .section-title {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  
+  .machine-info-section {
+    margin-bottom: 20px;
+  }
+  
+  .machine-info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .machine-info-table tr {
+    height: 40px;
+  }
+  
+  .icon-cell {
+    width: 40px;
+  }
+  
+  .info-icon {
+    font-size: 20px;
+    color: #6c757d;
+  }
+  
+  .label-cell {
+    font-size: 14px;
+    color: #ccc;
+    padding-right: 8px;
+    white-space: nowrap;
+  }
+  
+  .dashed-line {
+    border-bottom: 1px dashed #ccc;
+    padding: 0 8px;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .dashed-text {
+    color: #fff;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  /* Styling for other content */
+  .oil-analysis-report-card {
+    background-color: #283655;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  /* Modal */
+
+  .modal-details-content p {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0; 
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 300;
+    color: #ffffff; 
+    background-color: #1c263c;
+    border-radius: 4px; 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header-content h4, .modal-header-content p  {
+    display: flex;
+    align-items: center; 
+    margin: 0; 
+  }
+  
+  .modal-header-content p {
+    font-size: 18px;
+    color: #fff;
+  }
+  
+  .alert-section-wrapper p {
+    color: #d7d7d7;
+  }
+
+  .alert-section-wrapper h5 {
+    color: #ffffff;
+  }
+
+  .summary-heading {
+    color: #d9d9d9;
+  }
+
+  

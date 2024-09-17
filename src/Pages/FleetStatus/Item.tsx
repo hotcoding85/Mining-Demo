@@ -3,6 +3,8 @@ import { Card, CardBody } from "reactstrap";
 import { round } from "lodash";
 import { getImage } from "utils/fleet";
 import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600, d375, t45 } from "assets/images/equipment";
+import { divide12HoursRandomly, minutesToHhMm } from "utils/common";
+import { getRandomInt } from "utils/random";
 
 const Item = (data: any) => {
   const stateConfig = [
@@ -80,9 +82,8 @@ const Item = (data: any) => {
     return info ? info.hours : "00:00";
   };
 
-  console.log(data.data.model)
-
   const statusColor = "#F7B31A";
+  console.log(data.data)
   return (
     <React.Fragment>
       <Card className="status-card">
@@ -102,16 +103,16 @@ const Item = (data: any) => {
                   fill='#CF1322' />
               </svg>
             </div>
-            <em style={{ marginLeft: '4px' }}>Updated 2m ago</em>
+            <em style={{ marginLeft: '4px' }}>Updated {getRandomInt(1,5)}m ago</em>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", padding: '0px 16px', marginTop:'16px' }}>
-          <div style={{flex: '1',}}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", padding: '0px 16px', marginTop: '16px' }}>
+          <div style={{ flex: '1', }}>
             <div className="loadsView" style={{ display: 'flex', flex: '1', alignItems: 'baseline', justifyContent: 'center', alignContent: 'center', borderRadius: '6px', padding: '8px 16px', }}>
               <div>
-                <span style={{ fontSize: '2.0em', fontWeight: '500' }}>129<span style={{ fontSize: '0.6em' }}>/{data.data.plannedLoads}</span></span>
+                <span style={{ fontSize: '2.0em', fontWeight: '500' }}>129<span style={{ fontSize: '0.6em' }}>{ data.data.category && data.data.category == 'DRILLER' ? '' : '/'+data.data.plannedLoads}</span></span>
               </div>
-              <span style={{ marginLeft: '6px', fontSize: '18px' }}>Loads</span>
+              <span style={{ marginLeft: '6px', fontSize: '18px' }}>{ data.data.category && data.data.category == 'DRILLER' ? 'Holes' : 'Loads'}</span>
             </div>
             <div>
               {
@@ -121,19 +122,18 @@ const Item = (data: any) => {
             </div>
           </div>
 
-          <div style={{ display:'flex', flex: '.7', placeContent:'flex-end', justifyContent:'end', }}>
+          <div style={{ display: 'flex', flex: '.7', placeContent: 'flex-end', justifyContent: 'end', }}>
             <img src={getImage(data.data.model)} width={'100px'} />
           </div>
         </div>
 
-
-
         <div className="d-flex justify-content-between gap-2 text-muted" style={{ padding: '0px 16px', marginTop: '8px' }}>
-          {stateConfig.map((config) => {
+          {stateConfig.map((config, key) => {
+            const hours = divide12HoursRandomly(stateConfig.length)
             return (
               <div className='d-flex align-items-center'>
                 {/* <i className='bx bxs-circle font-size-12' style={{ color: config.color }}></i> */}
-                <span style={{ margin: '0 0 0 1px', fontSize: '1.6em', color: config.color }}>00:00</span>
+                <span style={{ margin: '0 0 0 1px', fontSize: '1.6em', color: config.color }}>{hours[key]}</span>
               </div>
             )
           })}

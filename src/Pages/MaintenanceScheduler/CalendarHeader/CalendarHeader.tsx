@@ -4,7 +4,6 @@ import moment from "moment";
 import { Segmented } from "antd";
 import * as Yup from "yup";
 import {
-  equipmentList,
   workLocation,
   reasons,
   repairAndServiceInterval,
@@ -17,6 +16,7 @@ interface CalendarHeaderProps extends ToolbarProps {
   modalInitialValues: any;
   modal: boolean;
   toggle: () => void;
+  equipments: any;
 }
 
 const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
@@ -29,6 +29,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
     modalInitialValues,
     modal,
     toggle,
+    equipments,
   } = props;
 
   const validationSchema = Yup.object().shape({
@@ -49,7 +50,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
       name: "title",
       label: "Equipment List",
       type: "select",
-      options: equipmentList,
+      options: equipments,
     },
     {
       id: "workLocation",
@@ -106,8 +107,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = (props) => {
   const handleCreateNewEvent = (values) => {
     const start = new Date(values.start);
     const end = new Date(values.end);
-
-    newEvent({ ...values, start, end });
+    const resourceLabor = [values.resourceLabor];
+    newEvent({ ...values, start, end, resourceLabor });
     toggle();
   };
 

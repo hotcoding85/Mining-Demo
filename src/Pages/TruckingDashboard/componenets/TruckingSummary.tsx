@@ -134,8 +134,8 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
         modelName: "HD785",
         equipmentName: "DT10"+(key+1),
         completed: `${getRandomInt(0, 35)}/35`,
-        actual: getRandomInt(228129, 228459),
-        planned: getRandomInt(500000, 500100),
+        actual: getRandomInt(2500, 3000),
+        planned: 29750,
         availability: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         standBy: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         idel: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
@@ -209,7 +209,7 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
             <thead>
               <tr>
                 {TableHeaders.map((header) => (
-                  <th>{header}</th>
+                  <th style={{justifyContent:'start', }}>{header}</th>
                 ))}
               </tr>
             </thead>
@@ -220,10 +220,76 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
             </tbody>
             <tfoot>
               <tr>
-                <td />
+                <td className="truck-footer">
+                  <div>
+                    Totals
+                  </div>
+                </td>
                 <td>
-                  <div style={{ whiteSpace: "nowrap", width: "104px" }}>
-                    Total :120/350
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    120/350
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    264,875
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    297,500
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    234
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    34
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    94
+                  </div>
+                </td>
+                <td className="truck-footer">
+                  <div>
+                    324
                   </div>
                 </td>
               </tr>

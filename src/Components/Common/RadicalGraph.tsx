@@ -19,7 +19,7 @@ interface TruckingStateProps {
   truckStates: any[];
 }
 
-const TruckingState: React.FC<TruckingStateProps> = ({ truckStates }) => {
+const RadicalGraph: React.FC<TruckingStateProps> = ({ truckStates }) => {
   return (
     <Card className="state-card">
       <div className="d-flex flex-column align-items-start">
@@ -43,4 +43,4 @@ const TruckingState: React.FC<TruckingStateProps> = ({ truckStates }) => {
   );
 };
 
-export default TruckingState;
+export default RadicalGraph;

@@ -9,6 +9,7 @@ export interface TripProgressBarProps {
   backgroundCol?:string
   total?: number;
   widthVal?:string;
+  useCustomLabels?: boolean;
 }
 
 export interface Dataset {

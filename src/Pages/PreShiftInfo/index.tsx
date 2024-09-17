@@ -15,7 +15,7 @@ const PreShiftInfo
                 <div className="page-content">
                     <DndProvider backend={HTML5Backend}>
                         <Container fluid className="p-0">
-                            <div className="d-flex flex-wrap gap-5 mx-0">
+                            <div className="pre-shift-main d-flex flex-wrap gap-5 mx-0">
                                 <div className="data-section">
                                     <List data={shiftInfoData}/>
                                 </div>

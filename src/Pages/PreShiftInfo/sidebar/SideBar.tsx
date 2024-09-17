@@ -34,7 +34,7 @@ const SideBar: React.FC<Equipments> = ({ sideMenu }) => {
 }
 
   return (
-    <div className="task-list d-flex flex-column p-0 side-scroll">
+    <div className="preshift-list d-flex flex-column p-0 side-scroll">
       <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
         <span className="task-list-title text-start">Locations</span>
         <div className="equip-lists">
@@ -55,7 +55,7 @@ const SideBar: React.FC<Equipments> = ({ sideMenu }) => {
       <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
         <span className="task-list-title text-start">Operators</span>
         <div className="sub-title">Excavators</div>
-        <div className="equip-lists d-flex align-items-center flex-wrap">
+        <div className="equip-lists d-grid equip-list-grid">
           {sideMenu[0].excavators.map((excavator, index) => (
             <DragTarget
               key={index}
@@ -74,7 +74,7 @@ const SideBar: React.FC<Equipments> = ({ sideMenu }) => {
         </div>
 
         <div className="sub-title">Trucks</div>
-        <div className="equip-lists d-flex align-items-center flex-wrap">
+        <div className="equip-lists d-grid equip-list-grid">
           {sideMenu[0].truckOperators.map((truck, index) => (
             <DragTarget
               key={index}
@@ -95,7 +95,7 @@ const SideBar: React.FC<Equipments> = ({ sideMenu }) => {
       </div>
       {/* <div className="task-wrapper d-flex flex-column gap-3 py-4 px-3">
         <span className="task-list-title text-start">Trainers</span>
-        <div className="equip-lists d-flex align-items-center flex-wrap">
+        <div className="equip-lists d-grid equip-list-grid">
           {sideMenu[0].trainers.map((equipment, index) => (
             <DragTarget
               key={index}

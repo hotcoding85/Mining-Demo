@@ -9,10 +9,6 @@
   min-width: 116px;
 }
 
-.fuel-scheduler .rbc-events-container {
-  width: 30% !important;
-}
-
 .fuel-scheduler .rbc-events-container > div {
   padding: 9px !important;
 }
@@ -391,13 +387,14 @@
   height: 10px;
 }
 
-.rbc-event {
+.fuel-scheduler .rbc-event {
   color: #fff;
   font-size: 12px;
   text-align: center;
   background-color: transparent;
   border-radius: 2px;
   padding: 0;
+  width: 30% !important;
 }
 
 .rbc-event.rbc-selected {

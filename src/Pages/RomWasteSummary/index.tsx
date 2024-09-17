@@ -207,7 +207,7 @@ const RomWasteSummary = () => {
     [layoutModeType]
   );
   const colorRom = '#F44336'
-  const colorWaste ='#00b300'
+  const colorWaste = '#00b300'
 
   const [romTonnesExtraction, setRomTonnesExtraction] = useState(58.8);
 
@@ -218,8 +218,8 @@ const RomWasteSummary = () => {
       <div className="page-content">
         <Container fluid>
           <Row>
-            <Col md={6} lg={6} sm={12} style={{display: 'flex', alignItems: 'center'}}>
-              <h4 style={{marginBottom: '0px'}}>Rom Waste Summary</h4>
+            <Col md={6} lg={6} sm={12} style={{ display: 'flex', alignItems: 'center' }}>
+              <h4>Rom Waste Summary</h4>
             </Col>
             <Col md={3} lg={3} sm={6}>
               <Segmented
@@ -249,70 +249,80 @@ const RomWasteSummary = () => {
               </div>
             </Col>
           </Row>
-          <Row style={{padding: '1rem'}}>
-            <Col xl={4} lg={6} md={6} sm={6} xs={12}>
-              <h5 style={{marginBottom: 0}}>Rom Tonnes Extraction</h5>
-              <Row style={{marginTop: '1rem'}}>
-                <Col md={8} xs={12}>
-                  <ProgressPieChart width={250} color={colorRom} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100}/>
-                </Col>
-                <Col md={4} xs={12}  style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px'}}>
-                  <div style={{display: 'flex', flexDirection: 'column'}}>
-                    <h5>Total</h5>
-                    <span>3050</span>
+          <Row style={{ padding: '1rem' }}>
+            <Col lg={4} md={6} sm={6} xs={12} >
+              <Card>
+                <CardBody>
+                  <h5 style={{ marginBottom: 0 }}>Rom Tonnes Extraction</h5>
+                  <div className='d-flex justify-content-center align-items-center'>
+                    <ProgressPieChart width={250} color={colorRom} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
+                    <div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <h5>Total Tonnes</h5>
+                        <span>305k</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px' }}>
+                        <h5>Loads Completed</h5>
+                        <span>304</span>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px'}}>
-                    <h5>Loads Completed</h5>
-                    <span>3040</span>
-                  </div>
-                </Col>
-              </Row>
+                </CardBody>
+              </Card>
             </Col>
-            <Col xl={4} lg={6} md={6} sm={6} xs={12}>
-              <h5 style={{marginBottom: 0}}>Waste Extraction to Dumps</h5>
-              <Row style={{marginTop: '1rem'}}>
-                <Col md={8} xs={12}>
-                  <ProgressPieChart width={250} color={colorWaste} bgColor={isLight ? 'gray' : colorWaste} textColor='#a6b0cf' value={wasteExtraction} maxValue={100} />
-                </Col>
-                <Col md={4} xs={12}  style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px'}}>
-                  <div style={{display: 'flex', flexDirection: 'column'}}>
-                    <h5>Total</h5>
-                    <span>1091k</span>
+            <Col lg={4} md={6} sm={6} xs={12} >
+              <Card>
+                <CardBody>
+                  <h5 style={{ marginBottom: 0 }}>Waste Extraction to Dumps</h5>
+                  <div className='d-flex justify-content-center align-items-center'>
+                    <ProgressPieChart width={250} color={colorWaste} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
+                    <div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <h5>Total Tonnes</h5>
+                        <span>1091k</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0px' }}>
+                        <h5>Loads Completed</h5>
+                        <span>204</span>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{display: 'flex', flexDirection: 'column'}}>
-                    <h5>Loads Completed</h5>
-                    <span>3040k</span>
-                  </div>
-                </Col>
-              </Row>
+                </CardBody>
+              </Card>
             </Col>
-            <Col xl={3} lg={4} md={4} sm={12} xs={12} style={{display: 'flex', justifyContent: 'center', padding: '0px'}}>
-              <PieChart title="" width={200} showLegend={false} data={operationalDelaysData} />
+            <Col lg={4} md={4} sm={12} xs={12}>
+              <Card className='w-100'>
+                <CardBody>
+                  <div className='d-flex justify-content-center align-items-center'>
+                    <PieChart title="" showLegend={false} data={operationalDelaysData} />
+                  </div>
+                </CardBody>
+              </Card>
             </Col>
           </Row>
           <Row>
             <Col md={12}>
-                <Card>
-                    <CardBody>
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{textAlign: 'left', fontSize: '16px', fontWeight: 'bold'}}>ROM Status</div>
-                            <RomStatusTableCard />
-                            <Row style={{backgroundColor: '#1f293f9e', padding: '20px', margin: '40px 0px 0px 0px'}}>
-                              <Col md={6} xs={12}>
-                                <Card>
-                                  <BarGraph legends={legendItems} options={chartOptions1} series={chartSeries1}/>
-                                </Card>
-                              </Col>
-                              <Col md={6} xs={12}>
-                                <Card>
-                                  <BarGraph legends={legendItems} options={chartOptions2} series={chartSeries2}/>
-                                </Card>
-                              </Col>
-                            </Row>
-                        </div>
-                        
-                    </CardBody>
-                </Card>
+              <Card>
+                <CardBody>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ textAlign: 'left', fontSize: '16px', fontWeight: 'bold' }}>ROM Status</div>
+                    <RomStatusTableCard />
+                    <Row style={{ backgroundColor: '#1f293f9e', padding: '20px', margin: '40px 0px 0px 0px' }}>
+                      <Col md={6} xs={12}>
+                        <Card>
+                          <BarGraph legends={legendItems} options={chartOptions1} series={chartSeries1} />
+                        </Card>
+                      </Col>
+                      <Col md={6} xs={12}>
+                        <Card>
+                          <BarGraph legends={legendItems} options={chartOptions2} series={chartSeries2} />
+                        </Card>
+                      </Col>
+                    </Row>
+                  </div>
+
+                </CardBody>
+              </Card>
             </Col>
           </Row>
         </Container>

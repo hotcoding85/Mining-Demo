@@ -1,16 +1,26 @@
-table {
+.descrepencies-wrapper {
+  background-color: transparent;
+}
+
+.descrepencies-wrapper .card-body {
+  padding: 0;
+}
+
+.descrepencies-wrapper .card-body .report-head {
+  background-color: #283655;
+  border-radius: 8px;
+}
+
+.descrepencies-wrapper table {
     width: 100%;
     border-collapse: collapse;
   }
   
-  th, td {
+  /* .descrepencies-wrapper th,
+  .descrepencies-wrapper td {
     padding: 10px;
     border: 1px solid #ccc;
-  }
-  
-  th {
-    background-color: #f4f4f4;
-  }
+  } */
   
   button {
     background: none;
@@ -18,15 +28,12 @@ table {
     cursor: pointer;
   }
 
-
-
-
   .descrepencies-wrapper ::-webkit-scrollbar {
     height: 8px;
   }
 
   .descrepencies-wrapper ::-webkit-scrollbar-track {
-    background-color: #535E77;
+    /* background-color: #535E77; */
     border-radius: 20px;
   }
 
@@ -47,7 +54,7 @@ table {
     color: #9CA3B1 !important;
     text-align: center;
     background-color: transparent;
-    border-bottom: 1px solid #535E77;
+    /* border-bottom: 1px solid #535E77; */
   }
 
   .descrepencies-wrapper thead th:first-child {
@@ -63,7 +70,7 @@ table {
   }
 
   .descrepencies-wrapper .paginate_button .page-link {
-    color: #fff;
+    color: #BCC1CA;
     font-size: 14px;
     font-weight: 700;
     background-color: transparent;
@@ -92,9 +99,10 @@ table {
   .descrepencies-wrapper .pagination-to-move select option {
     background-color: #535E77
   }
-  
+
   .descrepencies-wrapper .report-heading {
     font-size: 24px;
+    color: #fff;
   }
 
   .descrepencies-wrapper .export-csv button {
@@ -105,12 +113,19 @@ table {
     font-weight: 700;
     background-color: #fff;
     color: #283655 ;
+    font-size: 14px;
   }
 
   .descrepencies-wrapper input.search-box {
     padding-left: 38px;
     border: 1px solid #BCC1CA;
     border-radius: 3px;
+    background-color: transparent;
+    color: #BCC1CA !important;
+  }
+
+  .descrepencies-wrapper input.search-box::placeholder {
+    color: #BCC1CA;
   }
 
   .descrepencies-wrapper input.search-box + svg {
@@ -119,10 +134,45 @@ table {
     top: 10px;
   }
 
-  .descrepencies-wrapper table tr td {
-    background-color: rgb(28 38 60 / 75%)
+  body[data-layout-mode="light"] .descrepencies-wrapper .search-dropdown,
+  body[data-layout-mode="light"] .descrepencies-wrapper .search-dropdown:hover,
+  body[data-layout-mode="light"] .descrepencies-wrapper .search-dropdown:hover .ant-btn-icon i {
+    color: #fff !important;
+    font-size: 14px; 
   }
 
+  /* .descrepencies-wrapper table tr td {
+    background-color: rgb(28 38 60 / 75%)
+  } */
+
   .descrepencies-wrapper table tr.desc-child td {
-    background-color: #283655
+    background-color: #283655;
+  }
+
+  .carryback-report tfoot tr td span {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #828282;
+    border-radius: 3px;
+    text-align: right;
+    max-width: 78px;
+    margin: auto;
+  }
+
+  .carryback-report tfoot tr td:first-child span {
+    border: none;
+  }
+
+  .carryback-report tbody tr td,
+  .carryback-report tfoot tr td {
+    text-align: center;
+    border: none;
+  }
+
+  body[data-layout-mode="dark"] .carryback-report tfoot tr td span {
+    border-color: #BCC1CA;
+  }
+
+  body[data-layout-mode="dark"] .descrepencies-wrapper .paginate_button .page-link {
+    color: #fff;
   }

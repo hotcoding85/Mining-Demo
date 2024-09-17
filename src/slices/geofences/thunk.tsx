@@ -31,8 +31,11 @@ export const addGeoFence = (GeoFence: any) => async (geoFence: any) => {
     response = await postGeoFence(GeoFence);
     toast.success("GeoFence added successfully", { autoClose: 2000 });
     geoFence(createSuccess(response));
-  } catch (error) {
+    return true;
+  } catch (error: any) {
+    toast.error(error?.data?.message || "Server Error!", { autoClose: 2000 });
     geoFence(apiError(error));
+    return false;
   }
 };
 
@@ -53,9 +56,13 @@ export const updateGeoFence =
     try {
       let response: any;
       response = await putGeoFence(id, GeoFence);
+      toast.success("GeoFence updated successfully", { autoClose: 2000 });
       geoFence(updateSuccess(response));
-    } catch (error) {
+      return true;
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Server Error!", { autoClose: 2000 });
       geoFence(apiError(error));
+      return false;
     }
   };
 
@@ -63,8 +70,10 @@ export const removeGeoFence = (id: string) => async (geoFence: any) => {
   try {
     let response: any;
     response = await deleteGeoFence(id);
+    toast.success("GeoFence deleted successfully", { autoClose: 2000 });
     geoFence(deleteSuccess(response));
-  } catch (error) {
+  } catch (error: any) {
+    toast.error(error?.data?.message || "Server Error!", { autoClose: 2000 });
     geoFence(apiError(error));
   }
 };

@@ -2,14 +2,14 @@ import React from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 
-const FleetOptimisation = (props: any) => {
-    document.title = "Fleet Optimisation | FMS Live";
+const TruckLoadOptimisation = (props: any) => {
+    document.title = "Truck Load Optimisation | FMS Live";
 
     return (
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Fleet Optimisation" />
+                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Truck Load Optimisation" />
                     <Row>
                         <Col lg="12">
 
@@ -21,4 +21,4 @@ const FleetOptimisation = (props: any) => {
     )
 }
 
-export default FleetOptimisation;
+export default TruckLoadOptimisation;

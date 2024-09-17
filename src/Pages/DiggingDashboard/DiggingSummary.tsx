@@ -9,20 +9,20 @@ import CustomDateRangePicker from "Components/Common/DateRangePicker";
 const { RangePicker } = DatePicker;
 
 interface DiggingSummaryTableRowProps {
- 
+
   equipmentName: string;
   completed: string;
   actual: number;
   planned: number;
-  
+
   avgLoadPerHour: number;
   tonnesPerHour: number;
- 
+
   avgLoadTime: string;
   plannedLoadTime: string;
   avgCycleTime: string;
   plannedCycleTime: string;
- 
+
 }
 
 const DiggingSummaryTableRow: React.FC<DiggingSummaryTableRowProps> = (
@@ -30,7 +30,7 @@ const DiggingSummaryTableRow: React.FC<DiggingSummaryTableRowProps> = (
 ) => {
   return (
     <tr>
-      
+
       <td width={120}>
         <div>{props.equipmentName}</div>
       </td>
@@ -43,14 +43,14 @@ const DiggingSummaryTableRow: React.FC<DiggingSummaryTableRowProps> = (
       <td width={120}>
         <div>{props.planned.toLocaleString("US-en")}</div>
       </td>
-     
+
       <td width={120}>
         <div>{props.avgLoadPerHour}</div>
       </td>
       <td width={120}>
         <div>{props.tonnesPerHour}</div>
       </td>
-      
+
       <td width={120}>
         <div>{props.avgLoadTime}</div>
       </td>
@@ -63,20 +63,20 @@ const DiggingSummaryTableRow: React.FC<DiggingSummaryTableRowProps> = (
       <td width={120}>
         <div>{props.plannedCycleTime}</div>
       </td>
-     
+
     </tr>
   );
 };
 
-interface DiggingSummaryProps {}
+interface DiggingSummaryProps { }
 
 const TableHeaders = [
- 
+
   "Equipment Name",
   "Completed",
   "Actual (Tonnes)",
   "Planned (Tonnes)",
- 
+
   "Avg Load per Hour",
   "Tonnes per Hour",
 
@@ -84,7 +84,7 @@ const TableHeaders = [
   "Planned Load Time",
   "Avg Cycle Time",
   "Planned Cycle Time",
- 
+
 ];
 const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -92,20 +92,20 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
   const tableData = useMemo(
     () =>
       [...new Array(5)].map((item, key) => ({
-        
-        equipmentName: "EX20"+(key+1),
+
+        equipmentName: "EX20" + (key + 1),
         completed: `${getRandomInt(0, 35)}/35`,
         actual: getRandomInt(228129, 228459),
         planned: getRandomInt(500000, 500100),
-       
+
         avgLoadPerHour: getRandomInt(250, 300),
         tonnesPerHour: getRandomInt(25, 50),
-        
+
         avgLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         plannedLoadTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         avgCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
         plannedCycleTime: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-       
+
       })),
     []
   );
@@ -175,10 +175,59 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
             </tbody>
             <tfoot>
               <tr>
-                <td />
+                <td width={120}>
+                  <div>
+                    Totals
+                  </div>
+                </td>
+                <td width={120} className="dig-footer">
+                  <div>
+                  120/350
+                  </div>
+                </td>
+                <td width={120} className="dig-footer">
+                  <div>
+                    264,875
+                  </div>
+                </td>
+                <td width={120} className="dig-footer">
+                  <div>
+                    2,564,875
+                  </div>
+                </td>
+                <td className="dig-footer">
+                  <div>
+                    48
+                  </div>
+                </td>
+                <td className="dig-footer">
+                  <div>
+                    369
+                  </div>
+                </td>
                 <td>
-                  <div style={{ whiteSpace: "nowrap", width: "120px" }}>
-                    Total :120/350
+                  <div>
+
+                  </div>
+                </td>
+                <td>
+                  <div>
+
+                  </div>
+                </td>
+                <td>
+                  <div>
+
+                  </div>
+                </td>
+                <td>
+                  <div>
+
+                  </div>
+                </td>
+                <td>
+                  <div>
+
                   </div>
                 </td>
               </tr>

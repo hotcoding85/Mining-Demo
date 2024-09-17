@@ -100,7 +100,7 @@ body[data-layout-mode="light"] .turcking-state {
 
 .trucking-summary {
   .trucking-summary-title {
-    font-family: "Montserrat";
+    /* font-family: "Montserrat"; */
     font-size: 24px;
     line-height: 32px;
     text-align: center;
@@ -115,8 +115,8 @@ body[data-layout-mode="light"] .turcking-state {
       font-size: 14px;
       line-height: 20px;
       text-align: center;
-      vertical-align: middle;
-      width: 104px;
+      vertical-align: top;
+      width: 110px;
       background-color: transparent !important;
     }
 
@@ -134,7 +134,7 @@ body[data-layout-mode="light"] .turcking-state {
       font-size: 16px;
       line-height: 24px;
       text-align: center;
-      width: 104px;
+      width: 110px;
     }
 
     tfoot tr td {
@@ -142,7 +142,7 @@ body[data-layout-mode="light"] .turcking-state {
       font-size: 16px;
       line-height: 24px;
       text-align: center;
-      width: 104px;
+      width: 110px;
       color: #19db43;
       padding-right: 0;
       padding-left: 0;
@@ -331,4 +331,19 @@ body[data-layout-mode="light"] .rating-bar-label {
 
 body[data-layout-mode="light"] .ant-progress-dot {
   background-color: white !important;
+}
+
+.trucking-summary-table tfoot td.truck-footer div {
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid #828282;
+  border-radius: 3px;
+  text-align: right;
+  margin: auto;
+  width: 90%;
+}
+
+.trucking-summary-table tfoot tr td.truck-footer:first-child div {
+  border: none;
+  text-align: center;
 }

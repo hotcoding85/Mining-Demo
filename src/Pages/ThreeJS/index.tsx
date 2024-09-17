@@ -183,9 +183,8 @@ export const ThreeJS = () => {
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
         let nTiles = 28;
-        let zoom = 18;
-
-        map = new Map(scene, camera, source, position, nTiles, zoom, {}, geojsonData.current);
+        let zoom = 18
+        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
         window.map = map;
         console.log(map)
         const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);

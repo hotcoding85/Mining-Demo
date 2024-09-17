@@ -22,7 +22,7 @@ export interface BenchesState {
   errorMsg: string | null;
 }
 
-interface Bench {
+export interface Bench {
   id: string;
   name: string;
   category: string;

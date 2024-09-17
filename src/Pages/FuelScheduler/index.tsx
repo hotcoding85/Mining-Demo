@@ -5,10 +5,6 @@ import { Segmented } from "antd";
 import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import {
-  DraggedEvent,
-  Events,
-} from "Pages/MaintenanceScheduler/interfaces/types";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -17,6 +13,7 @@ import SchedulerTools from "./components/SchedulerTools";
 import SchedulerDashboard from "./components/SchedulerDashboard";
 import SchedulerSidebar from "./components/SchedulerSidebar";
 import "./styles/scheduler.css";
+import { DraggedEvent, Events } from "./interfaces/types";
 
 moment.updateLocale("en-gb", {
   week: {
@@ -37,13 +34,22 @@ const FuelScheduler = (props: any) => {
   const [modal, setModal] = useState<boolean>(false);
   const [modalInitialValues, setModalInitialValues] = useState({
     title: "",
-    workLocation: "",
-    serviceInterval: "",
-    reason: "",
-    resourceLabor: "",
+    equipment: "",
     start: "",
     end: "",
   });
+
+  const toggle = useCallback(() => {
+    if (modal)
+      setModalInitialValues({
+        title: "",
+        equipment: "",
+        start: "",
+        end: "",
+      });
+
+    setModal(!modal);
+  }, [modal]);
 
   const onDisplayTypeChange = (displayInfo: string) => {
     setDisplayType(displayInfo);
@@ -67,18 +73,6 @@ const FuelScheduler = (props: any) => {
     [events]
   );
 
-  const isEventOverlapping = useCallback(
-    (newEvent) => {
-      return events.find((existingEvent) => {
-        return (
-          newEvent.start < existingEvent.end &&
-          newEvent.end > existingEvent.start
-        );
-      });
-    },
-    [events]
-  );
-
   const newEvent = useCallback(
     (event) => {
       setEvents((prev) => {
@@ -92,39 +86,19 @@ const FuelScheduler = (props: any) => {
 
   const onDropFromOutside = useCallback(
     ({ start, end }) => {
-      const draggedEventDeatils = { start, end };
       if (!draggedEvent) return;
 
-      const { name, type } = draggedEvent;
+      const { name } = draggedEvent;
 
-      if (type === "title") {
-        const event = {
-          title: name,
-          start,
-          end,
-        };
-        setDraggedEvent(null);
-
-        newEvent(event);
-      } else {
-        const overlappedEvent = isEventOverlapping(draggedEventDeatils);
-        if (!overlappedEvent) return;
-
-        const updatedOverlappedEvent = {
-          ...overlappedEvent,
-          [type]: name,
-        };
-
-        setEvents((prevEvents) =>
-          prevEvents.map((event) =>
-            event.id === overlappedEvent.id ? updatedOverlappedEvent : event
-          )
-        );
-
-        setDraggedEvent(null);
-      }
+      setModalInitialValues((prevState) => ({
+        ...prevState,
+        title: name,
+        start,
+        end,
+      }));
+      toggle();
     },
-    [draggedEvent, newEvent, isEventOverlapping, setEvents]
+    [draggedEvent, toggle]
   );
 
   const handleNavigate = (action: string) => {
@@ -162,21 +136,6 @@ const FuelScheduler = (props: any) => {
     setModalInitialValues((prevState) => ({ ...prevState, start, end }));
     setModal(true);
   }, []);
-
-  const toggle = useCallback(() => {
-    if (modal)
-      setModalInitialValues({
-        title: "",
-        workLocation: "",
-        serviceInterval: "",
-        reason: "",
-        resourceLabor: "",
-        start: "",
-        end: "",
-      });
-
-    setModal(!modal);
-  }, [modal]);
 
   return (
     <React.Fragment>

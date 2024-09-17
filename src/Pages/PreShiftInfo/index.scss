@@ -241,7 +241,7 @@ body[data-layout-mode="light"] {
 }
 
 .side-scroll {
-  height: calc(100vh + 75px);
+  height: calc(100vh - 134px);
   overflow: auto;
   margin: -24px -24px 0 0 !important;
 }
@@ -253,6 +253,28 @@ body[data-layout-mode="light"] {
       min-height: 75px;
       padding: 15px 0;
     }
+  }
+}
+
+.pre-shift-main {
+  .data-section {
+    .data-assign-area {
+      height: calc(100vh - 250px);
+      overflow: hidden auto;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #E0E0E0;
+    border-radius: 50px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #535e77;
+    border-radius: 50px;
   }
 }
 
@@ -359,6 +381,14 @@ body[data-layout-mode="light"] {
           background-color: #434F6B;
         }
       }
+    }
+  }
+  .pre-shift-main {
+    ::-webkit-scrollbar-track {
+      background-color: #535e77;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffffff;
     }
   }
 }
