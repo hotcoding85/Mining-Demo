@@ -126,13 +126,19 @@ export const getContentByState = (state) => {
       displayState = 'Standby';
       break;
     case "DOWN":
-      color = "#FF5733";
+      color = "#F00";
       displayState = 'Down';
       break;
     default:
       break;
   }
   return { color, displayState };
+}
+
+export const formatNumber = (value: number): string => {
+  let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  let formattedNumber: string = formatter.format(value);
+  return formattedNumber
 }
 
 export const roundOff = (value: number): number => {

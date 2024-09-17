@@ -284,7 +284,7 @@ const TableContainer = ({
                       className={`${header.column.columnDef.enableSorting
                         ? "sorting sorting_desc"
                         : ""
-                        }`}
+                        }`} style={{verticalAlign:'top'}}
                     >
                       {header.isPlaceholder ? null : (
                         <React.Fragment>
@@ -294,7 +294,7 @@ const TableContainer = ({
                                 ? "cursor-pointer select-none"
                                 : "",
                               onClick: header.column.getToggleSortingHandler(),
-                            }}
+                            }} 
                           >
                             {flexRender(
                               header.column.columnDef.header,

@@ -28,7 +28,7 @@ const Geofences = ({ socket }) => {
     const mapRef = useRef<any>(null);
     const [lng, setLng] = useState(120.44463458272295,);
     const [lat, setLat] = useState(-29.146790943732764);
-    const [zoom, setZoom] = useState(15);
+    const [zoom, setZoom] = useState(19.5);
 
     const popupRef = useRef<mapboxgl.Popup | null>(null);
 
@@ -86,7 +86,6 @@ const Geofences = ({ socket }) => {
     const { data: fences } = useSelector(selectProperties);
 
     useEffect(() => {
-        console.log('GEOFences >>', fences)
         fences.map((feature) => {
             mapRef.current?.addSource(feature.id, {
                 type: "geojson",
@@ -99,8 +98,8 @@ const Geofences = ({ socket }) => {
                 source: feature.id,
                 layout: {},
                 paint: {
-                    "fill-color": "#0080ff",
-                    "fill-opacity": 0.5,
+                    "fill-color": "#000000",
+                    "fill-opacity": 0.1,
                 },
             });
 
@@ -140,7 +139,7 @@ const Geofences = ({ socket }) => {
             coordinates.forEach(([lng, lat]) => bounds.extend([lng, lat]));
 
             // Fit map to bounds
-            mapRef.current?.fitBounds(bounds, { padding: 20 });
+            // mapRef.current?.fitBounds(bounds, { padding: 20 });
         }
         );
     }, [fences])
@@ -184,25 +183,6 @@ const Geofences = ({ socket }) => {
              */
             scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
         };
-
-        // const THREE = window.THREE;
-
-
-        // addActiveMarker([
-        //     120.44463458272295,
-        //     -29.146790943732764
-        // ])
-
-        // addDelayMarker([
-        //     120.44506272943079,
-        //     -29.147310837480894
-        // ])
-
-        // addActiveMarker([
-        //     120.44516509787695,
-        //     -29.147993875066938
-        // ])
-
 
         mapRef.current.addControl(new mapboxgl.ScaleControl());
         mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }));
@@ -277,7 +257,6 @@ const Geofences = ({ socket }) => {
 
         });
 
-        return () => mapRef.current.remove();
     }, []);
 
     return (
@@ -286,7 +265,7 @@ const Geofences = ({ socket }) => {
                 <Container fluid>
                     <Row>
                         <Col md="12">
-                            <div ref={mapContainer} className="map-container" style={{ height: 800, width: '100%' }} />
+                            <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 180px)', width: '100%' }} />
                         </Col>
                     </Row>
                 </Container>

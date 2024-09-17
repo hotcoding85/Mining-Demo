@@ -1,16 +1,13 @@
-table {
+.descrepencies-wrapper table {
     width: 100%;
     border-collapse: collapse;
   }
   
-  th, td {
+  /* .descrepencies-wrapper th,
+  .descrepencies-wrapper td {
     padding: 10px;
     border: 1px solid #ccc;
-  }
-  
-  th {
-    background-color: #f4f4f4;
-  }
+  } */
   
   button {
     background: none;
@@ -18,15 +15,12 @@ table {
     cursor: pointer;
   }
 
-
-
-
   .descrepencies-wrapper ::-webkit-scrollbar {
     height: 8px;
   }
 
   .descrepencies-wrapper ::-webkit-scrollbar-track {
-    background-color: #535E77;
+    /* background-color: #535E77; */
     border-radius: 20px;
   }
 
@@ -47,7 +41,7 @@ table {
     color: #9CA3B1 !important;
     text-align: center;
     background-color: transparent;
-    border-bottom: 1px solid #535E77;
+    /* border-bottom: 1px solid #535E77; */
   }
 
   .descrepencies-wrapper thead th:first-child {
@@ -91,4 +85,38 @@ table {
 
   .descrepencies-wrapper .pagination-to-move select option {
     background-color: #535E77
+  }
+  
+  .descrepencies-wrapper .report-heading {
+    font-size: 24px;
+  }
+
+  .descrepencies-wrapper .export-csv button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    font-weight: 700;
+    background-color: #fff;
+    color: #283655 ;
+  }
+
+  .descrepencies-wrapper input.search-box {
+    padding-left: 38px;
+    border: 1px solid #BCC1CA;
+    border-radius: 3px;
+  }
+
+  .descrepencies-wrapper input.search-box + svg {
+    position: absolute;
+    left: 12px;
+    top: 10px;
+  }
+
+  /* .descrepencies-wrapper table tr td {
+    background-color: rgb(28 38 60 / 75%)
+  } */
+
+  .descrepencies-wrapper table tr.desc-child td {
+    background-color: #283655
   }

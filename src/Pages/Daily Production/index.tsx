@@ -8,6 +8,49 @@ import BarHeader from "./BarHeader";
 import "./style.css";
 
 const DailyProductionDashboard = () => {
+  const diggerBarData = {
+    labels: [
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+    ],
+    datasets: [
+      {
+        label: "Plan",
+        data: [23, 21, 15, 18, 20, 21, 23, 15, 20, 13, 5, 3],
+        backgroundColor: "#9CA3B1",
+        barPercentage: 1,
+        categoryPercentage: 1,
+        barThickness: 22,
+        borderRadius: {
+          topLeft: 3,
+          topRight: 3,
+        },
+      },
+      {
+        label: "Actual",
+        data: [21, 18, 14, 20, 19, 22, 19, 13, 18, 9, 3, 3],
+        backgroundColor: "#535E77",
+        barPercentage: 1,
+        categoryPercentage: 1,
+        barThickness: 22,
+        borderRadius: {
+          topLeft: 3,
+          topRight: 3,
+        },
+      },
+    ],
+  };
+
   const barData = {
     labels: [
       "DT01",
@@ -74,6 +117,12 @@ const DailyProductionDashboard = () => {
         grid: {
           display: false,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
       y: {
         grid: {
@@ -81,29 +130,35 @@ const DailyProductionDashboard = () => {
           color: "#9CA3B1",
           lineWidth: 0.2,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
     },
   };
 
   const textColor: TextColor[] = [
-    { text: "Plan", color: "#1890FF" },
-    { text: "Actual", color: "#0050B3" },
+    { text: "Plan", color: "#9CA3B1" },
+    { text: "Actual", color: "#535E77" },
   ];
 
   const lineData = {
     labels: [
-      "DT01",
-      "DT02",
-      "DT03",
-      "DT04",
-      "DT05",
-      "DT06",
-      "DT07",
-      "DT08",
-      "DT09",
-      "DT10",
-      "DT11",
-      "DT12",
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
     ],
     datasets: [
       {
@@ -144,6 +199,12 @@ const DailyProductionDashboard = () => {
           color: "#9CA3B1",
           lineWidth: 0.2,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
       y: {
         grid: {
@@ -151,6 +212,12 @@ const DailyProductionDashboard = () => {
           color: "#9CA3B1",
           lineWidth: 0.2,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
     },
   };
@@ -183,8 +250,8 @@ const DailyProductionDashboard = () => {
         <h1 style={{ textAlign: "left"}}>Daily Mining Production Snapshot</h1>
         <TripProgressBar
           completed={200}
-          planned={140}
-          forecast={900}
+          planned={400}
+          forecast={380}
           total={1000}
           type={"Production"}
           subHeader={`${200} of ${700} completed`}
@@ -192,10 +259,10 @@ const DailyProductionDashboard = () => {
           widthVal='95%'
         />
         <TripProgressBar
-          completed={200}
-          planned={140}
-          total={2000}
-          forecast={200}
+          completed={83000}
+          planned={80000}
+          total={200000}
+          forecast={83000}
           subHeader={`${200} of ${700} completed`}
           type={"Production"}
           header={"Overall Tonnes Target (Planned vs. Actual vs. Forecast)"}
@@ -207,7 +274,7 @@ const DailyProductionDashboard = () => {
           <div style={{ marginBottom: "5%" }}>
             <BarHeader image={pc1250} title={'Diggers'} total={3} />
             <BarGraph
-              data={barData}
+              data={diggerBarData}
               options={barOptions}
               textColor={textColor}
               widthVal={'100%'}
@@ -225,7 +292,7 @@ const DailyProductionDashboard = () => {
             />
           </div>
           <div style={{ marginBottom: "5%" }}>
-            <TripProgressBar
+            {/* <TripProgressBar
               completed={120}
               planned={650}
               total={1200}
@@ -235,7 +302,10 @@ const DailyProductionDashboard = () => {
               backgroundCol={"#24314D"}
               widthVal={'100%'}
               subType="Production"
-            />
+            /> */}
+            <div className="bar-header-container light-box">
+              <h2>Pit Extraction by Hour (Plan vs Actual)</h2>
+            </div>
             <LineGraph
               data={lineData}
               widthVal={'100%'}
@@ -245,7 +315,7 @@ const DailyProductionDashboard = () => {
             />
           </div>
           <div style={{ marginBottom: "5%" }}>
-            <TripProgressBar
+            {/* <TripProgressBar
               completed={420}
               planned={300}
               total={1000}
@@ -255,14 +325,14 @@ const DailyProductionDashboard = () => {
               backgroundCol={"#24314D"}
               widthVal={'100%'}
               subType="Production"
-            />
-            <LineGraph
+            /> */}
+            {/* <LineGraph
               data={lineData}
               options={lineOptions}
               widthVal={'100%'}
               textColor={textColor2}
               backgroundCol={"#24314D"}
-            />
+            /> */}
           </div>
         </div>
         <div className="pie prod light-box">
@@ -270,17 +340,17 @@ const DailyProductionDashboard = () => {
             Truck and Digger Target Plan
           </h2>
           <PieChart
-            title="Operational Delays"
+            title="Digger Operational Delays"
             data={operationalDelaysData}
             legendsFirst={true}
           />
           <PieChart
-            title="Truck Idling"
+            title="Truck Operational Delays"
             data={operationalDelaysData}
-            showLegend={false}
+            showLegend={true}
           />
           <PieChart
-            title="Truck Idling"
+            title="Digger Idling"
             data={operationalDelaysData}
             showLegend={false}
           />

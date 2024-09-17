@@ -35,14 +35,10 @@ axios.interceptors.response.use(
       response.data = await response.data.text();
       response.data = JSON.parse(response.data);
     }
-    console.log("response.status >> ", response.status);
-    console.log("response >> ", response);
     return response.data ? response.data : response;
   },
   async (error) => {
     const { config, response } = error;
-    console.log("error >> ", error);
-    console.log("response >> ", response);
     if (response && response.status === 401) {
     }
 

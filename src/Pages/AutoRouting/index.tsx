@@ -34,8 +34,8 @@ const AutoRouting = () => {
 
     const mapContainer = useRef(null);
     const mapRef = useRef<any>(null);
-    const [lng, setLng] = useState(120.44463458272295,);
-    const [lat, setLat] = useState(-29.146790943732764);
+    const [lng, setLng] = useState(120.44871814239025);
+    const [lat, setLat] = useState(-29.1576602184213);
     const [drawing, setDrawing] = useState<boolean>(false);
     const [coordinates, setCoordinates] = useState<number[][]>([]);
     const [allCoordinates, setAllCoordinates] = useState<number[][][]>([]);
@@ -274,7 +274,7 @@ const AutoRouting = () => {
         });
 
         if (nearestFeature) {
-            return Math.round(parseFloat(nearestFeature.properties.height + 420) * 100) / 100; // Adjust property name if different
+            return Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100; // Adjust property name if different
         } else {
             return Math.round((parseFloat(mapRef.current.queryTerrainElevation(point))* 100) / 100);
         }
@@ -1468,7 +1468,7 @@ const AutoRouting = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Auto Routing" />
+                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Auto Routing" />
                     <Row>
                         <Col md="12" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                             <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 230px)', width: '80%' }} >

@@ -1,0 +1,95 @@
+.shift-plan-box select,
+.shift-plan-box .shift-value,
+.shift-plan-box .ant-tag {
+    background-color: #283655;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 25px;
+    border: none;
+    appearance: none;
+    width: 100%;
+}
+
+.shift-plan-box select {
+    background-color: rgb(247, 179, 26)
+}
+
+.shift-plan-box select option {
+    background-color: #283655;
+}
+
+.shift-plan-box select option.select-alert  {
+    color: rgb(247, 179, 26);
+}
+
+.shift-plan-box select.select-danger {
+    background-color: #CF1322;
+}
+
+.shift-plan-box select option.select-danger {
+    color: #CF1322;
+}
+
+.shift-plan-box .select-icon {
+    position: relative;
+}
+
+.shift-plan-box .select-icon::before {
+  content: " ";
+  position: absolute;
+  top: 60%;
+  left: 90%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.equipment-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 75%;
+}
+
+.dispatch-scroll ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+}
+
+.dispatch-scroll ::-webkit-scrollbar-track {
+    background: white;
+    border-radius: 50px;
+}
+
+.dispatch-scroll ::-webkit-scrollbar-thumb {
+    background: #535e77;
+    border-radius: 50px;
+}
+
+.dispatch-scroll .equipment-cards,
+.dispatch-scroll .cards-operator {
+    height: calc(100vh - 380px);
+    overflow: auto;
+}
+
+
+.equipment-cards .status-active {
+    background-color: #d6fdc5;
+    width: fit-content;
+    padding: 2px 8px;
+    color: #389E0D;
+}
+
+.equipment-cards-bg {
+    background-color: #E0E0E0
+}
+
+body[data-layout-mode="dark"] .equipment-cards-bg {
+    background-color: #535E77
+}

@@ -83,7 +83,7 @@ const Sidebar = ({ setDraggedEvent }) => {
       />
       <SidebarItem
         type="resourceLabor"
-        title="Resource labor Allocation"
+        title="Technicians"
         items={resourceLaborAllocation}
         setDraggedEvent={setDraggedEvent}
       />

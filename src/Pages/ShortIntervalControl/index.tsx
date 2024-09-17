@@ -67,7 +67,7 @@ function DropTarget({ id, children }) {
 }
 
 const ShortIntervalControl = () => {
-    document.title = "Dispatch | FMS Live";
+    document.title = "SIC | FMS Live";
 
     const dispatch: any = useDispatch();
 
@@ -465,7 +465,7 @@ const ShortIntervalControl = () => {
         < React.Fragment >
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumb breadcrumbItem="Short Interval Control" title="Operations" />
+                    <Breadcrumb breadcrumbItem="Short Interval Control" title="Mine Dynamics" />
                     <Row className='mb-3'>
                         <Col className='d-flex flex-row-reverse'>
                             <Space>

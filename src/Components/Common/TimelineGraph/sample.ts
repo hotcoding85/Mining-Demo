@@ -33,7 +33,6 @@ export function generateTasks(group: number): DataItem[] {
 
   let tasksCount = 0;
   while (current < now && tasksCount < 100) { 
-    console.log(`Inside while loop for group: ${group}, Current: ${current}, Now: ${now}`);
     
     const standbyDuration = getRandomInt(2, 15);
 

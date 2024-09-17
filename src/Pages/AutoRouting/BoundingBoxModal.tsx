@@ -17,10 +17,6 @@ const BoundingBoxModal: React.FC<BoundingBoxModalProps> = ({ isVisible, handleOk
 
     const applyBoundingBox = () => {
         // Handle Apply Bounding Box action
-        console.log("Min Longitude:", minLng);
-        console.log("Min Latitude:", minLat);
-        console.log("Max Longitude:", maxLng);
-        console.log("Max Latitude:", maxLat);
         handleOk(minLng, minLat, maxLng, maxLat);
     };
 

@@ -14,57 +14,104 @@ import { Progress, Divider, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 
 interface AssignTruckItemProps {
-  diggerId: string;
-  sourceId: number;
-  assignedTrucks: Truck[];
-  updateReadyTrucks: (updatedTask: Truck) => void;
-  removeTruckFromAssigned?: (removedTruck: Truck) => void;
-  directionDispalyName: "inline" | "wrap";
+    diggerId : string;
+    sourceId: number;
+    assignedTrucks: Truck[];
+    updateReadyTrucks: (updatedTask: Truck) => void;
+    removeTruckFromAssigned : (removedTruck: Truck) => void;
+    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
+    directionDispalyName : "inline" | "wrap";
 }
 
-const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
-  diggerId,
-  sourceId,
-  assignedTrucks,
-  updateReadyTrucks,
-  removeTruckFromAssigned,
-  directionDispalyName,
+const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
+    diggerId,
+    sourceId,
+    assignedTrucks,
+    updateReadyTrucks,
+    removeTruckFromAssigned,
+    assignTruckToFleet,
+    directionDispalyName
 }) => {
-  const [isShowMore, setIsShowMore] = useState<boolean>(true);
+    const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
-  const onShowMoreOrLess = () => {
-    setIsShowMore(!isShowMore);
-  };
-
-  const items: MenuProps["items"] = [
-    {
-      key: "1",
-      label: "Return to GO-Line",
-    },
-    {
-      key: "2",
-      label: "Re-assign to Fleet 2",
-    },
-    {
-      key: "3",
-      label: "Re-assign to Fleet 3",
-    },
-  ];
-
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    if (e.key == "1" && truckForAssign && removeTruckFromAssigned) {
-      removeTruckFromAssigned(truckForAssign);
+    const onShowMoreOrLess = () => {
+        setIsShowMore(!isShowMore);
+    };
+    let items : MenuProps['items'] = [];
+    switch(diggerId) {
+        case 'Digger1' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger2',
+                    label : 'Re-assign to Fleet 2'
+                },
+                {
+                    key: 'Digger3',
+                    label : 'Re-assign to Fleet 3'
+                }
+            ];
+            break;
+        }
+        case 'Digger2' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger1',
+                    label : 'Re-assign to Fleet 1'
+                },
+                {
+                    key: 'Digger3',
+                    label : 'Re-assign to Fleet 3'
+                }
+            ];
+            break;
+        }
+        case 'Digger3' : {
+            items = [
+                {
+                    key: 'Return',
+                    label : 'Return to GO-Line'
+                },
+                {
+                    key: 'Digger1',
+                    label : 'Re-assign to Fleet 1'
+                },
+                {
+                    key: 'Digger2',
+                    label : 'Re-assign to Fleet 2'
+                }
+            ];
+            break;
+        }
     }
-  };
+    
+    const handleMenuClick: MenuProps['onClick'] = (e) => {
+        if(truckForAssign) {
+            if(e.key == 'Return') {
+                removeTruckFromAssigned(truckForAssign);
+            }
+            else {
+                assignTruckToFleet(truckForAssign, e.key);
+            }
+        }
+    };
+    
+    const menu = {
+        items,
+        onClick: handleMenuClick,
+    };
 
-  const menu = {
-    items,
-    onClick: handleMenuClick,
-  };
-
-  const truckForAssign = assignedTrucks.find(
-    (truck) => truck.assignId === sourceId && truck.diggerId === diggerId
-  );
+    const truckForAssign = assignedTrucks.find(
+        (truck) =>
+          truck.assignId === sourceId && truck.diggerId === diggerId
+    );
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "READYTRUCK",

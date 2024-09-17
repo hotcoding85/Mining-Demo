@@ -10,7 +10,7 @@ const OreDumpLocationItem : React.FC<OreDumpLocationItemProps> = ({
     dumpLocation
 }) => {
     const [{ isDragging }, drag] = useDrag({
-        type: 'OREDUMP',
+        type: 'DUMPLOCATION',
         item: { ...dumpLocation },
         collect: (monitor) => ({
           isDragging: monitor.isDragging(),

@@ -200,6 +200,13 @@ const Materials = (props: any) => {
         accessorKey: "name",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: (cellProps: any) => {
+          return(
+            <div>
+              {cellProps.row.original.name}
+            </div>
+          )
+        }
       },
       {
         header: "Category",
@@ -208,7 +215,7 @@ const Materials = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           return (
-            <div className="badge badge-soft-primary font-size-11 m-1">
+            <div>
               {cellProps.row.original.category}
             </div>
           );
@@ -221,7 +228,7 @@ const Materials = (props: any) => {
         enableSorting: true,
         cell: (cellProps: any) => {
           const tonnes = cellProps.row.original.grade as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(tonnes)}</div>;
+          return <div className="text-left">{round2Two(tonnes)}</div>;
         },
       },
       {

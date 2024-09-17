@@ -1,7 +1,7 @@
-.task-list {
+.preshift-list {
   width: 100%;
   background-color: #fff;
-  border: 1px solid #ddd;
+  border: 1px solid #E0E0E0;
 }
 
 .task-wrapper {
@@ -10,6 +10,8 @@
 
 .equip-lists {
   gap: 16px 12px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .equip-lists .task-chips {
@@ -19,10 +21,15 @@
   background-color: #283655;
   border-radius: 20px;
   padding: 4px 8px 4px 8px !important;
-  min-width: 134px;
+  min-width: 40px;
   color: #fff;
   font-weight: 600;
   text-align: center;
+  
+}
+
+.equip-list-grid {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .equip-lists .task-chips:hover {
@@ -149,6 +156,12 @@
 [data-layout-mode="dark"] .sub-title {
   color: #9CA3B1;
 }
+
+[data-layout-mode="dark"] .preshift-list {
+  width: 100%;
+  background-color: #283655;
+  border: 1px solid #283655;
+} 
 
 .task-list-title {
   font-size: 16px;

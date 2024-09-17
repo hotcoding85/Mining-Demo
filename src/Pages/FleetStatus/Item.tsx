@@ -80,8 +80,6 @@ const Item = (data: any) => {
     return info ? info.hours : "00:00";
   };
 
-  console.log(data.data.model)
-
   const statusColor = "#F7B31A";
   return (
     <React.Fragment>
@@ -125,8 +123,6 @@ const Item = (data: any) => {
             <img src={getImage(data.data.model)} width={'100px'} />
           </div>
         </div>
-
-
 
         <div className="d-flex justify-content-between gap-2 text-muted" style={{ padding: '0px 16px', marginTop: '8px' }}>
           {stateConfig.map((config) => {

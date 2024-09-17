@@ -174,6 +174,20 @@ body[data-layout-mode="light"] {
     height: calc(100% - 134px);
     }
   }
+
+  .shift-3 {
+    &::before {
+    top: 29px;
+    height: calc(100% - 95px);
+    }
+  }
+}
+
+.shift-3 {
+  &::before {
+  top: 29px;
+  height: calc(100% - 95px);
+  }
 }
 
 .schedule-filter {
@@ -227,9 +241,41 @@ body[data-layout-mode="light"] {
 }
 
 .side-scroll {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 134px);
   overflow: auto;
   margin: -24px -24px 0 0 !important;
+}
+
+.modal-lists {
+  .ant-modal-content,
+  .ant-modal-header {
+    .ant-modal-body {
+      min-height: 75px;
+      padding: 15px 0;
+    }
+  }
+}
+
+.pre-shift-main {
+  .data-section {
+    .data-assign-area {
+      height: calc(100vh - 250px);
+      overflow: hidden auto;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 50px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #E0E0E0;
+    border-radius: 50px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #535e77;
+    border-radius: 50px;
+  }
 }
 
 [data-layout-mode="dark"] {
@@ -309,10 +355,60 @@ body[data-layout-mode="light"] {
     }
     button {
       color: #283655;
-      background-color: #fff;
+      background-color: #fff;equip-lists .task-chips 
       &:hover {
         color: #283655 !important;
         background-color: #fff !important;
+      }
+    }
+  }
+  .modal-lists {
+    .ant-modal-content,
+    .ant-modal-header {
+      color: #fff;
+      background-color: #24314D;
+      .ant-modal-title ,
+      .ant-modal-close-x{
+        color: #fff;
+      }
+      .ant-btn {
+        font-weight: 700;
+        &.ant-btn-default {
+          color: #283655;
+        }
+        &.ant-btn-primary {
+          color: #fff;
+          background-color: #434F6B;
+        }
+      }
+    }
+  }
+  .pre-shift-main {
+    ::-webkit-scrollbar-track {
+      background-color: #535e77;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffffff;
+    }
+  }
+}
+.modal-lists {
+  .ant-modal-content,
+  .ant-modal-header {
+    color: #fff;
+    background-color: #24314D;
+    .ant-modal-title ,
+    .ant-modal-close-x{
+      color: #fff;
+    }
+    .ant-btn {
+      font-weight: 700;
+      &.ant-btn-default {
+        color: #283655;
+      }
+      &.ant-btn-primary {
+        color: #fff;
+        background-color: #434F6B;
       }
     }
   }

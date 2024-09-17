@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DataSet, Timeline as VisTimeline, DataGroup, DataItem } from "vis-timeline/standalone";
 import "vis-timeline/styles/vis-timeline-graph2d.min.css";
+import "./index.css"
 
 interface TimelineGraphProps {
   groupsData: DataGroup[];
@@ -43,8 +44,6 @@ const TimelineGraph: React.FC<TimelineGraphProps> = ({ groupsData, tasksData, se
     
     const end = new Date(Math.max(start.getTime(), now.getTime())); 
   
-    console.log(`Setting timeline window: Start ${start}, End ${end}, Now ${now}`); 
-
     if (timelineInstance.current && timelineInitialized) {
       timelineInstance.current.setWindow(start, end);
       timelineInstance.current.redraw(); 

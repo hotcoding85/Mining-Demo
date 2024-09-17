@@ -5,15 +5,16 @@ import AssignLocationItem from "./AssignLocationItem";
 import { pc2000 } from "assets/images/equipment";
 import { Row, Col } from "reactstrap";
 import { Select, Progress } from "antd";
-import { ActiveBenchData, DumpLocation, Truck } from './interfaces/type';
+import { ActiveBenchData, DiggerData, DumpLocation, Truck } from './interfaces/type';
 import AssignBoard from "./AssignBoard";
 import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
-    index : number;
+    digger: DiggerData;
     assignedTrucks : Truck[];
     updateReadyTrucks : (updatedTruck: Truck) => void;
     removeTruckFromAssigned : (removedTruck: Truck) => void;
+    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
     dumpLocations : DumpLocation[];
     addDumpLocation : (newDumpLocation: DumpLocation) => void;
     assignedBenches : ActiveBenchData[];
@@ -22,10 +23,11 @@ interface MainCardProps {
 }  
 
 const MainCard : React.FC<MainCardProps> = ({
-    index,
+    digger,
     assignedTrucks,
     updateReadyTrucks,
     removeTruckFromAssigned,
+    assignTruckToFleet,
     dumpLocations,
     addDumpLocation,
     assignedBenches,
@@ -49,7 +51,7 @@ const MainCard : React.FC<MainCardProps> = ({
                     <div className="vehicle-card-container">
                         <p className="vehicle-card-name">{diggerHeader}</p>
                         <VehicleCard
-                            index={index}
+                            index={digger.no}
                             id={'EX201'}
                             status={'Healthy'}
                             smu={getRandomFloat(23000, 38000, 1)}
@@ -65,10 +67,11 @@ const MainCard : React.FC<MainCardProps> = ({
                         </VehicleCard>
                     </div>
                     <AssignBoard 
-                        index={index}
+                        digger={digger}
                         assignedTrucks={assignedTrucks}
                         updateReadyTrucks={updateReadyTrucks}
                         removeTruckFromAssigned={removeTruckFromAssigned}
+                        assignTruckToFleet={assignTruckToFleet}
                         dumpLocations={dumpLocations}
                         addDumpLocation={addDumpLocation}
                     />

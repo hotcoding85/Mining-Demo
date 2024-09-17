@@ -1,0 +1,17 @@
+.threejs-view-body{
+    height: calc(100vh - 225px);
+    min-width: 300px;
+    padding: 0px !important;
+    border-radius: 25px !important;
+}
+.threejs-view-body > div{
+    border-radius: 10px;
+}
+.threejs-view-card-header {
+    border-radius: 10px !important;
+}
+.threejs-view{
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px;
+}
