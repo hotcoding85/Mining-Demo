@@ -138,6 +138,12 @@ const TruckingPerformance = () => {
         grid: {
           display: false,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
       y: {
         grid: {
@@ -145,6 +151,12 @@ const TruckingPerformance = () => {
           color: "#9CA3B1",
           lineWidth: 0.2,
         },
+        ticks: {
+          color:'#fff',
+          font: {
+            size:14
+          }
+        }
       },
     },
   };

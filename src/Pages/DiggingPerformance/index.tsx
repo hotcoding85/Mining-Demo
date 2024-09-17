@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import TruckingExecutionCard from './TruckingExecutionCard';
+import DiggingExecutionCard from './DiggingExecutionCard';
 import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -88,7 +88,7 @@ const DiggingPerformance = () => {
           {
             fleetList.map((item: any, key: number) => (
               <Row>
-                <TruckingExecutionCard
+                <DiggingExecutionCard
                   imgSrc={getImage(item.model)}
                   altText="excavator"
                   title={item.name}

@@ -264,3 +264,50 @@ export const getTarget = (vehicleType, capacity, targetType, date, shift) => {
 
   return target;
 }
+
+export const minutesToHhMm = (minutes: number): string => {
+  // Calculate hours and remaining minutes
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  // Format hours and minutes to always be two digits
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(mins).padStart(2, '0');
+
+  // Return the formatted string
+  return `${formattedHours}:${formattedMinutes}`;
+}
+
+export const divide12HoursRandomly = (numParts: number): string[] => {
+  const totalMinutes = 12 * 60; // 12 hours in minutes
+
+  // Generate random parts
+  const parts: number[] = [];
+  let remainingMinutes = totalMinutes;
+
+  // Generate (numParts - 1) random cuts
+  for (let i = 0; i < numParts - 1; i++) {
+    // Random value between 1 and remainingMinutes - (numParts - i - 1)
+    const max = remainingMinutes - (numParts - i - 1);
+    const part = Math.floor(Math.random() * (max - 1)) + 1;
+    parts.push(part);
+    remainingMinutes -= part;
+  }
+
+  // The last part takes the remaining minutes
+  parts.push(remainingMinutes);
+
+  // Shuffle the parts array to ensure randomness
+  for (let i = parts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [parts[i], parts[j]] = [parts[j], parts[i]]; // Swap elements
+  }
+
+  // Sort the parts in descending order
+  parts.sort((a, b) => b - a);
+
+  // Convert each part to hh:mm format
+  const formattedParts = parts.map(minutesToHhMm);
+
+  return formattedParts;
+}

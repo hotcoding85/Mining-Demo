@@ -203,7 +203,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "Active",
         time: "00:24:52",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: FLEET_TIME_STATE_COLOR.ACTIVE,
         bgColor: bgColor,
         textColor: textColor,
@@ -211,7 +211,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "StandBy",
         time: "00:24:52",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: FLEET_TIME_STATE_COLOR.STANDBY,
         bgColor: bgColor,
         textColor: textColor,
@@ -219,7 +219,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "Down",
         time: "00:24:52",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: FLEET_TIME_STATE_COLOR.DOWN,
         bgColor: bgColor,
         textColor: textColor,
@@ -227,7 +227,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "Idle",
         time: "00:24:52",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: isLight ? "#828282" : "#fff",
         bgColor: bgColor,
         textColor: textColor,
@@ -235,7 +235,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "Delay",
         time: "00:24:52",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: FLEET_TIME_STATE_COLOR.DELAY,
         bgColor: bgColor,
         textColor: textColor,
@@ -243,7 +243,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
       {
         state: "Utilization",
         time: "",
-        pctValue: getRandomInt(45,80),
+        pctValue: getRandomInt(45, 80),
         color: FLEET_TIME_STATE_COLOR.STANDBY,
         bgColor: bgColor,
         textColor: textColor,
@@ -260,13 +260,13 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
         <CardBody>
           <Row>
             <h2 className='text-start'>{title}</h2>
-            <Col lg={4}>
-              <div className="d-flex gap-1 flex-wrap justify-content-center">
+            <Col lg={12} xl={4}>
+              <div className="d-flex flex-wrap justify-content-center align-items-center h-100">
                 {truckStates.map(({ time, state, color, bgColor, textColor, pctValue }) => (
                   <MyPiechart
-                    width={200}
+                    width={180}
                     value={pctValue}
-                    height={200}
+                    height={400}
                     maxValue={100}
                     fillColor={color}
                     color={color}
@@ -278,12 +278,14 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
                 ))}
               </div>
             </Col>
-            <Col lg={8}>
-              <BarGraph
-                data={barData}
-                options={barOptions}
-                textColor={textColor}
-              />
+            <Col xl={8} lg={12}>
+              <div className="d-flex flex-wrap justify-content-center align-items-center">
+                <BarGraph
+                  data={barData}
+                  options={barOptions}
+                  textColor={textColor}
+                />
+              </div>
             </Col>
           </Row>
         </CardBody>
