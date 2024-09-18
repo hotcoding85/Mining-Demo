@@ -61,6 +61,8 @@ const WasteDumpManagement = () => {
   const [coordinates, setCoordinates] = useState<[number, number][]>([]);
   const [fence, setFence] = useState<any>(null);
 
+  console.log(fence);
+
   // modal state values
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isBoundboxModalOpen, setIsBoundboxModalOpen] =
@@ -91,10 +93,16 @@ const WasteDumpManagement = () => {
 
   const { geoFence, benches } = useSelector(geoFencesProperties);
 
-  const wasteDumpFences = useMemo(
-    () => geoFence.filter((fence) => fence.category === "WASTE_DUMP"),
-    [geoFence]
-  );
+  const wasteDumpFences = useMemo(() => {
+    const data: any[] = Array.from(geoFence);
+    data.sort((a: any, b: any) => b.updatedAt - a.updatedAt);
+    return data.filter((fence: any) => fence.category === "WASTE_DUMP");
+  }, [geoFence]);
+
+  const availalbeBenches = useMemo(() => {
+    const locationIds = geoFence.map((fence) => fence.locationId);
+    return benches.filter((location) => !locationIds.includes(location.id));
+  }, [geoFence, benches]);
 
   useEffect(() => {
     if (!mapRef) return;
@@ -378,7 +386,7 @@ const WasteDumpManagement = () => {
     return () => {
       setEventListners.cancel();
     };
-  }, [handleSetEventListners]);
+  }, [handleSetEventListners, wasteDumpFences]);
 
   const handleMapClick = useCallback(
     (e: mapboxgl.MapMouseEvent) => {
@@ -568,7 +576,7 @@ const WasteDumpManagement = () => {
         handleClearFences();
         handleCloseEditModal();
       }
-    } else {
+    } else if (coordinates.length > 2) {
       const success = await dispatch(
         addGeoFence({
           name,
@@ -721,7 +729,10 @@ const WasteDumpManagement = () => {
       <WasteEditModal
         isOpen={isModalOpen}
         onClose={handleCloseEditModal}
-        benches={benches}
+        benches={[
+          ...availalbeBenches,
+          ...(benches.filter((bench) => bench.id === fence?.locationId) || []),
+        ]}
         onSave={handleSaveWasteDump}
         wasteData={{
           name: fence?.name,
