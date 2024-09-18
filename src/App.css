@@ -249,7 +249,7 @@ body[data-layout-mode="light"] {
   text-align: center;
 }
 
-.main-content {
+/* .main-content {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -260,9 +260,7 @@ body[data-layout-mode="light"] {
   flex:1;
   overflow-y: auto;
 }
-
+*/
 .footer {
-  bottom: 0;
   display: none;
-  position: unset !important;
-}
+} 

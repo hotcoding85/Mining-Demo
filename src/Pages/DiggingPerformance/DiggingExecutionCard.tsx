@@ -10,6 +10,7 @@ import { createSelector } from 'reselect';
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { getRandomInt } from 'utils/random';
+import { divide12HoursRandomly, divide12HoursRandomlyFormatted, minutesToHhMm, round2One } from 'utils/common';
 
 
 const MyPiechart = ({ bgColor, textColor, fillColor, value, width, height, maxValue, state, time, ...props }) => {
@@ -195,6 +196,8 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
 
   const bgColor = isLight ? "#E0E0E0" : "#535E77";
 
+
+
   const truckStates = useMemo(() => {
 
     const textColor = isLight ? "#2A2A2A" : "#fff";
@@ -262,20 +265,27 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
             <h2 className='text-start'>{title}</h2>
             <Col lg={12} xl={4}>
               <div className="d-flex flex-wrap justify-content-center align-items-center h-100">
-                {truckStates.map(({ time, state, color, bgColor, textColor, pctValue }) => (
-                  <MyPiechart
-                    width={180}
-                    value={pctValue}
-                    height={400}
-                    maxValue={100}
-                    fillColor={color}
-                    color={color}
-                    bgColor={bgColor}
-                    state={state}
-                    time={time}
-                    textColor={textColor}
-                  />
-                ))}
+                {
+                  truckStates.map(({ time, state, color, bgColor, textColor, pctValue }, key) => {
+                    const data = divide12HoursRandomly(5);
+                    const formatted = minutesToHhMm(data[key])
+
+                    return (
+                      <MyPiechart
+                        width={180}
+                        value={ key != 5 ? round2One(data[key]/720 * 100) : getRandomInt(60, 90)}
+                        height={400}
+                        maxValue={100}
+                        fillColor={color}
+                        color={color}
+                        bgColor={bgColor}
+                        state={state}
+                        time={key != 5 ? formatted : ''}
+                        textColor={textColor}
+                      />
+                    )
+                  })
+                }
               </div>
             </Col>
             <Col xl={8} lg={12}>
