@@ -172,6 +172,11 @@ const SidebarContent = (props: any) => {
                     {props.t("Operator Report")}
                   </Link>
                 </li>
+                <li>
+                  <Link to="/fuel-dashboard">
+                    {props.t("Fuel Dashboard")}
+                  </Link>
+                </li>
                 {/* <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
                 </li> */}
@@ -282,6 +287,11 @@ const SidebarContent = (props: any) => {
                   <Link to="/geofences">{props.t("Geofences")}</Link>
                 </li>
                 <li>
+                  <Link to="/operations-fuel-scheduler">
+                    {props.t("Fuel Dispatcher")}
+                  </Link>
+                </li>
+                <li>
                   <Link to="/fuel-status">{props.t("Fuel Status")}</Link>
                 </li>
               </ul>
@@ -378,6 +388,11 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/maintenance-scheduler">
                     {props.t("Maintenance Scheduler")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/maintenance-fuel-scheduler">
+                    {props.t("Fuel Dispatcher")}
                   </Link>
                 </li>
                 <li>

@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './styles/ShiftSelector.css'
 import { ShiftType } from './interfaces/type';
+import { Segmented, Space } from 'antd';
 
 interface ShiftSelectorProps {
   shiftType: ShiftType;
@@ -11,10 +12,10 @@ const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }
   const [activeShift, setActiveShift] = useState<string>(shiftType);
 
   const shifts = [
-    { id: 'WORK_WEEK', label: 'WORK WEEK' },
-    { id: 'WORK_DAY', label: 'WORK DAY' },
-    { id: 'NIGHT_SHIFT', label: 'NIGHT SHIFT' },
-    { id: 'DAY_SHIFT', label: 'DAY SHIFT' },
+    { id: 'WORK_WEEK', label: 'WORK WEEK', value: 'WORK_WEEK' },
+    { id: 'WORK_DAY', label: 'WORK DAY', value: 'WORK_DAY' },
+    { id: 'NIGHT_SHIFT', label: 'NIGHT SHIFT', value: 'NIGHT_SHIFT' },
+    { id: 'DAY_SHIFT', label: 'DAY SHIFT', value: 'DAY_SHIFT' },
   ];
 
   const handleShiftClick = (shift: any) => {
@@ -24,7 +25,10 @@ const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }
 
   return (
     <div className="shift-selector">
-      {shifts.map((shift) => (
+      <Space>
+        <Segmented className="customSegmentLabel customSegmentBackground" size='large' value={activeShift} options={shifts} onChange={(e) => handleShiftClick(e)} />
+      </Space>
+      {/* {shifts.map((shift) => (
         <button
           key={shift.id}
           className={`shift-button ${activeShift === shift.id ? 'active' : ''}`}
@@ -32,7 +36,7 @@ const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }
         >
           {shift.label}
         </button>
-      ))}
+      ))} */}
     </div>
   );
 };

@@ -39,6 +39,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   total = 0,
   subType = "",
   widthVal = '100%',
+  useCustomLabels = true
 }) => {
   const plannedPercentage = `${(planned / total) * 100}%`;
   const forecastPercentage = `${(forecast / total) * 100 - calDifference()}%`;
@@ -59,13 +60,13 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
     return acctualPercent > 98
       ? acctualPercent
       : acctualPercent > 94
-      ? acctualPercent + 1
-      : acctualPercent + 2;
+        ? acctualPercent + 1
+        : acctualPercent + 2;
   };
 
   const percentage = calculatePercentage();
 
-  const dotPositions = Array.from({ length: customLabels.length }, (_, i) => `${(i * 100) / (customLabels.length - 1)}%`);
+  const dotPositions = useCustomLabels ? Array.from({ length: customLabels.length }, (_, i) => `${(i * 100) / (customLabels.length - 1)}%`) : Array.from({ length: 11 }, (_, i) => `${(i * 100) / 10}%`);
 
   function calDifference() {
     let forecastPercentage = (forecast / total) * 100;
@@ -113,7 +114,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
                 <Dot key={index} left={pos} style={{ marginLeft: index === 0 ? "20px" : index === dotPositions.length - 1 ? "-20px" : "20px" }} />
                 <span
                   className="labels ProductionText"
-                  style={{ position: "absolute", left: pos, top: "20px", marginLeft: index === 0 ? "10px" : index === dotPositions.length - 1 ? "-30px" : "0" }}
+                  style={{ position: "absolute", left: pos, top: "20px", marginLeft: index === 0 ? "1px" : index === dotPositions.length - 1 ? "-30px" : "0" }}
                 >
                   {customLabels[index]}
                 </span>

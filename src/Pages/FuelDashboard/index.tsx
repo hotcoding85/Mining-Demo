@@ -5,15 +5,16 @@ import { Segmented } from "antd";
 import { Calendar, momentLocalizer, View } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
-import { sampleEvents } from "./data/sampleData";
-import SchedulerTools from "./components/SchedulerTools";
-import SchedulerDashboard from "./components/SchedulerDashboard";
-import SchedulerSidebar from "./components/SchedulerSidebar";
-import "./styles/scheduler.css";
-import { DraggedEvent, Events } from "./interfaces/types";
+import "../FuelScheduler/styles/scheduler.css";
+import SchedulerTools from "Pages/FuelScheduler/components/SchedulerTools";
+import SchedulerDashboard from "Pages/FuelScheduler/components/SchedulerDashboard";
+import SchedulerSidebar from "Pages/FuelScheduler/components/SchedulerSidebar";
+import { sampleEvents } from "Pages/FuelScheduler/data/sampleData";
+import { Events, DraggedEvent } from "Pages/FuelScheduler/interfaces/types";
 
 moment.updateLocale("en-gb", {
   week: {
@@ -24,9 +25,9 @@ moment.updateLocale("en-gb", {
 const localizer = momentLocalizer(moment);
 const DragAndDropCalendar = withDragAndDrop(Calendar);
 
-const FuelScheduler = (props: any) => {
-  document.title = "Fuel Scheduler | FMS Live";
-  const [displayType, setDisplayType] = useState<string>("CALENDAR");
+const FuelDashboard = (props: any) => {
+  document.title = "Fuel Dashboard | FMS Live";
+  const [displayType, setDisplayType] = useState<string>("DASHBOARD");
   const [events, setEvents] = useState<Events[]>(sampleEvents);
   const [view, setView] = useState<View>("day");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -141,7 +142,7 @@ const FuelScheduler = (props: any) => {
     <React.Fragment>
       <div className="page-content">
         <Container className="fuel-scheduler" fluid>
-          <Breadcrumb title="Mine Control" breadcrumbItem="Fuel Scheduler" />
+          <Breadcrumb title="Dashboards" breadcrumbItem="Fuel Dashboard" />
           <Row className="mb-3">
             <Col className="d-flex flex-row-reverse">
               <Segmented
@@ -212,4 +213,4 @@ const FuelScheduler = (props: any) => {
   );
 };
 
-export default FuelScheduler;
+export default FuelDashboard;

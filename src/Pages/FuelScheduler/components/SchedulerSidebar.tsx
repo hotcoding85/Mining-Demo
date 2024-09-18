@@ -18,8 +18,8 @@ const SchedulerSidebarItem: React.FC<{
   );
 
   return (
-    <div className="task-wrapper d-flex flex-column gap-4 py-4 px-3 fuel-section">
-      <span className="task-list-title">{title}</span>
+    <div className="d-flex flex-column gap-4 py-4 px-3 fuel-section">
+      <span className="fuel-sidebar-title">{title}</span>
       <div className="equip-lists text-center d-grid align-items-center justify-content-start flex-wrap">
         {items.map((item, index) => (
           <div
@@ -45,8 +45,8 @@ const SchedulerSidebarItem: React.FC<{
 
 const SchedulerSidebar = ({ setDraggedEvent }) => {
   return (
-    <div className="task-list d-flex flex-column p-0 overflow-auto mt-0">
-      <div className="task-wrapper d-flex flex-column gap-2 py-4 px-3 fuel-section message-board">
+    <div className="fuel-scheduler-sidebar d-flex flex-column p-0 overflow-auto mt-0">
+      <div className="fuel-scheduler-wrapper d-flex flex-column gap-2 py-4 px-3 message-board">
         <MessageBoard />
       </div>
 

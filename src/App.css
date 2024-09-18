@@ -248,3 +248,21 @@ body[data-layout-mode="light"] {
 .text-center {
   text-align: center;
 }
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden !important;
+}
+
+.page-content {
+  flex:1;
+  overflow-y: auto;
+}
+
+.footer {
+  bottom: 0;
+  display: none;
+  position: unset !important;
+}

@@ -15,7 +15,14 @@ export interface Task {
   endTime: Date;
   resourceId: string;
   span: number; 
+  color: string;
+  progress: number;
+  rowIndex : number;
 }
 
+export interface resourceHeight {
+  resourceId : string;
+  height: number;
+}
   export type ShiftType = 'DAY_SHIFT' | 'NIGHT_SHIFT' | 'WORK_DAY' | 'WORK_WEEK';
   

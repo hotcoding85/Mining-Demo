@@ -1,29 +1,26 @@
 .task-list {
-  margin-top: 20px;
   padding: 10px;
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
     display: flex;
     flex-direction: column;
   }
   .task-list-title {
     text-align: center;
     font-size: 20px;
-    color: #333;
     padding: 10px;
   }
   .task-list-item {
     padding: 10px;
     margin-bottom: 10px;
     background-color: #fff;
-    border: 1px solid #ddd;
     color: #333;
     cursor: pointer;
+    border-radius: 8px;
   }
     .list-item-span {
         margin: 0;
         padding: 0;
         font-size: 13px;
+        color: white;
     }
 
     .bold {

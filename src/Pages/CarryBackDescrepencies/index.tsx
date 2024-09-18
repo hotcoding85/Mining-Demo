@@ -156,8 +156,8 @@ const CarryBackDescrepencies = (props: any) => {
                 style: { cursor: "pointer" },
               }}
             >
+              <span className="me-2">{row.original.model}</span>
               {row.getCanExpand() ? `${row.getIsExpanded() ? "▼" : "▶"}` : ""}
-              <span className="ms-2">{row.original.model}</span>
             </button>
           );
         },
@@ -283,6 +283,27 @@ const CarryBackDescrepencies = (props: any) => {
         <Container fluid>
           <Breadcrumb title="Dynamic Dispatch" breadcrumbItem="Carryback Descrepencies" />
           <Row>
+            <Col lg="12">
+              <Card className="descrepencies-wrapper">
+                <CardBody>
+                  <HierarchycalTable
+                    divClassName={"descrepencies-wrapper"}
+                    columns={columns}
+                    data={tableData || []}
+                    // total={total || 0}
+                    isGlobalFilter={true}
+                    handleOnAddClick={handleOnAdd}
+                    handleOnImportClick={handleOnImport}
+                    isPagination={false}
+                    isAddButton={true}
+                    buttonName="New Bench"
+                    isImportButton={true}
+                    SearchPlaceholder={"Quick Search"}
+                    importButtonName="Import Benches"
+                  />
+                </CardBody>
+              </Card>
+            </Col>
             <Col lg="6">
               <div>
                 <LineGraph
@@ -306,27 +327,6 @@ const CarryBackDescrepencies = (props: any) => {
                   backgroundCol={"#24314D"}
                 />
               </div>
-            </Col>
-            <Col lg="12">
-              <Card>
-                <CardBody>
-                  <HierarchycalTable
-                    divClassName={"descrepencies-wrapper"}
-                    columns={columns}
-                    data={tableData || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={true}
-                    buttonName="New Bench"
-                    isImportButton={true}
-                    SearchPlaceholder={"Quick Search"}
-                    importButtonName="Import Benches"
-                  />
-                </CardBody>
-              </Card>
             </Col>
           </Row>
         </Container>

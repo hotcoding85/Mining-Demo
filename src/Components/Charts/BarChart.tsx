@@ -44,15 +44,9 @@ export const BarGraph: React.FC<BarGraphProps> = ({
   widthVal,
   backgroundCol,
 }) => {
-  const containerStyle = {
-    width: widthVal || "100%",
-  };
 
   return (
-    <div
-      className="BarGraphContainer"
-      style={containerStyle}
-    >
+    <div className="BarGraphContainer">
       <div className="LegendContainer">
         {textColor.map((item, index) => (
           <div className="LegendItem" key={index}>

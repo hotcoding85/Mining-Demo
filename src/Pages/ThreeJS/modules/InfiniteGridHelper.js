@@ -16,8 +16,8 @@ import {
   
   export function InfiniteGridHelper(size1, size2, color, distance) {
       color = color || new Color("white");
-      size1 = size1 || 10;
-      size2 = size2 || 100;
+      size1 = size1 || 22;
+      size2 = size2 || 88;
   
       distance = distance || 8000;
   

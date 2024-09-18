@@ -106,7 +106,7 @@ const DailyProductionDashboard = () => {
         align: "end" as const,
         color: "#fff",
         font: {
-          size: 10,
+          size: 14,
           weight: "bold" as const,
         },
         formatter: (value: number) => value,
@@ -232,14 +232,7 @@ const DailyProductionDashboard = () => {
     datasets: [
       {
         data: [10, 10, 5, 15, 20, 40],
-        backgroundColor: [
-          "#9b59b6",
-          "#8e44ad",
-          "#3498db",
-          "#e74c3c",
-          "#f39c12",
-          "#2ecc71",
-        ],
+        backgroundColor: ["#D3ADF7", "#722ED1", "#B37FEB", "#531DAB", "#9254DE", "#391085"],
         borderWidth: 0,
       },
     ],
@@ -253,6 +246,7 @@ const DailyProductionDashboard = () => {
           planned={400}
           forecast={380}
           total={1000}
+          useCustomLabels={false}
           type={"Production"}
           subHeader={`${200} of ${700} completed`}
           header={"Overall Load Target (Planned vs. Actual vs. Forecast)"}
@@ -262,6 +256,7 @@ const DailyProductionDashboard = () => {
           completed={83000}
           planned={80000}
           total={200000}
+          useCustomLabels={false}
           forecast={83000}
           subHeader={`${200} of ${700} completed`}
           type={"Production"}
@@ -337,19 +332,19 @@ const DailyProductionDashboard = () => {
         </div>
         <div className="pie prod light-box">
           <h2 style={{ padding: "20px", marginBottom: "50px", textAlign:'center' }}>
-            Truck and Digger Target Plan
+            {/* Truck and Digger Target Plan */}
           </h2>
           <PieChart
             title="Digger Operational Delays"
             data={operationalDelaysData}
-            legendsFirst={true}
+            showLegend={true}
           />
           <PieChart
             title="Truck Operational Delays"
             data={operationalDelaysData}
             showLegend={true}
           />
-          <PieChart
+          {/* <PieChart
             title="Digger Idling"
             data={operationalDelaysData}
             showLegend={false}
@@ -358,7 +353,7 @@ const DailyProductionDashboard = () => {
             title="Truck Idling"
             data={operationalDelaysData}
             showLegend={false}
-          />
+          /> */}
         </div>
       </div>
     </div>
