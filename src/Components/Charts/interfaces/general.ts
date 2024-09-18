@@ -10,6 +10,7 @@ export interface TripProgressBarProps {
   total?: number;
   widthVal?:string;
   useCustomLabels?: boolean;
+  customLabels?: string[];
 }
 
 export interface Dataset {
@@ -63,3 +64,4 @@ export interface CustomLineChartData {
     pointRadius: number; 
   }[];
 }
+

@@ -64,6 +64,7 @@ const Benches = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
+  // TODO: remove hardcoded blockId - revisit the logic
   const parseBenchData = (doc) => {
     return {
       id: (doc && doc.id) || "",
@@ -71,6 +72,7 @@ const Benches = (props: any) => {
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
       status: (doc && doc.status) || "ACTIVE",
+      blockId: 'WS01'
     };
   };
 

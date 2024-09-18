@@ -3,7 +3,7 @@ import { Card, CardBody } from "reactstrap";
 import { round } from "lodash";
 import { getImage } from "utils/fleet";
 import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600, d375, t45 } from "assets/images/equipment";
-import { divide12HoursRandomly, minutesToHhMm } from "utils/common";
+import { divide12HoursRandomlyFormatted, minutesToHhMm } from "utils/common";
 import { getRandomInt } from "utils/random";
 
 const Item = (data: any) => {
@@ -84,6 +84,9 @@ const Item = (data: any) => {
 
   const statusColor = "#F7B31A";
   console.log(data.data)
+
+  
+  
   return (
     <React.Fragment>
       <Card className="status-card">
@@ -110,7 +113,7 @@ const Item = (data: any) => {
           <div style={{ flex: '1', }}>
             <div className="loadsView" style={{ display: 'flex', flex: '1', alignItems: 'baseline', justifyContent: 'center', alignContent: 'center', borderRadius: '6px', padding: '8px 16px', }}>
               <div>
-                <span style={{ fontSize: '2.0em', fontWeight: '500' }}>129<span style={{ fontSize: '0.6em' }}>{ data.data.category && data.data.category == 'DRILLER' ? '' : '/'+data.data.plannedLoads}</span></span>
+                <span style={{ fontSize: '2.0em', fontWeight: '500' }}>{}<span style={{ fontSize: '0.6em' }}>{ data.data.category && data.data.category == 'DRILLER' ? '' : '/'+data.data.plannedLoads}</span></span>
               </div>
               <span style={{ marginLeft: '6px', fontSize: '18px' }}>{ data.data.category && data.data.category == 'DRILLER' ? 'Holes' : 'Loads'}</span>
             </div>
@@ -129,7 +132,7 @@ const Item = (data: any) => {
 
         <div className="d-flex justify-content-between gap-2 text-muted" style={{ padding: '0px 16px', marginTop: '8px' }}>
           {stateConfig.map((config, key) => {
-            const hours = divide12HoursRandomly(stateConfig.length)
+            const hours = divide12HoursRandomlyFormatted(stateConfig.length)
             return (
               <div className='d-flex align-items-center'>
                 {/* <i className='bx bxs-circle font-size-12' style={{ color: config.color }}></i> */}

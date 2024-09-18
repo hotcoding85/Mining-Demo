@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import ReactDOMServer from "react-dom/server";
 // import module that is related with map
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
@@ -20,11 +21,20 @@ import { Button, Card, Col, Container, Row } from "reactstrap";
 import { Tooltip } from "antd";
 // redux
 import { createSelector } from "reselect";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addGeoFence,
+  getAllBenches,
+  getGeoFences,
+  removeGeoFence,
+  updateGeoFence,
+} from "slices/thunk";
 // import modals
 import BoundingBoxModal from "Pages/AutoRouting/BoundingBoxModal";
 // import styles
 import "./styles.scss";
+import FencePopContent from "./components/FencePopContent";
+import FenceSidebarItem from "./components/FenceSidebarItem";
 import ROMEditModal from "./components/ROMEditModal";
 
 // default wasted's polygon and line color - 'green'
@@ -33,18 +43,23 @@ const defaultColor = "#00ff00";
 const index = new RBush();
 
 const ROMManagement = () => {
-  document.title = "Waste Dump Management | FMS Live";
+  document.title = "ORM Management | FMS Live";
+
+  // dispatch
+  const dispatch: any = useDispatch();
 
   // ref values
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
   const routeMarkers = useRef<mapboxgl.Marker[]>([]);
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
 
   // state values
-  const [lng, setLng] = useState(120.44871814239025);
-  const [lat, setLat] = useState(-29.1576602184213);
+  const [lng, setLng] = useState(120.4618611696855);
+  const [lat, setLat] = useState(-29.16100851528526);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [coordinates, setCoordinates] = useState<[number, number][]>([]);
+  const [fence, setFence] = useState<any>(null);
 
   // modal state values
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -52,16 +67,46 @@ const ROMManagement = () => {
     useState<boolean>(false);
 
   const handleOpenEditModal = useCallback(() => setIsModalOpen(true), []);
-  const handleCloseEditModal = useCallback(() => setIsModalOpen(false), []);
+  const handleCloseEditModal = useCallback(() => {
+    setIsModalOpen(false);
+    setFence(null);
+  }, [setIsModalOpen, setFence]);
 
   const handleOpenBoundboxModal = useCallback(
     () => setIsBoundboxModalOpen(true),
-    []
+    [setIsBoundboxModalOpen]
   );
   const handleCloseBoundboxModal = useCallback(
     () => setIsBoundboxModalOpen(false),
-    []
+    [setIsBoundboxModalOpen]
   );
+
+  const geoFencesProperties = createSelector(
+    (state: any) => state,
+    (state) => ({
+      geoFence: state.GeoFence.data,
+      benches: state.Benches.data,
+    })
+  );
+
+  const { geoFence, benches } = useSelector(geoFencesProperties);
+
+  const oreDumpFences = useMemo(() => {
+    const data: any[] = Array.from(geoFence);
+    data.sort((a: any, b: any) => b.updatedAt - a.updatedAt);
+    return data.filter((fence: any) => fence.category === "ORE_DUMP");
+  }, [geoFence]);
+
+  const availalbeBenches = useMemo(() => {
+    const locationIds = geoFence.map((fence) => fence.locationId);
+    return benches.filter((location) => !locationIds.includes(location.id));
+  }, [geoFence, benches]);
+
+  useEffect(() => {
+    if (!mapRef) return;
+    dispatch(getGeoFences());
+    dispatch(getAllBenches(1, 100));
+  }, [dispatch]);
 
   const geojsonData = useRef<any>();
 
@@ -79,7 +124,7 @@ const ROMManagement = () => {
       container: mapContainer.current!,
       style: "mapbox://styles/mykytas/cm0o2duin00ga01pw7e6s5gj1", //'mapbox://styles/mapbox/standard-satellite',
       center: [lng, lat],
-      zoom: 18, // Adjust zoom level
+      zoom: 17, // Adjust zoom level
       interactive: true,
       pitch: 45,
       bearing: 150,
@@ -143,14 +188,6 @@ const ROMManagement = () => {
     };
   }, []);
 
-  const geoFencesProperties = createSelector(
-    (state: any) => state.GeoFence,
-    (GeoFence) => ({
-      geoFence: GeoFence.data,
-    })
-  );
-  const { geoFence } = useSelector(geoFencesProperties);
-
   const drawLine = useCallback((lineData) => {
     if (mapRef.current.getSource("line")) {
       (mapRef.current.getSource("line") as mapboxgl.GeoJSONSource).setData(
@@ -185,37 +222,36 @@ const ROMManagement = () => {
     }
   }, []);
 
-  const drawPolygon = useCallback((polygonData) => {
-    if (mapRef.current.getSource("polygon")) {
-      (mapRef.current.getSource("polygon") as mapboxgl.GeoJSONSource).setData(
-        polygonData
-      );
-    } else {
-      mapRef.current.addSource("polygon", {
-        type: "geojson",
-        data: polygonData,
-      });
+  const drawPolygon = useCallback(
+    (polygonData, polygonId = "polygon", color = defaultColor) => {
+      if (mapRef.current.getSource(polygonId)) {
+        (mapRef.current.getSource(polygonId) as mapboxgl.GeoJSONSource).setData(
+          polygonData
+        );
+      } else {
+        mapRef.current.addSource(polygonId, {
+          type: "geojson",
+          data: polygonData,
+        });
 
-      mapRef.current.addLayer({
-        id: "polygon-layer",
-        type: "fill",
-        source: "polygon",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "fill-color": defaultColor,
-          "fill-opacity": 0.5,
-        },
-      });
-    }
-  }, []);
+        mapRef.current.addLayer({
+          id: `${polygonId}-layer`,
+          type: "fill",
+          source: polygonId,
+          paint: {
+            "fill-color": color,
+            "fill-opacity": 0.5,
+          },
+        });
+      }
+    },
+    [defaultColor]
+  );
 
-  const removePolygonSourceAndLayer = useCallback(() => {
-    if (mapRef.current?.getSource("polygon")) {
-      mapRef.current.removeLayer("polygon-layer");
-      mapRef.current.removeSource("polygon");
+  const removePolygonSourceAndLayer = useCallback((polygonId) => {
+    if (mapRef.current?.getSource(polygonId)) {
+      mapRef.current.removeLayer(`${polygonId}-layer`);
+      mapRef.current.removeSource(polygonId);
     }
   }, []);
 
@@ -257,6 +293,99 @@ const ROMManagement = () => {
     return distance < threshold;
   };
 
+  const handleSetEventListners = useCallback(
+    (fence: any) => {
+      const fenceDBClick = () => {
+        setFence(fence);
+        handleOpenEditModal();
+      };
+
+      const fenceMouseOver = (e) => {
+        mapRef.current.getCanvas().style.cursor = "pointer";
+        const coordinates = e.lngLat;
+        const properties = e.features[0].properties;
+
+        // Remove existing popup if it exists
+        if (popupRef.current) {
+          popupRef.current.remove();
+        }
+
+        // Create and display a new popup
+
+        popupRef.current = new mapboxgl.Popup({ closeButton: false })
+          .setLngLat(coordinates)
+          .setHTML(
+            ReactDOMServer.renderToString(
+              <FencePopContent properties={properties} />
+            )
+          )
+          .addTo(mapRef.current);
+      };
+
+      const fenceMouseLeave = () => {
+        mapRef.current.getCanvas().style.cursor = "";
+        if (popupRef.current) {
+          popupRef.current.remove();
+          popupRef.current = null; // Clear the reference
+        }
+      };
+
+      const fenceLayerId = `${fence.id}-layer`;
+      if (drawing) {
+        mapRef.current.off("dblclick", fenceLayerId, fenceDBClick);
+        mapRef.current.off("mouseover", fenceLayerId, fenceMouseOver);
+        mapRef.current.off("mouseleave", fenceLayerId, fenceMouseLeave);
+      } else {
+        mapRef.current.on("dblclick", fenceLayerId, fenceDBClick);
+        mapRef.current.on("mouseover", fenceLayerId, fenceMouseOver);
+        mapRef.current.on("mouseleave", fenceLayerId, fenceMouseLeave);
+      }
+    },
+    [drawing]
+  );
+
+  useEffect(() => {
+    const drawGeofences = _.debounce((fences) => {
+      fences.forEach((fence) => {
+        if (!!mapRef.current) {
+          if (
+            (mapRef.current.getLayer(`${fence.id}-layer`) as mapboxgl.Layer)
+              ?.paint?.["fill-color"] !== fence.color
+          ) {
+            removePolygonSourceAndLayer(fence.id);
+          }
+          drawPolygon(fence.geoJson, fence.id, fence.color);
+        }
+      });
+    }, 1000);
+
+    if (oreDumpFences.length > 0 && !!mapRef.current) {
+      drawGeofences(oreDumpFences);
+    }
+
+    return () => {
+      drawGeofences.cancel();
+    };
+  }, [oreDumpFences]);
+
+  useEffect(() => {
+    const setEventListners = _.debounce((fences) => {
+      fences.forEach((fence) => {
+        if (!!mapRef.current) {
+          handleSetEventListners(fence);
+        }
+      });
+    }, 500);
+
+    if (oreDumpFences.length > 0 && mapRef.current) {
+      setEventListners(oreDumpFences);
+    }
+
+    return () => {
+      setEventListners.cancel();
+    };
+  }, [handleSetEventListners, oreDumpFences]);
+
   const handleMapClick = useCallback(
     (e: mapboxgl.MapMouseEvent) => {
       if (!drawing) return;
@@ -288,7 +417,7 @@ const ROMManagement = () => {
           drawMarker(lngLat);
         }
 
-        removePolygonSourceAndLayer();
+        removePolygonSourceAndLayer("polygon");
 
         if (updatedCoordinates.length > 1) {
           const lineData: any = {
@@ -321,47 +450,49 @@ const ROMManagement = () => {
         mapRef.current.off("click", handleMapClick);
       }
     };
-  }, [mapRef.current, handleMapClick]);
+  }, [handleMapClick]);
 
-  const handleMapDBClick = useCallback((e: mapboxgl.MapMouseEvent) => {
-    e.preventDefault(); // Prevent map zooming on double click
+  const handleMapDBClick = useCallback(
+    (e: mapboxgl.MapMouseEvent) => {
+      if (!drawing) return;
+      e.preventDefault(); // Prevent map zooming on double click
 
-    // Draw polygon based on current coordinates state
-    setCoordinates((prevCoords) => {
-      const updatedCoordinates = [...prevCoords, prevCoords[0]];
+      // Draw polygon based on current coordinates state
+      setCoordinates((prevCoords) => {
+        const updatedCoordinates = [...prevCoords, prevCoords[0]];
 
-      const polygonData: any = {
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "Polygon",
-          coordinates: [updatedCoordinates],
-        },
-      };
+        const polygonData: any = {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            coordinates: [updatedCoordinates],
+          },
+        };
 
-      removeLineSourceAndLayer();
+        removeLineSourceAndLayer();
 
-      if (mapRef.current) {
-        drawPolygon(polygonData);
-      }
+        if (mapRef.current) {
+          drawPolygon(polygonData);
+        }
 
-      return updatedCoordinates;
-    });
-  }, []);
+        return updatedCoordinates;
+      });
+    },
+    [drawing]
+  );
 
   useEffect(() => {
     if (mapRef.current) {
-      mapRef.current.on("dbclick", handleMapDBClick);
+      mapRef.current.on("dblclick", handleMapDBClick);
     }
 
     return () => {
       if (mapRef.current) {
-        mapRef.current.off("dbclick", handleMapDBClick);
+        mapRef.current.off("dblclick", handleMapDBClick);
       }
     };
-  }, [mapRef.current, handleMapDBClick]);
-
-  const handleSaveRoute = () => {};
+  }, [handleMapDBClick]);
 
   const handleUndo = useCallback(() => {
     if (!drawing) return;
@@ -390,7 +521,7 @@ const ROMManagement = () => {
         },
       };
 
-      removePolygonSourceAndLayer();
+      removePolygonSourceAndLayer("polygon");
 
       if (mapRef.current) {
         drawLine(routeData);
@@ -400,10 +531,10 @@ const ROMManagement = () => {
     });
   }, [drawing]);
 
-  const handleClearRoute = () => {
+  const handleClearFences = () => {
     setCoordinates([]);
     removeLineSourceAndLayer();
-    removePolygonSourceAndLayer();
+    removePolygonSourceAndLayer("polygon");
     _.map(routeMarkers.current, (_marker) => {
       _marker.remove();
     });
@@ -426,14 +557,57 @@ const ROMManagement = () => {
     handleCloseBoundboxModal();
   };
 
+  const handleSaveOreDump = async (bench: any, name: string, color: string) => {
+    if (fence) {
+      const success = await dispatch(
+        updateGeoFence(fence.id, {
+          name,
+          locationId: bench?.id,
+          color: color,
+        })
+      );
+      if (success) {
+        handleClearFences();
+        handleCloseEditModal();
+      }
+    } else if (coordinates.length > 2) {
+      const success = await dispatch(
+        addGeoFence({
+          name,
+          locationId: bench?.id,
+          geoJson: {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [[...coordinates]],
+            },
+          },
+          category: "ORE_DUMP",
+          color: color,
+        })
+      );
+      if (success) {
+        handleClearFences();
+        handleCloseEditModal();
+      }
+    }
+  };
+
+  const handleFenceClick = (fence: any) => {
+    setFence(fence);
+    handleOpenEditModal();
+  };
+
+  const handleRemoveFence = async (fence: any) => {
+    await dispatch(removeGeoFence(fence.id));
+    removePolygonSourceAndLayer(fence.id);
+  };
+
   return (
     <React.Fragment>
       <div className="page-content wasted-dump-content">
         <Container fluid>
-          <Breadcrumb
-            title="Mine Controle"
-            breadcrumbItem="Waste Dump Management"
-          />
+          <Breadcrumb title="Mine Controle" breadcrumbItem="ORM Management" />
           <Row>
             <Col
               lg="12"
@@ -481,7 +655,7 @@ const ROMManagement = () => {
                   <Tooltip title="Clear">
                     <button
                       title=""
-                      onClick={handleClearRoute}
+                      onClick={handleClearFences}
                       className="mapboxgl-ctrl-zoom-in"
                       type="button"
                     >
@@ -507,7 +681,7 @@ const ROMManagement = () => {
                     alignItems: "center",
                   }}
                 >
-                  ROM
+                  Ore Dump
                   <Button
                     onClick={() => {
                       setDrawing(!drawing);
@@ -528,7 +702,16 @@ const ROMManagement = () => {
                     overflow: "auto",
                     marginTop: "16px",
                   }}
-                ></div>
+                >
+                  {oreDumpFences &&
+                    _.map(oreDumpFences, (fenceData: any) => (
+                      <FenceSidebarItem
+                        fence={fenceData}
+                        onClick={handleFenceClick}
+                        onRemove={handleRemoveFence}
+                      />
+                    ))}
+                </div>
               </Card>
             </Col>
           </Row>
@@ -537,8 +720,15 @@ const ROMManagement = () => {
       <ROMEditModal
         isOpen={isModalOpen}
         onClose={handleCloseEditModal}
+        benches={[
+          ...availalbeBenches,
+          ...(benches.filter((bench) => bench.id === fence?.locationId) || []),
+        ]}
+        onSave={handleSaveOreDump}
         wasteData={{
-          color: defaultColor,
+          name: fence?.name,
+          color: fence?.color || defaultColor,
+          benchId: fence?.locationId,
         }}
       />
       <BoundingBoxModal

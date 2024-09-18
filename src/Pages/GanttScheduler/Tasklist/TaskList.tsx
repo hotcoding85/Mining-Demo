@@ -2,6 +2,7 @@ import React from 'react';
 import { useDrag } from 'react-dnd';
 import { Task } from '../interfaces/type';
 import '../styles/TaskList.css';
+import { hd1500 } from 'assets/images/equipment';
 
 interface TaskListProps {
   tasks: Task[];
@@ -28,9 +29,9 @@ const TaskListItem: React.FC<{ task: Task }> = ({ task }) => {
   });
 
   return (
-    <div ref={drag} className='task-list-item' style={{ opacity: isDragging ? 0.5 : 1 }}>
-        <p className='list-item-span bold'>{task.label}</p>
-        <p className='list-item-span'>{task.name}</p>
+    <div ref={drag} className='task-list-item' style={{ backgroundColor: task.color, opacity: isDragging ? 0.5 : 1 }}>
+      <p className='list-item-span bold'>{task.label}</p>
+      <p className='list-item-span'>{task.name}</p>
     </div>
   );
 };

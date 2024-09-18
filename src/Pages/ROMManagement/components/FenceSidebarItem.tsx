@@ -38,42 +38,6 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
     >
       <div style={{ flex: "1" }} onClick={() => onClick(fence)}>
         <div style={{ color: fence.color, display: "block" }}>{fence.name}</div>
-        {/* <div
-          style={{
-            fontSize: "12px",
-            display: "block",
-            color: isLight ? "black" : "white",
-          }}
-        >
-          Augt: {augt}
-        </div>
-        <div
-          style={{
-            fontSize: "12px",
-            display: "block",
-            color: isLight ? "black" : "white",
-          }}
-        >
-          Tonnes: {tonnes}
-        </div>
-        <div
-          style={{
-            fontSize: "12px",
-            display: "block",
-            color: isLight ? "black" : "white",
-          }}
-        >
-          Volume: {volume}
-        </div>
-        <div
-          style={{
-            fontSize: "12px",
-            display: "block",
-            color: isLight ? "black" : "white",
-          }}
-        >
-          Density: {density}
-        </div> */}
       </div>
       <div style={{ flex: "0.1", color: "#333" }}>
         <i className="bx bx-trash" onClick={() => onRemove(fence)}></i>

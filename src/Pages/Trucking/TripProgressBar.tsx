@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { TripProgressBarProps } from "../../Components/Charts/interfaces/general";
 import "./style.css";
@@ -26,7 +26,7 @@ const Dot = styled.div<{ left: string }>`
   top: 7px;
 `;
 
-const customLabels = ['Poor', 'Fair', 'Good', 'Excellent']; // Custom labels array
+
 
 export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   completed,
@@ -39,7 +39,7 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   total = 0,
   subType = "",
   widthVal = '100%',
-  useCustomLabels = true
+  customLabels = [], 
 }) => {
   const plannedPercentage = `${(planned / total) * 100}%`;
   const forecastPercentage = `${(forecast / total) * 100 - calDifference()}%`;
@@ -60,13 +60,15 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
     return acctualPercent > 98
       ? acctualPercent
       : acctualPercent > 94
-        ? acctualPercent + 1
-        : acctualPercent + 2;
+      ? acctualPercent + 1
+      : acctualPercent + 2;
   };
 
   const percentage = calculatePercentage();
 
-  const dotPositions = useCustomLabels ? Array.from({ length: customLabels.length }, (_, i) => `${(i * 100) / (customLabels.length - 1)}%`) : Array.from({ length: 11 }, (_, i) => `${(i * 100) / 10}%`);
+  const dotPositions = customLabels.length > 0
+    ? Array.from({ length: customLabels.length }, (_, i) => `${(i * 100) / (customLabels.length - 1)}%`)
+    : Array.from({ length: 11 }, (_, i) => `${(i * 100) / 10}%`);
 
   function calDifference() {
     let forecastPercentage = (forecast / total) * 100;
@@ -99,42 +101,107 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
   }
 
   return (
-    <div className={`light-box ProgressBarContainer ${type === "Production" ? "ProgressProduction" : ""}`} style={{ paddingBottom: "4%", width: widthVal }}>
+    <div
+      className={`light-box ProgressBarContainer ${
+        type === "Production" ? "ProgressProduction" : ""
+      }`}
+      style={{ paddingBottom: "4%", width: widthVal }}
+    >
       {type === "Trucking" && <div className="progress-header">{header}</div>}
-      {type === "Production" && <div className="progress-header header-production">{header}</div>}
+      {type === "Production" && (
+        <div className="progress-header header-production">{header}</div>
+      )}
       <div className="ProgressText">
-        {type === "Production" && <div className="" style={{ color: "#9CA3B1", fontWeight: "bold" }}>{subHeader}</div>}
+        {type === "Production" && (
+          <div
+            className=""
+            style={{ color: "#9CA3B1", fontWeight: "bold" }}
+          >
+            {subHeader}
+          </div>
+        )}
         {type === "Trucking" && <div className="">{subHeader}</div>}
       </div>
       <div className="ProgressBarOuter">
         {type === "Production" && (
           <div className="ProductionText">
             {dotPositions.map((pos, index) => (
-              <div className="" style={{ position: "relative" }}>
-                <Dot key={index} left={pos} style={{ marginLeft: index === 0 ? "20px" : index === dotPositions.length - 1 ? "-20px" : "20px" }} />
+              <div className="" style={{ position: "relative" }} key={index}>
+                <Dot
+                  left={pos}
+                  style={{
+                    marginLeft:
+                      index === 0
+                        ? "20px"
+                        : index === dotPositions.length - 1
+                        ? "-20px"
+                        : "20px",
+                  }}
+                />
                 <span
                   className="labels ProductionText"
-                  style={{ position: "absolute", left: pos, top: "20px", marginLeft: index === 0 ? "1px" : index === dotPositions.length - 1 ? "-30px" : "0" }}
+                  style={{
+                    position: "absolute",
+                    left: pos,
+                    top: "20px",
+                    marginLeft:
+                      index === 0
+                        ? "1px"
+                        : index === dotPositions.length - 1
+                        ? "-30px"
+                        : "0",
+                  }}
                 >
-                  {useCustomLabels ? customLabels[index] : formatNumber(Math.round((index * total) / 10))}
+                  {customLabels[index]}
                 </span>
               </div>
             ))}
           </div>
         )}
-        <ProgressBarInner width={`${percentage}%`} background={type === "Trucking" && subType === "Production" ? getBarColor() : type === "Production" ? getBarColor() : "#389e0d"}>
-          {type === "Trucking" && <span className="ProgressPercent">{Math.round(percentage)}%</span>}
+        <ProgressBarInner
+          width={`${percentage}%`}
+          background={
+            type === "Trucking" && subType === "Production"
+              ? getBarColor()
+              : type === "Production"
+              ? getBarColor()
+              : "#389e0d"
+          }
+        >
+          {type === "Trucking" && (
+            <span className="ProgressPercent">{Math.round(percentage)}%</span>
+          )}
         </ProgressBarInner>
-        {type === "Production" && <div className="TargetBubble" style={{ left: plannedPercentage }}>Target: {planned}</div>}
+        {type === "Production" && (
+          <div className="TargetBubble" style={{ left: plannedPercentage }}>
+            Target: {planned}
+          </div>
+        )}
       </div>
-      {type === "Trucking" && subType !== "Production" && <div className="ForecastBubble truck-prog">Forecast: {forecast}</div>}
+      {type === "Trucking" && subType !== "Production" && (
+        <div className="ForecastBubble truck-prog">
+          Forecast: {forecast}
+        </div>
+      )}
       {(type === "Production" || subType === "Production") && (
-        <div className="ForecastBubble prod-prog" style={{ background: getBarColor(), left: forecastPercentage, borderRadius: "5px", textWrap: "nowrap", top: subType === "Production" ? "48%" : undefined }} data-color={getBarColor()}>
+        <div
+          className="ForecastBubble prod-prog"
+          style={{
+            background: getBarColor(),
+            left: forecastPercentage,
+            borderRadius: "5px",
+            textWrap: "nowrap",
+            top: subType === "Production" ? "48%" : undefined,
+          }}
+          data-color={getBarColor()}
+        >
           Forecast: {forecast}
           <style>
             {`
               .ForecastBubble[data-color="${getBarColor()}"]::after {
-                border-color: ${getBarColor()} transparent transparent transparent;  left: 50%; right: 50%;
+                border-color: ${getBarColor()} transparent transparent transparent;
+                left: 50%;
+                right: 50%;
               }
             `}
           </style>
@@ -143,4 +210,3 @@ export const TripProgressBar: React.FC<TripProgressBarProps> = ({
     </div>
   );
 };
-
