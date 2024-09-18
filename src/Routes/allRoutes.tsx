@@ -152,8 +152,9 @@ const authProtectedRoutes = [
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/truck-load-optimisation", exact: true, component: <TruckLoadOptimisation /> },
   { path: "/digging-optimisation", exact: true, component: <DiggingOptimisation /> },
-  { path: "/fuel-dashboard", exact: true, component: <FuelDashboard /> },
-
+  { path: "/fuel-dashboard", exact: true, component: <FuelStatusDashboard /> },
+  { path: "/operations-fuel-scheduler", exact: true, component: <FuelScheduler /> },
+  { path: "/maintenance-fuel-scheduler", exact: true, component: <FuelScheduler /> },
 
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },

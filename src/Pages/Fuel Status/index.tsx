@@ -67,6 +67,12 @@ const FuelStatusDashboard: React.FC = () => {
     return Math.abs(diffMinutes);
   }
 
+  function getRandomHealthStatus() {
+      const position = getRandomInt(0, 2)
+      const status = ['Healthy', 'Scheduled', 'Critical']
+      return status[position]
+  }
+
   return (
     <div className="page-content">
       <div className="fuel-cards-container">
@@ -74,7 +80,7 @@ const FuelStatusDashboard: React.FC = () => {
           <FuelCard
             key={item.id}
             id={item.name}
-            status={"Healthy"}
+            status={getRandomHealthStatus()}
             smu={getRandomFloat(23000, 38000, 1)}
             fuelLevel={getRandomInt(20, 100)}
             fuelRate={getRandomFloat(40, 80, 1)}
