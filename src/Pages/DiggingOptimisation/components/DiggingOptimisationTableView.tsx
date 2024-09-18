@@ -146,7 +146,7 @@ const DiggingOptimisationTableView = () => {
       </Row>
       <Row>
         <Col lg="12" className="text-center">
-          <TableContainer columns={columns} data={tableData} />;
+          <TableContainer columns={columns} data={tableData} />
         </Col>
       </Row>
     </>
