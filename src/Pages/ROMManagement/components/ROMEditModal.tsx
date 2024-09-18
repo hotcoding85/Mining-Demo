@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Input } from "antd";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Select } from "antd";
+import { Bench } from "slices/benches/reducer";
+
+const { Option } = Select;
 
 const content: any = {
   top: "50%",
@@ -14,7 +18,8 @@ const content: any = {
 interface ROMEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave?: () => void;
+  onSave?: (bench: any, name: string, color: string) => void;
+  benches: any[];
   wasteData?: any;
 }
 
@@ -22,23 +27,21 @@ const ROMEditModal: React.FC<ROMEditModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  benches,
   wasteData,
 }) => {
-  const [newTitle, setNewTitle] = useState<string>("");
+  const [newName, setNewName] = useState<string>("");
   const [newColor, setNewColor] = useState<string>("");
+  const [selectedBenchId, setSelectedBenchId] = useState<any>();
 
   useEffect(() => {
-    if (wasteData?.color) {
-      setNewColor(wasteData.color);
-    }
+    setNewName(wasteData?.name || "");
+    setNewColor(wasteData.color);
+    setSelectedBenchId(wasteData?.benchId || null);
+  }, [wasteData, benches]);
 
-    if (wasteData?.name) {
-      setNewTitle(wasteData.name);
-    }
-  }, [wasteData]);
-
-  const handleNewTitleChange = (e) => {
-    setNewTitle(e.target.value);
+  const handleInputChange = (e) => {
+    setNewName(e.target.value);
   };
 
   const handleColorChange = (e) => {
@@ -46,34 +49,72 @@ const ROMEditModal: React.FC<ROMEditModalProps> = ({
   };
 
   const handleSave = () => {
-    console.log(newTitle, newColor);
+    if (newName && onSave) {
+      onSave(
+        benches.find((bench) => bench.id === selectedBenchId),
+        newName,
+        newColor
+      );
+    }
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      contentLabel="Edit ROM Title"
       style={{
         content: content,
       }}
     >
-      <ModalHeader tag="h4">Edit ROM</ModalHeader>
+      <ModalHeader tag="h4">
+        {wasteData?.benchId ? "Edit Ore Dump" : "Add Ore Dump"}
+      </ModalHeader>
       <ModalBody>
+        <label>Ore Dump Name:</label>
         <Input
           type="text"
-          value={newTitle}
-          placeholder="ROM Name"
-          onChange={handleNewTitleChange}
+          value={newName}
+          placeholder="Ore dump name"
+          onChange={handleInputChange}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-
+        <label>Associate bench:</label>
+        <Select
+          showSearch
+          style={{ width: "100%", marginBottom: "10px", height: "44px" }}
+          placeholder="Select a bench"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            option?.name?.toLowerCase().includes(input.toLowerCase())
+          }
+          filterSort={(optionA, optionB) =>
+            optionA?.name
+              ?.toLowerCase()
+              .localeCompare(optionB?.name?.toLowerCase())
+          }
+          value={selectedBenchId}
+          onChange={(option) => {
+            setSelectedBenchId(option);
+          }}
+        >
+          {benches?.map((option) => (
+            <Option key={option.value} value={option.id} name={option.name}>
+              {option.name} - {option.blockId}
+            </Option>
+          ))}
+        </Select>
+        <label>Ore dump color:</label>
         <Input
           type="color"
           value={newColor}
           placeholder="SpeedLimit"
           onChange={handleColorChange}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
+          style={{
+            width: "100%",
+            padding: "10px",
+            marginBottom: "10px",
+            height: "44px",
+          }}
         />
       </ModalBody>
       <ModalFooter>
