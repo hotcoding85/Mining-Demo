@@ -28,7 +28,7 @@ const TaskListItem: React.FC<{ task: Task }> = ({ task }) => {
   });
 
   return (
-    <div ref={drag} className='task-list-item' style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <div ref={drag} className='task-list-item' style={{ backgroundColor:task.color, opacity: isDragging ? 0.5 : 1 }}>
         <p className='list-item-span bold'>{task.label}</p>
         <p className='list-item-span'>{task.name}</p>
     </div>

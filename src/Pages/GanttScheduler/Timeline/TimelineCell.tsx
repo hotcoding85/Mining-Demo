@@ -217,6 +217,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseOver}
           style={{
+            backgroundColor:taskForSlot.color,
             width: elementWidth,
             height: '100%',
             position: 'absolute',

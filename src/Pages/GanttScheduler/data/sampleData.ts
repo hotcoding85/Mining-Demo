@@ -11,20 +11,13 @@ export const resources: Resource[] = [
   { id: '8', label: 'DZ001', progress: 38, firstName: 'John', lastName: 'Doe 3', status: 'Active' },
 ];
 
-export const sampleTasks: Task[] = [
-  { id: '1', name: 'STANDBY', label: 'EX01', startTime: new Date('2024-09-11T06:00:00'), endTime: new Date('2024-09-11T08:00:00'), resourceId: '1', span: 2 },
-  { id: '2', name: 'ACTIVE', label: 'EX01', startTime: new Date('2024-09-11T08:00:00'), endTime: new Date('2024-09-11T10:00:00'), resourceId: '1', span: 2 },
-  { id: '3', name: 'DELAY', label: 'EX01', startTime: new Date('2024-09-11T10:00:00'), endTime: new Date('2024-09-11T12:00:00'), resourceId: '1', span: 2 },
-  { id: '4', name: 'DOWN', label: 'EX01', startTime: new Date('2024-09-11T12:00:00'), endTime: new Date('2024-09-11T14:00:00'), resourceId: '1', span: 2 },
-  { id: '5', name: 'STANDBY', label: 'EX01', startTime: new Date('2024-09-11T14:00:00'), endTime: new Date('2024-09-11T18:00:00'), resourceId: '1', span: 4 },
-];
 
 export const sampleTaskLists: Task[] = [
-  { id: '1', name: 'HG01', label: 'EMU_440_HG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 30 * 60 * 1000), resourceId: '', span: 3 },
-  { id: '2', name: 'WS03', label: 'EMU_440_WS03', startTime: new Date(), endTime: new Date(new Date().getTime() + 15 * 60 * 1000), resourceId: '', span: 1 },
-  { id: '3', name: 'WASTE', label: 'EMU_440_HG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 60 * 60 * 1000), resourceId: '', span: 1 },
-  { id: '4', name: 'LG01', label: 'EMU_445_LG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 30 * 60 * 1000), resourceId: '', span: 1 },
-  { id: '5', name: 'WASTE', label: 'EMU_445_WASTE', startTime: new Date(), endTime: new Date(new Date().getTime() + 15 * 60 * 1000), resourceId: '', span: 1 },
-  { id: '6', name: 'LG02', label: 'EMU_450_LG02', startTime: new Date(), endTime: new Date(new Date().getTime() + 60 * 60 * 1000), resourceId: '', span: 2 },
+  { id: '1', name: 'HG01', label: 'EMU_440_HG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 30 * 60 * 1000), resourceId: '', span: 3, color: "#cb6247", progress : 31, rowIndex : 0 },
+  { id: '2', name: 'WS03', label: 'EMU_440_WS03', startTime: new Date(), endTime: new Date(new Date().getTime() + 15 * 60 * 1000), resourceId: '', span: 1, color: "#ff974c", progress : 50, rowIndex : 0},
+  { id: '3', name: 'WASTE', label: 'EMU_440_HG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 60 * 60 * 1000), resourceId: '', span: 1, color: "#3266ef", progress : 41, rowIndex : 0},
+  { id: '4', name: 'LG01', label: 'EMU_445_LG01', startTime: new Date(), endTime: new Date(new Date().getTime() + 30 * 60 * 1000), resourceId: '', span: 1, color: "#00ffbf", progress: 23, rowIndex : 0 },
+  { id: '5', name: 'WASTE', label: 'EMU_445_WASTE', startTime: new Date(), endTime: new Date(new Date().getTime() + 15 * 60 * 1000), resourceId: '', span: 1, color: "#ff00ff", progress: 67, rowIndex : 0 },
+  { id: '6', name: 'LG02', label: 'EMU_450_LG02', startTime: new Date(), endTime: new Date(new Date().getTime() + 60 * 60 * 1000), resourceId: '', span: 2, color: "#8784ff", progress : 92, rowIndex : 0},
 ];
 

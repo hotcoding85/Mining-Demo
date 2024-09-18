@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Resource, Task, ShiftType } from './interfaces/type';
+import { Resource, Task, ShiftType, resourceHeight } from './interfaces/type';
 import { calculateTimelineSlots, TimelineSlot } from 'utils/dateUtils';
-import TimelineCell from './Timeline/TimelineCell';
+import TimeLineRow from './Timeline/TimeLineRow';
 import './styles/TableComponent.css';
 import { wrap } from 'module';
 
@@ -13,6 +13,8 @@ interface TableComponentProps {
   shiftType: ShiftType;
   zoomSize: number;
   addTask: (resourceId: string, startTime: Date, task?: Task) => void;
+  updateTask: (updatedTask: Task) => void;
+  heights: resourceHeight[];
 }
 
 const TableComponent: React.FC<TableComponentProps> = ({
@@ -23,6 +25,8 @@ const TableComponent: React.FC<TableComponentProps> = ({
   shiftType,
   zoomSize,
   addTask,
+  updateTask,
+  heights
 }) => {
   const timelineSlots: TimelineSlot[] = calculateTimelineSlots(selectedDate, shiftType, zoomSize);
 
@@ -41,67 +45,72 @@ const TableComponent: React.FC<TableComponentProps> = ({
 
   const [isColumnsCollapsed, setColumnsCollapsed] = useState(false);
 
-  const updateTask = (updatedTask: Task) => {
-    setTasks((prevTasks: Task[]) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
-  };
-
   const toggleColumns = () => {
     setColumnsCollapsed(!isColumnsCollapsed);
   };
 
   return (
-    <div className='table-container'>
-      <table style={{width:140+100*timelineSlots.length}}className={`custom-table ${isColumnsCollapsed ? 'collapsed' : ''}`}>
-        <thead>
-          <tr>
-            <th style={{width: 70}}>Label</th>
-            <th style={{width: 70}}>Progress</th>
-            {timelineSlots.map((slot, index) => (
-              <th key={index} style={{width: 100}}className='timeline-header'>
-                {slot.isNewDay ? (
-                  <>
-                    <div>{slot.date}</div>
-                    <div>{slot.time}</div>
-                  </>
-                ) : (
-                  <div>{slot.time}</div>
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td>{row.label}</td>
-              <td>{row.progress}</td>
-              {timelineSlots.map((slot, slotIndex) => (
-                <TimelineCell
-                  key={slotIndex}
-                  resourceId={row.id}
-                  label={row.label}
-                  slotDate={slot.date}
-                  slotTime={slot.time}
-                  selectedDate={selectedDate}
-                  tasks={tasks}
-                  updateTask={updateTask}
-                  addTask={addTask}
-                  slotIndex={slotIndex}
-                  totalSlots={timelineSlots.length}
-                  zoomSize={zoomSize}
-                  endSlotTime={endSlotDateTime }
-                  startSlotTime={startSlotDateTime}
-                />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button className='toggle-button' onClick={toggleColumns}>
-        {isColumnsCollapsed ? '=>' : '<='}
-      </button>
+    <div className='gantt-container'>
+      <div className='gantt-resource'>
+        <div className='timeline-row header'>
+          <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Label</div>
+          <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div>
+        </div>
+        {data.map((resource, index) => (
+          <div className='timeline-row header'  key={index} style={{height: heights[index].height}}>
+            <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.label}</div>
+            <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.progress}</div>
+          </div>
+        ))}
+      </div>
+      <div className='gantt-chart'>
+        <div className='chart-inner'>
+          <div className='chat-timeline-grid'>
+            <div className='timeline-row header'>
+              {timelineSlots.map((slot, index) => (
+                  <div key={index} style={{width: 100, height : 50}} className='timeline-grid-row-cell' >
+                    {slot.isNewDay ? (
+                      <>
+                        <div>{slot.date}</div>
+                        <div>{slot.time}</div>
+                      </>
+                    ) : (
+                      <div>{slot.time}</div>
+                    )}
+                  </div>
+                ))}
+            </div>
+            {
+              data.map((resource, index) => (
+                <div className='timeline-row' style={{height: heights[index].height}}>
+                  {timelineSlots.map((slot, index) => (
+                      <div className='timeline-grid-row-cell'></div>
+                    ))}
+                </div>
+              ))
+            }
+          </div>
+          <div className='chat-timelime-items' style={{width : timelineSlots.length * 100}}>
+            <div className='chat-timeline-items-row' style={{height:50}}></div>
+            {
+              data.map((resource, index) => (
+                <TimeLineRow
+                    key={index}
+                    resourceId={resource.id}
+                    tasks={tasks}
+                    updateTask={updateTask}
+                    addTask={addTask}
+                    zoomSize={zoomSize}
+                    endSlotTime={endSlotDateTime }
+                    startSlotTime={startSlotDateTime}
+                    rowHeight={heights[index].height}
+                />    
+              ))
+            }
+          </div>
+        </div>
+              
+      </div>
     </div>
   );
 };
