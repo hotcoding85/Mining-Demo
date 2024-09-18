@@ -55,8 +55,8 @@ const ROMManagement = () => {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
 
   // state values
-  const [lng, setLng] = useState(120.44871814239025);
-  const [lat, setLat] = useState(-29.1576602184213);
+  const [lng, setLng] = useState(120.4618611696855);
+  const [lat, setLat] = useState(-29.16100851528526);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [coordinates, setCoordinates] = useState<[number, number][]>([]);
   const [fence, setFence] = useState<any>(null);
@@ -124,7 +124,7 @@ const ROMManagement = () => {
       container: mapContainer.current!,
       style: "mapbox://styles/mykytas/cm0o2duin00ga01pw7e6s5gj1", //'mapbox://styles/mapbox/standard-satellite',
       center: [lng, lat],
-      zoom: 14, // Adjust zoom level
+      zoom: 17, // Adjust zoom level
       interactive: true,
       pitch: 45,
       bearing: 150,
