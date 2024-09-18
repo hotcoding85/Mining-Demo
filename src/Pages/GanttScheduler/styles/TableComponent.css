@@ -189,6 +189,7 @@
 .gantt-container {
   display: flex;
   padding: 8px;
+  padding-left: 0px;
   overflow-x: scroll;
 }
 
@@ -212,7 +213,22 @@
   position: sticky;
   left: 0;
   z-index: 1;
+  padding-left: 8px;
 }
+
+
+body[data-layout-mode="dark"] {
+  .gantt-resource {
+    background-color:#283655
+  }
+}
+
+body[data-layout-mode="light"] {
+  .gantt-resource {
+    background-color:#fff
+  }
+}
+
 
 .chat-timelime-items {
   position: absolute;
