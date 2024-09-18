@@ -83,7 +83,6 @@ class Tile {
     this.elevation = null
     this.seamX = false
     this.seamY = false
-    this.elevationMap = new window.Map()
     this.geojsonData = geojsonData
     
     if (!this.geojsonData) return
@@ -468,6 +467,10 @@ export class Map {
     return { x: worldX, y: worldY, z: 0 };
   }
 
+  convertGeoToPixel (lat, lng, zoom = this.zoom) {
+    return Utils.latLngToTilePixel(lat, lng, zoom);
+  }
+
   drawRoutes() {
     if (!this.routes || this.routes.length === 0) {
       return;
@@ -700,7 +703,7 @@ export class Map {
       return 0; // Return a default elevation
     }
     // Fetch the elevation from the tile's elevation map
-    const elevationIndex = Math.floor(point[1]) * tile.shape[1] + Math.floor(point[0]);
+    const elevationIndex = Math.floor(point[1] / 2) * tile.shape[1] + Math.floor(point[0] / 2);
     return tile.elevation[elevationIndex] || 0;
   }
 }
