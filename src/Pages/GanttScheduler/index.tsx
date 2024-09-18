@@ -20,13 +20,14 @@ const GanttScheduler: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [shiftType, setShiftType] = useState<ShiftType>('DAY_SHIFT');
   const [zoomSize, setZoomSize] = useState<number>(60);
-  const [tasks, setTasks] = useState<Task[]>(dummyTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists);
   const [heights, setHeights] = useState<resourceHeight[]>(resources.map(resource => ({ resourceId: resource.id, height: 50 })));
 
-  const calculateRowIndex = (resourceId: string, startTime: Date, endTime: Date, taskId: string) => {
+  const calculateRowIndex = (resourceId: string, startTime: Date, endTime: Date, taskId: string, originalTasks? : Task[]) => {
 
-    const filteredTasks = tasks.filter(task => (task.resourceId == resourceId && task.id != taskId));
+    const filteredTasks = originalTasks? originalTasks.filter(task => (task.resourceId == resourceId && task.id != taskId)) : tasks.filter(task => (task.resourceId == resourceId && task.id != taskId));
+    
     const rowIndexes = filteredTasks.map(task => task.rowIndex);
     const maxIndex = Math.max(...rowIndexes);
     let rowIndex = 0;
@@ -46,10 +47,22 @@ const GanttScheduler: React.FC = () => {
     );
     return rowIndex;
   }
-  const addTask = (resourceId: string, startTime: Date, task?: Task) => {
+  const addSampleTask = () => {
+    let sampleTasks : Task[]= [];
+    for(let i = 0; i < dummyTasks.length; i++) {
+      const rowIndex = calculateRowIndex(dummyTasks[i].resourceId, dummyTasks[i].startTime, dummyTasks[i].endTime, dummyTasks[i].id, sampleTasks);
+      const newTask: Task = {
+        ...dummyTasks[i],
+        rowIndex: rowIndex
+      };
+      sampleTasks.push(newTask);
+    }
+    setTasks(sampleTasks);
+  } 
 
-    console.log('startTime', startTime)
-    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+  const addTask = (resourceId: string, startTime: Date, task?: Task, taskEndTime?: Date) => {
+
+    const endTime = taskEndTime? taskEndTime : new Date(startTime.getTime() + 60 * 60 * 1000);
     const newTaskId = Math.random().toString(36).substring(7);
     const rowIndex = calculateRowIndex(resourceId, startTime, endTime, newTaskId);
     const newTask: Task = {
@@ -66,9 +79,8 @@ const GanttScheduler: React.FC = () => {
     };
 
     setTasks((prevTasks) => [...prevTasks, newTask]);
+    console.log(tasks)
   };
-
-  console.log(tasks)
 
   const updateTask = (updatedTask: Task) => {
     const rowIndex = calculateRowIndex(updatedTask.resourceId, updatedTask.startTime, updatedTask.endTime, updatedTask.id);
@@ -89,6 +101,7 @@ const GanttScheduler: React.FC = () => {
 
   useEffect(() => {
     setHeights(resources.map(resource => ({ resourceId: resource.id, height: 50 })))
+    addSampleTask();
   }, [])
 
   return (
