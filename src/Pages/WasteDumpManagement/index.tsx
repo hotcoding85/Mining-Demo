@@ -35,7 +35,6 @@ import BoundingBoxModal from "Pages/AutoRouting/BoundingBoxModal";
 // import styles
 import "./styles.scss";
 import WasteDumpPopContent from "./components/WasteDumpPopContent";
-import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import FenceSidebarItem from "./components/FenceSidebarItem";
 
 // default wasted's polygon and line color - 'green'
@@ -325,7 +324,7 @@ const WasteDumpManagement = () => {
         }
       };
 
-      const fenceLayerId = `${fence.locationId}-layer`;
+      const fenceLayerId = `${fence.id}-layer`;
       if (drawing) {
         mapRef.current.off("dblclick", fenceLayerId, fenceDBClick);
         mapRef.current.off("mouseover", fenceLayerId, fenceMouseOver);
@@ -343,7 +342,13 @@ const WasteDumpManagement = () => {
     const drawGeofences = _.debounce((fences) => {
       fences.forEach((fence) => {
         if (!!mapRef.current) {
-          drawPolygon(fence.geoJson, fence.locationId, fence.color);
+          if (
+            (mapRef.current.getLayer(`${fence.id}-layer`) as mapboxgl.Layer)
+              ?.paint?.["fill-color"] !== fence.color
+          ) {
+            removePolygonSourceAndLayer(fence.id);
+          }
+          drawPolygon(fence.geoJson, fence.id, fence.color);
         }
       });
     }, 1000);
@@ -546,13 +551,16 @@ const WasteDumpManagement = () => {
     handleCloseBoundboxModal();
   };
 
-  const handleSaveWasteDump = async (bench: any, color: string) => {
+  const handleSaveWasteDump = async (
+    bench: any,
+    name: string,
+    color: string
+  ) => {
     if (fence) {
       const success = await dispatch(
         updateGeoFence(fence.id, {
-          name: bench.name,
-          blockId: bench.blockId,
-          locationId: bench.id,
+          name,
+          locationId: bench?.id,
           color: color,
         })
       );
@@ -563,9 +571,8 @@ const WasteDumpManagement = () => {
     } else {
       const success = await dispatch(
         addGeoFence({
-          name: bench.name,
-          blockId: bench.blockId,
-          locationId: bench.id,
+          name,
+          locationId: bench?.id,
           geoJson: {
             type: "Feature",
             geometry: {
@@ -591,7 +598,7 @@ const WasteDumpManagement = () => {
 
   const handleRemoveFence = async (fence: any) => {
     await dispatch(removeGeoFence(fence.id));
-    removePolygonSourceAndLayer(fence.locationId);
+    removePolygonSourceAndLayer(fence.id);
   };
 
   return (
@@ -717,7 +724,8 @@ const WasteDumpManagement = () => {
         benches={benches}
         onSave={handleSaveWasteDump}
         wasteData={{
-          color: defaultColor,
+          name: fence?.name,
+          color: fence?.color || defaultColor,
           benchId: fence?.locationId,
         }}
       />
