@@ -4,6 +4,7 @@ import ShiftSelector from './ShiftSelector';
 import ZoomControl from './ZoomControl';
 import TableComponent from './TableComponent';
 import TaskList from './Tasklist/TaskList';
+import TaskModal from './TaskModal';
 import { Card, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { ShiftType, Task, resourceHeight } from './interfaces/type';
@@ -23,6 +24,8 @@ const GanttScheduler: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists);
   const [heights, setHeights] = useState<resourceHeight[]>(resources.map(resource => ({ resourceId: resource.id, height: 50 })));
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalTask, setModalTask] = useState<Task | undefined>(undefined);
 
   const calculateRowIndex = (resourceId: string, startTime: Date, endTime: Date, taskId: string, originalTasks? : Task[]) => {
 
@@ -79,7 +82,6 @@ const GanttScheduler: React.FC = () => {
     };
 
     setTasks((prevTasks) => [...prevTasks, newTask]);
-    console.log(tasks)
   };
 
   const updateTask = (updatedTask: Task) => {
@@ -93,6 +95,22 @@ const GanttScheduler: React.FC = () => {
     );
   };
 
+  const editTask = (updatedTask: Task) => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+    );
+  }
+
+  const openModal = (task?: Task) => {
+    setModalTask(task);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalTask(undefined);
+  };
+
   const onDateChange: DatePickerProps['onChange'] = (date, dateString) => {
     if (date) {
       setSelectedDate(date.toDate());
@@ -103,6 +121,21 @@ const GanttScheduler: React.FC = () => {
     setHeights(resources.map(resource => ({ resourceId: resource.id, height: 50 })))
     addSampleTask();
   }, [])
+
+  useEffect(()=> {
+    const heights = resources.map((resource, index) => {
+      const filteredTasks = tasks.filter(task => (task.resourceId == resource.id));
+    
+      const rowIndexes = filteredTasks.map(task => task.rowIndex);
+      const maxIndex = filteredTasks.length ? Math.max(...rowIndexes) : 0;
+      const height: resourceHeight = {
+        resourceId: resource.id,
+        height: 50 * (maxIndex + 1)
+      }
+      return height;
+    })
+    setHeights(heights);
+  }, [tasks])
 
   return (
     <React.Fragment>
@@ -135,6 +168,7 @@ const GanttScheduler: React.FC = () => {
                     addTask={addTask}
                     updateTask={updateTask}
                     heights={heights}
+                    openModal={openModal}
                   />
                 </Card>
               </Col>
@@ -146,6 +180,12 @@ const GanttScheduler: React.FC = () => {
               </Col>
             </Row>
           </DndProvider>
+          <TaskModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            onSave={editTask}
+            task={modalTask}
+          />
         </Container>
       </div>
     </React.Fragment>
