@@ -15,6 +15,7 @@ interface TableComponentProps {
   addTask: (resourceId: string, startTime: Date, task?: Task) => void;
   updateTask: (updatedTask: Task) => void;
   heights: resourceHeight[];
+  openModal: (task?: Task) => void;
 }
 
 const TableComponent: React.FC<TableComponentProps> = ({
@@ -26,7 +27,8 @@ const TableComponent: React.FC<TableComponentProps> = ({
   zoomSize,
   addTask,
   updateTask,
-  heights
+  heights,
+  openModal
 }) => {
   const timelineSlots: TimelineSlot[] = calculateTimelineSlots(selectedDate, shiftType, zoomSize);
 
@@ -104,6 +106,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
                     endSlotTime={endSlotDateTime }
                     startSlotTime={startSlotDateTime}
                     rowHeight={heights[index].height}
+                    openModal={openModal}
                 />    
               ))
             }

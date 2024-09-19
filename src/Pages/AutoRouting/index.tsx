@@ -776,7 +776,7 @@ const AutoRouting = () => {
         const layerId = _saving_data.id + '-layer';
         const arrowLayerId = _saving_data.id + '-route-arrows';
 
-        if (mapRef.current.getSource(sourceId)) {
+        if (mapRef.current?.getSource(sourceId)) {
             // Update the data for the existing source
             const data: any = {
                 type: 'FeatureCollection',
@@ -793,10 +793,10 @@ const AutoRouting = () => {
                 }))
             };
 
-            (mapRef.current.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(data);
+            (mapRef.current?.getSource(sourceId) as mapboxgl.GeoJSONSource).setData(data);
         } else {
             // Add a new source and layer if they don't exist
-            mapRef.current.addSource(sourceId, {
+            mapRef.current?.addSource(sourceId, {
                 type: 'geojson',
                 data: {
                     type: 'FeatureCollection',
@@ -817,8 +817,8 @@ const AutoRouting = () => {
                 'line-color': ['get', 'color'],
                 'line-width': routeWidth,
             };
-            if (!mapRef.current.getLayer(arrowLayerId))
-                mapRef.current.addLayer({
+            if (!mapRef.current?.getLayer(arrowLayerId))
+                mapRef.current?.addLayer({
                     id: layerId,
                     type: 'line',
                     source: sourceId,
@@ -830,8 +830,8 @@ const AutoRouting = () => {
                     paint: layerConfig
                 });
         }
-        if (!mapRef.current.getLayer(arrowLayerId))
-            mapRef.current.addLayer({
+        if (!mapRef.current?.getLayer(arrowLayerId))
+            mapRef.current?.addLayer({
                 id: arrowLayerId,
                 type: 'symbol',
                 source: sourceId,
@@ -848,12 +848,12 @@ const AutoRouting = () => {
             });
         setSavingData(saving_data)
 
-        mapRef.current.on('mouseenter', layerId, () => {
+        mapRef.current?.on('mouseenter', layerId, () => {
             mapRef.current.getCanvas().style.cursor = 'pointer';
         });
 
         // Change it back when not over the lines
-        mapRef.current.on('mouseleave', layerId, () => {
+        mapRef.current?.on('mouseleave', layerId, () => {
             mapRef.current.getCanvas().style.cursor = '';
         });
         // Adjust map view to fit the route
@@ -1560,14 +1560,14 @@ const AutoRouting = () => {
                             <Card style={{ height: 'calc(100vh - 230px)', width: '20%', marginLeft: '15px', padding:'16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', alignItems: 'center'}}>
                                     Routes
-                                    <Button onClick={() => {setDrawing(!drawing); setIsStopSign(false);}}>
+                                    <Button key={'guyu67'} onClick={() => {setDrawing(!drawing); setIsStopSign(false);}}>
                                         {drawing ? <><i className='fas fa-ellipsis-h'></i></> : <i className='fas fa-plus'></i>}
                                     </Button>
                                 </div>
                                 <div style={{ height: 'calc(100% - 100px)', overflow: 'auto', marginTop:'16px' }}>
-                                    {routeData && _.map(routeData, (route: RouteDataType) => {
+                                    {routeData && _.map(routeData, (route: RouteDataType, key) => {
                                         return <>
-                                            <div className={'route-item ' + (isLight ? 'light-mode' : 'dark-mode')} key={route.id} style={{ display: 'flex', alignItems: 'center', fontSize: '14px', padding: '6px' }}>
+                                            <div className={'route-item ' + (isLight ? 'light-mode' : 'dark-mode')} key={key} style={{ display: 'flex', alignItems: 'center', fontSize: '14px', padding: '6px' }}>
                                                 <div style={{ flex: '1' }} onClick={() => handleTitleClick(route)}>
                                                     <div style={{ color: route.color, display:'block' }}>{route.name}</div>
                                                     {

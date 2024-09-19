@@ -13,6 +13,7 @@ interface TimeLineRowProps {
   endSlotTime : Date;
   startSlotTime : Date;
   rowHeight : number;
+  openModal: (task?: Task) => void;
 }
 
 const TimeLineRow: React.FC<TimeLineRowProps> = ({
@@ -23,7 +24,8 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
   zoomSize,
   endSlotTime,
   startSlotTime,
-  rowHeight
+  rowHeight,
+  openModal
 }) => {
 
 
@@ -43,7 +45,6 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
     };
 
     const handleClick = (e: MouseEvent) => {
-
         if(rowRef.current){
             const xPos = e.pageX - rowRef.current.getBoundingClientRect().left;
             const deltaMinutes = Math.round(
@@ -118,6 +119,7 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
                         zoomSize={zoomSize}
                         updateTask={updateTask}
                         addTask={addTask}
+                        openModal={openModal}
                     />
                 ))
             }

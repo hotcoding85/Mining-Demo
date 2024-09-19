@@ -2,14 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Task } from '../interfaces/type';
 import '../styles/TimelineCell.css';
+import { hd1500, pc1250 } from 'assets/images/equipment';
+import { Avatar, Space } from 'antd';
 
 interface TaskItemProps {
   task: Task;
   zoomSize: number;
-  endSlotTime : Date;
-  startSlotTime : Date;
+  endSlotTime: Date;
+  startSlotTime: Date;
   updateTask: (updatedTask: Task) => void;
   addTask: (resourceId: string, startTime: Date, task?: Task) => void;
+  openModal: (task?: Task) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -18,13 +21,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
   endSlotTime,
   startSlotTime,
   updateTask,
+  openModal
 }) => {
   
-
     const elementPos = 100 * (task.startTime.getTime() - startSlotTime.getTime()) / (60 * 1000* zoomSize);
     const elementWidth = 100 * (Math.min(endSlotTime.getTime(), task.endTime.getTime()) - Math.max(task.startTime.getTime(),startSlotTime.getTime())) / (60 * 1000* zoomSize);
     const progressbarWidth = (100 - task.progress) * elementWidth / 100;
     const [isResizing, setIsResizing] = useState(false);
+    const [isEditable, setIsEditable] = useState(false);
     const [initialX, setInitialX] = useState<number | null>(null);
     const [initialStartTime, setInitialStartTime] = useState<Date | null>(null);
     const [initialEndTime, setInitialEndTime] = useState<Date | null>(null);
@@ -46,7 +50,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
           setResizeDirection(isOnRightEdge ? 'right' : 'left');
           e.stopPropagation();
         }
-      }
+        setIsEditable(true);
+      }  
     };
   
     const handleMouseMove = (e: MouseEvent) => {
@@ -55,20 +60,19 @@ const TaskItem: React.FC<TaskItemProps> = ({
         const deltaMinutes = Math.round(
           (deltaX / 100) * zoomSize
         );
-  
         if (resizeDirection === 'right') {
           const newEndTime = new Date(
             initialEndTime.getTime() + deltaMinutes * 60 * 1000
           );
           if (newEndTime > initialStartTime) {
-            updateTask({ ...task!, endTime: newEndTime<endSlotTime ? newEndTime: endSlotTime });
+            updateTask({ ...task!, endTime: newEndTime < endSlotTime ? newEndTime : endSlotTime });
           }
         } else if (resizeDirection === 'left') {
           const newStartTime = new Date(
             initialStartTime.getTime() + deltaMinutes * 60 * 1000
           );
           if (newStartTime < initialEndTime) {
-            updateTask({ ...task!, startTime: newStartTime>startSlotTime? newStartTime:startSlotTime });
+            updateTask({ ...task!, startTime: newStartTime > startSlotTime ? newStartTime : startSlotTime });
           }
         }
       }
@@ -76,6 +80,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   
     const handleMouseUp = () => {
       if (isResizing) {
+        setIsEditable(false);
         setIsResizing(false);
         setInitialX(null);
         setInitialStartTime(null);
@@ -97,6 +102,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
         }
       }
     };
+
+    const handleEditTask = (e: React.MouseEvent<HTMLDivElement>) => {
+      if(!isResizing && e.currentTarget != e.target && isEditable) {
+        openModal(task);
+      }
+      setIsEditable(false);
+    }
   
     useEffect(() => {
       if (isResizing) {
@@ -120,7 +132,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
         collect: (monitor) => ({
           isDragging: monitor.isDragging(),
         }),
-      });
+        end : (item, monitor) => {
+          setIsEditable(false);
+        }
+    });
     
     const setRefs = (node: HTMLDivElement | null) => {
       taskElementRef.current = node;
@@ -128,12 +143,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
     };
 
   return (
-    
         <div
           ref={setRefs}
           className="task-item"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseOver}
+          onMouseUp={handleEditTask}
           style={{
             backgroundColor:task.color,
             width: elementWidth,
@@ -149,11 +164,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
             zIndex: 1,
           }}>
             <div className='task-item-inner'>
-                <div style={{ textAlign: 'center' }}>
-                    <p className='list-item-span bold'>{task.label}</p>
-                    <span className='list-item-span'>{task.name}</span>
+              <Space>
+                <div>
+                  <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
                 </div>
-                <div className='task-item-progress-bar' style={{width: progressbarWidth}}></div>
+                <div style={{ textAlign: 'center' }}>
+                  <p className='list-item-span bold'>{task.label}</p>
+                  <span className='list-item-span'>{task.name}</span>
+                </div>
+              </Space>
+              <div className='task-item-progress-bar' style={{ width: progressbarWidth }}></div>
             </div>
             
         </div>

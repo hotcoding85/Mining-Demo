@@ -6,6 +6,7 @@ import './index.scss';
 import { Badge } from 'antd';
 import { round2Two, roundOff } from 'utils/common';
 import Item from './Item';
+import { getRandomInt } from 'utils/random';
 
 const stateConfig = [
     {
@@ -97,11 +98,19 @@ const FleetList = ({ data = [] }: any) => {
         return info ? info.hours : '00:00'
     }
 
+    const getCurrentLoads = (category: string) => {
+        if(category == 'EXCAVATOR') {
+          return getRandomInt(120, 170);
+        } else if (category == 'DUMP_TRUCK') {
+          return getRandomInt(20, 30)
+        }
+      }
+
     return (
         <React.Fragment>
             <div className='status-cards-container'>
                 {data.map((item: any, key: number) => (
-                    <Item data={item} key={key} />
+                    <Item data={item} key={key}  />
                 ))}
             </div>
         </React.Fragment>

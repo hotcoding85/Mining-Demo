@@ -2,12 +2,11 @@ import { Navigate } from "react-router-dom"
 import path from "path";
 import React, { Component } from "react";
 import socketIO from 'socket.io-client';
+import OilAnalysisReportPage from "Pages/OilAnalysis/OilAnalysisReportPage";
 import { ThreeJS } from "Pages/ThreeJS";
 import TruckLoadOptimisation from "Pages/TruckLoadOptimisation";
 import DiggingOptimisation from "Pages/DiggingOptimisation";
 import PayloadOptimsation from "Pages/PayloadOptimisation";
-import OilAnalysisReportPage from "Pages/OilAnalysis/OilAnalysisReportPage";
-import FuelDashboard from "Pages/FuelDashboard";
 
 import FMS from "Pages/FleetStatus";
 // const FMS = React.lazy(() => import("Pages/FleetStatus"));
@@ -147,13 +146,14 @@ const authProtectedRoutes = [
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
   { path: "/oil-analysis-report", exact: true, component: <OilAnalysisReportPage/> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
-  { path: "/details/prestarts", exact: true, component: <PreStartDetails /> }, 
+  { path: "/prestarts/id", exact: true, component: <PreStartDetails /> }, 
   { path: "/haul-road-optimisation", exact: true, component: <HaulRoadOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/truck-load-optimisation", exact: true, component: <TruckLoadOptimisation /> },
   { path: "/digging-optimisation", exact: true, component: <DiggingOptimisation /> },
-  { path: "/fuel-dashboard", exact: true, component: <FuelDashboard /> },
-
+  { path: "/fuel-dashboard", exact: true, component: <FuelStatusDashboard /> },
+  { path: "/operations-fuel-scheduler", exact: true, component: <FuelScheduler /> },
+  { path: "/maintenance-fuel-scheduler", exact: true, component: <FuelScheduler /> },
 
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
