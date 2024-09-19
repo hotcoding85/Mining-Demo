@@ -1,0 +1,56 @@
+.truck-optimisation {
+  .truck-optimisation-tabs {
+    &.ant-tabs {
+      .ant-tabs-nav {
+        .ant-tabs-tab {
+          padding: 12px 8px;
+          .ant-tabs-tab-btn {
+            color: #535e77;
+            font-size: 14px;
+          }
+          &.ant-tabs-tab-active {
+            .ant-tabs-tab-btn {
+              color: #fff;
+            }
+          }
+          + .ant-tabs-tab {
+            margin: 0 0 0 16px;
+          }
+        }
+        .ant-tabs-ink-bar {
+          background: #fff;
+        }
+        &::before {
+          border-bottom: 1px solid transparent;
+        }
+      }
+    }
+  }
+
+  .visual-legend-container {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .legend-label {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+  }
+
+  .visual-legend {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 24px;
+    text-align: left;
+  }
+
+  .truck-optimisation-map {
+    border-radius: 16px;
+    height: 65vh;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
