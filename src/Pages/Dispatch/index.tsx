@@ -12,6 +12,7 @@ import {
   getAllFleet,
   getAllUsers,
   addShiftRoster,
+  updateVehicle,
 } from "slices/thunk";
 import _ from "lodash";
 import {
@@ -70,7 +71,6 @@ const Dispatch = () => {
   >([]);
   const [trucks, setTrucks] = useState<any>([]);
   const [diggers, setDiggers] = useState<any>([]);
-  const [usersList, setUsersList] = useState<OperatorStateProps[]>(users);
   const [equipmentList, setEquipmentList] =
     useState<equipmentStateProps[]>(fleet);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -95,6 +95,7 @@ const Dispatch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedCrew, setSelectedCrew] = useState<any>();
+  const [allocatedOperators, setAllocatedOperators] = useState<number>(0);
 
   function DragTarget({
     id,
@@ -190,7 +191,7 @@ const Dispatch = () => {
     setDiggers(fleet.filter((vehicle) => vehicle.category === "EXCAVATOR"));
     setTrucks(fleet.filter((vehicle) => vehicle.category === "DUMP_TRUCK"));
     // setTimeout(() => {
-    updateUsedOperatorsAndTrucks();
+    // updateUsedOperatorsAndTrucks();
     // }, 2000);
   }, [fleet]);
 
@@ -206,18 +207,23 @@ const Dispatch = () => {
       })
     );
     // setTimeout(() => {
-    updateUsedOperatorsAndTrucks();
+    // updateUsedOperatorsAndTrucks();
     // }, 2000);
+
+    getAvailableOperators();
   }, [users]);
 
   useEffect(() => {
     // setTimeout(() => {
-    updateUsedOperatorsAndTrucks();
+    // updateUsedOperatorsAndTrucks();
     // }, 2000);
+
+    let totalAllocatedOpertors =  getAllocatedOperators(shiftrosters)
+    setAllocatedOperators(totalAllocatedOpertors);
+    getAvailableOperators()
   }, [shiftrosters]);
 
   // useEffect(() => {
-  //   handlefilteredOperator();
   //   console.log("run");
   // }, []);
 
@@ -281,7 +287,7 @@ const Dispatch = () => {
         return user.role === "OPERATOR" && user.crew === crew;
       })
     );
-    updateUsedOperatorsAndTrucks();
+    // updateUsedOperatorsAndTrucks();
   };
 
   const updateUsedOperatorsAndTrucks = () => {
@@ -343,8 +349,8 @@ const Dispatch = () => {
     }
   };
 
-  const removeOperator = (event) => {
-    const deleteData = event.currentTarget.id.split("::");
+  const removeOperator = (id: string) => {
+    const deleteData = id.split("::");
     let shiftRoster = _.cloneDeep(
       shiftrosters.find((roster) => roster.vehicleId === deleteData[0])
     );
@@ -482,17 +488,15 @@ const Dispatch = () => {
 
       if(equiments[shiftIndex].state.toLowerCase() !== 'down'){
         if (
-          equiments[shiftIndex].operator !== undefined &&
-          equiments[shiftIndex].operator.id !== undefined
+          getOperators(equiments[shiftIndex]?.id)?.length
         ) {
           setIsModalVisible(true);
         } else {
           equiments[shiftIndex].operator = person;
-          setEquipmentList(equiments);
-          const updatedOperators = filteredOperators?.filter(
-            (operator: any) => operator.id !== person.id
-          );
-          setFilteredOperators(updatedOperators);
+
+          let active = {id: person.id}
+          let over = {id: equiments[shiftIndex].id}
+          processDroppedData(active, over);
         }
       }
     }
@@ -612,47 +616,45 @@ const Dispatch = () => {
   const updateTargetOperator = () => {
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     const { shiftIndex, field, value, person } = targetOperatorFileds;
-
-    let operator:any = {};
-    if(equiments[shiftIndex].operator !== undefined && equiments[shiftIndex].operator.id !== ''){
-      operator = equipmentList[shiftIndex].operator
-    }
-    equiments[shiftIndex].operator = person;
-    setEquipmentList(equiments);
-    return operator;
+    let active = {id: person.id}
+    let over = {id: equiments[shiftIndex].id}
+    processDroppedData(active, over);
   };
 
-  const handlefilteredOperator = (operator: any) => {
-    const updatedOperators = filteredOperators?.filter((operator: any) => operator.id !== targetOperatorFileds.person.id)
-    if(operator !== undefined && Object.keys(operator).length){
-      setFilteredOperators([...updatedOperators, operator])
-    }else {
-      setFilteredOperators([...updatedOperators]);
-    }
-  };
+  const updateEquipmentState = (key: number, value: string) => {
 
-  const updateState = (key: number, value: string) => {
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     equiments[key].state = value;
-    setEquipmentList(equiments);
+    let vehicle = equiments[key];
+    let id = vehicle.id;
+
+    let updatedvehicle = {
+      capacity: vehicle.capacity,
+      make: vehicle.make,
+      model: vehicle.model,
+      name: vehicle.name,
+      serial: vehicle.serial,
+      state: vehicle.state,
+      status: vehicle.status
+    }
+    dispatch(updateVehicle(id, updatedvehicle));
   };
 
-  const countOperators = (data) => {
-    return data.reduce((count, item) => {
-      let fullName = item?.operator?.firstName + " " + item?.operator?.lastName;
-      if (item?.operator && fullName?.trim() !== "") {
-        return count + 1;
-      }
-      return count;
-    }, 0);
+  const getAllocatedOperators = (rosters) => {
+    return rosters.filter(
+      (roster) => Array.isArray(roster.operators) && roster.operators.length > 0
+    ).length;
   };
 
-  const handleRemoveOperator = (key: number) => {
-    const updatedEquipmentList = JSON.parse(JSON.stringify(equipmentList));
-    let operatorData = updatedEquipmentList[key].operator;
-    setFilteredOperators([...filteredOperators, operatorData]);
-    updatedEquipmentList[key].operator = "";
-    setEquipmentList(updatedEquipmentList);
+  const getAvailableOperators = () => {
+    const shiftOperators = shiftrosters
+      .filter((roster) => roster.operators && roster.operators.length > 0)
+      .map((roster) => roster.operators[0]);
+
+    let newOperators = users.filter(
+      (user) => !shiftOperators.some((operator) => operator.id === user.id)
+    );
+    setFilteredOperators(newOperators);
   };
 
   return (
@@ -693,15 +695,19 @@ const Dispatch = () => {
             <Row className="equipment-status text-black mx-auto pb-4">
               <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Equipment Available
-                <span className="fs-2 text-color">{equipmentList.length || "0"}</span>
+                <span className="fs-2 text-color">
+                  {equipmentList.length || "0"}
+                </span>
               </Card>
               <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Operators Available
-                <span className="fs-2 text-color">{filteredOperators.length || "0"}</span>
+                <span className="fs-2 text-color">
+                  {filteredOperators.length || "0"}
+                </span>
               </Card>
               <Card className="d-flex flex-column gap-2 align-items-center rounded-1 p-4 fs-5 mb-0">
                 Equipment Allocated
-                <span className="fs-2 text-color">{countOperators(equipmentList)}</span>
+                <span className="fs-2 text-color">{allocatedOperators}</span>
               </Card>
             </Row>
 
@@ -730,20 +736,28 @@ const Dispatch = () => {
                                           {equipment.status}
                                         </div> */}
                                         <div>
-                                          <span className="fs-4 text-color">{equipment.name}<span className="fs-6">({equipment.model})</span></span>
+                                          <span className="fs-4 text-color">
+                                            {equipment.name}
+                                            <span className="fs-6">
+                                              ({equipment.model})
+                                            </span>
+                                          </span>
                                         </div>
                                         {/* <Tag></Tag> */}
                                         <div className="select-icon">
                                           <select
                                             className={
                                               equipment.state.toLowerCase() ===
-                                                "standby"
+                                              "standby"
                                                 ? "select-alert"
-                                                : equipment.state.toLowerCase() === "down" ? "select-danger" : ""
+                                                : equipment.state.toLowerCase() ===
+                                                  "down"
+                                                ? "select-danger"
+                                                : ""
                                             }
                                             value={equipment.state}
                                             onChange={(event) =>
-                                              updateState(
+                                              updateEquipmentState(
                                                 key,
                                                 event.target.value
                                               )
@@ -756,10 +770,15 @@ const Dispatch = () => {
                                           </select>
                                         </div>
                                         <span className="d-flex">
-                                          {equipment?.operator ? (
+                                          {getOperators(equipment?.id)
+                                            ?.length ? (
                                             <>
                                               <span className="shift-value fill">
-                                                {equipment?.operator.lastName}
+                                                {/* {equipment?.operator.lastName} */}
+                                                {
+                                                  getOperators(equipment?.id)[0]
+                                                    ?.lastName
+                                                }
                                               </span>
                                               <Button
                                                 style={{
@@ -771,7 +790,15 @@ const Dispatch = () => {
                                                   color: "#fff",
                                                   padding: 0,
                                                 }}
-                                                onClick={() => handleRemoveOperator(key)}
+                                                onClick={() =>
+                                                  removeOperator(
+                                                    `${equipment.id}::${
+                                                      getOperators(
+                                                        equipment?.id
+                                                      )[0].id
+                                                    }`
+                                                  )
+                                                }
                                                 shape="circle"
                                                 icon={<DeleteOutlined />}
                                               ></Button>
@@ -810,7 +837,7 @@ const Dispatch = () => {
                           disabled={false}
                           name={person.firstName + " " + person.lastName}
                           person={person}
-                          onDragStart={() => { }}
+                          onDragStart={() => {}}
                         >
                           <>
                             <div style={{ textAlign: "center" }}>
@@ -833,8 +860,7 @@ const Dispatch = () => {
                 title="Update Equipment Information"
                 open={isModalVisible}
                 onOk={() => {
-                  const operator = updateTargetOperator();
-                  handlefilteredOperator(operator);
+                  updateTargetOperator();
                   setIsModalVisible(false);
                 }}
                 onCancel={() => {

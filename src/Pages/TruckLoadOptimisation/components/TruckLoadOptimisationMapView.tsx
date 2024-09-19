@@ -19,7 +19,7 @@ interface MarkerData {
   marker: Marker;
 }
 
-const DiggingOptimisationMapView = (props: any) => {
+const TruckLoadOptimisationMapView = (props: any) => {
   const mapRef = useRef<any>(null);
   const mapContainer = useRef(null);
   const [lng, setLng] = useState(120.44871814239025);
@@ -169,7 +169,6 @@ const DiggingOptimisationMapView = (props: any) => {
           <div
             id="map"
             ref={mapContainer}
-            className="map-container"
             style={{
               height: "calc(100vh - 274px)",
               width: "100%",
@@ -182,4 +181,4 @@ const DiggingOptimisationMapView = (props: any) => {
   );
 };
 
-export default DiggingOptimisationMapView;
+export default TruckLoadOptimisationMapView;

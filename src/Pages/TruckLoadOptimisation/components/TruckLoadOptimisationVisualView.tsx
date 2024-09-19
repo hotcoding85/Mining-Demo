@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
-import eqImgae from "../../../assets/images/equipment/digger-top-view.png";
+import eqImgae from "../../../assets/images/equipment/truck-top-view.png";
 
 interface Dot {
   type: "Feature";
@@ -63,7 +63,7 @@ function generateCircleCoordinates(
   return coordinates;
 }
 
-const DiggingOptimisationVisualView = () => {
+const TruckLoadOptimisationVisualView = () => {
   const legendData = [
     {
       label: "Load Sequence Plan",
@@ -195,13 +195,9 @@ const DiggingOptimisationVisualView = () => {
             </div>
           ))}
       </div>
-      <div
-        id="map"
-        ref={mapContainer}
-        className="digging-optimisation-map"
-      ></div>
+      <div id="map" ref={mapContainer} className="truck-optimisation-map"></div>
     </div>
   );
 };
 
-export default DiggingOptimisationVisualView;
+export default TruckLoadOptimisationVisualView;
