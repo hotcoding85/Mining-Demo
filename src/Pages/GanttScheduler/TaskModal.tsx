@@ -36,6 +36,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave,  task })
 
   // Function to handle clicks outside the modal content
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -44,7 +45,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave,  task })
   if (!isOpen) return null;
 
   return (
-    <div className={`modal-overlay ${isOpen ? 'show' : ''}`} onClick={handleOverlayClick}>
+    <div className={`modal-overlay ${isOpen ? 'show' : ''}`} onMouseDown={handleOverlayClick}>
       <div className="modal-content" >
         <div className="modal-header">
           <h2>Edit the task</h2>
