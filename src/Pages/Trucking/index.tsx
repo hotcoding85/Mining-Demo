@@ -173,16 +173,16 @@ const TruckingPerformance = () => {
           <h1>Trucking Performance</h1>
           <div className="performance-header">
             <PerformanceHeader
-              label="Waste Material Movement"
+              label="Waste Moved"
               status="On target"
-              currentValue="135,855t"
-              totalValue="150,000t"
+              currentValue="35,855t"
+              totalValue="50,000t"
             />
             <PerformanceHeader
-              label="Waste Material Movement"
+              label="Ore Moved"
               status="Below target"
-              currentValue="135,855t"
-              totalValue="150,000t"
+              currentValue="2,855t"
+              totalValue="5,000t"
             />
           </div>
         </div>
@@ -204,7 +204,7 @@ const TruckingPerformance = () => {
                 />
               </Card>
             </div>
-            <div className="BarAndProgressContainer" style={{ alignItems: 'flex-start' }}>
+            {/* <div className="BarAndProgressContainer" style={{ alignItems: 'flex-start' }}>
               <TripProgressBar
                 completed={50}
                 forecast={100}
@@ -233,7 +233,7 @@ const TruckingPerformance = () => {
                   textColor={textColor}
                 />
               </Card>
-            </div>
+            </div> */}
 
           </div>
           <div className="pie light-box">

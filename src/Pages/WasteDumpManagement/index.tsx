@@ -35,7 +35,6 @@ import BoundingBoxModal from "Pages/AutoRouting/BoundingBoxModal";
 // import styles
 import "./styles.scss";
 import WasteDumpPopContent from "./components/WasteDumpPopContent";
-import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import FenceSidebarItem from "./components/FenceSidebarItem";
 
 // default wasted's polygon and line color - 'green'
@@ -61,6 +60,8 @@ const WasteDumpManagement = () => {
   const [drawing, setDrawing] = useState<boolean>(false);
   const [coordinates, setCoordinates] = useState<[number, number][]>([]);
   const [fence, setFence] = useState<any>(null);
+
+  console.log(fence);
 
   // modal state values
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -92,10 +93,16 @@ const WasteDumpManagement = () => {
 
   const { geoFence, benches } = useSelector(geoFencesProperties);
 
-  const wasteDumpFences = useMemo(
-    () => geoFence.filter((fence) => fence.category === "WASTE_DUMP"),
-    [geoFence]
-  );
+  const wasteDumpFences = useMemo(() => {
+    const data: any[] = Array.from(geoFence);
+    data.sort((a: any, b: any) => b.updatedAt - a.updatedAt);
+    return data.filter((fence: any) => fence.category === "WASTE_DUMP");
+  }, [geoFence]);
+
+  const availalbeBenches = useMemo(() => {
+    const locationIds = geoFence.map((fence) => fence.locationId);
+    return benches.filter((location) => !locationIds.includes(location.id));
+  }, [geoFence, benches]);
 
   useEffect(() => {
     if (!mapRef) return;
@@ -325,7 +332,7 @@ const WasteDumpManagement = () => {
         }
       };
 
-      const fenceLayerId = `${fence.locationId}-layer`;
+      const fenceLayerId = `${fence.id}-layer`;
       if (drawing) {
         mapRef.current.off("dblclick", fenceLayerId, fenceDBClick);
         mapRef.current.off("mouseover", fenceLayerId, fenceMouseOver);
@@ -343,7 +350,13 @@ const WasteDumpManagement = () => {
     const drawGeofences = _.debounce((fences) => {
       fences.forEach((fence) => {
         if (!!mapRef.current) {
-          drawPolygon(fence.geoJson, fence.locationId, fence.color);
+          if (
+            (mapRef.current.getLayer(`${fence.id}-layer`) as mapboxgl.Layer)
+              ?.paint?.["fill-color"] !== fence.color
+          ) {
+            removePolygonSourceAndLayer(fence.id);
+          }
+          drawPolygon(fence.geoJson, fence.id, fence.color);
         }
       });
     }, 1000);
@@ -373,7 +386,7 @@ const WasteDumpManagement = () => {
     return () => {
       setEventListners.cancel();
     };
-  }, [handleSetEventListners]);
+  }, [handleSetEventListners, wasteDumpFences]);
 
   const handleMapClick = useCallback(
     (e: mapboxgl.MapMouseEvent) => {
@@ -546,13 +559,16 @@ const WasteDumpManagement = () => {
     handleCloseBoundboxModal();
   };
 
-  const handleSaveWasteDump = async (bench: any, color: string) => {
+  const handleSaveWasteDump = async (
+    bench: any,
+    name: string,
+    color: string
+  ) => {
     if (fence) {
       const success = await dispatch(
         updateGeoFence(fence.id, {
-          name: bench.name,
-          blockId: bench.blockId,
-          locationId: bench.id,
+          name,
+          locationId: bench?.id,
           color: color,
         })
       );
@@ -560,12 +576,11 @@ const WasteDumpManagement = () => {
         handleClearFences();
         handleCloseEditModal();
       }
-    } else {
+    } else if (coordinates.length > 2) {
       const success = await dispatch(
         addGeoFence({
-          name: bench.name,
-          blockId: bench.blockId,
-          locationId: bench.id,
+          name,
+          locationId: bench?.id,
           geoJson: {
             type: "Feature",
             geometry: {
@@ -591,7 +606,7 @@ const WasteDumpManagement = () => {
 
   const handleRemoveFence = async (fence: any) => {
     await dispatch(removeGeoFence(fence.id));
-    removePolygonSourceAndLayer(fence.locationId);
+    removePolygonSourceAndLayer(fence.id);
   };
 
   return (
@@ -714,10 +729,14 @@ const WasteDumpManagement = () => {
       <WasteEditModal
         isOpen={isModalOpen}
         onClose={handleCloseEditModal}
-        benches={benches}
+        benches={[
+          ...availalbeBenches,
+          ...(benches.filter((bench) => bench.id === fence?.locationId) || []),
+        ]}
         onSave={handleSaveWasteDump}
         wasteData={{
-          color: defaultColor,
+          name: fence?.name,
+          color: fence?.color || defaultColor,
           benchId: fence?.locationId,
         }}
       />

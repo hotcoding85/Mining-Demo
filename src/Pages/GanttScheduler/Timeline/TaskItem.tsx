@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Task } from '../interfaces/type';
 import '../styles/TimelineCell.css';
+import { hd1500, pc1250 } from 'assets/images/equipment';
+import { Avatar, Space } from 'antd';
 
 interface TaskItemProps {
   task: Task;
   zoomSize: number;
-  endSlotTime : Date;
-  startSlotTime : Date;
+  endSlotTime: Date;
+  startSlotTime: Date;
   updateTask: (updatedTask: Task) => void;
   addTask: (resourceId: string, startTime: Date, task?: Task) => void;
   openModal: (task?: Task) => void;
@@ -53,28 +55,24 @@ const TaskItem: React.FC<TaskItemProps> = ({
     };
   
     const handleMouseMove = (e: MouseEvent) => {
-      if(isDragging) {
-        setIsEditable(false);
-      }
       if (isResizing && initialX !== null && initialStartTime && initialEndTime) {
         const deltaX = e.clientX - initialX;
         const deltaMinutes = Math.round(
           (deltaX / 100) * zoomSize
         );
-  
         if (resizeDirection === 'right') {
           const newEndTime = new Date(
             initialEndTime.getTime() + deltaMinutes * 60 * 1000
           );
           if (newEndTime > initialStartTime) {
-            updateTask({ ...task!, endTime: newEndTime<endSlotTime ? newEndTime: endSlotTime });
+            updateTask({ ...task!, endTime: newEndTime < endSlotTime ? newEndTime : endSlotTime });
           }
         } else if (resizeDirection === 'left') {
           const newStartTime = new Date(
             initialStartTime.getTime() + deltaMinutes * 60 * 1000
           );
           if (newStartTime < initialEndTime) {
-            updateTask({ ...task!, startTime: newStartTime>startSlotTime? newStartTime:startSlotTime });
+            updateTask({ ...task!, startTime: newStartTime > startSlotTime ? newStartTime : startSlotTime });
           }
         }
       }
@@ -145,7 +143,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
     };
 
   return (
-    
         <div
           ref={setRefs}
           className="task-item"
@@ -167,11 +164,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
             zIndex: 1,
           }}>
             <div className='task-item-inner'>
-                <div style={{ textAlign: 'center' }}>
-                    <p className='list-item-span bold'>{task.label}</p>
-                    <span className='list-item-span'>{task.name}</span>
+              <Space>
+                <div>
+                  <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
                 </div>
-                <div className='task-item-progress-bar' style={{width: progressbarWidth}}></div>
+                <div style={{ textAlign: 'center' }}>
+                  <p className='list-item-span bold'>{task.label}</p>
+                  <span className='list-item-span'>{task.name}</span>
+                </div>
+              </Space>
+              <div className='task-item-progress-bar' style={{ width: progressbarWidth }}></div>
             </div>
             
         </div>
