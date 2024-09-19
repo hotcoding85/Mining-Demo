@@ -31,55 +31,76 @@ const DiggingDashboard = (props: any) => {
     [layoutModeType]
   );
 
+  const generateRandomPercentages = (numStates: number): number[] => {
+    let total = 100;
+    let percentages: number[] = [];
+  
+    for (let i = 0; i < numStates - 1; i++) {
+      let randomValue: number = Math.random() * total;
+      randomValue = Math.round(randomValue);
+      percentages.push(randomValue);
+      total -= randomValue;
+    }
+    percentages.push(total); 
+    return percentages;
+  };
+  
+  const getPersistedPercentages = () => {
+    const savedPercentages = localStorage.getItem('diggingDashboardPercentages');
+    if (savedPercentages) {
+      return JSON.parse(savedPercentages); 
+    } else {
+      const newPercentages = generateRandomPercentages(5);
+      localStorage.setItem('diggingDashboardPercentages', JSON.stringify(newPercentages));
+      return newPercentages;
+    }
+  };
+  
   const StateTimes = useMemo(() => {
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
-
+  
+    const percentages = getPersistedPercentages();
+  
     return [
       {
         state: "Active",
-        time: "00:24:52",
-        pctValue: 72,
+        pctValue: percentages[0],
         color: FLEET_TIME_STATE_COLOR.ACTIVE,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "StandBy",
-        time: "00:24:52",
-        pctValue: 64,
+        pctValue: percentages[1],
         color: FLEET_TIME_STATE_COLOR.STANDBY,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Down",
-        time: "00:24:52",
-        pctValue: 58,
+        pctValue: percentages[2],
         color: FLEET_TIME_STATE_COLOR.DOWN,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Idle",
-        time: "00:24:52",
-        pctValue: 58,
+        pctValue: percentages[3],
         color: isLight ? "#828282" : "#fff",
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Delay",
-        time: "00:24:52",
-        pctValue: 65,
+        pctValue: percentages[4],
         color: FLEET_TIME_STATE_COLOR.DELAY,
         bgColor: bgColor,
         textColor: textColor,
       },
     ];
   }, [layoutModeType, isLight]);
-
-
+  
   return (
     <React.Fragment>
       <div className="page-content digging-state">
@@ -91,7 +112,6 @@ const DiggingDashboard = (props: any) => {
 
           <Row>
             <Col lg="12" className="mt-3">
-
               <RadicalGraph truckStates={StateTimes} />
             </Col>
           </Row>
