@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
-import eqImgae from "../../../assets/images/equipment/PC2000.png";
+import eqImgae from "../../../assets/images/equipment/digger-top-view.png";
 
 interface Dot {
   type: "Feature";
@@ -83,7 +83,7 @@ const DiggingOptimisationVisualView = () => {
 
   const rippleIcon = () => {
     const standardIconTemplate = `<div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-                  <img style="height:60px;" src=${eqImgae} alt="Description of the image">
+                  <img style="height:120px;" src=${eqImgae} alt="Description of the image">
                 </div>`;
 
     const icon = document.createElement("div");
