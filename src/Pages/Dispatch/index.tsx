@@ -648,7 +648,7 @@ const Dispatch = () => {
 
   const getAvailableOperators = () => {
     const shiftOperators = shiftrosters
-      .filter((roster) => roster.operators.length > 0)
+      .filter((roster) => roster.operators && roster.operators.length > 0)
       .map((roster) => roster.operators[0]);
 
     let newOperators = users.filter(
