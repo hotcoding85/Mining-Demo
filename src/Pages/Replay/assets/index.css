@@ -7,10 +7,10 @@
 }
 .ant-collapse-content-active{
     border-radius: 0px !important;
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
 }
 body[data-layout-mode="dark"] .ant-collapse-content{
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
 }
 body[data-layout-mode="light"] .ant-collapse-content{
     background-color: white !important;
@@ -19,7 +19,7 @@ body[data-layout-mode="light"] .ant-collapse-content{
     padding: 0px 0px 0px 30px !important;
 }
 body[data-layout-mode="dark"] .ant-menu{
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
     color: white !important;
 }
 body[data-layout-mode="light"] .ant-menu{
@@ -30,7 +30,7 @@ body[data-layout-mode="light"] .page-content {
     background-color: white;
 }
 body[data-layout-mode="dark"] .page-content {
-    background-color: #1C263C;
+    background-color: var(--dark-bg-color);
 }
 body[data-layout-mode="light"] .ant-menu-title-content {
     color: black;
@@ -40,22 +40,22 @@ body[data-layout-mode="dark"] .replay-menu-item{
     border: 1px solid white;
     border-radius: 3px;
     width: calc(100% - 20px);
-    background: #2a3853;
+    background: var(--bg-color);
     box-shadow: none;
     font-weight: 700;
     font-size: 12px;
 }
 body[data-layout-mode="dark"] .replay-menu-item:hover{
-    color: #2a3853 !important;
+    color: var(--bg-color) !important;
     background-color: white !important;
 }
 body[data-layout-mode="light"] .replay-menu-item:hover{
-    background-color: #2a3853 !important;
+    background-color: var(--bg-color) !important;
     color: white !important;
 }
 body[data-layout-mode="light"] .replay-menu-item{
-    color: #2a3853;
-    border: 1px solid #2a3853;
+    color: var(--bg-color);
+    border: 1px solid var(--bg-color);
     border-radius: 3px;
     width: calc(100% - 20px);
     background: white;
@@ -65,11 +65,11 @@ body[data-layout-mode="light"] .replay-menu-item{
 }
 body[data-layout-mode="dark"] .replay-menu-item.selected{
     background-color: white;
-    color: #2a3853;
+    color: var(--bg-color);
 }
 body[data-layout-mode="light"] .replay-menu-item.selected{
     color: white;
-    background-color: #2a3853;
+    background-color: var(--bg-color);
 }
 .replay-menu-item > span {
     text-overflow: ellipsis;
@@ -79,7 +79,7 @@ body[data-layout-mode="light"] .replay-menu-item.selected{
     display: none !important;
 }
 body[data-layout-mode="dark"] .mapboxgl-popup-content{
-    background-color: #2a3853 !important;
+    background-color: var(--bg-color) !important;
     /* color: gold !important; */
 }
 body[data-layout-mode="light"] .mapboxgl-popup-content{
@@ -134,11 +134,11 @@ body[data-layout-mode='dark'] .fleet-tracking-datepicker {
     border-radius: 8px;
 }
 body[data-layout-mode='dark'] .switch-timeline {
-    background: #2a3853;
+    background: var(--bg-color);
     color: white;
 }
 body[data-layout-mode='light'] .switch-timeline {
-    color: #2a3853;
+    color: var(--bg-color);
     background: white;
 }
 .truck-badge {

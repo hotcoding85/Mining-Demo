@@ -8,12 +8,12 @@
 }
 
 body[data-layout-mode="light"] .date-range-picker-trigger {
-  color: #2a2a2a !important;
+  color: var(--dark-text-color) !important;
 }
 
 .ant-popover-inner,
 .ant-popover-inner-content {
-  background-color: #283655 !important;
+  background-color: var(--bg-color) !important;
 }
 
 .ant-popover-inner {
@@ -24,7 +24,7 @@ body[data-layout-mode="light"] .date-range-picker-trigger {
   gap: 16px;
 
   .rdrDefinedRangesWrapper {
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
     border: none;
     width: 185px;
   }
@@ -38,7 +38,7 @@ body[data-layout-mode="light"] .date-range-picker-trigger {
       border-radius: 4px;
       text-align: center;
       border: 1px solid #535e77;
-      background-color: #283655 !important;
+      background-color: var(--bg-color) !important;
     }
 
     button span {
@@ -53,13 +53,13 @@ body[data-layout-mode="light"] .date-range-picker-trigger {
 
   .rdrStaticRange:hover .rdrStaticRangeLabel,
   .rdrStaticRange:focus .rdrStaticRangeLabel {
-    color: #283655;
+    color: var(--bg-color);
   }
 
   .rdrStaticRangeSelected {
     .rdrStaticRangeLabel {
       background-color: white;
-      color: #283655;
+      color: var(--bg-color);
     }
   }
 
@@ -68,7 +68,7 @@ body[data-layout-mode="light"] .date-range-picker-trigger {
   }
 
   .rdrDateRangeWrapper {
-    background-color: #283655;
+    background-color: var(--bg-color);
     border-radius: 16px !important;
 
     .rdrMonthPicker select,
@@ -78,7 +78,7 @@ body[data-layout-mode="light"] .date-range-picker-trigger {
 
     .rdrMonthPicker select option,
     .rdrYearPicker select option {
-      color: #283655;
+      color: var(--bg-color);
       text-align: left;
     }
   }

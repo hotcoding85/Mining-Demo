@@ -58,7 +58,7 @@ const StateTime: React.FC<StateTimeProps> = ({ time, state, ...props }) => {
       <div className="d-flex flex-column align-items-start justify-content-start mt-5">
         <StatusLabel bgColor={props.color}>{state}</StatusLabel>
         <StatusLabel
-          bgColor={isLight ? "#fff" : "#283655"}
+          bgColor={isLight ? "#fff" : "var(--bg-color)"}
           color={isLight ? "#2A2A2A" : "#fff"}
         >
           {time}

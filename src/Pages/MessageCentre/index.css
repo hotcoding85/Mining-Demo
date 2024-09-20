@@ -44,7 +44,7 @@ body[data-layout-mode='light'] .ant-tabs-tab-active > div {
 }
   
 .message-panel-searchbar, .message-panel-searchbar > input {
-    background-color: #2a3853 !important;
+    background-color: var(--bg-color) !important;
     color: white !important;
     border: 1px solid white;
     font-size: 14px;
@@ -54,7 +54,7 @@ body[data-layout-mode='light'] .ant-tabs-tab-active > div {
     color: #535e77 !important;
 }
 .message-panel-searchbar:hover, .message-panel-searchbar:active{
-    background-color: #2a3853 !important;
+    background-color: var(--bg-color) !important;
     color: white !important;
     border: 1px solid white;
 }
@@ -258,7 +258,7 @@ body[data-layout-mode="light"] .btn-message-send>input::placeholder {
 /* MessageBoard.css */
 .message-board-container {
     padding: 20px;
-    background-color: #2a3b5d;
+    background-color: var(--dark-bg-color);
     color: #fff;
     border-radius: 10px;
 }
@@ -285,7 +285,7 @@ body[data-layout-mode="light"] .btn-message-send>input::placeholder {
 
 .message-board-table .ant-table-tbody > tr > td {
     color: #fff;
-    background-color: #2a3b5d;
+    background-color: var(--dark-bg-color);
 }
 
 .message-board-table .fault-code-btn {

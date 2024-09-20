@@ -11,8 +11,8 @@
 [data-layout-mode="dark"] {
   .maintenance-scheduler-sidebar {
     color: #fff;
-    background-color: #283655;
-    border: 1px solid #283655;
+    background-color: var(--bg-color);
+    border: 1px solid var(--bg-color);
   }
   .maintenance-sidebar-wrapper {
     border-bottom: 1px solid #535e77;

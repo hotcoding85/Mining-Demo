@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
 
 .trucking-header {
-  background-color: "#283655";
+  background-color: "var(--bg-color)";
   padding: 15px;
-  background-color: #283655;
+  background-color: var(--bg-color);
   border-radius: 15px;
   width: 95.5%;
 }
@@ -72,7 +72,7 @@
 }
 
 .pie {
-  background-color: #283655;
+  background-color: var(--bg-color);
   border-radius: 15px;
   margin-top: 20px;
   width: 30%;
@@ -106,7 +106,7 @@
 
   .BarGraphContainer{
     width: 100%;
-  /* background-color: #283655; */
+  /* background-color: var(--bg-color); */
   padding: 20px;
   border-radius: 0 0 15px 15px;
 }
@@ -155,7 +155,7 @@
   .ProgressBarContainer{
     padding: 20px;
     position: relative;
-    background-color: #283655;
+    background-color: var(--bg-color);
     /* width: 90%; */
     border-radius: 15px 15px 0 0;
   }
@@ -215,7 +215,7 @@
   position: absolute;
   top: 150%;
   /* right: 15px; */
-  background-color: #2a2a2a;
+  background-color: var(--dark-text-color);
   color: white;
   padding: 2.5px 2.5px;
   font-size: 11px;
@@ -230,7 +230,7 @@
   margin-left: -5px;
   border-width: 10px;
   border-style: solid;
-  border-color: transparent transparent #2a2a2a transparent;
+  border-color: transparent transparent var(--dark-text-color) transparent;
 }
 
 .LegendContainer2 {
@@ -279,7 +279,7 @@
   font-weight: 500;
   color: "FFFFFF";
   padding-top: 0%;
-  background-color: "#283655";
+  background-color: "var(--bg-color)";
   font-weight: bold;
 }
 
@@ -298,7 +298,7 @@
 
   [data-layout-mode=dark] .light-box {
     color: #fff;
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
   }
 
   .sub-continer {

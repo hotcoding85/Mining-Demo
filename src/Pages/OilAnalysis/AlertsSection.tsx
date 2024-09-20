@@ -11,7 +11,7 @@ const AlertsSection = () => {
 
       <Row>
         <Col lg="12">
-          <h2 className="mb-4" style={{color:'#d9d9d9'}}>Alerts</h2>
+          <h2 className="mb-4">Alerts</h2>
           <Row>
             {["Critical Condition", "Caution", "Critical Condition", "Critical Condition"].map((condition, index) => (
               <Col lg="3" md="6" key={index} className="mb-4 text-center">

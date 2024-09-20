@@ -40,5 +40,5 @@
   
   [data-layout-mode=dark] .light-box {
     color: #fff;
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
   }

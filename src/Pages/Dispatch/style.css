@@ -1,7 +1,7 @@
 .shift-plan-box select,
 .shift-plan-box .shift-value,
 .shift-plan-box .ant-tag {
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: #fff;
     font-size: 14px;
     font-weight: 500;
@@ -17,7 +17,7 @@
 }
 
 .shift-plan-box select option {
-    background-color: #283655;
+    background-color: var(--bg-color);
 }
 
 .shift-plan-box select option.select-alert  {

@@ -14,11 +14,11 @@ const CustomSelect = ({
     control: (provided, state) => ({
       ...provided,
       zIndex: 9999, // Adjust as necessary
-      backgroundColor: "#283655", // dark background color
-      borderColor: state.isFocused ? "#283655" : "#283655", // yellow border when focused
-      boxShadow: state.isFocused ? "0 0 0 1px #283655" : "none", // yellow shadow when focused
+      backgroundColor: "var(--bg-color)", // dark background color
+      borderColor: state.isFocused ? "var(--bg-color)" : "var(--bg-color)", // yellow border when focused
+      boxShadow: state.isFocused ? "0 0 0 1px var(--bg-color)" : "none", // yellow shadow when focused
       "&:hover": {
-        borderColor: state.isFocused ? "#283655" : "#666",
+        borderColor: state.isFocused ? "var(--bg-color)" : "#666",
       },
     }),
     menu: (provided) => ({
@@ -28,10 +28,10 @@ const CustomSelect = ({
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected ? "#283655" : "#1f1f1f", // yellow selected option
+      backgroundColor: state.isSelected ? "var(--bg-color)" : "#1f1f1f", // yellow selected option
       color: state.isSelected ? "#fff" : "#fff", // dark text color for options
       "&:hover": {
-        backgroundColor: state.isSelected ? "#283655" : "#444",
+        backgroundColor: state.isSelected ? "var(--bg-color)" : "#444",
         color: "#fff",
       },
     }),

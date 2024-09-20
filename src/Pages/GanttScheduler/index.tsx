@@ -12,7 +12,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DatePicker, DatePickerProps, Space } from 'antd';
 import dayjs from 'dayjs';
-import "./styles/GanttScheduler.css"
+import "./styles/GanttScheduler.scss"
 import '../../App.css'
 
 

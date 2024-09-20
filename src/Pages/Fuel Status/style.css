@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
 .fuel-card {
-    background-color: #283655;
+    background-color: var(--bg-color);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: #ffffff;
@@ -56,7 +56,7 @@
     position: absolute;
     top: -10px;
     right: 80%;
-    background-color: #333;
+    background-color: var(--dark-text-color);
     color: #fff;
     padding: 5px;
     border-radius: 5px;
@@ -124,7 +124,7 @@
   .fuel-card {
     flex: 1 1 calc(24% - 10px); 
     max-width: calc(24% - 10px); 
-    background-color: #283655;
+    background-color: var(--bg-color);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     color: #ffffff;

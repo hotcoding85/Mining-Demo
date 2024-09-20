@@ -109,7 +109,7 @@
  
   body[data-layout-mode="dark"] {
     .modal-content {
-      background-color:#283655
+      background-color:var(--bg-color)
     }
 }
   

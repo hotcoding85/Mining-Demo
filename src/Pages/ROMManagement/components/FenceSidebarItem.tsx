@@ -39,7 +39,7 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
       <div style={{ flex: "1" }} onClick={() => onClick(fence)}>
         <div style={{ color: fence.color, display: "block" }}>{fence.name}</div>
       </div>
-      <div style={{ flex: "0.1", color: "#333" }}>
+      <div style={{ flex: "0.1", color: "var(--dark-text-color)" }}>
         <i className="bx bx-trash" onClick={() => onRemove(fence)}></i>
       </div>
     </div>
