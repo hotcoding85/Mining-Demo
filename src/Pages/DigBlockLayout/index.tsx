@@ -235,15 +235,13 @@ const DigBlockLayout = (props: any) => {
       },
       {
         header: "Grade",
-        accessorKey: "augt",
+        accessorKey: "grade",
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const augt = cellProps.row.original.augt as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(augt)}</div>
-          )
-        }
+          const grade = cellProps.row.original.grade as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(grade)}</div>;
+        },
       },
       {
         header: "Density",
@@ -251,11 +249,9 @@ const DigBlockLayout = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const density = cellProps.row.original.density as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(density)}</div>
-          )
-        }
+          const density = cellProps.row.original.density as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(density)}</div>;
+        },
       },
       {
         header: "Tonnes",
@@ -263,11 +259,9 @@ const DigBlockLayout = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const tonnes = cellProps.row.original.tonnes as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(tonnes)}</div>
-          )
-        }
+          const tonnes = cellProps.row.original.tonnes as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(tonnes)}</div>;
+        },
       },
       {
         header: "Volume",
@@ -275,12 +269,9 @@ const DigBlockLayout = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const volume = cellProps.row.original.volume as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(volume)}</div>
-          )
-        }
-        
+          const volume = cellProps.row.original.volume as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(volume)}</div>;
+        },
       },
       {
         header: "Status",

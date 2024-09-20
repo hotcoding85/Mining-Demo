@@ -5,7 +5,7 @@ export const generateMockEventMetaData = (plans: any[]) => {
   const eventMetas = plans.flatMap((plan) =>
     plan.supporting.map((support) => ({
       id: uuidv4(),
-      planId: plan.planId,
+      planId: plan.id,
       roster: plan.roster,
       materialId: plan.materialId,
       sourceId: plan.sourceId,
@@ -20,13 +20,14 @@ export const generateMockEventMetaData = (plans: any[]) => {
   return { eventMetas, events };
 };
 
-const reasons = [{ reason: "TRAVELLING", state: "ACTIVE" },
-{ reason: "QUEUING", state: "ACTIVE" },
-{ reason: "LOADING", state: "ACTIVE" },
-{ reason: "Smoke Break", state: "STANDBY" },
-{ reason: "HOLDING", state: "ACTIVE" },
-{ reason: "Crib Break", state: "DELAY" },
-{ reason: "DUMPING", state: "ACTIVE" },
+const reasons = [
+  { reason: "TRAVELLING", state: "ACTIVE" },
+  { reason: "QUEUING", state: "ACTIVE" },
+  { reason: "LOADING", state: "ACTIVE" },
+  { reason: "Smoke Break", state: "STANDBY" },
+  { reason: "HOLDING", state: "ACTIVE" },
+  { reason: "Crib Break", state: "DELAY" },
+  { reason: "DUMPING", state: "ACTIVE" },
 ];
 
 export const generateEventData = (eventMetas: any[]) => {
