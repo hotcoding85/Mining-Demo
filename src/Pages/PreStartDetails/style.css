@@ -119,7 +119,7 @@
     margin: 0 auto 60px !important;
   }
   .notes-card {
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: white;
     padding: 20px;
     border-radius: 5px;
@@ -170,26 +170,26 @@
   
   /* Checklist Table Section */
   .table-section{
-   background-color:  #283655;
+   background-color:  var(--bg-color);
   }
   .checklist-table {
     width: 100%;
     border-collapse: collapse;
     color: white;
-    background-color: #283655;
+    background-color: var(--bg-color);
   }
   table th td{
     border: none !important;
-    background-color: #283655;
+    background-color: var(--bg-color);
   }
   .checklist-table th, .checklist-table td {
-    border: 1px solid #283655;
+    border: 1px solid var(--bg-color);
     padding: 10px;
     text-align: center;
   }
   
   .checklist-table th {
-    background-color: #283655;
+    background-color: var(--bg-color);
   }
   
   .checklist-table td input[type="radio"],
@@ -198,7 +198,7 @@
   }
   
   .checklist-table td {
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: #ECF0F1;
   }
  th:first-child,td:first-child{

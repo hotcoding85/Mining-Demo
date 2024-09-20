@@ -75,7 +75,7 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
           Density: {density}
         </div> */}
       </div>
-      <div style={{ flex: "0.1", color: "#333" }}>
+      <div style={{ flex: "0.1", color: "var(--dark-text-color)" }}>
         <i className="bx bx-trash" onClick={() => onRemove(fence)}></i>
       </div>
     </div>

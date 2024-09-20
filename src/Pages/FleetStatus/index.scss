@@ -8,11 +8,11 @@ body[data-layout-mode="dark"] {
   }
 
   .loadsView {
-    background-color: #2a3042;
+    background-color: var(--dark-bg-color);
   }
 
   .tonnesView {
-    background-color: #2a3042;
+    background-color: var(--dark-bg-color);
   }
 }
 

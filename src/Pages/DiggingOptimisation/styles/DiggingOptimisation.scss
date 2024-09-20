@@ -6,7 +6,7 @@
     justify-content: center;
     font-weight: 700;
     background-color: #fff;
-    color: #283655;
+    color: var(--bg-color);
     font-size: 14px;
     padding: 20px;
   }
@@ -52,7 +52,7 @@
 
   .shift-segment {
     &.ant-segmented {
-      background: #283655;
+      background: var(--bg-color);
       border: 1px solid #ffffff;
       border-radius: 5px;
       padding: 0;
@@ -66,7 +66,7 @@
         }
         &.ant-segmented-item-selected {
           .ant-segmented-item-label {
-            color: #283655;
+            color: var(--bg-color);
           }
         }
       }

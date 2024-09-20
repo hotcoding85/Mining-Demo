@@ -34,7 +34,7 @@
 
 body[data-layout-mode="light"] {
   .ant-steps-item-active .ant-steps-icon-dot {
-    background-color: #2a2a2a !important;
+    background-color: var(--dark-bg-color) !important;
   }
 
   .ant-steps-item-content .ant-steps-item-title {
@@ -42,7 +42,7 @@ body[data-layout-mode="light"] {
   }
 
   .ant-steps-item-active .ant-steps-item-title {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
   }
 }
 
@@ -55,5 +55,5 @@ body[data-layout-mode="light"] {
 }
 
 body[data-layout-mode="light"] .LegendText {
-  color: #2a2a2a !important;
+  color: var(--dark-text-color) !important;
 }

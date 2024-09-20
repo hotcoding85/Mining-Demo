@@ -93,7 +93,7 @@ const Dispatch = () => {
   });
 
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
   const [selectedCrew, setSelectedCrew] = useState<any>();
   const [allocatedOperators, setAllocatedOperators] = useState<number>(0);
 
@@ -657,6 +657,10 @@ const Dispatch = () => {
     setFilteredOperators(newOperators);
   };
 
+  const handleMouseEnter = (index: number) => setTooltipIndex(index);
+
+  const handleMouseLeave = () => setTooltipIndex(null);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -735,13 +739,13 @@ const Dispatch = () => {
                                         {/* <div className="fw-medium rounded-2 status-active">
                                           {equipment.status}
                                         </div> */}
-                                        <div>
-                                          <span className="fs-4 text-color">
-                                            {equipment.name}
-                                            <span className="fs-6">
-                                              ({equipment.model})
-                                            </span>
-                                          </span>
+                                        <div className="d-flex align-items-center gap-1 text-color">
+                                          <span className="fs-4">{equipment.name}</span>
+                                          (<span className="fs-6 text-truncate p-0" onMouseEnter={() => handleMouseEnter(key)}
+                                            onMouseLeave={handleMouseLeave}>
+                                            {`${equipment.model}`}
+                                            {tooltipIndex == key && <div className="position-absolute bg-white text-black px-2 py-1 rounded tooltip-value">{equipment.model}</div>}
+                                            </span>)
                                         </div>
                                         {/* <Tag></Tag> */}
                                         <div className="select-icon">

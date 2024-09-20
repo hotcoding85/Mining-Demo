@@ -167,11 +167,11 @@
 }
 
 [data-layout-mode="dark"] .rbc-off-range-bg {
-  background: #283655;
+  background: var(--bg-color);
 }
 
 .page-content .rbc-today {
-  background-color: #283655;
+  background-color: var(--bg-color);
 }
 
 .page-content ::-webkit-scrollbar {
@@ -241,13 +241,13 @@
 }
 
 .page-content .rbc-time-view {
-  border: 1px solid #283655;
+  border: 1px solid var(--bg-color);
   margin: 0 auto 15px;
   width: calc(100% - 48px) !important;
 }
 
 .page-content .rbc-time-header.rbc-overflowing {
-  border-right: 1px solid #283655;
+  border-right: 1px solid var(--bg-color);
 }
 
 .page-content .rbc-time-content {
@@ -361,7 +361,7 @@
 .event-chip {
   width: fit-content;
   border-radius: 18px;
-  background-color: #283655;
+  background-color: var(--bg-color);
 }
 
 .event-chip-filter {

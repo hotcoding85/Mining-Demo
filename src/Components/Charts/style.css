@@ -2,10 +2,10 @@
 
 /* 
 .trucking-header{
-    background-color: '#283655';
+    background-color: 'var(--bg-color)';
     padding: 15px;
     margin:1.5%;
-    background-color: #283655;
+    background-color: var(--bg-color);
     border-radius: 15px;
     width: 95.5%;
 }
@@ -73,7 +73,7 @@
 }
 
 .pie {
-  background-color: #283655;
+  background-color: var(--bg-color);
   border-radius: 15px;
   margin-top: 20px;
   width: 30%;
@@ -108,7 +108,7 @@
 
 .BarGraphContainer {
   width: 100%;
-  /* background-color: #283655; */
+  /* background-color: var(--bg-color); */
   padding: 20px;
   border-radius: 0 0 15px 15px;
 }
@@ -159,7 +159,7 @@
 .ProgressBarContainer {
   padding: 20px;
   position: relative;
-  background-color: #283655;
+  background-color: var(--bg-color);
   width: 90%;
   border-radius: 15px 15px 0 0;
 }
@@ -283,7 +283,7 @@
   font-weight: 500;
   color: "FFFFFF";
   padding-top: 0%;
-  background-color: "#283655";
+  background-color: "var(--bg-color)";
   font-weight: bold;
 }
 
@@ -303,7 +303,7 @@
 
 [data-layout-mode=dark] .light-box {
   color: #fff;
-  background-color: #283655 !important;
+  background-color: var(--bg-color) !important;
 }
 
 .BarAndProgressContainer .PieChartContainer:first-child .LegendItem2:last-child {

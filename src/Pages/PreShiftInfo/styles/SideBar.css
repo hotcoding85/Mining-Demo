@@ -18,7 +18,7 @@
   cursor: pointer;
   border: none;
   border: 1px solid #d9d9d985;
-  background-color: #283655;
+  background-color: var(--bg-color);
   border-radius: 20px;
   padding: 4px 8px 4px 8px !important;
   min-width: 40px;
@@ -107,13 +107,13 @@
 
 /* [data-layout-mode="dark"] .task-list {
   color: #fff;
-  background-color: #283655;
-  border: 1px solid #283655;
+  background-color: var(--bg-color);
+  border: 1px solid var(--bg-color);
 }
 
 [data-layout-mode="dark"] .task-list-item {
-  background-color: #283655;
-  border: 1px solid #283655;
+  background-color: var(--bg-color);
+  border: 1px solid var(--bg-color);
 } */
 
 [data-layout-mode="dark"] .task-wrapper {
@@ -159,8 +159,8 @@
 
 [data-layout-mode="dark"] .preshift-list {
   width: 100%;
-  background-color: #283655;
-  border: 1px solid #283655;
+  background-color: var(--bg-color);
+  border: 1px solid var(--bg-color);
 } 
 
 .task-list-title {

@@ -14,7 +14,7 @@ body[data-layout-mode="dark"] {
     border: 1px solid #535e77;
     margin-bottom: 16px;
     &.filled {
-      background-color: #283655;
+      background-color: var(--bg-color);
       border-width: 1px;
     }
     
@@ -69,7 +69,7 @@ body[data-layout-mode="dark"] {
     padding: 8px 16px;
     border: 1px solid white;
     border-radius: 4px;
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: white;
     font-size: 16px;
     font-style: normal;
@@ -115,7 +115,7 @@ body[data-layout-mode="light"] {
   }
 
   .ore-body-item .ore-body-label {
-    color: #2a2a2a;
+    color: var(--dark-text-color);
   }
 
   .truck-item .operator {
@@ -125,7 +125,7 @@ body[data-layout-mode="light"] {
     gap: 10px;
     align-self: stretch;
     border-radius: 99px;
-    background: #2a2a2a;
+    background: var(--dark-bg-color);
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -140,7 +140,7 @@ body[data-layout-mode="light"] {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     background-color: white;
-    color: #2a2a2a;
+    color: var(--dark-text-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 600;

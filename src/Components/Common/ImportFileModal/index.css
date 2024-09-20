@@ -60,11 +60,11 @@ body[data-layout-mode="light"] .import-file-modal {
     background: white !important;
   }
   .ant-steps-item-active .ant-steps-icon {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
   }
 
   .ant-steps-item-title {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
     margin-top: 4px;
   }
 
@@ -81,15 +81,15 @@ body[data-layout-mode="light"] .import-file-modal {
   }
 
   .ant-upload-drag-icon svg {
-    fill: #2a2a2a !important;
+    fill: var(--dark-text-color) !important;
   }
 
   .ant-upload-text {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
   }
 
   .ant-spin-dot-item {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
   }
 
   .mdi-close {
@@ -99,6 +99,6 @@ body[data-layout-mode="light"] .import-file-modal {
   }
 
   .model-title {
-    color: #2a2a2a !important;
+    color: var(--dark-text-color) !important;
   }
 }
