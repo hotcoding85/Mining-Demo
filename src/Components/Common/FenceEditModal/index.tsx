@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Input } from "antd";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { Select } from "antd";
-import { Bench } from "slices/benches/reducer";
 
 const { Option } = Select;
 
@@ -15,7 +14,8 @@ const content: any = {
   transform: "translate(-50%, -50%)",
 };
 
-interface WasteEditModalProps {
+interface FenceEditModalProps {
+  category: string;
   isOpen: boolean;
   onClose: () => void;
   onSave?: (bench: any, name: string, color: string) => void;
@@ -23,7 +23,8 @@ interface WasteEditModalProps {
   wasteData?: any;
 }
 
-const WasteEditModal: React.FC<WasteEditModalProps> = ({
+const FenceEditModal: React.FC<FenceEditModalProps> = ({
+  category,
   isOpen,
   onClose,
   onSave,
@@ -67,14 +68,14 @@ const WasteEditModal: React.FC<WasteEditModalProps> = ({
       }}
     >
       <ModalHeader tag="h4">
-        {wasteData?.benchId ? "Edit Waste Dump" : "Add Waste Dump"}
+        {wasteData?.benchId ? `Edit ${category} Dump` : `Add ${category} Dump`}
       </ModalHeader>
       <ModalBody>
-        <label>Waste Dump Name:</label>
+        <label>{category} Dump Name:</label>
         <Input
           type="text"
           value={newName}
-          placeholder="Waste dump name"
+          placeholder={`${category} dump name`}
           onChange={handleInputChange}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
@@ -98,12 +99,12 @@ const WasteEditModal: React.FC<WasteEditModalProps> = ({
           }}
         >
           {benches?.map((option) => (
-            <Option key={option.value} value={option.id} name={option.name}>
+            <Option key={option.id} value={option.id} name={option.name}>
               {option.name} - {option.blockId}
             </Option>
           ))}
         </Select>
-        <label>Waste dump color:</label>
+        <label>{category} dump color:</label>
         <Input
           type="color"
           value={newColor}
@@ -127,4 +128,4 @@ const WasteEditModal: React.FC<WasteEditModalProps> = ({
   );
 };
 
-export default WasteEditModal;
+export default FenceEditModal;
