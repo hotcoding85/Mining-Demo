@@ -72,7 +72,7 @@ const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
 const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 
-const HaulRoadIntelligence = React.lazy(() => import("Pages/HaulRoad"));
+const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulRoad"));
 // const PitView = React.lazy(() => import("Pages/PitView"));
 const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
 const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
@@ -157,7 +157,7 @@ const authProtectedRoutes = [
 
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
-  { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
+  { path: "/haul-truck-intelligence", exact: true, component: <HaulTruckIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
