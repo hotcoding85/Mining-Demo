@@ -68,7 +68,7 @@ export const ThreeJS = () => {
 
     const { routes } = useSelector(stateProperties);
 
-    document.title = "3D Pit View";
+    document.title = "3D Pit View | FMS Live";
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapBoxContainer = useRef<HTMLDivElement | null>(null);
