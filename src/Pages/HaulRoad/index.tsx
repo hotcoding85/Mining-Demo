@@ -9,15 +9,15 @@ import { getRandomInt } from "utils/random";
 import { minutesToHhMm } from "utils/common";
 import "./style.scss";
 
-const HaulRoadIntelligence = (props: any) => {
-    document.title = "Haul Road Intelligence | FMS Live";
+const HaulTruckIntelligence = (props: any) => {
+    document.title = "Haul Truck Intelligence | FMS Live";
 
     const [loadCycleList, setLoadCycleList] = useState<HaulRoadData[]>([]);
     const [loadCycleRows, setLoadCycleRows] = useState<IntelligenceReport[]>([]);
     const [totalData, setTotalData] = useState<any>({});
     const [filter, setFilter] = useState<string>("HD785-7");
 
-    const getTimeDifference = (actualTime: string, mineIdeal: string) =>  {
+    const getDeviationVaulue = (actualTime: string, mineIdeal: string) => {
         const [startHours, startMinutes] = actualTime.split(':').map(Number);
         const [endHours, endMinutes] = mineIdeal.split(':').map(Number);
 
@@ -26,8 +26,18 @@ const HaulRoadIntelligence = (props: any) => {
 
         let differenceInMinutes = startTotalMinutes - endTotalMinutes;
 
-        return differenceInMinutes;
-    }
+        const absoluteDifference = Math.abs(differenceInMinutes);
+        const hours = Math.floor(absoluteDifference / 60);
+        const minutes = absoluteDifference % 60;
+
+        const formattedHours = String(hours).padStart(2, '0');
+        const formattedMinutes = String(minutes).padStart(2, '0');
+
+        return differenceInMinutes < 0
+            ? `- ${formattedHours}:${formattedMinutes}`
+            : `${formattedHours}:${formattedMinutes}`;
+    };
+
 
     const getHaulRoadReport = () => {
        let loadCycleData =  loadCycleList?.map((haulRoadData) => {
@@ -58,12 +68,12 @@ const HaulRoadIntelligence = (props: any) => {
             actualSiteAverage = getDifference(0, 120);
         }
 
-        let deviation = getTimeDifference(
+        let deviation = getDeviationVaulue(
             actualSiteAverage,
             haulRoadData.mineIdeal
           );
 
-        return { ...haulRoadData, actualSiteAverage, deviation:minutesToHhMm(deviation) };
+        return { ...haulRoadData, actualSiteAverage, deviation };
       });
 
       setLoadCycleRows(loadCycleData);
@@ -88,9 +98,9 @@ const HaulRoadIntelligence = (props: any) => {
         let totalDeviation = 0;
     
         data.forEach(item => {
-            totalActualSiteAverage += convertToSeconds(item.actualSiteAverage);
-            totalMineIdeal += convertToSeconds(item.mineIdeal);
-            totalDeviation += convertToSeconds(item.deviation);
+            totalActualSiteAverage += handleConvertSeconds(item.actualSiteAverage);
+            totalMineIdeal += handleConvertSeconds(item.mineIdeal);
+            totalDeviation += handleConvertSeconds(item.deviation);
         });
     
         return {
@@ -100,7 +110,14 @@ const HaulRoadIntelligence = (props: any) => {
             totalDeviation: convertToTimeString(totalDeviation),
         };
     }
-    
+
+    const handleConvertSeconds = (timeString) => {
+        const isNegative = timeString.trim().startsWith('-');
+        const timeInSeconds = convertToSeconds(timeString.replace('-', '').trim());
+
+        return isNegative ? -timeInSeconds : timeInSeconds;
+    }
+
     const getDifference = (min, max) => {
         let value = getRandomInt(min, max);
         const time = minutesToHhMm(Math.round(value));
@@ -151,13 +168,13 @@ const HaulRoadIntelligence = (props: any) => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid className="haul-road-wrapper">
-                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Haul Road Intelligence" />
+                    <Breadcrumb title="Mine Dynamics" breadcrumbItem="Haul Truck Intelligence" />
                     <Row>
                         <Col lg="12">
                             <Card>
                                 <CardBody>
                                     <div className="d-flex justify-content-between align-items-center">
-                                        <div className="haulroad-summary-title">Haul Road Intelligence</div>
+                                        <div className="haulroad-summary-title">Haul Truck Intelligence</div>
                                         <div className="d-flex justify-content-end align-items-center gap-3">
                                             <Row>
                                                 <Col md="12" className='mb-4 d-flex flex-row-reverse'>
@@ -184,4 +201,4 @@ const HaulRoadIntelligence = (props: any) => {
     )
 }
 
-export default HaulRoadIntelligence;
+export default HaulTruckIntelligence;

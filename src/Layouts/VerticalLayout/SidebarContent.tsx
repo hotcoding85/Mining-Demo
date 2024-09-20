@@ -356,8 +356,8 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/haul-road-intelligence">
-                    {props.t("Haul Road Intelligence")}
+                  <Link to="/haul-truck-intelligence">
+                    {props.t("Haul Truck Intelligence")}
                   </Link>
                 </li>
                 <li>
