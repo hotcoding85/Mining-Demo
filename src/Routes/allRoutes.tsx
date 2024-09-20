@@ -30,6 +30,7 @@ import DiggingDashboard from "Pages/DiggingDashboard";
 // const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
 
 import EquipmentGantt from "Pages/Equipment Gantt";
+import { Underground } from "Pages/Underground";
 // const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
 
 // Auth
@@ -169,6 +170,8 @@ const authProtectedRoutes = [
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
   // ThreeJS View
   { path: "//3d-pit-view", exact: true, component: <ThreeJS /> },
+  // Underground Map View
+  { path: "/underground-map", exact: true, component: <Underground /> },
 ];
 
 const publicRoutes = [
