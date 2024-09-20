@@ -1,0 +1,39 @@
+.align-self-center:first-child,
+.align-self-center:not(:last-child) {
+    width: 35%;
+} .align-self-center:last-child {
+    width: 30%;
+}
+
+.standby-input,
+.standby-input:hover,
+.standby-input:focus,
+.standby-input:focus-visible,
+.standby-input:focus-within {
+    width: 500px;
+    background-color: #1C263c;
+    color: white !important;
+    outline: none;
+}
+
+.ant-select {
+    width: 100px;
+}
+
+.ant-select-selector {
+    width: 100px;
+    background: #1C263c !important;
+}
+
+.ant-select-selection-item {
+    color: white;
+}
+
+.standby-input::placeholder {
+    color: white; 
+    opacity: 1; 
+  }
+
+  .ant-select-arrow svg {
+    fill: white;
+  }

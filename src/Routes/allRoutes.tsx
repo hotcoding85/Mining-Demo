@@ -38,6 +38,8 @@ const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
 const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
 const Materials = React.lazy(() => import("Pages/Materials"));
 const Benches = React.lazy(() => import("Pages/Benches"));
+const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
+
 const Users = React.lazy(() => import("Pages/Users"));
 const Fleet = React.lazy(() => import("Pages/Fleet"));
 const Trackers = React.lazy(() => import("Pages/Trackers"));
@@ -104,6 +106,7 @@ const authProtectedRoutes = [
   { path: "/realtime-postioning", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
+  {path: "/admin-settings", exact: true, component: <AdminSettings />},
   { path: "/users", exact: true, component: <Users /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/rom-management", exact: true, component: <ROMManagement /> },
