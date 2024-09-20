@@ -37,3 +37,22 @@
   .ant-select-arrow svg {
     fill: white;
   }
+
+  body[data-layout-mode="light"] {
+    .state-reason-title {
+        color: var(--dark-text-color) !important;
+      }
+  
+    .table {
+  
+      th,
+      td {
+        color: var(--dark-text-color) !important;
+        font-size: 0.9rem;
+      }
+    }
+  
+    .text-color {
+      color: var(--dark-text-color);
+    }
+  }  

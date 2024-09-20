@@ -41,7 +41,7 @@ const AdminSettings = (props: any) => {
         <Row>
           <Col span={24}>
             <div style={{ padding: "16px" }}>
-              <Title level={4} style={{ color: "white", marginBottom: 0 }}>
+              <Title level={4} style={{ color: "white", marginBottom: 0 }} className="state-reason-title">
                 State Reasons
               </Title>
               <div
@@ -118,13 +118,13 @@ const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
     {/* Header row for Code, Description, and Vehicle Type */}
     <Row className="align-items-center justify-content-between my-4 border-bottom pb-2">
       <Col lg="6" className="custom-label text-center">
-        <strong style={{ color: "white" }}>Code</strong>
+        <strong>Code</strong>
       </Col>
       <Col lg="6" className="custom-label text-center">
-        <strong style={{ color: "white" }}>Description</strong>
+        <strong>Description</strong>
       </Col>
       <Col lg="2" className="custom-label text-right">
-        <strong style={{ color: "white" }}>Vehicle Type</strong>
+        <strong>Vehicle Type</strong>
       </Col>
     </Row>
 
