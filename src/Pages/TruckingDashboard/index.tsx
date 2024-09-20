@@ -1,5 +1,4 @@
 import "./index.css";
-
 import React, { useMemo } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
@@ -9,7 +8,7 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import RadicalGraph from "Components/Common/RadicalGraph"
+import RadicalGraph from "Components/Common/RadicalGraph";
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";
 import { Select, Space } from "antd";
@@ -31,53 +30,78 @@ const TruckingDashboard = (props: any) => {
     [layoutModeType]
   );
 
+  const generateRandomPercentages = (numStates: number): number[] => {
+
+    let percentages: number[] = [];
+
+    let total = 100;
+
+    for (let i = 0; i < numStates - 1; i++) {
+      let randomValue: number = Math.random() * total;
+      randomValue = Math.round(randomValue);
+      percentages.push(randomValue);
+      total -= randomValue;
+    }
+
+    percentages.push(total);
+    return percentages;
+  };
+
+  const getPercentages = () => {
+    const savedPercentages = localStorage.getItem('statePercentages');
+    if (savedPercentages) {
+      return JSON.parse(savedPercentages);
+    } else {
+      const newPercentages = generateRandomPercentages(5);
+      localStorage.setItem('statePercentages', JSON.stringify(newPercentages));
+      return newPercentages;
+    }
+  };
+
   const StateTimes = useMemo(() => {
+    const percentages = getPercentages();
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
 
     return [
       {
         state: "Active",
-        time: "00:24:52",
-        pctValue: 70,
+        pctValue: percentages[0],
         color: FLEET_TIME_STATE_COLOR.ACTIVE,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "StandBy",
-        time: "00:24:52",
-        pctValue: 64,
+        pctValue: percentages[1],
         color: FLEET_TIME_STATE_COLOR.STANDBY,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Down",
-        time: "00:24:52",
-        pctValue: 54,
+        pctValue: percentages[2],
         color: FLEET_TIME_STATE_COLOR.DOWN,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Idle",
-        time: "00:24:52",
-        pctValue: 58,
+        pctValue: percentages[3],
         color: isLight ? "#828282" : "#fff",
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Delay",
-        time: "00:24:52",
-        pctValue: 65,
+        pctValue: percentages[4],
         color: FLEET_TIME_STATE_COLOR.DELAY,
         bgColor: bgColor,
         textColor: textColor,
       },
     ];
   }, [layoutModeType, isLight]);
+
 
   return (
     <React.Fragment>
@@ -97,22 +121,22 @@ const TruckingDashboard = (props: any) => {
                   placeholder="Filter"
                   // styles={customStyles}
                   style={{ width: '150px' }}
-                  options={[{ value: 'All', label: 'All' }, 
-                    {
-                      label: <span>Models</span>,
-                      title: 'Models',
-                      options: [
-                        { value: 'HD785', label: 'HD785' }, { value: 'HD1500-7', label: 'HD1500-7' }, { value: 'HD1500-8', label: 'HD1500-8' }
-                      ],
-                    },
-                    {
-                      label: <span>Fleet</span>,
-                      title: 'Fleet',
-                      options: [
-                        { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
-                      ],
-                    },
-                    ]}
+                  options={[{ value: 'All', label: 'All' },
+                  {
+                    label: <span>Models</span>,
+                    title: 'Models',
+                    options: [
+                      { value: 'HD785', label: 'HD785' }, { value: 'HD1500-7', label: 'HD1500-7' }, { value: 'HD1500-8', label: 'HD1500-8' }
+                    ],
+                  },
+                  {
+                    label: <span>Fleet</span>,
+                    title: 'Fleet',
+                    options: [
+                      { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
+                    ],
+                  },
+                  ]}
                 />
               </Space>
             </Col>
