@@ -34,7 +34,7 @@ const DiggingDashboard = (props: any) => {
   const generateRandomPercentages = (numStates: number): number[] => {
     let total = 100;
     let percentages: number[] = [];
-  
+
     for (let i = 0; i < numStates - 1; i++) {
       let randomValue: number = Math.random() * total;
       randomValue = Math.round(randomValue);
@@ -44,24 +44,13 @@ const DiggingDashboard = (props: any) => {
     percentages.push(total); 
     return percentages;
   };
-  
-  const getPersistedPercentages = () => {
-    const savedPercentages = localStorage.getItem('diggingDashboardPercentages');
-    if (savedPercentages) {
-      return JSON.parse(savedPercentages); 
-    } else {
-      const newPercentages = generateRandomPercentages(5);
-      localStorage.setItem('diggingDashboardPercentages', JSON.stringify(newPercentages));
-      return newPercentages;
-    }
-  };
-  
+
   const StateTimes = useMemo(() => {
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
-  
-    const percentages = getPersistedPercentages();
-  
+
+    const percentages = generateRandomPercentages(5);
+
     return [
       {
         state: "Active",
@@ -100,7 +89,7 @@ const DiggingDashboard = (props: any) => {
       },
     ];
   }, [layoutModeType, isLight]);
-  
+
   return (
     <React.Fragment>
       <div className="page-content digging-state">

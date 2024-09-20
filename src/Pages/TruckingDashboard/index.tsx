@@ -30,38 +30,27 @@ const TruckingDashboard = (props: any) => {
     [layoutModeType]
   );
 
-  const generateRandomPercentages = (numStates: number): number[] => {
+  const generateRandomPercentages = (numStates: number) => {
+let percentages: number[] = [];
 
-    let percentages: number[] = [];
+let total: number = 100;
 
-    let total = 100;
+for (let i = 0; i < numStates - 1; i++) {
+  let randomValue: number = Math.random() * total;
+  randomValue = Math.round(randomValue);
+  percentages.push(randomValue);  
+  total -= randomValue;
+}
 
-    for (let i = 0; i < numStates - 1; i++) {
-      let randomValue: number = Math.random() * total;
-      randomValue = Math.round(randomValue);
-      percentages.push(randomValue);
-      total -= randomValue;
-    }
-
-    percentages.push(total);
+percentages.push(total); 
     return percentages;
   };
 
-  const getPercentages = () => {
-    const savedPercentages = localStorage.getItem('statePercentages');
-    if (savedPercentages) {
-      return JSON.parse(savedPercentages);
-    } else {
-      const newPercentages = generateRandomPercentages(5);
-      localStorage.setItem('statePercentages', JSON.stringify(newPercentages));
-      return newPercentages;
-    }
-  };
-
   const StateTimes = useMemo(() => {
-    const percentages = getPercentages();
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
+
+    const percentages = generateRandomPercentages(5);
 
     return [
       {
@@ -102,7 +91,6 @@ const TruckingDashboard = (props: any) => {
     ];
   }, [layoutModeType, isLight]);
 
-
   return (
     <React.Fragment>
       <div className="page-content turcking-state">
@@ -121,22 +109,22 @@ const TruckingDashboard = (props: any) => {
                   placeholder="Filter"
                   // styles={customStyles}
                   style={{ width: '150px' }}
-                  options={[{ value: 'All', label: 'All' },
-                  {
-                    label: <span>Models</span>,
-                    title: 'Models',
-                    options: [
-                      { value: 'HD785', label: 'HD785' }, { value: 'HD1500-7', label: 'HD1500-7' }, { value: 'HD1500-8', label: 'HD1500-8' }
-                    ],
-                  },
-                  {
-                    label: <span>Fleet</span>,
-                    title: 'Fleet',
-                    options: [
-                      { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
-                    ],
-                  },
-                  ]}
+                  options={[{ value: 'All', label: 'All' }, 
+                    {
+                      label: <span>Models</span>,
+                      title: 'Models',
+                      options: [
+                        { value: 'HD785', label: 'HD785' }, { value: 'HD1500-7', label: 'HD1500-7' }, { value: 'HD1500-8', label: 'HD1500-8' }
+                      ],
+                    },
+                    {
+                      label: <span>Fleet</span>,
+                      title: 'Fleet',
+                      options: [
+                        { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
+                      ],
+                    },
+                    ]} 
                 />
               </Space>
             </Col>
