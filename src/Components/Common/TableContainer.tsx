@@ -107,6 +107,7 @@ interface TableContainerProps {
   handleOnDragStart?: any;
   handleOnDragOver?: any;
   handleOnDrop?: any;
+  isFooter?: boolean;
 }
 
 const TableContainer = ({
@@ -134,7 +135,8 @@ const TableContainer = ({
   isDraggable,
   handleOnDragStart,
   handleOnDragOver,
-  handleOnDrop
+  handleOnDrop,
+  isFooter
 }: TableContainerProps) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -184,6 +186,7 @@ const TableContainer = ({
     previousPage,
     // setPageSize,
     getState,
+    getFooterGroups,
   } = table;
 
   // useEffect(() => {
@@ -337,6 +340,22 @@ const TableContainer = ({
               );
             })}
           </tbody>
+          {
+            isFooter &&
+            <tfoot>
+              {getFooterGroups().map(group => (
+                <tr {...group}>
+                  {group.headers.map((columnData: any) => (
+                    <td >
+                      {columnData.column.columnDef.footer !== "" ? <span>{columnData.column.columnDef.footer}</span>
+                        : <></>
+                      }
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tfoot>
+          }
         </Table>
       </div>
 
