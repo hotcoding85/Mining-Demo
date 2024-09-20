@@ -414,6 +414,24 @@ class Utils {
         tilePixelY
     };
   }
+
+  static pointToTilePixel(x, y, center, z, tileSize = baseTileSize) {
+    const centerPosition = Utils.tile2position(z, center.x, center.y, center, tileSize)
+    const deltaX = Math.round((x - centerPosition.x) / tileSize)
+    const deltaY = Math.round(-(y - centerPosition.y) / tileSize)
+    const tilePixelX = Math.floor((x - centerPosition.x) % tileSize);
+    const tilePixelY = Math.floor(-(y - centerPosition.y) % tileSize)
+    // Calculate the tile coordinates
+    const tileX = deltaX + center.x;
+    const tileY = deltaY + center.y;
+
+    return {
+        tileX,
+        tileY,
+        tilePixelX,
+        tilePixelY
+    };
+  }
 }
 
 export class Map {
@@ -469,6 +487,10 @@ export class Map {
 
   convertGeoToPixel (lat, lng, zoom = this.zoom) {
     return Utils.latLngToTilePixel(lat, lng, zoom);
+  }
+
+  convertXYToPixel (x, y, center = this.center, zoom = this.zoom) {
+    return Utils.pointToTilePixel(x, y, center, zoom, baseTileSize)
   }
 
   drawRoutes() {
@@ -761,18 +783,22 @@ export class MapPicker {
   drawLineBetweenPoints(point1, point2) {
     const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 10, depthTest: false, depthWrite: false });
     
-    const points = [];
-    const numPoints = 1; // Number of points to sample along the line
+    // Create the points array directly from the two selected points
+    const points = [point1.clone(), point2.clone()];
   
-    for (let i = 0; i <= numPoints; i++) {
-      const t = i / numPoints;
-      const interpolatedPoint = new THREE.Vector3().lerpVectors(point1, point2, t);
+    const {
+      x,
+      y,
+      z
+    } = Utils.position2tile(this.map.zoom, point1.x, point1.y, this.map.center, this.map.tileSize)
+    const tile = new Tile(this, this.map.zoom, x, y, baseTileSize)
+    // Get the elevation for the two points from the terrain
+    const elevation1 = this.map.getElevationAt(point1);
+    const elevation2 = this.map.getElevationAt(point2);
   
-      // Get the elevation for this point from the terrain
-      const elevation = this.map.getElevationAt(interpolatedPoint);
-      interpolatedPoint.z = elevation; // Adjust Z based on elevation
-      points.push(interpolatedPoint);
-    }
+    // Adjust Z based on elevation
+    points[0].z = elevation1;
+    points[1].z = elevation2;
   
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geometry, material);

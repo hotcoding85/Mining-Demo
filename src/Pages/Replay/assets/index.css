@@ -1,0 +1,164 @@
+.ant-collapse-header-text{
+    color: #62be00 !important;
+    font-weight: 800;
+}
+.ant-collapse-arrow {
+    color: white !important;
+}
+.ant-collapse-content-active{
+    border-radius: 0px !important;
+    background-color: #283655 !important;
+}
+body[data-layout-mode="dark"] .ant-collapse-content{
+    background-color: #283655 !important;
+}
+body[data-layout-mode="light"] .ant-collapse-content{
+    background-color: white !important;
+}
+.ant-collapse-content-box{
+    padding: 0px 0px 0px 30px !important;
+}
+body[data-layout-mode="dark"] .ant-menu{
+    background-color: #283655 !important;
+    color: white !important;
+}
+body[data-layout-mode="light"] .ant-menu{
+    background-color: white !important;
+    color: grey !important;
+}
+body[data-layout-mode="light"] .page-content {
+    background-color: white;
+}
+body[data-layout-mode="dark"] .page-content {
+    background-color: #1C263C;
+}
+body[data-layout-mode="light"] .ant-menu-title-content {
+    color: black;
+}
+body[data-layout-mode="dark"] .replay-menu-item{
+    color: white;
+    border: 1px solid white;
+    border-radius: 3px;
+    width: calc(100% - 20px);
+    background: #2a3853;
+    box-shadow: none;
+    font-weight: 700;
+    font-size: 12px;
+}
+body[data-layout-mode="dark"] .replay-menu-item:hover{
+    color: #2a3853 !important;
+    background-color: white !important;
+}
+body[data-layout-mode="light"] .replay-menu-item:hover{
+    background-color: #2a3853 !important;
+    color: white !important;
+}
+body[data-layout-mode="light"] .replay-menu-item{
+    color: #2a3853;
+    border: 1px solid #2a3853;
+    border-radius: 3px;
+    width: calc(100% - 20px);
+    background: white;
+    box-shadow: none;
+    font-weight: 700;
+    font-size: 12px;
+}
+body[data-layout-mode="dark"] .replay-menu-item.selected{
+    background-color: white;
+    color: #2a3853;
+}
+body[data-layout-mode="light"] .replay-menu-item.selected{
+    color: white;
+    background-color: #2a3853;
+}
+.replay-menu-item > span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.mapboxgl-ctrl-bottom-right{
+    display: none !important;
+}
+body[data-layout-mode="dark"] .mapboxgl-popup-content{
+    background-color: #2a3853 !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .mapboxgl-popup-content{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .card{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="dark"] .card{
+    background-color: #293754 !important;
+    /* color: gold !important; */
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip{
+    border-top-color: #293754 !important;
+}
+body[data-layout-mode='dark'] .ant-tabs-tab-active > div {
+    color: white !important;
+}
+body[data-layout-mode='dark'] .ant-tabs-tab > div {
+    color: grey;
+}
+body[data-layout-mode='light'] .ant-tabs-tab-active > div {
+    color: #535E77 !important;
+}
+.actions .ant-btn-text {
+    color: white;
+}
+.actions .ant-btn-text:hover {
+    color: grey;
+}
+body[data-layout-mode='light'] .fleet-tracking-datepicker {
+    background-color: white;
+    color: #25324c;
+}
+body[data-layout-mode='dark'] .fleet-tracking-datepicker {
+    color: white;
+    background-color: #25324c;
+}
+.switch-timeline {
+    position: absolute;
+    right: 0px;
+    height: 30px;
+    width: 100%;
+    bottom: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    border-radius: 8px;
+}
+body[data-layout-mode='dark'] .switch-timeline {
+    background: #2a3853;
+    color: white;
+}
+body[data-layout-mode='light'] .switch-timeline {
+    color: #2a3853;
+    background: white;
+}
+.truck-badge {
+    align-self: flex-start;
+    padding: 2px 15px;
+    margin-right: 0;
+    color: #ffffff;
+    border-radius: 20px 0 0 20px;
+    font-weight: bold;
+    font-size: 12px;
+    margin-right: -15px;
+}
+.truck-sync-text {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 15px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+}
+.truck-badge-sync-icon{
+    display: flex;
+}
