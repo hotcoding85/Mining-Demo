@@ -1,0 +1,22 @@
+#underground-map-body{
+    padding: 0px !important;
+}
+
+.annotation {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 5px;
+    pointer-events: none; /* Prevent interaction */
+    display: none; /* Hide by default */
+}
+
+.point-info {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background: #2e2e2e;
+    color: gold;
+    padding: 10px;
+}

@@ -154,7 +154,6 @@ export const ThreeJS = () => {
             mapContainer.current.appendChild(renderer.domElement);
         }
 
-        renderer.outputEncoding = THREE.LinearEncoding;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight);

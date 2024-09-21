@@ -184,7 +184,6 @@ const Replay = (props: any) => {
             renderer.domElement.addEventListener('keydown', onDocumentKeyDown , false);
         }
 
-        renderer.outputEncoding = THREE.LinearEncoding;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -372,7 +371,6 @@ const Replay = (props: any) => {
             marker.position.set(worldPos.x, worldPos.y, elevationValue * 2);  // Set Z to 0 or adjust for elevation
             marker.scale.set(80, 80, 0); // Adjust based on zoom level
             // Attach rippleIcon HTML to the marker (syncs the 3D position)
-            iconLabel.position.copy(marker.position);  // Align the CSS2DObject with the marker position
     
             // Add marker and icon label to the scene
             // window.map.scene.add(iconLabel);  // Add the HTML label to the scene
