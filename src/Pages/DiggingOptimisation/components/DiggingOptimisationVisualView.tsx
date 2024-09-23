@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import eqImgae from "../../../assets/images/equipment/digger-top-view.png";
+import { dotData } from "../data/sampleData";
 
 interface Dot {
   type: "Feature";
@@ -11,52 +12,32 @@ interface Dot {
   properties: Record<string, unknown>;
 }
 
-function generateDotsWithinCircle(
-  center: [number, number],
-  radiusInMeters: number,
-  numDots: number
-): Dot[] {
-  const dots: Dot[] = [];
-
-  for (let i = 0; i < numDots; i++) {
-    const angle = Math.random() * 2 * Math.PI;
-    const distance = Math.random() * radiusInMeters;
-
-    const dx = distance * Math.cos(angle);
-    const dy = distance * Math.sin(angle);
-
-    const newLongitude = center[0] + dx / 111320;
-    const newLatitude = center[1] + dy / 110540;
-
-    dots.push({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [newLongitude, newLatitude],
-      },
-      properties: {},
-    });
-  }
-
-  return dots;
-}
-
 function generateCircleCoordinates(
   center: [number, number],
   radiusInMeters: number
 ): [number, number][] {
   const coordinates: [number, number][] = [];
-  const numPoints = 64; // Increase for smoother circle
+  const numPoints = 128;
   const angleStep = (2 * Math.PI) / numPoints;
+
+  const earthRadius = 6371000;
+
+  const [centerLon, centerLat] = center;
+
+  const centerLatInRad = (centerLat * Math.PI) / 180;
 
   for (let i = 0; i <= numPoints; i++) {
     const angle = i * angleStep;
+
     const dx = radiusInMeters * Math.cos(angle);
     const dy = radiusInMeters * Math.sin(angle);
 
-    // Convert distance in meters to degrees
-    const newLongitude = center[0] + dx / 111320;
-    const newLatitude = center[1] + dy / 110540;
+    const newLatitude = centerLat + (dy / earthRadius) * (180 / Math.PI);
+
+    const newLongitude =
+      centerLon +
+      ((dx / earthRadius) * (180 / Math.PI)) / Math.cos(centerLatInRad);
+
     coordinates.push([newLongitude, newLatitude]);
   }
 
@@ -82,8 +63,8 @@ const DiggingOptimisationVisualView = () => {
   const [lat] = useState(-29.147190282051838);
 
   const rippleIcon = () => {
-    const standardIconTemplate = `<div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-                  <img style="height:120px;" src=${eqImgae} alt="Description of the image">
+    const standardIconTemplate = `<div id="imageContainer" style="position:relative; transform: translate(-40px, -80px);">
+                  <img style="height:400px;" src=${eqImgae} alt="Description of the image">
                 </div>`;
 
     const icon = document.createElement("div");
@@ -101,7 +82,7 @@ const DiggingOptimisationVisualView = () => {
       container: mapContainer.current!,
       style: "mapbox://styles/hmesupport/cm00qombw008z01oe8pcf6j2m",
       center: [lng, lat],
-      zoom: 23,
+      zoom: 21,
       pitch: 0,
     });
 
@@ -110,56 +91,66 @@ const DiggingOptimisationVisualView = () => {
       const marker = new mapboxgl.Marker(el)
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
-      marker.getElement().addEventListener("click", () =>
-        mapRef.current?.flyTo({
-          center: [lng, lat],
-          zoom: 24,
-          speed: 1,
-        })
+
+      const createDashedCircleLayer = (sourceId, layerId, radius) => {
+        const geoJson = {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [generateCircleCoordinates([lng, lat], radius)],
+          },
+        };
+        mapRef.current?.addSource(sourceId, {
+          type: "geojson",
+          data: geoJson,
+        });
+        mapRef.current?.addLayer({
+          id: layerId,
+          type: "line",
+          source: sourceId,
+          layout: {},
+          paint: {
+            "line-color": "#000",
+            "line-width": 2,
+            "line-dasharray": [1, 2],
+          },
+        });
+      };
+      createDashedCircleLayer("dashed-outer-circle", "dashed-line-layer", 10);
+      createDashedCircleLayer(
+        "dashed-inner-circle",
+        "inner-dashed-line-layer",
+        8
       );
 
-      const dashedCircleGeoJson = {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [generateCircleCoordinates([lng, lat], 10)],
-        },
-      };
-
-      mapRef.current?.addSource("dashed-circle", {
+      mapRef.current?.addSource("circle", {
         type: "geojson",
-        data: dashedCircleGeoJson,
+        data: dotData,
       });
 
       mapRef.current?.addLayer({
-        id: "dashed-line-layer",
+        id: "circle",
         type: "line",
-        source: "dashed-circle",
+        source: "circle",
         layout: {},
         paint: {
-          "line-color": "#000",
-          "line-width": 2,
-          "line-dasharray": [1, 2],
+          "line-color": "#FF0000",
+          "line-width": 3,
         },
       });
 
-      const dotsData = {
-        type: "FeatureCollection",
-        features: generateDotsWithinCircle([lng, lat], 10, 5),
-      };
-
-      mapRef.current?.addSource("dots", {
-        type: "geojson",
-        data: dotsData,
-      });
-
       mapRef.current?.addLayer({
-        id: "dots-layer",
-        type: "circle",
-        source: "dots",
+        id: "circle-number",
+        type: "symbol",
+        source: "circle",
+        layout: {
+          "text-field": "{number}",
+          "text-size": 15,
+          "text-anchor": "center",
+          "text-offset": [0, 0],
+        },
         paint: {
-          "circle-radius": 5,
-          "circle-color": "#CF1322",
+          "text-color": "#FF0000",
         },
       });
     });
