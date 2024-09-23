@@ -9,11 +9,13 @@ interface BlockPopupContentProps {
     tonnes: number;
     volume: number;
     density: number;
-    augt: number;
+    grade: number;
   };
 }
 
-const BlockPopupContent: React.FC<BlockPopupContentProps> = ({ properties }) => {
+const BlockPopupContent: React.FC<BlockPopupContentProps> = ({
+  properties,
+}) => {
   return (
     <div>
       <table
@@ -26,19 +28,15 @@ const BlockPopupContent: React.FC<BlockPopupContentProps> = ({ properties }) => 
       >
         <tbody>
           {Object.entries(properties).map(([key, value], index) => {
-            if (key != 'id' && key != 'locationId') {
+            if (key != "id" && key != "locationId") {
               return (
                 <tr key={key}>
-                  <td style={{ padding: "4px" }}>
-                    {key}
-                  </td>
-                  <td style={{ padding: "4px" }}>
-                    {value}
-                  </td>
+                  <td style={{ padding: "4px" }}>{key}</td>
+                  <td style={{ padding: "4px" }}>{value}</td>
                 </tr>
-              )
+              );
             }
-            return ''
+            return "";
           })}
         </tbody>
       </table>

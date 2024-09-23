@@ -45,7 +45,7 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
             color: isLight ? "black" : "white",
           }}
         >
-          Augt: {augt}
+          Grade: {grade}
         </div>
         <div
           style={{

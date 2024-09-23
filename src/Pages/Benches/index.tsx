@@ -72,7 +72,7 @@ const Benches = (props: any) => {
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
       status: (doc && doc.status) || "ACTIVE",
-      blockId: 'WS01'
+      blockId: "WS01",
     };
   };
 
@@ -229,15 +229,13 @@ const Benches = (props: any) => {
       },
       {
         header: "Grade",
-        accessorKey: "augt",
+        accessorKey: "grade",
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const augt = cellProps.row.original.augt as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(augt)}</div>
-          )
-        }
+          const grade = cellProps.row.original.grade as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(grade)}</div>;
+        },
       },
       {
         header: "Density",
@@ -245,11 +243,9 @@ const Benches = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const density = cellProps.row.original.density as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(density)}</div>
-          )
-        }
+          const density = cellProps.row.original.density as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(density)}</div>;
+        },
       },
       {
         header: "Tonnes",
@@ -257,11 +253,9 @@ const Benches = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const tonnes = cellProps.row.original.tonnes as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(tonnes)}</div>
-          )
-        }
+          const tonnes = cellProps.row.original.tonnes as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(tonnes)}</div>;
+        },
       },
       {
         header: "Volume",
@@ -269,11 +263,9 @@ const Benches = (props: any) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: (cellProps: any) => {
-          const volume = cellProps.row.original.volume as number
-          return(
-            <div style={{textAlign:'right'}}>{round2Two(volume)}</div>
-          )
-        }
+          const volume = cellProps.row.original.volume as number;
+          return <div style={{ textAlign: "right" }}>{round2Two(volume)}</div>;
+        },
       },
       {
         header: "Status",
@@ -343,7 +335,7 @@ const Benches = (props: any) => {
       const benchData = data.map((item) => ({
         name: item.source,
         source: item["source_type"],
-        augt: item["au_g/t"],
+        grade: item["au_g/t"],
         blockId: item["block_id"],
         density: item["digblock_density"],
         tonnes: item["digblock_tonnes"],

@@ -109,9 +109,6 @@ export const generateMockPlanData = (
       supporting: normalizeRosters[target.roster].trucks.map(
         (truck) => truck.id
       ),
-      planId: `${target.roster}:${
-        normalizedVehicles[target.vehicleId].name
-      }:PLAN`,
     };
   });
 

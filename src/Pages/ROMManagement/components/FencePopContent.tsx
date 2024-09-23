@@ -9,7 +9,7 @@ interface FencePopContentProps {
     tonnes: number;
     volume: number;
     density: number;
-    augt: number;
+    grade: number;
   };
 }
 
