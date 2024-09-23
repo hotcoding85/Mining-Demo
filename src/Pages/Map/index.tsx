@@ -727,7 +727,7 @@ const Map = ({ socket }) => {
               <Col md={{ size: 4, offset: 8 }}>
                 <Card
                   className="p-3 card-status"
-                  style={{ top: "-450px", right: "-50px", width: "80%" }}
+                  style={{ top: "-460px", right: "-30px", width: "80%" }}
                 >
                   <div className="d-flex justify-content-between">
                     <div style={{ display: "flex", alignItems: "baseline" }}>
