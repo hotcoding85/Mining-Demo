@@ -29,7 +29,7 @@ function Draggable({ type, id, name, model, disabled, onDragStart }) {
                 transform: CSS.Translate.toString(transform),
                 padding: '8px',
                 margin: '4px',
-                backgroundColor: disabled ? '#d0d0d0' : '#283655',
+                backgroundColor: disabled ? '#d0d0d0' : 'var(--bg-color)',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
                 cursor: disabled ? 'not-allowed' : 'move',
@@ -510,7 +510,7 @@ const ShortIntervalControl = () => {
                                                                 <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                                                                     {getTrucks(excavator.id).map(truck => (
                                                                         <div style={{ justifyContent: 'space-between', padding: '10px', width: 'fit-content', }}>
-                                                                            <Card style={{ marginBottom: '0px', border: '1px solid #333' }}>
+                                                                            <Card style={{ marginBottom: '0px', border: '1px solid var(--dark-text-color)' }}>
                                                                                 <CardBody style={{ padding: '8px 8px' }}>
                                                                                     <img width={36} src={truckIcon} />
                                                                                     <span style={{ fontSize: '18px' }}>{truck.name}</span>

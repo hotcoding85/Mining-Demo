@@ -20,6 +20,7 @@ import { Dropdown, DropdownType } from 'Components/Common/Dropdown';
 import './index.css';
 import { createSelector } from 'reselect';
 import { LAYOUT_MODE_TYPES } from 'Components/constants/layout';
+import JSZip from '@turbowarp/jszip';
 
 // default route's speed limit 40km/h
 const defaultSpeedLimit = 40;
@@ -172,6 +173,8 @@ const AutoRouting = () => {
         mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
         mapRef.current.on('style.load', () => {
+            // Get 3D pit geojson data for calculating elevation
+            fetchZipFile()
             mapRef.current?.addSource('mapbox-terrain-rgb', {
                 type: 'raster-dem',
                 url: 'mapbox://mapbox.terrain-rgb',
@@ -182,30 +185,8 @@ const AutoRouting = () => {
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
         });
 
-        mapRef.current.on('zoom', () => {
-
-        });
-
         mapRef.current.on('load', () => {
-            // Get 3D pit geojson data for calculating elevation
-            fetch('./240817_Pits_3D_WGS84.geojson')
-                .then(response => response.json())
-                .then((_geojsonData: turf.AllGeoJSON) => {
-                    geojsonData.current = _geojsonData
-
-                    _.map(geojsonData.current.features, (feature) => {
-                        const bounds = bbox(feature);
-                        const item = {
-                            minX: bounds[0],
-                            minY: bounds[1],
-                            maxX: bounds[2],
-                            maxY: bounds[3],
-                            feature: feature
-                        };
-                        index.insert(item);
-                    });
-                })
-                .catch(error => console.error('Error loading GeoJSON data:', error));
+            
         });
 
         mapRef.current.on('click', handleMapClick);
@@ -217,6 +198,28 @@ const AutoRouting = () => {
             }
         };
     }, []);
+
+    const fetchZipFile = async () => {
+        const zipBuffer = await fetch('./240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
+        JSZip.loadAsync(zipBuffer).then(data => {
+            return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
+        }).then((text) => {
+            var geojsonData = JSON.parse(text as string)
+            geojsonData.current = geojsonData
+
+            _.map(geojsonData.current.features, (feature) => {
+                const bounds = bbox(feature);
+                const item = {
+                    minX: bounds[0],
+                    minY: bounds[1],
+                    maxX: bounds[2],
+                    maxY: bounds[3],
+                    feature: feature
+                };
+                index.insert(item);
+            });
+        })
+    }
 
     const isNearPreviousPoint = (coords: [number, number], prevCoords: [number, number] | null, threshold: number) => {
         if (!prevCoords) return false;

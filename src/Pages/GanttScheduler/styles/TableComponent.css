@@ -43,7 +43,7 @@
 
 .custom-table th {
   background-color: #f8f8f8;
-  color: #333;
+  color: var(--dark-text-color);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -96,7 +96,7 @@
 
 .custom-table td:nth-child(1),
 .custom-table td:nth-child(2) {
-  color: #333;
+  color: var(--dark-text-color);
   font-weight: 400;
   font-size: 14px;
 }
@@ -219,7 +219,7 @@
 
 body[data-layout-mode="dark"] {
   .gantt-resource {
-    background-color:#283655
+    background-color:var(--bg-color)
   }
 }
 

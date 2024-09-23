@@ -60,7 +60,7 @@ const ProfileMenu = (props: any) => {
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <Link to="/admin" onClick={handleOptionChange} className="dropdown-item">
+          <Link to="/admin-settings" onClick={handleOptionChange} className="dropdown-item">
             <i className="bx bx-lock font-size-16 align-middle me-1" />
             {/* <i className="fa fa-solid fa-user-tie font-size-16 align-middle me-1"></i> */}
             <span>{props.t("Admin Settings")}</span>

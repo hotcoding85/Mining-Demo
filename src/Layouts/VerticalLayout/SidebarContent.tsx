@@ -331,6 +331,12 @@ const SidebarContent = (props: any) => {
               </Link>
             </li>
             <li>
+              <Link to="/underground-map">
+                <i className="bx bxs-chart"></i>
+                <span>{props.t("Underground Map View")}</span>
+              </Link>
+            </li>
+            <li>
               <Link to="/" className="has-arrow">
                 <i className="bx bx-bolt-circle"></i>
                 <span>{props.t("Mine Dynamics")}</span>
@@ -356,8 +362,8 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/haul-road-intelligence">
-                    {props.t("Haul Road Intelligence")}
+                  <Link to="/haul-truck-intelligence">
+                    {props.t("Haul Truck Intelligence")}
                   </Link>
                 </li>
                 <li>

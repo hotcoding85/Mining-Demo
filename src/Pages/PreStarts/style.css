@@ -9,19 +9,19 @@
 
 /* Default highlighted header row with text */
 .table thead th {
-    background-color: #1C263C;
+    background-color: var(--dark-bg-color);
     color: #fff;
 }
 
 /* Set entire table background color */
 .table {
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: #fff;
 }
 
 /* Highlight the entire row on hover */
 .table tbody tr:hover {
-    background-color: #1C263C;
+    background-color: var(--dark-bg-color);
     cursor: pointer;
     transition: background-color 0.3s ease;
 }

@@ -12,7 +12,7 @@
     background-color: grey;
 }
 .table.no-border.dark-mode {
-    background-color: #283655;
+    background-color: var(--bg-color);
     color: #fff;
 }
 .table.no-border.light-mode > thead > th {

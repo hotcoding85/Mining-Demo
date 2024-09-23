@@ -35,10 +35,10 @@
     font-size: 16px;
     height: 48px;
     color: #fff;
-    background-color: #283655;
+    background-color: var(--bg-color);
     &:hover {
       color: #fff !important;
-      background-color: #283655 !important;
+      background-color: var(--bg-color) !important;
     }
   }
 }
@@ -79,7 +79,7 @@
   font-size: 24px;
   line-height: 32px;
   text-align: center;
-  color: #2a2a2a;
+  color: var(--dark-text-color);
 }
 
 .load-target-table {
@@ -208,7 +208,7 @@
     }
 
     .ant-picker-panels {
-      background-color: #283655 !important;
+      background-color: var(--bg-color) !important;
       .ant-picker-cell-inner {
         color: white !important;
       }
@@ -245,10 +245,10 @@
       }
     }
     button {
-      color: #283655;
+      color: var(--bg-color);
       background-color: #fff;
       equip-lists .task-chips &:hover {
-        color: #283655 !important;
+        color: var(--bg-color) !important;
         background-color: #fff !important;
       }
     }

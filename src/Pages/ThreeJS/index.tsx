@@ -68,7 +68,7 @@ export const ThreeJS = () => {
 
     const { routes } = useSelector(stateProperties);
 
-    document.title = "3D Pit View";
+    document.title = "3D Pit View | FMS Live";
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapBoxContainer = useRef<HTMLDivElement | null>(null);
@@ -154,7 +154,6 @@ export const ThreeJS = () => {
             mapContainer.current.appendChild(renderer.domElement);
         }
 
-        renderer.outputEncoding = THREE.LinearEncoding;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight);

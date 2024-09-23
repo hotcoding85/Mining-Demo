@@ -158,7 +158,7 @@
           .event-chip {
             width: fit-content;
             border-radius: 18px;
-            background-color: #283655;
+            background-color: var(--bg-color);
           }
           .event-chip-filter {
             background-color: #e3ba25;
@@ -420,16 +420,16 @@
       border-left: 1px solid #4b4b4b;
     }
     .rbc-off-range-bg {
-      background: #283655;
+      background: var(--bg-color);
     }
     .rbc-today {
-      background-color: #283655;
+      background-color: var(--bg-color);
     }
     .rbc-time-view {
-      border: 1px solid #283655;
+      border: 1px solid var(--bg-color);
       .rbc-time-header {
         &.rbc-overflowing {
-          border-right: 1px solid #283655;
+          border-right: 1px solid var(--bg-color);
         }
       }
       .rbc-time-content {

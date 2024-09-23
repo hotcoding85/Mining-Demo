@@ -30,6 +30,7 @@ import DiggingDashboard from "Pages/DiggingDashboard";
 // const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
 
 import EquipmentGantt from "Pages/Equipment Gantt";
+import { Underground } from "Pages/Underground";
 // const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
 
 // Auth
@@ -38,6 +39,8 @@ const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
 const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
 const Materials = React.lazy(() => import("Pages/Materials"));
 const Benches = React.lazy(() => import("Pages/Benches"));
+const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
+
 const Users = React.lazy(() => import("Pages/Users"));
 const Fleet = React.lazy(() => import("Pages/Fleet"));
 const Trackers = React.lazy(() => import("Pages/Trackers"));
@@ -72,7 +75,7 @@ const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
 const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 
-const HaulRoadIntelligence = React.lazy(() => import("Pages/HaulRoad"));
+const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulRoad"));
 // const PitView = React.lazy(() => import("Pages/PitView"));
 const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
 const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
@@ -104,6 +107,7 @@ const authProtectedRoutes = [
   { path: "/realtime-postioning", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
+  {path: "/admin-settings", exact: true, component: <AdminSettings />},
   { path: "/users", exact: true, component: <Users /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/rom-management", exact: true, component: <ROMManagement /> },
@@ -157,7 +161,7 @@ const authProtectedRoutes = [
 
   // { path: "/pit-view", exact: true, component: <PitView socket={socket} /> },
   { path: "/production-summary", exact: true, component: <ProductionSummary /> },
-  { path: "/haul-road-intelligence", exact: true, component: <HaulRoadIntelligence /> },
+  { path: "/haul-truck-intelligence", exact: true, component: <HaulTruckIntelligence /> },
   { path: "/equipment-gantt", exact: true, component: <EquipmentGantt /> },
   { path: "/operator-report", exact: true, component: <OperatorReport /> },
   { path: "/telemetry-report", exact: true, component: <TelemetryReport /> },
@@ -169,6 +173,8 @@ const authProtectedRoutes = [
   { path: "/rom-waste-summary", exact: true, component: <RomWasteSummary /> },
   // ThreeJS View
   { path: "//3d-pit-view", exact: true, component: <ThreeJS /> },
+  // Underground Map View
+  { path: "/underground-map", exact: true, component: <Underground /> },
 ];
 
 const publicRoutes = [

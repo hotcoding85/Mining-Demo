@@ -4,7 +4,7 @@ import { styled } from "styled-components";
 
 const HeaderContainer = styled.div`
   border-radius: 8px;
-  background: #283655;
+  background: var(--bg-color);
   padding: 16px;
   display: flex;
   align-items: center;

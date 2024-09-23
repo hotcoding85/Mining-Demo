@@ -7,7 +7,7 @@
 }
 
 .descrepencies-wrapper .card-body .report-head {
-  background-color: #283655;
+  background-color: var(--bg-color);
   border-radius: 8px;
 }
 
@@ -112,7 +112,7 @@
     justify-content: center;
     font-weight: 700;
     background-color: #fff;
-    color: #283655 ;
+    color: var(--bg-color) ;
     font-size: 14px;
   }
 
@@ -146,7 +146,7 @@
   } */
 
   .descrepencies-wrapper table tr.desc-child td {
-    background-color: #283655;
+    background-color: var(--bg-color);
   }
 
   .carryback-report tfoot tr td span {

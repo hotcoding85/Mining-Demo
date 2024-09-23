@@ -28,7 +28,7 @@
 
 body[data-layout-mode="light"] .digging-state {
   .state-card-title {
-    color: #2a2a2a;
+    color: var(--dark-text-color);
   }
 
   .apexcharts-radialbar-track.apexcharts-track path {
@@ -169,7 +169,7 @@ body[data-layout-mode="light"] .digging-state {
   }
 
   .ant-picker-panels {
-    background-color: #283655 !important;
+    background-color: var(--bg-color) !important;
     .ant-picker-cell-inner {
       color: white !important;
     }
@@ -208,12 +208,12 @@ body[data-layout-mode="light"] .digging-state {
 
 body[data-layout-mode="light"] .digging-summary {
   .trucking-summary-title {
-    color: #2a2a2a;
+    color: var(--dark-text-color);
   }
 
   .digging-summary-table {
     thead tr th {
-      color: #2a2a2a !important;
+      color: var(--dark-text-color) !important;
       background-color: transparent !important;
     }
 
@@ -226,7 +226,7 @@ body[data-layout-mode="light"] .digging-summary {
     }
 
     tbody tr td div {
-      color: #2a2a2a;
+      color: var(--dark-text-color);
     }
 
     tfoot tr td {
@@ -252,12 +252,12 @@ body[data-layout-mode="light"] .digging-summary {
 
   .ant-pagination {
     .ant-pagination-item-link {
-      color: #2a2a2a;
+      color: var(--dark-text-color);
     }
 
     .ant-pagination-item {
       background: transparent !important;
-      color: #2a2a2a !important;
+      color: var(--dark-text-color) !important;
       font-weight: 700;
     }
 
@@ -266,12 +266,12 @@ body[data-layout-mode="light"] .digging-summary {
     }
 
     .ant-pagination-options-quick-jumper {
-      color: #2a2a2a !important;
+      color: var(--dark-text-color) !important;
     }
 
     .ant-pagination-options-quick-jumper input {
       background: transparent !important;
-      color: #2a2a2a !important;
+      color: var(--dark-text-color) !important;
     }
   }
 }
@@ -305,7 +305,7 @@ body[data-layout-mode="light"] .digging-state {
       font-weight: 700;
       line-height: 24px;
       text-align: center;
-      color: #2a2a2a;
+      color: var(--dark-text-color);
     }
   }
 }
@@ -313,7 +313,7 @@ body[data-layout-mode="light"] .digging-state {
 body[data-layout-mode="light"] .digging-summary-search {
   background-color: transparent !important;
   border: 1px solid #9ca3b1 !important;
-  color: #2a2a2a !important;
+  color: var(--dark-text-color) !important;
   width: 270px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -321,7 +321,7 @@ body[data-layout-mode="light"] .digging-summary-search {
 }
 
 body[data-layout-mode="light"] .rating-bar-label {
-  color: #2a2a2a;
+  color: var(--dark-text-color);
 }
 
 body[data-layout-mode="light"] .ant-progress-dot {

@@ -1,5 +1,4 @@
 import "./index.css";
-
 import React, { useMemo } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
@@ -9,7 +8,7 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import RadicalGraph from "Components/Common/RadicalGraph"
+import RadicalGraph from "Components/Common/RadicalGraph";
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";
 import { Select, Space } from "antd";
@@ -31,47 +30,60 @@ const TruckingDashboard = (props: any) => {
     [layoutModeType]
   );
 
+  const generateRandomPercentages = (numStates: number) => {
+let percentages: number[] = [];
+
+let total: number = 100;
+
+for (let i = 0; i < numStates - 1; i++) {
+  let randomValue: number = Math.random() * total;
+  randomValue = Math.round(randomValue);
+  percentages.push(randomValue);  
+  total -= randomValue;
+}
+
+percentages.push(total); 
+    return percentages;
+  };
+
   const StateTimes = useMemo(() => {
     const textColor = isLight ? "#2A2A2A" : "#fff";
     const bgColor = isLight ? "#E0E0E0" : "#535E77";
 
+    const percentages = generateRandomPercentages(5);
+
     return [
       {
         state: "Active",
-        time: "00:24:52",
-        pctValue: 70,
+        pctValue: percentages[0],
         color: FLEET_TIME_STATE_COLOR.ACTIVE,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "StandBy",
-        time: "00:24:52",
-        pctValue: 64,
+        pctValue: percentages[1],
         color: FLEET_TIME_STATE_COLOR.STANDBY,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Down",
-        time: "00:24:52",
-        pctValue: 54,
+        pctValue: percentages[2],
         color: FLEET_TIME_STATE_COLOR.DOWN,
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Idle",
-        time: "00:24:52",
-        pctValue: 58,
+        pctValue: percentages[3],
         color: isLight ? "#828282" : "#fff",
         bgColor: bgColor,
         textColor: textColor,
       },
       {
         state: "Delay",
-        time: "00:24:52",
-        pctValue: 65,
+        pctValue: percentages[4],
         color: FLEET_TIME_STATE_COLOR.DELAY,
         bgColor: bgColor,
         textColor: textColor,
@@ -112,7 +124,7 @@ const TruckingDashboard = (props: any) => {
                         { value: 'Fleet 1', label: 'Fleet 1' }, { value: 'Fleet 2', label: 'Fleet 2' }, { value: 'Fleet 3', label: 'Fleet 3' }
                       ],
                     },
-                    ]}
+                    ]} 
                 />
               </Space>
             </Col>
