@@ -27,7 +27,6 @@ import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { csvFileToJson } from "utils/csvConverter";
-import { message } from "antd";
 import { round2Two, roundOff } from "utils/common";
 
 const Benches = (props: any) => {

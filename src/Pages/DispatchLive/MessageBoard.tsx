@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import MessageBoardChips from "./MessageBoardChips";
 import { MessageData } from "./interfaces/type";
 import { sampleAllMessages, sampleNewMessages } from "./data/sampleData";
-import { message } from "antd";
 
 const MessageBoard: React.FC = () => {
   const [isViewHistory, setIsViewHistory] = useState(false);

@@ -1,13 +1,8 @@
 import React from "react";
 import VehicleCard from "./VehicleCard";
-import AssignTruckItem from "./AssignTruckItem";
-import AssignLocationItem from "./AssignLocationItem";
 import { pc2000 } from "assets/images/equipment";
-import { Row, Col } from "reactstrap";
-import { Select, Progress } from "antd";
 import { ActiveBenchData, DiggerData, DumpLocation, Truck } from './interfaces/type';
 import AssignBoard from "./AssignBoard";
-import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
     digger: DiggerData;

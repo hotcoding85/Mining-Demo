@@ -14,6 +14,10 @@ import { Pagination, PaginationProps, Input } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import "../styles/tableView.css";
+import LoadHaulCycleTimeBreakdown from "./LoadHaulCycleTimeBreakdown";
+import { BarGraph } from "Components/Charts/BarChart";
+import { TextColor } from "Components/Charts/interfaces/general";
+import { PayloadBeforeData, PayloadWithData } from "../data/sampleData";
 
 const TableHeaders = [
   "Vehicle Name",
@@ -39,6 +43,66 @@ const TableHeaders = [
   "Distance",
   "Altitude Change",
   "Fuel Rate",
+];
+
+const barOptions = {
+  responsive: true,
+  maintainAspectRation: false,
+  plugins: {
+    legend: {
+      position: "top" as const,
+      display: false,
+    },
+    datalabels: {
+      anchor: "end" as const,
+      align: "top" as const,
+      color: "#fff",
+      font: {
+        size: 10,
+        weight: "bold" as const,
+      },
+      formatter: (value: string | number) => {
+        return value + "%";
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+      ticks: {
+        color: '#9CA3B1',
+        font: {
+          size: 14,
+        },
+      },
+    },
+    y: {
+      beginAtZero: true,
+      suggestedMax: 40,
+      grid: {
+        display: true,
+        color: "#9CA3B1",
+        lineWidth: 0.1,
+      },
+      ticks: {
+        color: '#9CA3B1',
+        font: {
+          size: 14,
+        },
+        stepSize: 5,
+        callback: function (value: string | number) {
+          return value + "%";
+        },
+      },
+    },
+  },
+};
+
+const textColor: TextColor[] = [
+  { text: "Ton Target", color: "#9CA3B1" },
+
 ];
 
 interface TruckLoadOptimisationTableRowProps {
@@ -339,63 +403,92 @@ const TruckLoadOptimisationTableView = () => {
     console.log("Page: ", pageNumber);
   };
   return (
-    <Card className="haulroad-summary" id="haulroad-summary-tableview">
-      <CardBody>
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="haulroad-summary-title">Truck Load Optimization</div>
-          <div className="d-flex justify-content-end align-items-center gap-3">
-            <SearchDropdown itemsGroup={filters} />
-            <div className="export">
-              <Button>
-                Export
-                <UploadOutlined />
-              </Button>
+    <>
+      <Card className="haulroad-summary" id="haulroad-summary-tableview">
+        <CardBody>
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="haulroad-summary-title">Truck Load Optimization</div>
+            <div className="d-flex justify-content-end align-items-center gap-3">
+              <SearchDropdown itemsGroup={filters} />
+              <div className="export">
+                <Button>
+                  Export
+                  <UploadOutlined />
+                </Button>
+              </div>
+              <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+                <DropdownToggle caret size="lg">
+                  Show/Hide Columns
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem>Day</DropdownItem>
+                  <DropdownItem>Night</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+              <Input
+                prefix={<SearchOutlined />}
+                value={globalFilter}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+                className="trucking-summary-search"
+                placeholder="Search"
+              />
             </div>
-            <Dropdown isOpen={dropdownOpen} toggle={toggle}>
-              <DropdownToggle caret size="lg">
-                Show/Hide Columns
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem>Day</DropdownItem>
-                <DropdownItem>Night</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-            <Input
-              prefix={<SearchOutlined />}
-              value={globalFilter}
-              onClick={(e) => e.stopPropagation()}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="trucking-summary-search"
-              placeholder="Search"
+          </div>
+          <div className="mt-3">
+            <Table borderless responsive className="haulroad-summary-table">
+              <thead>
+                <tr>
+                  {TableHeaders.map((header) => (
+                    <th style={{ justifyContent: "start" }}>{header}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((row) => (
+                  <TruckLoadOptimisationTableRow {...row} />
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          <div className="d-flex justify-content-end align-items-center mt-3">
+            <Pagination
+              showQuickJumper
+              defaultCurrent={2}
+              total={500}
+              onChange={onChange}
             />
           </div>
-        </div>
-        <div className="mt-3">
-          <Table borderless responsive className="haulroad-summary-table">
-            <thead>
-              <tr>
-                {TableHeaders.map((header) => (
-                  <th style={{ justifyContent: "start" }}>{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((row) => (
-                <TruckLoadOptimisationTableRow {...row} />
-              ))}
-            </tbody>
-          </Table>
-        </div>
-        <div className="d-flex justify-content-end align-items-center mt-3">
-          <Pagination
-            showQuickJumper
-            defaultCurrent={2}
-            total={500}
-            onChange={onChange}
-          />
-        </div>
-      </CardBody>
-    </Card>
+        </CardBody>
+      </Card>
+      <div>
+        <LoadHaulCycleTimeBreakdown />
+      </div>
+      <div className="payload-chart">
+        <Card style={{ width: '100%' }}>
+          <CardBody>
+            <div className="haulroad-summary-title text-start">Payload Compliance (Before Mine Dynamics)</div>
+            <BarGraph
+              data={PayloadBeforeData}
+              options={barOptions}
+              textColor={textColor}
+            />
+          </CardBody>
+        </Card>
+      </div>
+      <div className="payload-chart">
+        <Card style={{ width: '100%' }}>
+          <CardBody>
+            <div className="haulroad-summary-title text-start">Payload Compliance (With Mine Dynamics)</div>
+            <BarGraph
+              data={PayloadWithData}
+              options={barOptions}
+              textColor={textColor}
+            />
+          </CardBody>
+        </Card>
+      </div>
+    </>
   );
 };
 

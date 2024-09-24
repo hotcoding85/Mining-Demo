@@ -1,11 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import AssignTruckItem from "./AssignTruckItem";
 import AssignLocationItem from "./AssignLocationItem";
 import { Truck, DumpLocation, DiggerData } from "./interfaces/type";
-import { diggers } from "./data/sampleData";
-import { filter, max } from "lodash";
-import { array } from "yup";
-import { truckIcon } from "assets/images/equipment";
 
 interface AssignBoardProps {
     digger : DiggerData;

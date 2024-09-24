@@ -527,7 +527,7 @@ export class Map {
     const centerLatLng = this.geoLocation; // Assuming getCenter() gets the current view center position
     const centerPixel = Utils.latLngToTilePixel(centerLatLng[0], centerLatLng[1], this.zoom);
     _.map(this.routes, (_route) => {
-        if (_route.category !== 'STOP_SIGNS') {
+        if (_route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE') {
             const points = [];
             const coordinates = _route.geoJson.geometry.coordinates;
             // Loop over each coordinate and calculate its pixel position relative to the current view
@@ -565,7 +565,7 @@ export class Map {
                     }
                 });
                 if (nearestFeature) {
-                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100;
                 }
       
                 if (!nearestFeature || isNaN(elevationValue)) {
@@ -594,7 +594,7 @@ export class Map {
               value: tubeMesh
             })
             this.scene.add(tubeMesh);
-        } else {
+        } else  if (_route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE') {
           // Handle the STOP_SIGNS category by showing an image at the point
           const coordinates = _route.geoJson.geometry.coordinates;
           if (coordinates.length === 1) { // Assuming there's only one point for STOP_SIGNS
@@ -635,7 +635,7 @@ export class Map {
             });
             let elevationValue = 0
             if (nearestFeature) {
-              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100;
             }
   
             if (!nearestFeature || isNaN(elevationValue)) {

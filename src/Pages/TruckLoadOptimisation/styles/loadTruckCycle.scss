@@ -1,0 +1,113 @@
+.haulroad-summary {
+  &.card {
+    .export {
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        font-weight: 700;
+        background-color: var(--bg-color);
+        color: #fff;
+        font-size: 14px;
+        min-height: 40px;
+        padding: 9px 16px;
+      }
+    }
+    .dropdown {
+      button {
+        font-size: 14px;
+        color: #656565;
+        border: 1px solid #828282;
+        background-color: transparent;
+        min-height: 40px;
+        padding: 8px 12px;
+      }
+    }
+  }
+}
+.haul-timebreakdown {
+  .haulroad-summary-title {
+    color: #2A2A2A;
+  }
+  button {
+    &.digging-csv-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      font-weight: 700;
+      background-color: var(--bg-color);
+      color: #fff;
+      font-size: 14px;
+      padding: 9px 16px;
+    }
+  }
+  table {
+    th, td {
+      border-bottom: none;
+    }
+  }
+}
+
+.payload-chart {
+  .haulroad-summary-title {
+    color: #2A2A2A;
+  }
+} 
+
+[data-layout-mode="dark"] {
+  .haulroad-summary-title {
+    color: #fff;
+  }
+  .haulroad-summary {
+    &.card {
+      .export {
+        button {
+          background-color: #fff;
+          color: var(--bg-color);
+        }
+      }
+      .dropdown {
+        button {
+          font-size: 14px;
+          color: #BCC1CA;
+          border: 1px solid #BCC1CA;
+        }
+      }
+    }
+  }
+  button {
+    &.digging-csv-btn {
+      background-color: #fff;
+      color: var(--bg-color);
+    }
+  }
+  .ant-pagination {
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      svg {
+        color: #fff;
+      }
+    }
+    .ant-select-selection-item {
+      color: #fff !important;  
+    }
+    .ant-select-selection-search {
+      .ant-select {
+        color: #fff;
+      }
+      input {
+        color: #fff !important;  
+        &::placeholder {
+          color: #fff !important;
+        }
+      }
+    }
+  } 
+  .payload-chart {
+    .haulroad-summary-title {
+      color: #fff;
+    }
+  }
+}

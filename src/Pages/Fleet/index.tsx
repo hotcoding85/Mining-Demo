@@ -10,7 +10,6 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import TableContainer, {
   TableColumn,
 } from "../../Components/Common/TableContainer";
-import { AppState } from "store";
 import {
   getAllFleet,
   addVehicle,

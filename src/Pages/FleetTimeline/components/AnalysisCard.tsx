@@ -1,10 +1,6 @@
-import { Dropdown, DropdownType } from "Components/Common/Dropdown";
-import React, { useState } from "react";
-import { Card, CardBody, CardHeader, Col, Row } from "reactstrap";
-import { Steps } from "antd";
-import TimeLineChart from "Components/Charts/TimeLineChart";
+import React from "react";
+import { Card, CardBody } from "reactstrap";
 import styled from "styled-components";
-import { FLEET_TIME_STATE_COLOR } from "Components/constants/layout";
 import AnalysisChart from "Components/Charts/AnalysisChart";
 
 const Wrapper = styled.div`

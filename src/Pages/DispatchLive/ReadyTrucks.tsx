@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import TruckItemForReady from "./TruckItemForReady";
-import { Button } from "antd";
 import { Truck } from "./interfaces/type";
 
 interface ReadyTrucksProps {
