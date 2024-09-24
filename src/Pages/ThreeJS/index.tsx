@@ -1,12 +1,11 @@
 import { Source, Map, MapPicker } from './modules/Source'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import React, { useEffect, useRef, useState } from 'react';
+import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css'
 import mapboxgl from 'mapbox-gl';
 import { WindowResize } from './modules/WindowResize'
-import * as turf from '@turf/turf';
 import { InfiniteGridHelper } from './modules/InfiniteGridHelper'
 import * as THREE from "three";
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -16,7 +15,7 @@ import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
 import { createSelector } from 'reselect';
 import * as Leaflet from 'leaflet';
-import { getGeoFences, getAllFleet, getAllEvents, getAllVehicleRoutes } from 'slices/thunk';
+import { getAllVehicleRoutes } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
 import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
 declare global {
@@ -181,8 +180,8 @@ export const ThreeJS = () => {
 
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 28;
-        let zoom = 18
+        let nTiles = 11;
+        let zoom = 17
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
         window.map = map;
         console.log(map)
@@ -242,7 +241,7 @@ export const ThreeJS = () => {
         }
         });
 
-        const grid: any = new InfiniteGridHelper(16, 256);
+        const grid: any = new InfiniteGridHelper(128, 256);
         scene.add(grid);
 
         // set routes to the map variable
