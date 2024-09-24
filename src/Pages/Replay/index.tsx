@@ -211,8 +211,8 @@ const Replay = (props: any) => {
 
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 8;
-        let zoom = 18
+        let nTiles = 11;
+        let zoom = 17
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
         window.map = map;
         console.log(map)
