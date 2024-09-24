@@ -637,7 +637,6 @@ const Map = ({ socket }) => {
   }, [checkedList, routes]);
 
   useEffect(() => {
-    mapboxgl.accessToken = "your-mapbox-access-token";
 
     if (mapRef.current) return; // Initialize map only once
 
