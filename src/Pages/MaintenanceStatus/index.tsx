@@ -46,17 +46,23 @@ const MaintenanceStatus = (props: any) => {
                 onChangeViewMode={setViewMode}
               />
             </Col>
+
+            {viewMode === DATA_VIEW_MODE.TABLE && (
+              <Col lg="12">
+                <Card>
+                  <CardBody>
+                    <FleetTableView
+                      fleetOrder={FleetOrder}
+                      fleetData={normalizedFleetList}
+                    />
+                  </CardBody>
+                </Card>
+              </Col>
+            )}
           </Row>
           <Row>
             {viewMode === DATA_VIEW_MODE.GRID && (
               <FleetGridView
-                fleetOrder={FleetOrder}
-                fleetData={normalizedFleetList}
-              />
-            )}
-
-            {viewMode === DATA_VIEW_MODE.TABLE && (
-              <FleetTableView
                 fleetOrder={FleetOrder}
                 fleetData={normalizedFleetList}
               />
