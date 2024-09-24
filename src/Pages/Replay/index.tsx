@@ -493,7 +493,7 @@ const Replay = (props: any) => {
     
     useEffect(() => {
         if (selectedEq) {
-            setRouteData([{id: selectedEq.name, routes: routes.filter(_route => _route.category !== 'STOP_SIGNS')}]);
+            setRouteData([{id: selectedEq.name, routes: routes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}]);
 
             clearAnimation()
             setTimeValue(0)

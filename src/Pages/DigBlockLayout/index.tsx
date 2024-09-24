@@ -11,11 +11,9 @@ import TableContainer, {
   TableColumn,
 } from "../../Components/Common/TableContainer";
 import {
-  getAllBenches,
   addBench,
   updateBench,
   removeBench,
-  upsertBenches,
   upsertGeoFence,
   getGeoFences,
 } from "slices/thunk";

@@ -3,9 +3,7 @@ import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { TextColor } from "Components/Charts/interfaces/general";
 import { LineGraph } from "Components/Charts/LineGraph";
-import { round2Two } from "utils/common";
 import { createSelector } from "reselect";
-import { useSelector } from "react-redux";
 import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
 import { data } from "./sampleData";
 const CarryBackDescrepencies = (props: any) => {

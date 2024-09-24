@@ -1,7 +1,6 @@
 import { useState, FC } from "react";
 import { FuelData } from "./interfaces/FuelData";
 import "./style.css";
-import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
 
 const getStatusColor = (status: string) => {
   switch (status) {

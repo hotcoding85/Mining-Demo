@@ -1,6 +1,6 @@
 import React from "react";
 import "./styles/truckItem.scss"
-import { ActiveBenchData, Truck } from "./interfaces/type";
+import { ActiveBenchData } from "./interfaces/type";
 import { useDrag } from 'react-dnd';
 
 interface ActiveBenchItemProps {

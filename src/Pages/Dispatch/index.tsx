@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { DragEndEvent, useDraggable, useDroppable } from "@dnd-kit/core";
+import { DragEndEvent } from "@dnd-kit/core";
 import "./style.css";
-import { CSS } from "@dnd-kit/utilities";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import { createSelector } from "reselect";
@@ -23,7 +22,6 @@ import {
   Segmented,
   Select,
   Space,
-  Tag,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";

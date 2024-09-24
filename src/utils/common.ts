@@ -39,8 +39,14 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
   let currentTime = typeof date === 'string' ? dayjs(date) : date;
   let previousDay = dayjs().subtract(1, 'day');
   let shifTimings;
-  for (let i = 0; i < shifts.length; i++) {
-    let shift = shifts[i];
+  let currentShifts = shifts;
+
+  if(!shifts) {
+    currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+  }
+
+  for (let i = 0; i < currentShifts.length; i++) {
+    let shift = currentShifts[i];
     let startTime = shift.startTime.split(":");
     let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
     let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));

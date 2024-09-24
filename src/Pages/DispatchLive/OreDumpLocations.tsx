@@ -1,6 +1,4 @@
 import React, {useState} from "react";
-import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
-import WasteDumpLocationItem from "./WasteDumpLocationItem";
 import "./styles/wasteDump.scss"
 import { DumpLocation } from "./interfaces/type";
 import OreDumpLocationItem from "./OreDumpLocationItem";

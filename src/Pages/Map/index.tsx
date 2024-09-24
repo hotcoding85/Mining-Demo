@@ -157,29 +157,27 @@ const Map = ({ socket }) => {
             animation: ripple 1s infinite;`;
 
     const textStyle = `
-            background-color: white;
             position: absolute;
-            top: -76px;
-            left: -46px;
+            top: -65px;
+            left: -50px;
             background: ${eq.color};
             border-radius: 20px;
             font-size: 20px;
             color: white;
             font-size: 1rem;
             font-weight: 600;
-            padding-left: 12px;
-            padding-right: 12px;
-            width: 100px;
+            padding: 6px 16px;
+            width: 108px;
             text-align: center;`;
 
     const isNotActive: boolean = eq.status.toLowerCase() != "ACTIVE";
     const standardIconTemplate = `<div id="map-location" style="${textStyle}">
-            <img width="32px" height="24px" style="object-fit: contain" src="${getEquipmentStatusIcon(
-              eq
-            )}" alt="equipment-image" />
+            <img width="28px" style="object-fit: contain" src="${getEquipmentStatusIcon(
+      eq
+    )}" alt="equipment-image" />
             ${eq.name}
             </div>
-            <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
+            <div id="imageContainer" style="position: absolute;bottom: 0px;transform: translateX(-40%); z-index:1;">
               <img src="${mapLocationImage}" alt="Description of the image">
             </div>`;
 
@@ -332,7 +330,7 @@ const Map = ({ socket }) => {
   useEffect(() => {
     if (mapStylesLoaded) {
       routes
-        .filter((_route) => _route.category != "STOP_SIGNS")
+        .filter((_route) => _route.category != "STOP_SIGNS" && _route.status == 'ACTIVE')
         .map((item, key) => {
           if (!mapRef.current?.getSource(item.id)) {
             mapRef.current?.addSource(item.id, {
@@ -354,7 +352,7 @@ const Map = ({ socket }) => {
           }
         });
       routes
-        .filter((_route) => _route.category === "STOP_SIGNS")
+        .filter((_route) => _route.category === "STOP_SIGNS" && _route.status == 'ACTIVE')
         .map((item, key) => {
           const map = mapRef.current;
 
@@ -727,7 +725,7 @@ const Map = ({ socket }) => {
               <Col md={{ size: 4, offset: 8 }}>
                 <Card
                   className="p-3 card-status"
-                  style={{ top: "-460px", right: "-30px", width: "80%" }}
+                  style={{ top: "-930px", right: "-70px", width: "80%" }}
                 >
                   <div className="d-flex justify-content-between">
                     <div style={{ display: "flex", alignItems: "baseline" }}>

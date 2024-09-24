@@ -1,10 +1,8 @@
 import { useState, FC } from "react";
-import { VehicleData } from "./interfaces/type";
-import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
-import { Progress, Divider} from "antd";
+import { pc2000 } from "assets/images/equipment";
+import { Progress} from "antd";
 import { ActiveBenchData } from "./interfaces/type";
 import { useDrop } from "react-dnd";
-import { apiError } from "slices/users/reducer";
 
 const getStatusColor = (status: string) => {
   switch (status) {
