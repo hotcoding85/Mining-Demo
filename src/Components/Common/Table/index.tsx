@@ -1,0 +1,88 @@
+import React, { useMemo } from "react";
+import { ConfigProvider, Table as AntTable } from "antd";
+import { createSelector } from "reselect";
+import { useSelector } from "react-redux";
+import dayjs from "dayjs";
+import "./style.scss";
+
+interface TableProps {
+  columns: any[];
+  data: any[];
+  paginationPageSize?: number;
+}
+
+const TableDarkTheme = {
+  colorText: "#fff",
+  headerBorderRadius: 0,
+  headerColor: "#9CA3B1",
+  borderColor: "transparent",
+  headerSplitColor: "transparent",
+  colorBgContainer: "transparent",
+  headerBg: "none",
+  headerSortHoverBg: "none",
+};
+
+const TableLightTheme = {
+  colorText: "#2A2A2A",
+  headerBorderRadius: 0,
+  headerColor: "#828282",
+  borderColor: "transparent",
+  headerSplitColor: "transparent",
+  colorBgContainer: "transparent",
+};
+
+const getSorter = (key: string, type?: string) => {
+  switch (type) {
+    case "string":
+      return (a: any, b: any) => a[key].localeCompare(b[key]);
+    case "number":
+      return (a: any, b: any) => a[key] - b[key];
+    case "date":
+      return (a: any, b: any) => dayjs(a[key]).unix() - dayjs(b[key]).unix();
+    default:
+      return undefined;
+  }
+};
+
+const Table: React.FC<TableProps> = ({
+  columns,
+  data,
+  paginationPageSize = 10,
+}) => {
+  const selectLeadData = createSelector(
+    (state: any) => state.Layout,
+    (layout) => ({
+      layoutModeType: layout.layoutModeTypes,
+    })
+  );
+  const { layoutModeType } = useSelector(selectLeadData);
+
+  const theme = useMemo(() => {
+    return layoutModeType === "dark" ? TableDarkTheme : TableLightTheme;
+  }, [layoutModeType]);
+
+  const enhancedColumns = useMemo(() => {
+    return columns.map((col) => ({
+      ...col,
+      sorter:
+        col.sorter ||
+        (col.dataType ? getSorter(col.key, col.dataType) : undefined),
+      showSorterTooltip: false,
+    }));
+  }, [columns]);
+
+  return (
+    <ConfigProvider theme={{ components: { Table: theme } }}>
+      <AntTable
+        className="common-table-component"
+        rowClassName={"common-table-row"}
+        columns={enhancedColumns}
+        dataSource={data}
+        pagination={{ pageSize: paginationPageSize }}
+        rowKey={(record) => record.key || record.id}
+      />
+    </ConfigProvider>
+  );
+};
+
+export default Table;
