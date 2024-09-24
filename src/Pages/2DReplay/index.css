@@ -1,0 +1,69 @@
+.ant-collapse-header-text{
+    color: #62be00 !important;
+    font-weight: 800;
+}
+.ant-collapse-arrow {
+    color: white !important;
+}
+.ant-collapse-content-active{
+    border-radius: 0px !important;
+    background-color: #283655 !important;
+}
+body[data-layout-mode="dark"] .ant-collapse-content{
+    background-color: #283655 !important;
+}
+body[data-layout-mode="light"] .ant-collapse-content{
+    background-color: white !important;
+}
+.ant-collapse-content-box{
+    padding: 0px 0px 0px 30px !important;
+}
+body[data-layout-mode="dark"] .ant-menu{
+    background-color: #283655 !important;
+    color: white !important;
+}
+body[data-layout-mode="light"] .ant-menu{
+    background-color: white !important;
+    color: grey !important;
+}
+body[data-layout-mode="light"] .ant-menu-title-content {
+    color: black;
+}
+.replay-menu-item{
+    color: white !important;
+    /* border-bottom: 1px solid white !important; */
+    border-radius: 0px !important;
+    margin: 0px !important;
+    width: 100% !important;
+}
+.replay-menu-item-selected{
+    background-color: #283655 !important;
+}
+.replay-menu-item.selected {
+    background-color: #787d80 !important;
+}
+.replay-menu-item:hover {
+    background-color: grey;
+}
+.mapboxgl-ctrl-bottom-right{
+    display: none !important;
+}
+body[data-layout-mode="dark"] .mapboxgl-popup-content{
+    background-color: #2a3853 !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .mapboxgl-popup-content{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="light"] .card{
+    background-color: white !important;
+    /* color: gold !important; */
+}
+body[data-layout-mode="dark"] .card{
+    background-color: #293754 !important;
+    /* color: gold !important; */
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip{
+    border-top-color: #293754 !important;
+}
