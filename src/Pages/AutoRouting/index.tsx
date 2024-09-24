@@ -185,10 +185,6 @@ const AutoRouting = () => {
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
         });
 
-        mapRef.current.on('load', () => {
-            
-        });
-
         mapRef.current.on('click', handleMapClick);
         mapRef.current.doubleClickZoom.disable();
 

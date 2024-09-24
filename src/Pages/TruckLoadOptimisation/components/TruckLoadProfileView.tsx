@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import eqImgae from "../../../assets/images/equipment/truck-top-view.png";
-import CardTruckLoadProfile, { TruckLoadProfileData } from "./CardTruckLoadProfile";
+import CardTruckLoadProfile, {
+  TruckLoadProfileData,
+} from "./CardTruckLoadProfile";
+import GraphCard from "./GraphCard";
 
 const TruckLoadProfileView = () => {
   const legendData = [
@@ -26,6 +29,7 @@ const TruckLoadProfileView = () => {
 
   return (
     <div>
+      <GraphCard />
       <div className="visual-legend-container">
         <p className="visual-legend">Legend:</p>
         {legendData &&
@@ -58,13 +62,8 @@ const TruckLoadProfileView = () => {
         <CardTruckLoadProfile {...truckLoadProfileData} />
 
         <div id="imageContainer" className="truck-image">
-          <img
-            style={{ height: "420px" }}
-            src={eqImgae}
-            alt="Description of the image"
-          />
+          <img style={{ height: "420px" }} src={eqImgae} alt="truck" />
         </div>
-
       </div>
     </div>
   );

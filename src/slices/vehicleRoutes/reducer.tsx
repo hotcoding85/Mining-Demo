@@ -50,8 +50,8 @@ const vehicleRoutesSlice = createSlice({
             state.loading = true;
         },
         allSuccess(state, action) {
-            state.data = action.payload
-            state.total = action.payload.length
+            state.data = action.payload.results
+            state.total = action.payload.totalResults
             state.loading = false;
             state.error = false;
         },

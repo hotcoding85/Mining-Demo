@@ -1,9 +1,9 @@
-.align-self-center:first-child,
+/* .align-self-center:first-child,
 .align-self-center:not(:last-child) {
     width: 35%;
 } .align-self-center:last-child {
     width: 30%;
-}
+} */
 
 .standby-input,
 .standby-input:hover,

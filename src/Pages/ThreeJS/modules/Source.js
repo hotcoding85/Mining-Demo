@@ -565,7 +565,7 @@ export class Map {
                     }
                 });
                 if (nearestFeature) {
-                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100;
+                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
                 }
       
                 if (!nearestFeature || isNaN(elevationValue)) {
@@ -635,7 +635,7 @@ export class Map {
             });
             let elevationValue = 0
             if (nearestFeature) {
-              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100;
+              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
             }
   
             if (!nearestFeature || isNaN(elevationValue)) {
