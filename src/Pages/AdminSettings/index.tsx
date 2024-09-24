@@ -25,10 +25,51 @@ const AdminSettings = (props: any) => {
     }
   };
 
+  const removeEmptyRows = (rows) => {
+    return rows.filter(row => row.code || row.description || row.vehicleType);
+  };
+
+  const validateRows = (rows) => {
+    for (const row of rows) {
+      const { code, description, vehicleType } = row;
+      if ((code && (!description || !vehicleType)) ||
+          (description && (!code || !vehicleType)) ||
+          (vehicleType && (!code || !description))) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handlePublish = () => {
-    console.log("Standby Reasons Data:", standbyRows);
-    console.log("Delay Reasons Data:", delayRows);
-    console.log("Down Reasons Data:", downRows);
+    console.log("Attempting to publish...");
+
+    const filteredStandbyRows = removeEmptyRows(standbyRows);
+    const filteredDelayRows = removeEmptyRows(delayRows);
+    const filteredDownRows = removeEmptyRows(downRows);
+
+    console.log("Filtered Standby Rows:", filteredStandbyRows);
+    console.log("Filtered Delay Rows:", filteredDelayRows);
+    console.log("Filtered Down Rows:", filteredDownRows);
+
+    if (!validateRows(filteredStandbyRows)) {
+      console.log("Validation failed for Standby Reasons. Please fill all columns for any entered row.");
+      return;
+    }
+
+    if (!validateRows(filteredDelayRows)) {
+      console.log("Validation failed for Delay Reasons. Please fill all columns for any entered row.");
+      return;
+    }
+
+    if (!validateRows(filteredDownRows)) {
+      console.log("Validation failed for Down Reasons. Please fill all columns for any entered row.");
+      return;
+    }
+
+    console.log("Publishing Standby Reasons Data:", filteredStandbyRows);
+    console.log("Publishing Delay Reasons Data:", filteredDelayRows);
+    console.log("Publishing Down Reasons Data:", filteredDownRows);
   };
 
   return (
@@ -139,7 +180,6 @@ const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
                 value={row.code}
                 onChange={(e) =>
                   handleInputChange(rows, setRows, index, "code", e.target.value)
-                  
                 }
                 className="standby-input"
               />
@@ -172,6 +212,5 @@ const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
     ))}
   </>
 );
-
 
 export default AdminSettings;
