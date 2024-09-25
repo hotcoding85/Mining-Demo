@@ -72,6 +72,10 @@ const Dispatch = () => {
     useState<equipmentStateProps[]>(fleet);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
+  useEffect(() => {
+    setEquipmentList(fleet);
+  }, [fleet]);
+
   const [targetOperatorFileds, setTargetOperatorFileds] = useState<any>({
     shiftIndex: 0,
     field: "",
@@ -160,7 +164,7 @@ const Dispatch = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
+    dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
     dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
     const queryParams = new URLSearchParams(window.location.search);
@@ -728,7 +732,7 @@ const Dispatch = () => {
                         <span style={{ fontSize: "20px" }}>Fleet</span>
                         <Row className="">
                           {equipmentList.map((equipment: any, key: number) => (
-                            <Col md="2" className="px-2">
+                            <Col md="2" className="px-2" key={key}>
                               <div className="my-2 equipment-cards-bg">
                                 <DropTarget
                                   dropId="operator"
