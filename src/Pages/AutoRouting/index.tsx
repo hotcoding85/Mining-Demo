@@ -612,7 +612,8 @@ const AutoRouting = () => {
                     speedLimits: defaultSpeedLimit,
                     color: color,
                     name: 'New Route ' + currentRoute.current,
-                    category: "CURRENT_HAUL_ROUTES"
+                    category: "CURRENT_HAUL_ROUTES",
+                    status: 'ACTIVE'
                 };
                 dispatch(addRoute(saving_data))
                 routeMarkers.current = [];
