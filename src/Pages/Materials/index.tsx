@@ -56,7 +56,7 @@ const Materials = (props: any) => {
   const { data, total } = useSelector(selectProperties);
 
   useEffect(() => {
-    dispatch(getAllMaterials()); // Dispatch action to fetch data on component mount
+    dispatch(getAllMaterials(1, 100)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   const toggle = useCallback(() => {

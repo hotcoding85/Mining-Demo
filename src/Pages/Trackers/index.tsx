@@ -55,7 +55,7 @@ const Trackers = (props: any) => {
   });
 
   useEffect(() => {
-    dispatch(getAllTrackers()); // Dispatch action to fetch data on component mount
+    dispatch(getAllTrackers(1, 100)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   useEffect(() => {

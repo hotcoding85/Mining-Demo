@@ -110,7 +110,7 @@ const ShortIntervalControl = () => {
     const [selectedCrew, setSelectedCrew] = useState<any>();
 
     useEffect(() => {
-        dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
+        dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
         dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
         const queryParams = new URLSearchParams(window.location.search)
