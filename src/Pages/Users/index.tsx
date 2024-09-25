@@ -5,11 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, {
-  TableColumn,
-} from "../../Components/Common/TableContainer";
 import { AppState } from "store";
 import {
   getAllUsers,
@@ -27,8 +24,9 @@ import FormModal from 'Components/Common/FormModal';
 import axios from 'axios';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import { Tag } from 'antd';
+import { Input, Tag } from 'antd';
 import ImportFileModal from "Components/Common/ImportFileModal";
+import Table from "Components/Common/Table";
 
 const Users = (props: any) => {
   document.title = "Users | FMS Live";
@@ -38,6 +36,7 @@ const Users = (props: any) => {
   const [user, setUser] = useState<any>();
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [xda, setXda] = useState([])
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
@@ -369,83 +368,59 @@ const Users = (props: any) => {
     status: Yup.string(),
   });
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: "#ID",
-        accessorKey: "employeeId",
-        enableColumnFilter: false,
-        enableSorting: true,
-        customStyle: ""
+        title: "#ID",
+        dataIndex: "employeeId",
+        key: "employeeId",
+        dataType: "string",
       },
       {
-        header: "Username",
-        accessorKey: "username",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div>{cellProps.row.original.username}</div>
-          );
-        },
+        title: "Username",
+        dataIndex: "username",
+        key: "username",
+        dataType: "string",
       },
       {
-        header: "First Name",
-        accessorKey: "firstName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-left">{cellProps.row.original.firstName}</div>
-          );
-        },
+        title: "First Name",
+        dataIndex: "firstName",
+        key: "firstName",
+        dataType: "string",
       },
       {
-        header: "Last Name",
-        accessorKey: "lastName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-left">{cellProps.row.original.lastName}</div>
-          );
-        },
+        title: "Last Name",
+        dataIndex: "lastName",
+        key: "lastName",
+        dataType: "string",
       },
       {
-        header: "Role",
-        accessorKey: "role",
-        enableColumnFilter: false,
-        enableSorting: true,
-        // cell: (cellProps: any) => {
-        //   return (
-        //     <div className="badge badge-soft-primary font-size-11 m-1">{cellProps.row.original.role}</div>
-        //   );
-        // },
+        title: "Role",
+        dataIndex: "role",
+        key: "role",
+        dataType: "string",
       },
       {
-        header: 'Skills',
-        accessorKey: 'skills',
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const skillsData = cellProps.row.original.skills
-          return (
-            <>
-              {
-                skillsData?.map((item, key) => <Tag color='#87d068'>{item}</Tag>)
-              }
-            </>
-          );
-        },
+        title: "Skills",
+        dataIndex: "skills",
+        key: "skills",
+        dataType: "any",
+        render: (skillsData: any) => (
+          <>
+            {
+              skillsData?.map((item, key) => <Tag color='#87d068'>{item}</Tag>)
+            }
+          </>
+        )
       },
       {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: "",
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.firstName} ${cellProps.row.original.lastName}`;
-          const id = cellProps.row.original.id;
+        title: "Actions",
+        dataIndex: "actions",
+        key: "actions",
+        dataType: "any",
+        render: (text, record) => {
+          const name = `${record.firstName} ${record.lastName}`;
+          const id = record.id;
           return (
             <div className="d-flex gap-3">
               <Link
@@ -453,7 +428,7 @@ const Users = (props: any) => {
                 className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const vehicleData = cellProps.row.original;
+                  const vehicleData = record;
                   handleOnEdit(vehicleData);
                 }}
               >
@@ -513,6 +488,17 @@ const Users = (props: any) => {
     importCsvModalToggle();
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return xda;
+    return xda.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [xda, searchTerm, columns]);
+
   console.log(xda)
   return (
     <React.Fragment>
@@ -523,19 +509,36 @@ const Users = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                      />
+                    </Col>
+                    <Col sm={8}>
+                      <div className="d-flex justify-content-end text-sm-end gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleOnAdd}
+                        >
+                          <i className="mdi mdi-plus me-1"></i> New User
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleOnImport}
+                        >
+                          <i className="mdi mdi-plus me-1"></i> Import Users
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Table
                     columns={columns}
-                    data={xda || []}
-                    // total={total || 0}
-                    theadClass={"text-left"}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={true}
-                    buttonName="New User"
-                    isImportButton={true}
-                    importButtonName="Import Users"
+                    data={filteredData || []}
+                    paginationPageSize={10}
                   />
                 </CardBody>
               </Card>
