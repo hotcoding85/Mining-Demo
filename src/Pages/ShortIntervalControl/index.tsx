@@ -256,6 +256,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -270,6 +272,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -285,6 +289,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -397,6 +403,8 @@ const ShortIntervalControl = () => {
                     delete shiftRoster._type;
                     delete shiftRoster.createdAt;
                     delete shiftRoster.updatedAt;
+                    delete shiftRoster.createdBy;
+                    delete shiftRoster.updatedBy;
                     delete shiftRoster.id;
                     delete shiftRoster._id;
                     delete shiftRoster.vehicle;
@@ -440,6 +448,8 @@ const ShortIntervalControl = () => {
                         delete shiftRoster._type;
                         delete shiftRoster.createdAt;
                         delete shiftRoster.updatedAt;
+                        delete shiftRoster.createdBy;
+                        delete shiftRoster.updatedBy;
                         delete shiftRoster.id;
                         delete shiftRoster._id;
                         delete shiftRoster.vehicle;

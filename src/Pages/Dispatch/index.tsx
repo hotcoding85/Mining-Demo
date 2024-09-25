@@ -33,7 +33,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { equipmentStateProps, OperatorStateProps } from "./types";
 // import { equipmentStateProps, OperatorStateProps } from "./types";
 
-
 const Dispatch = () => {
   document.title = "Dispatch | FMS Live";
 
@@ -60,7 +59,7 @@ const Dispatch = () => {
     })
   );
 
-  const { shiftrosters } = useSelector(rostersProperties);
+  const { shiftrosters = [] } = useSelector(rostersProperties);
   const { users } = useSelector(usersProperties);
   const { fleet } = useSelector(fleetProperties);
   const [operators, setOperators] = useState<any>([]);
@@ -78,7 +77,7 @@ const Dispatch = () => {
     field: "",
     value: "",
     index: 0,
-    operator: {}
+    operator: {},
   });
   const [targetEquipment, setTargetEquipment] = useState<any>();
 
@@ -111,7 +110,7 @@ const Dispatch = () => {
         isDragging: !!monitor.isDragging(),
       }),
     }));
-  
+
     return (
       <div
         className={style}
@@ -133,7 +132,7 @@ const Dispatch = () => {
       </div>
     );
   }
-  
+
   const DropTarget = ({
     dropId,
     shiftIndex,
@@ -152,7 +151,7 @@ const Dispatch = () => {
         isOver: !!monitor.isOver(),
       }),
     }));
-  
+
     return (
       <div ref={drop} className={style}>
         {children}
@@ -216,9 +215,9 @@ const Dispatch = () => {
     // updateUsedOperatorsAndTrucks();
     // }, 2000);
 
-    let totalAllocatedOpertors =  getAllocatedOperators(shiftrosters)
+    let totalAllocatedOpertors = getAllocatedOperators(shiftrosters);
     setAllocatedOperators(totalAllocatedOpertors);
-    getAvailableOperators()
+    getAvailableOperators();
   }, [shiftrosters]);
 
   // useEffect(() => {
@@ -305,8 +304,8 @@ const Dispatch = () => {
     let rosterTrucks = shiftrosters.map((roster) => {
       return roster.trucks && roster.trucks[0]
         ? roster.trucks.map((truck) => {
-          return truck.id;
-        })
+            return truck.id;
+          })
         : undefined;
     });
 
@@ -356,6 +355,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -372,6 +373,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -391,6 +394,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -484,16 +489,14 @@ const Dispatch = () => {
       let equiments = JSON.parse(JSON.stringify(equipmentList));
       setTargetEquipment(equiments[shiftIndex]);
 
-      if(equiments[shiftIndex].state.toLowerCase() !== 'down'){
-        if (
-          getOperators(equiments[shiftIndex]?.id)?.length
-        ) {
+      if (equiments[shiftIndex].state.toLowerCase() !== "down") {
+        if (getOperators(equiments[shiftIndex]?.id)?.length) {
           setIsModalVisible(true);
         } else {
           equiments[shiftIndex].operator = person;
 
-          let active = {id: person.id}
-          let over = {id: equiments[shiftIndex].id}
+          let active = { id: person.id };
+          let over = { id: equiments[shiftIndex].id };
           processDroppedData(active, over);
         }
       }
@@ -546,6 +549,8 @@ const Dispatch = () => {
           delete shiftRoster._type;
           delete shiftRoster.createdAt;
           delete shiftRoster.updatedAt;
+          delete shiftRoster.createdBy;
+          delete shiftRoster.updatedBy;
           delete shiftRoster.id;
           delete shiftRoster._id;
           delete shiftRoster.vehicle;
@@ -588,6 +593,8 @@ const Dispatch = () => {
             delete shiftRoster._type;
             delete shiftRoster.createdAt;
             delete shiftRoster.updatedAt;
+            delete shiftRoster.createdBy;
+            delete shiftRoster.updatedBy;
             delete shiftRoster.id;
             delete shiftRoster._id;
             delete shiftRoster.vehicle;
@@ -614,13 +621,12 @@ const Dispatch = () => {
   const updateTargetOperator = () => {
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     const { shiftIndex, field, value, person } = targetOperatorFileds;
-    let active = {id: person.id}
-    let over = {id: equiments[shiftIndex].id}
+    let active = { id: person.id };
+    let over = { id: equiments[shiftIndex].id };
     processDroppedData(active, over);
   };
 
   const updateEquipmentState = (key: number, value: string) => {
-
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     equiments[key].state = value;
     let vehicle = equiments[key];
@@ -633,8 +639,8 @@ const Dispatch = () => {
       name: vehicle.name,
       serial: vehicle.serial,
       state: vehicle.state,
-      status: vehicle.status
-    }
+      status: vehicle.status,
+    };
     dispatch(updateVehicle(id, updatedvehicle));
   };
 
@@ -738,12 +744,25 @@ const Dispatch = () => {
                                           {equipment.status}
                                         </div> */}
                                         <div className="d-flex align-items-center gap-1 text-color">
-                                          <span className="fs-4">{equipment.name}</span>
-                                          (<span className="fs-6 text-truncate p-0" onMouseEnter={() => handleMouseEnter(key)}
-                                            onMouseLeave={handleMouseLeave}>
+                                          <span className="fs-4">
+                                            {equipment.name}
+                                          </span>
+                                          (
+                                          <span
+                                            className="fs-6 text-truncate p-0"
+                                            onMouseEnter={() =>
+                                              handleMouseEnter(key)
+                                            }
+                                            onMouseLeave={handleMouseLeave}
+                                          >
                                             {`${equipment.model}`}
-                                            {tooltipIndex == key && <div className="position-absolute bg-white text-black px-2 py-1 rounded tooltip-value">{equipment.model}</div>}
-                                            </span>)
+                                            {tooltipIndex == key && (
+                                              <div className="position-absolute bg-white text-black px-2 py-1 rounded tooltip-value">
+                                                {equipment.model}
+                                              </div>
+                                            )}
+                                          </span>
+                                          )
                                         </div>
                                         {/* <Tag></Tag> */}
                                         <div className="select-icon">
