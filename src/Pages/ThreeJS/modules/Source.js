@@ -432,6 +432,28 @@ class Utils {
         tilePixelY
     };
   }
+
+  static tilePixelToLatLng(tileX, tileY, tilePixelX, tilePixelY, zoom, tileSize = baseTileSize) {
+    // // Calculate world pixel coordinates
+    const scale = tileSize * Math.pow(2, zoom);
+    const pixelX = (tileX * tileSize) + tilePixelX;
+    const pixelY = (tileY * tileSize) + tilePixelY;
+
+    // Normalize world coordinates
+    const worldX = pixelX / scale;
+    const worldY = pixelY / scale;
+
+    // Convert world coordinates to latitude and longitude
+    const longitude = worldX * 360 - 180;
+    const n = Math.PI - 2 * Math.PI * worldY;
+    const latitude = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+
+    return {
+        latitude,
+        longitude
+    };
+
+  }
 }
 
 export class Map {
@@ -491,6 +513,10 @@ export class Map {
 
   convertXYToPixel (x, y, center = this.center, zoom = this.zoom) {
     return Utils.pointToTilePixel(x, y, center, zoom, baseTileSize)
+  }
+
+  convertTileToGeo (tileX, tileY, x, y, zoom = this.zoom, tileSize = this.tileSize) {
+    return Utils.tilePixelToLatLng(tileX, tileY, x, y, zoom, tileSize)
   }
 
   drawRoutes() {

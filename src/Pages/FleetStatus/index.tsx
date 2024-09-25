@@ -65,7 +65,7 @@ const FMS = () => {
     const getLoadsAndTonnes = (id, category, capacity) => {
 
         let tonnes, loads;
-        const targetInfo = targets.filter((target) => { return target.vehicleId === id });
+        const targetInfo = targets?.filter((target) => { return target.vehicleId === id });
         if (targetInfo && targetInfo[0]) {
             loads = targetInfo[0].data && targetInfo[0].data.loads ? targetInfo[0].data.loads : 0;
             tonnes = targetInfo[0].data && targetInfo[0].data.loads ? targetInfo[0].data.loads : 0;

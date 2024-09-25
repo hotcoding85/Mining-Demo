@@ -73,7 +73,7 @@ const ROMManagement = () => {
     })
   );
 
-  const { geoFence, benches } = useSelector(geoFencesProperties);
+  const { geoFence = [], benches = [] } = useSelector(geoFencesProperties);
 
   const oreDumpFences = useMemo(() => {
     const data: any[] = Array.from(geoFence);

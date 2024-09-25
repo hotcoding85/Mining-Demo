@@ -73,7 +73,7 @@ const WasteDumpManagement = () => {
     })
   );
 
-  const { geoFence, benches } = useSelector(geoFencesProperties);
+  const { geoFence = [], benches = [] } = useSelector(geoFencesProperties);
 
   const wasteDumpFences = useMemo(() => {
     const data: any[] = Array.from(geoFence);
