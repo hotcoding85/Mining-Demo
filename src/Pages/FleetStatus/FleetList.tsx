@@ -1,10 +1,6 @@
 import React from 'react';
-import { Card, CardBody, Col, Row } from 'reactstrap';
 import { pc2000, pc1250, hd1500, hd785, wa600, placeHolder } from 'assets/images/equipment';
-import { round } from 'lodash';
 import './index.scss';
-import { Badge } from 'antd';
-import { round2Two, roundOff } from 'utils/common';
 import Item from './Item';
 import { getRandomInt } from 'utils/random';
 

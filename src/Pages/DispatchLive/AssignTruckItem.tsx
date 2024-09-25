@@ -1,16 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useDrop } from "react-dnd";
 import "./styles/assignItem.scss";
 import { Truck } from "./interfaces/type";
 import {
-  hd1500,
   hd785,
-  pc1250,
-  pc2000,
-  placeHolder,
-  wa600,
 } from "assets/images/equipment";
-import { Progress, Divider, Dropdown } from "antd";
+import { Progress, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 
 interface AssignTruckItemProps {

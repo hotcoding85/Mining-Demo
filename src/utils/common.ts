@@ -21,12 +21,23 @@ export const getDateInFormat = (timestamp, format) => {
 export const shifts: any = JSON.parse(localStorage.getItem('shifts')!);
 
 export const shiftsInFormat: any = (shifts) => {
-  return shifts.map((shift) => { return { value: shift.name, label: shift.name } })
+
+  let currentShifts = shifts;
+  if(!shifts) {
+    currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+  }
+
+  return currentShifts.map((shift) => { return { value: shift.name, label: shift.name } })
 }
 
 export const shiftDuration = (shifts, shift) => {
 
-  let currentShiftData = shifts.filter(shiftData => { return shiftData.name === shift });
+  let currentShifts = shifts;
+  if(!shifts) {
+    currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+  }
+
+  let currentShiftData = currentShifts.filter(shiftData => { return shiftData.name === shift });
   if (currentShiftData && currentShiftData[0]) {
     currentShiftData = currentShiftData[0];
     const shiftDurationData = currentShiftData.duration / 60;
@@ -39,8 +50,14 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
   let currentTime = typeof date === 'string' ? dayjs(date) : date;
   let previousDay = dayjs().subtract(1, 'day');
   let shifTimings;
-  for (let i = 0; i < shifts.length; i++) {
-    let shift = shifts[i];
+  let currentShifts = shifts;
+
+  if(!shifts) {
+    currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+  }
+
+  for (let i = 0; i < currentShifts.length; i++) {
+    let shift = currentShifts[i];
     let startTime = shift.startTime.split(":");
     let start = dayjs().set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
     let startPrev = previousDay.set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1]));
@@ -65,7 +82,12 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
 }
 
 export const shiftTimingsByDateandShift = (shiftDate: string, shift: string): ShiftTimingsInfo => {
-  let shiftInfo: Shift = shifts.find((s: Shift) => s['name'] === shift);
+  let currentShifts = shifts;
+  if(!shifts) {
+    currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+  }
+
+  let shiftInfo: Shift = currentShifts.find((s: Shift) => s['name'] === shift);
 
   let startTime: string[] = shiftInfo.startTime.split(":");
   let start: Dayjs = dayjs(shiftDate).set('hour', parseInt(startTime[0])).set('minute', parseInt(startTime[1])).set('second', parseInt(startTime[2]));
@@ -239,7 +261,11 @@ export const getTarget = (vehicleType, capacity, targetType, date, shift) => {
   var target = _.cloneDeep(targetsConfig[targetType]);
 
   if (targetType === 'SHIFT') {
-    const duration = shiftDuration(shifts, shift);
+    let currentShifts = shifts;
+    if(!shifts) {
+      currentShifts = JSON.parse(localStorage.getItem('shifts')!);
+    }
+    const duration = shiftDuration(currentShifts, shift);
     target.availability = roundOff((target['availablePer'] * duration) * 60 / 100);
     target.standby = roundOff((target['standbyPer'] * target.availability) / 100);
   } else if (targetType === 'DAILY') {

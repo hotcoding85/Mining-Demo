@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Input, Form } from 'antd';
-import { ModalBody, ModalHeader } from "reactstrap";
+import { ModalBody } from "reactstrap";
 import _ from 'lodash';
 
 interface BoundingBoxModalProps {

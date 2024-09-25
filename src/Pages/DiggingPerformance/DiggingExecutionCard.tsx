@@ -1,16 +1,15 @@
 import React, { useMemo } from 'react';
-import { CardBody, Row, Col, Card, CardImg } from 'reactstrap';
+import { CardBody, Row, Col, Card } from 'reactstrap';
 
 import { BarGraph } from "../../Components/Charts/BarChart";
 import { TextColor } from 'Components/Charts/interfaces/general';
-import ProgressPieChart from 'Components/Charts/ProgressPieChart';
 import { FLEET_TIME_STATE_COLOR, LAYOUT_MODE_TYPES } from 'Components/constants/layout';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { getRandomInt } from 'utils/random';
-import { divide12HoursRandomly, divide12HoursRandomlyFormatted, minutesToHhMm, round2One } from 'utils/common';
+import { divide12HoursRandomly, minutesToHhMm, round2One } from 'utils/common';
 
 
 const MyPiechart = ({ bgColor, textColor, fillColor, value, width, height, maxValue, state, time, ...props }) => {

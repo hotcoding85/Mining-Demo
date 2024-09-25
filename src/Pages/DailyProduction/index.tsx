@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, CardBody, CardTitle, Progress, Row, Col } from 'reactstrap';
+import { Container, Card, CardBody, CardTitle, Row, Col } from 'reactstrap';
 import Chart from 'react-apexcharts';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import MiningTruckGraphCard from "./MiningTruckGraphCard";

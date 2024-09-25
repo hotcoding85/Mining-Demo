@@ -432,6 +432,28 @@ class Utils {
         tilePixelY
     };
   }
+
+  static tilePixelToLatLng(tileX, tileY, tilePixelX, tilePixelY, zoom, tileSize = baseTileSize) {
+    // // Calculate world pixel coordinates
+    const scale = tileSize * Math.pow(2, zoom);
+    const pixelX = (tileX * tileSize) + tilePixelX;
+    const pixelY = (tileY * tileSize) + tilePixelY;
+
+    // Normalize world coordinates
+    const worldX = pixelX / scale;
+    const worldY = pixelY / scale;
+
+    // Convert world coordinates to latitude and longitude
+    const longitude = worldX * 360 - 180;
+    const n = Math.PI - 2 * Math.PI * worldY;
+    const latitude = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+
+    return {
+        latitude,
+        longitude
+    };
+
+  }
 }
 
 export class Map {
@@ -493,6 +515,10 @@ export class Map {
     return Utils.pointToTilePixel(x, y, center, zoom, baseTileSize)
   }
 
+  convertTileToGeo (tileX, tileY, x, y, zoom = this.zoom, tileSize = this.tileSize) {
+    return Utils.tilePixelToLatLng(tileX, tileY, x, y, zoom, tileSize)
+  }
+
   drawRoutes() {
     if (!this.routes || this.routes.length === 0) {
       return;
@@ -501,7 +527,7 @@ export class Map {
     const centerLatLng = this.geoLocation; // Assuming getCenter() gets the current view center position
     const centerPixel = Utils.latLngToTilePixel(centerLatLng[0], centerLatLng[1], this.zoom);
     _.map(this.routes, (_route) => {
-        if (_route.category !== 'STOP_SIGNS') {
+        if (_route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE') {
             const points = [];
             const coordinates = _route.geoJson.geometry.coordinates;
             // Loop over each coordinate and calculate its pixel position relative to the current view
@@ -568,7 +594,7 @@ export class Map {
               value: tubeMesh
             })
             this.scene.add(tubeMesh);
-        } else {
+        } else  if (_route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE') {
           // Handle the STOP_SIGNS category by showing an image at the point
           const coordinates = _route.geoJson.geometry.coordinates;
           if (coordinates.length === 1) { // Assuming there's only one point for STOP_SIGNS

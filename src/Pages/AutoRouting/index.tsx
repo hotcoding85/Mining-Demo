@@ -101,8 +101,8 @@ const AutoRouting = () => {
             while(stopMarkers.current.length > 0) {
                 stopMarkers.current.pop()?.remove()
             }
-            const realRoutes = routes.filter(_route => _route.category != 'STOP_SIGNS')
-            const stopSignRoutes = routes.filter(_route => _route.category == 'STOP_SIGNS')
+            const realRoutes = routes.filter(_route => _route.category != 'STOP_SIGNS' && _route.status == 'ACTIVE')
+            const stopSignRoutes = routes.filter(_route => _route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE')
             const _routeData = _.map(routes, route => {
                 return {
                     id: route.id,
@@ -183,10 +183,6 @@ const AutoRouting = () => {
             });
 
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
-        });
-
-        mapRef.current.on('load', () => {
-            
         });
 
         mapRef.current.on('click', handleMapClick);

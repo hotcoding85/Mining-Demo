@@ -8,27 +8,163 @@ import "./index.css";
 const { Title } = Typography;
 const { Option } = Select;
 
+interface Row {
+  code: string;
+  description: string;
+  vehicleType: string;
+}
+
+interface RowErrors {
+  code?: boolean;
+  description?: boolean;
+  vehicleType?: boolean;
+}
+
 const AdminSettings = (props: any) => {
   document.title = "Admin Settings | FMS Live";
 
-  const [standbyRows, setStandbyRows] = useState([{ code: "", description: "", vehicleType: "" }]);
-  const [delayRows, setDelayRows] = useState([{ code: "", description: "", vehicleType: "" }]);
-  const [downRows, setDownRows] = useState([{ code: "", description: "", vehicleType: "" }]);
+  const [standbyRows, setStandbyRows] = useState<Row[]>([
+    { code: "", description: "", vehicleType: "" },
+  ]);
+  const [delayRows, setDelayRows] = useState<Row[]>([
+    { code: "", description: "", vehicleType: "" },
+  ]);
+  const [downRows, setDownRows] = useState<Row[]>([
+    { code: "", description: "", vehicleType: "" },
+  ]);
 
-  const handleInputChange = (rows, setRows, index, field, value) => {
+  const [standbyErrors, setStandbyErrors] = useState<{
+    [key: number]: RowErrors;
+  }>({});
+  const [delayErrors, setDelayErrors] = useState<{ [key: number]: RowErrors }>(
+    {}
+  );
+  const [downErrors, setDownErrors] = useState<{ [key: number]: RowErrors }>(
+    {}
+  );
+
+  const handleInputChange = (
+    rows: Row[],
+    setRows: React.Dispatch<React.SetStateAction<Row[]>>,
+    errors: { [key: number]: RowErrors },
+    setErrors: React.Dispatch<
+      React.SetStateAction<{ [key: number]: RowErrors }>
+    >,
+    index: number,
+    field: keyof Row,
+    value: string
+  ) => {
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
     setRows(updatedRows);
 
-    if (index === rows.length - 1 && rows[index].code && rows[index].description && rows[index].vehicleType) {
-      setRows([...rows, { code: "", description: "", vehicleType: "" }]);
+    validateField(updatedRows, errors, setErrors, index, field, value);
+
+    if (
+      index === rows.length - 1 &&
+      updatedRows[index].code &&
+      updatedRows[index].description &&
+      updatedRows[index].vehicleType
+    ) {
+      setRows([...updatedRows, { code: "", description: "", vehicleType: "" }]);
     }
   };
 
+  const validateField = (
+    rows: Row[],
+    errors: { [key: number]: RowErrors },
+    setErrors: React.Dispatch<
+      React.SetStateAction<{ [key: number]: RowErrors }>
+    >,
+    index: number,
+    field: keyof Row,
+    value: string
+  ) => {
+    const updatedErrors = { ...errors };
+
+    if (!updatedErrors[index]) {
+      updatedErrors[index] = {};
+    }
+
+    if (!value) {
+      updatedErrors[index][field] = true;
+    } else {
+      updatedErrors[index][field] = false;
+    }
+
+    if (
+      updatedErrors[index] &&
+      !Object.values(updatedErrors[index]).some((error) => error)
+    ) {
+      delete updatedErrors[index];
+    }
+
+    setErrors(updatedErrors);
+  };
+
+  const removeEmptyRows = (rows: Row[]) => {
+    return rows.filter((row) => row.code || row.description || row.vehicleType);
+  };
+
+  const validateRows = (
+    rows: Row[],
+    setErrors: React.Dispatch<
+      React.SetStateAction<{ [key: number]: RowErrors }>
+    >
+  ) => {
+    let isValid = true;
+    const newErrors: { [key: number]: RowErrors } = {};
+
+    rows.forEach((row, index) => {
+      const { code, description, vehicleType } = row;
+      const rowErrors: RowErrors = {};
+
+      if (!code) {
+        rowErrors.code = true;
+        isValid = false;
+      }
+
+      if (!description) {
+        rowErrors.description = true;
+        isValid = false;
+      }
+
+      if (!vehicleType) {
+        rowErrors.vehicleType = true;
+        isValid = false;
+      }
+
+      if (Object.keys(rowErrors).length > 0) {
+        newErrors[index] = rowErrors;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handlePublish = () => {
-    console.log("Standby Reasons Data:", standbyRows);
-    console.log("Delay Reasons Data:", delayRows);
-    console.log("Down Reasons Data:", downRows);
+    console.log("Attempting to publish...");
+
+    const filteredStandbyRows = removeEmptyRows(standbyRows);
+    const filteredDelayRows = removeEmptyRows(delayRows);
+    const filteredDownRows = removeEmptyRows(downRows);
+
+    if (!validateRows(filteredStandbyRows, setStandbyErrors)) {
+      return;
+    }
+
+    if (!validateRows(filteredDelayRows, setDelayErrors)) {
+      return;
+    }
+
+    if (!validateRows(filteredDownRows, setDownErrors)) {
+      return;
+    }
+
+    console.log("Publishing Standby Reasons Data:", filteredStandbyRows);
+    console.log("Publishing Delay Reasons Data:", filteredDelayRows);
+    console.log("Publishing Down Reasons Data:", filteredDownRows);
   };
 
   return (
@@ -38,24 +174,37 @@ const AdminSettings = (props: any) => {
           <Breadcrumb title="Admin Settings" breadcrumbItem="Admin Settings" />
         </Container>
 
-        <Row>
-          <Col span={24}>
-            <div style={{ padding: "16px" }}>
-              <Title level={4} style={{ color: "white", marginBottom: 0 }} className="state-reason-title">
-                State Reasons
-              </Title>
-              <div
-                style={{
-                  borderBottom: "2px solid white",
-                  width: "130px",
-                  margin: "8px 0",
-                }}
-              />
-              {/* Publish Button */}
-              <Button type="primary" onClick={handlePublish}>
-                Publish
-              </Button>
-            </div>
+        <Row
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "16px",
+          }}
+        >
+          {/* Left Aligned: State Reasons */}
+          <Col>
+            <Title
+              level={4}
+              style={{ color: "white", marginBottom: 0 }}
+              className="state-reason-title"
+            >
+              State Reasons
+            </Title>
+            <div
+              style={{
+                borderBottom: "2px solid white",
+                width: "130px",
+                margin: "8px 0",
+              }}
+            />
+          </Col>
+
+          {/* Right Aligned: Publish Button */}
+          <Col>
+            <Button type="primary" onClick={handlePublish}>
+              Publish
+            </Button>
           </Col>
         </Row>
 
@@ -64,6 +213,8 @@ const AdminSettings = (props: any) => {
           title="STANDBY REASONS"
           rows={standbyRows}
           setRows={setStandbyRows}
+          errors={standbyErrors}
+          setErrors={setStandbyErrors}
           handleInputChange={handleInputChange}
         />
 
@@ -72,6 +223,8 @@ const AdminSettings = (props: any) => {
           title="DELAY REASONS"
           rows={delayRows}
           setRows={setDelayRows}
+          errors={delayErrors}
+          setErrors={setDelayErrors}
           handleInputChange={handleInputChange}
         />
 
@@ -80,6 +233,8 @@ const AdminSettings = (props: any) => {
           title="DOWN REASONS"
           rows={downRows}
           setRows={setDownRows}
+          errors={downErrors}
+          setErrors={setDownErrors}
           handleInputChange={handleInputChange}
         />
       </div>
@@ -88,7 +243,31 @@ const AdminSettings = (props: any) => {
 };
 
 // Component for each reason section
-const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
+const ReasonSection = ({
+  title,
+  rows,
+  setRows,
+  handleInputChange,
+  errors,
+  setErrors,
+}: {
+  title: string;
+  rows: Row[];
+  setRows: React.Dispatch<React.SetStateAction<Row[]>>;
+  handleInputChange: (
+    rows: Row[],
+    setRows: React.Dispatch<React.SetStateAction<Row[]>>,
+    errors: { [key: number]: RowErrors },
+    setErrors: React.Dispatch<
+      React.SetStateAction<{ [key: number]: RowErrors }>
+    >,
+    index: number,
+    field: keyof Row,
+    value: string
+  ) => void;
+  errors: { [key: number]: RowErrors };
+  setErrors: React.Dispatch<React.SetStateAction<{ [key: number]: RowErrors }>>;
+}) => (
   <>
     <Row
       style={{
@@ -130,41 +309,95 @@ const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
 
     {/* Rendering rows */}
     {rows.map((row, index) => (
-      <Row key={index} className="custom-section mt-4" style={{ background: "transparent" }}>
+      <Row
+        key={index}
+        className="custom-section mt-4"
+        style={{ background: "transparent" }}
+      >
         <Col span={24}>
           <Row className="align-items-center justify-content-between my-4 border-bottom pb-2">
             <Col lg="6">
-              <Input
-                placeholder="Enter Code"
-                value={row.code}
-                onChange={(e) =>
-                  handleInputChange(rows, setRows, index, "code", e.target.value)
-                  
-                }
-                className="standby-input"
-              />
+              <div className="input-container">
+                <Input
+                  placeholder="Enter Code"
+                  value={row.code}
+                  onChange={(e) =>
+                    handleInputChange(
+                      rows,
+                      setRows,
+                      errors,
+                      setErrors,
+                      index,
+                      "code",
+                      e.target.value
+                    )
+                  }
+                  className={`standby-input ${
+                    errors[index]?.code ? "input-error" : ""
+                  }`}
+                />
+                {errors[index]?.code && (
+                  <span className="error-text-inline">Code is required</span>
+                )}
+              </div>
             </Col>
             <Col lg="6">
-              <Input
-                placeholder="Enter Description"
-                value={row.description}
-                onChange={(e) =>
-                  handleInputChange(rows, setRows, index, "description", e.target.value)
-                }
-                className="standby-input"
-              />
+              <div className="input-container">
+                <Input
+                  placeholder="Enter Description"
+                  value={row.description}
+                  onChange={(e) =>
+                    handleInputChange(
+                      rows,
+                      setRows,
+                      errors,
+                      setErrors,
+                      index,
+                      "description",
+                      e.target.value
+                    )
+                  }
+                  className={`standby-input ${
+                    errors[index]?.description ? "input-error" : ""
+                  }`}
+                />
+                {errors[index]?.description && (
+                  <span className="error-text-inline">
+                    Description is required
+                  </span>
+                )}
+              </div>
             </Col>
             <Col lg="2">
-              <Select
-                value={row.vehicleType}
-                onChange={(value) => handleInputChange(rows, setRows, index, "vehicleType", value)}
-                style={{ background: "#1c263c" }}
-                className="custom-select"
-              >
-                <Option value="Excavator">Excavator</Option>
-                <Option value="Truck">Truck</Option>
-                <Option value="Loader">Loader</Option>
-              </Select>
+              <div className="input-container">
+                <Select
+                  value={row.vehicleType}
+                  onChange={(value) =>
+                    handleInputChange(
+                      rows,
+                      setRows,
+                      errors,
+                      setErrors,
+                      index,
+                      "vehicleType",
+                      value
+                    )
+                  }
+                  style={{ background: "#1c263c" }}
+                  className={`custom-select ${
+                    errors[index]?.vehicleType ? "input-error" : ""
+                  }`}
+                >
+                  <Option value="Excavator">Excavator</Option>
+                  <Option value="Truck">Truck</Option>
+                  <Option value="Loader">Loader</Option>
+                </Select>
+                {errors[index]?.vehicleType && (
+                  <span className="error-text-inline" style={{ left: "-30px" }}>
+                    Vehicle Type is required
+                  </span>
+                )}
+              </div>
             </Col>
           </Row>
         </Col>
@@ -172,6 +405,5 @@ const ReasonSection = ({ title, rows, setRows, handleInputChange }) => (
     ))}
   </>
 );
-
 
 export default AdminSettings;

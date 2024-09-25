@@ -3,7 +3,7 @@ import { Card, CardBody } from "reactstrap";
 import { round } from "lodash";
 import { getImage } from "utils/fleet";
 import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600, d375, t45 } from "assets/images/equipment";
-import { divide12HoursRandomlyFormatted, minutesToHhMm, round2One } from "utils/common";
+import { divide12HoursRandomlyFormatted } from "utils/common";
 import { getRandomInt } from "utils/random";
 
 const Item = (data: any) => {

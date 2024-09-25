@@ -145,8 +145,8 @@ const Replay = (props: any) => {
             loadMapView(geojsonData)
         })
     }
-    let raycaster = new THREE.Raycaster();
-    let mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
     const loadMapView = (_geojsonData: JSON) => {
         geojsonData.current = _geojsonData;
@@ -211,8 +211,8 @@ const Replay = (props: any) => {
 
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 28;
-        let zoom = 18
+        let nTiles = 11;
+        let zoom = 17
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
         window.map = map;
         console.log(map)
@@ -363,20 +363,14 @@ const Replay = (props: any) => {
             const worldPos = window.map.calculateWorldPosition(center, tileData.tileX, tileData.tileY, tileData.tilePixelX, tileData.tilePixelY, 512);
             const elevationValue = window.map.getElevationAt([tileData.tilePixelX, tileData.tilePixelY], tileData.tileX, tileData.tileY);
     
-            // Create a rippleIcon HTML element
-            const rippleIconElement = rippleIcon(eq);
-            const iconLabel = new CSS2DObject(rippleIconElement);
-    
             // Set the marker position
             marker.position.set(worldPos.x, worldPos.y, elevationValue * 2);  // Set Z to 0 or adjust for elevation
             marker.scale.set(80, 80, 0); // Adjust based on zoom level
             // Attach rippleIcon HTML to the marker (syncs the 3D position)
     
             // Add marker and icon label to the scene
-            // window.map.scene.add(iconLabel);  // Add the HTML label to the scene
-            marker.userData.eq = eq;
             // Add click event to marker (Three.js sprite click)
-
+            marker.userData = { isAnnotation: true, data: eq };
             window.map.scene.add(marker);
     
             // Add to lists for later interaction
@@ -392,20 +386,29 @@ const Replay = (props: any) => {
         }
     }
     const onDocumentMouseMove  = (event) => {
+        if (!mapContainer.current) return
         // Normalize mouse position to -1 to 1 range
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const rect = mapContainer.current.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
         // Update raycaster with the mouse position and the camera
         window.map.camera.updateProjectionMatrix();
         window.map.camera.updateMatrixWorld();
         raycaster.setFromCamera(mouse, window.map.camera);
         
         // Check for intersections with clickable sprites
-        const intersects = raycaster.intersectObjects(clickableSprites.current, true);
+        const intersects = raycaster.intersectObjects(window.map.scene.children, true);
         
         // Change cursor style based on intersection
         if (intersects.length > 0) {
-            document.body.style.cursor = 'pointer'; // Change to desired cursor style
+            const intersectedObject = intersects[0].object;
+            if (intersectedObject.userData && intersectedObject.userData.isAnnotation) {
+                const position = intersectedObject.position.clone();
+                document.body.style.cursor = 'pointer'; // Change to desired cursor style
+            }
+            else{
+                document.body.style.cursor = 'auto'; // Default cursor style
+            }
         } else {
             document.body.style.cursor = 'auto'; // Default cursor style
         }
@@ -413,9 +416,11 @@ const Replay = (props: any) => {
     
     let selectedPoints: any = [];
     const onDocumentMouseClick = (event) => {
+        if (!mapContainer.current) return;
         // Convert mouse click position to normalized device coordinates (NDC)
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const rect = mapContainer.current.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
 
         // Update the raycaster with the camera and mouse position
         raycaster.setFromCamera(mouse, window.map.camera);
@@ -424,62 +429,20 @@ const Replay = (props: any) => {
         const intersects = raycaster.intersectObjects(window.map.scene.children, true);
 
         if (intersects.length > 0) {
-            // Get the first intersection
-            const intersection = intersects[0];
-            // Get the intersection point (3D coordinates)
-            const intersectedPoint = intersection.point;
-
-            console.log('3D Coordinates:', intersectedPoint);
-            selectedPoints.push(intersectedPoint);
-
-            if (selectedPoints.length === 2) {
-                // drawLineBetweenPoints(selectedPoints[0], selectedPoints[1]);
-                selectedPoints = []; // Reset points
+            const intersectedObject = intersects[0].object;
+            if (intersectedObject.userData && intersectedObject.userData.isAnnotation) {
+                const position = intersectedObject.position.clone();
+                document.body.style.cursor = 'pointer'; // Change to desired cursor style
+                console.log('3D Coordinates:', position);
+                // selectedPoints.push(position);
+                setSelectedEq(intersectedObject.userData.data);  // Handle click event
             }
             // Do something with the 3D coordinates, e.g., highlight the object
         }
-    
-        // event.preventDefault();
-        // let vec = new THREE.Vector3(); // create once and reuse
-        // // cf. https://stackoverflow.com/a/13091694/343834
-        // vec.set(
-        //     (event.clientX / window.innerWidth) * 2 - 1,
-        //     -(event.clientY / window.innerHeight) * 2 + 1,
-        //     0.5);
-    
-        // window.map.camera.updateMatrixWorld();
-        // window.map.camera.updateProjectionMatrix();
-        // vec.unproject(window.map.camera);
-
-        // const direction = vec.sub(window.camera.position).normalize();
-
-        // const distance = -window.camera.position.z / direction.z;
-    
-        // const worldPosition = window.camera.position.clone().add(direction.multiplyScalar(distance));
-
-        // // Normalize mouse position to -1 to 1 range
-        // mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        // mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         
-        // const tileData1 = window.map.convertXYToPixel(worldPosition.x, worldPosition.y)
-        // worldPosition.z = window.map.getElevationAt([tileData1.tilePixelX, tileData1.tilePixelY], tileData1.tileX, tileData1.tileY) * 2
-        
-        // // If two points are selected, draw the line
-        // if (selectedPoints.length === 2) {
-        //     drawLineBetweenPoints(selectedPoints[0], selectedPoints[1]);
-        //     selectedPoints = []; // Reset points
-        // }
-        // // Update raycaster with the mouse position and the camera
-        raycaster.setFromCamera(mouse, window.map.camera);
-        
-        // Check for intersections with clickable sprites
-        const _intersects = raycaster.intersectObjects(clickableSprites.current, true);
-
-        if (_intersects.length > 0) {
-            const clickedSprite = _intersects[0].object;  // Get the clicked sprite
-            const eqData = clickedSprite.userData.eq;  // Retrieve the associated equipment data
-
-            setSelectedEq(eqData);  // Handle click event
+        if (selectedPoints.length === 2) {
+            // drawLineBetweenPoints(selectedPoints[0], selectedPoints[1]);
+            selectedPoints = []; // Reset points
         }
     }
 
@@ -493,7 +456,7 @@ const Replay = (props: any) => {
     
     useEffect(() => {
         if (selectedEq) {
-            setRouteData([{id: selectedEq.name, routes: routes.filter(_route => _route.category !== 'STOP_SIGNS')}]);
+            setRouteData([{id: selectedEq.name, routes: routes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}]);
 
             clearAnimation()
             setTimeValue(0)
@@ -1285,7 +1248,7 @@ const Replay = (props: any) => {
     return (
         <React.Fragment>
             <div className="page-content">
-                <Container fluid style={{marginBottom: '-60px'}}>
+                <Container fluid style={{marginBottom: '-35px'}}>
                     <Row>
                         <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={(key) => onChangeTap(key)} >
                             <TabPane tab="Map View" key="1">
@@ -1324,7 +1287,7 @@ const Replay = (props: any) => {
                                         zIndex: 1,
                                         display: selectedEq ? 'block' : 'none'
                                     }}>
-                                        <Card style={{marginBottom: '42px', opacity: '0.9', transition: 'opacity 1s ease, max-height 1s ease;', display: showTimeline ? 'block' : 'none'}}>
+                                        <Card style={{marginBottom: '42px', opacity: '0.9', transition: 'opacity 1s ease, max-height 1s ease', display: showTimeline ? 'block' : 'none'}}>
                                             <ReactApexChart options={apexOptions} series={series} type="area" height={200} />
                                         </Card>
                                         <div className="switch-timeline" onClick={() => setShowTimeline(!showTimeline)}>

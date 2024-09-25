@@ -1,10 +1,3 @@
-.align-self-center:first-child,
-.align-self-center:not(:last-child) {
-    width: 35%;
-} .align-self-center:last-child {
-    width: 30%;
-}
-
 .standby-input,
 .standby-input:hover,
 .standby-input:focus,
@@ -56,3 +49,14 @@
       color: var(--dark-text-color);
     }
   }  
+.error-text-inline {
+  position: absolute;
+  color: #f46a6a;
+  font-size: 12px;
+  display: block;
+}
+
+.input-container {
+  position: relative;
+  margin-bottom: 1rem; 
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardBody, CardTitle, Progress, Row, Col } from 'reactstrap';
+import { CardBody, CardTitle, Progress, Col } from 'reactstrap';
 import Chart from 'react-apexcharts';
 import LineGraph from "./LineGraph";
 

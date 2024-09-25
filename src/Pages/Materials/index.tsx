@@ -232,6 +232,16 @@ const Materials = (props: any) => {
         },
       },
       {
+        header: "Density",
+        accessorKey: "density",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cellProps: any) => {
+          const density = cellProps.row.original.density as number;
+          return <div className="text-left">{round2Two(density)}</div>;
+        },
+      },
+      {
         header: "Color",
         accessorKey: "color",
         enableColumnFilter: false,

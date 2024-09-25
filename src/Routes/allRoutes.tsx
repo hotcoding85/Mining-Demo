@@ -29,7 +29,7 @@ import TruckingDashboard from "Pages/TruckingDashboard";
 import DiggingDashboard from "Pages/DiggingDashboard";
 // const DiggingDashboard = React.lazy(() => import("Pages/DiggingDashboard"));
 
-import EquipmentGantt from "Pages/Equipment Gantt";
+import EquipmentGantt from "Pages/EquipmentGantt";
 import { Underground } from "Pages/Underground";
 // const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
 
@@ -58,7 +58,7 @@ const GanttScheduler = React.lazy(() => import("Pages/GanttScheduler"));
 const Mock = React.lazy(() => import("Pages/Mock"));
 
 const Reports = React.lazy(() => import("Pages/Reports"));
-const Replay = React.lazy(() => import("Pages/Replay"));
+const Replay2D = React.lazy(() => import("Pages/2DReplay"));
 const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
 
 const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
@@ -66,7 +66,7 @@ const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
 const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
 const DailyProductionDashboard = React.lazy(() => import("Pages/Daily Production"));
 const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
-const FuelStatusDashboard = React.lazy(() => import("Pages/Fuel Status"));
+const FuelStatusDashboard = React.lazy(() => import("Pages/FuelStatus"));
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
 const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
@@ -75,7 +75,7 @@ const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
 const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 
-const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulRoad"));
+const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulTruckIntelligence"));
 // const PitView = React.lazy(() => import("Pages/PitView"));
 const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
 const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
@@ -131,7 +131,7 @@ const authProtectedRoutes = [
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
   { path: "/reports", exact: true, component: <Reports /> },
-  { path: "/route-replay", exact: true, component: <Replay /> },
+  { path: "/route-replay", exact: true, component: <Replay2D /> },
   { path: "/maintenance-status", exact: true, component: <MaintenanceStatus /> },
   { path: "/maintenance-scheduler", exact: true, component: <MaintenanceScheduler /> },
   { path: "/fuel-scheduler", exact: true, component: <FuelScheduler /> },

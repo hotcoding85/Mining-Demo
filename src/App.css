@@ -156,32 +156,6 @@ body[data-layout-mode="light"] {
   }
 }
 
-.my-custom-ctrl-group {
-  position: absolute;
-  z-index: 9;
-  right: 10px;
-  top: 335px;
-}
-
-.my-bounding-box-group {
-  position: absolute;
-  z-index: 9;
-  right: 10px;
-  top: 157px;
-}
-
-.my-custom-point-group {
-  position: absolute;
-  z-index: 9;
-  right: 10px;
-  top: 197px;
-}
-
-.mapboxgl-ctrl>button {
-  width: 32px !important;
-  height: 32px !important;
-}
-
 .ant-color-picker {
   position: absolute;
   z-index: 9999999;
