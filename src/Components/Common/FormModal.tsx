@@ -86,7 +86,7 @@ const FormModal = ({
                                 name={field.name}
                                 formValues={values}
                                 options={field.options}
-                                allowMultiple={fields.allowMultiple}
+                                allowMultiple={field.allowMultiple}
                                 setFieldValue={setFieldValue}
                                 onBlur={handleBlur}
                               />
