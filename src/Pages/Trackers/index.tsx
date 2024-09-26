@@ -16,6 +16,7 @@ import FormModal from 'Components/Common/FormModal';
 import { StatusOptions } from "common/options";
 import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
 import Table from 'Components/Common/Table';
+import { debounce } from 'lodash';
 
 const Trackers = (props: any) => {
   document.title = "Trackers | FMS Live";
@@ -227,22 +228,26 @@ const Trackers = (props: any) => {
     }
   ]
 
+  const checkTrackerNameUnique = debounce(async (value) => {
+    try {
+      const response = await isTrackerNameUnique(value);
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error('Error checking name uniqueness:', error);
+      if (error && error['data'] && error['data']['available']) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
   const validationSchema = Yup.object().shape({
     name: isEdit ? Yup.string() : Yup.string()
       .min(2, 'Tracker name must be at least 2 characters')
       .required("Please enter tracker name")
       .test('unique', 'Tracker with this name already exists', async function (value) {
         if (value && value.length >= 2) {
-          try {
-            const response = await isTrackerNameUnique(value);
-            return response.available; // assuming your API returns { available: true } if username is unique
-          } catch (error) {
-            console.error('Error checking name uniqueness:', error);
-            if (error && error['data'] && error['data']['available']) {
-              return true;
-            }
-            return false; // treat as not unique on error
-          }
+          return await checkTrackerNameUnique(value);
         }
         return true;
       }),

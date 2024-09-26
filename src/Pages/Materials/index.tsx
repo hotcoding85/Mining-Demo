@@ -25,6 +25,7 @@ import { round2Two } from "utils/common";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import Table from "Components/Common/Table";
 import { Input } from "antd";
+import { debounce } from "lodash";
 
 const Materials = (props: any) => {
   document.title = "Materials | FMS Live";
@@ -160,6 +161,20 @@ const Materials = (props: any) => {
     },
   ];
 
+  const checkMaterialNameUnique = debounce(async (value) => {
+    try {
+      const response = await isMaterialNameUnique(value);
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking name uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
+
   const validationSchema = Yup.object().shape({
     name: isEdit
       ? Yup.string()
@@ -171,16 +186,7 @@ const Materials = (props: any) => {
             "Material with this name already exists",
             async function (value) {
               if (value && value.length >= 2) {
-                try {
-                  const response = await isMaterialNameUnique(value);
-                  return response.available; // assuming your API returns { available: true } if username is unique
-                } catch (error) {
-                  console.error("Error checking name uniqueness:", error);
-                  if (error && error["data"] && error["data"]["available"]) {
-                    return true;
-                  }
-                  return false; // treat as not unique on error
-                }
+                return await checkMaterialNameUnique(value)
               }
               return true;
             }

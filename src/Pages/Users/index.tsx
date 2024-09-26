@@ -324,6 +324,21 @@ const Users = (props: any) => {
 
   const initialValues = parseUserData(user);
 
+  const checkUserNameUnique = _.debounce(async (value) => {
+    try {
+      const response = await axios.get(
+        `/users/check-username/${value}`
+      );
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking username uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
   const validationSchema = Yup.object().shape({
     employeeId: Yup.string().required("Please enter employee id"),
     username: isEdit
@@ -336,18 +351,7 @@ const Users = (props: any) => {
           "User with this username already exists",
           async function (value) {
             if (value && value.length >= 5) {
-              try {
-                const response = await axios.get(
-                  `/users/check-username/${value}`
-                );
-                return response.available; // assuming your API returns { available: true } if username is unique
-              } catch (error) {
-                console.error("Error checking username uniqueness:", error);
-                if (error && error["data"] && error["data"]["available"]) {
-                  return true;
-                }
-                return false; // treat as not unique on error
-              }
+              return await checkUserNameUnique(value);
             }
             return true;
           }

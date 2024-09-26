@@ -31,6 +31,7 @@ import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
 import { Input, Tag } from "antd";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import Table from "Components/Common/Table";
+import { debounce } from "lodash";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -194,6 +195,21 @@ const Fleet = (props: any) => {
     },
   ];
 
+
+  const checkMaterialNameUnique = debounce(async (value) => {
+    try {
+      const response = await isVehicleNameUnique(value);
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking name uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
+
   const validationSchema = Yup.object().shape({
     name: isEdit
       ? Yup.string()
@@ -205,16 +221,7 @@ const Fleet = (props: any) => {
             "vehicle with this name already exists",
             async function (value) {
               if (value && value.length >= 2) {
-                try {
-                  const response = await isVehicleNameUnique(value);
-                  return response.available; // assuming your API returns { available: true } if username is unique
-                } catch (error) {
-                  console.error("Error checking name uniqueness:", error);
-                  if (error && error["data"] && error["data"]["available"]) {
-                    return true;
-                  }
-                  return false; // treat as not unique on error
-                }
+               return await checkMaterialNameUnique(value);
               }
               return true;
             }
