@@ -67,7 +67,7 @@ const Users = (props: any) => {
   }, [data])
 
   useEffect(() => {
-    dispatch(getAllUsers()); // Dispatch action to fetch data on component mount
+    dispatch(getAllUsers(1, 100)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
   const toggle = useCallback(() => {

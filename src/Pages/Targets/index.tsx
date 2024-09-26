@@ -732,6 +732,7 @@ const Target = (props: any) => {
         target.data = _.pick(targetData, ['availability', 'standby', 'utilization', 'loads', 'tonnes', 'avgTime', 'avgLoad']);
         target.roster = roster;
         target.category = selectedTargetType;
+        target.status = "ACTIVE";
 
         delete target._type;
         delete target.createdAt;

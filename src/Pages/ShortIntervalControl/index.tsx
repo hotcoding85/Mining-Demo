@@ -110,7 +110,7 @@ const ShortIntervalControl = () => {
     const [selectedCrew, setSelectedCrew] = useState<any>();
 
     useEffect(() => {
-        dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
+        dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
         dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
         const queryParams = new URLSearchParams(window.location.search)
@@ -256,6 +256,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -270,6 +272,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -285,6 +289,8 @@ const ShortIntervalControl = () => {
         delete shiftRoster._type;
         delete shiftRoster.createdAt;
         delete shiftRoster.updatedAt;
+        delete shiftRoster.createdBy;
+        delete shiftRoster.updatedBy;
         delete shiftRoster.id;
         delete shiftRoster._id;
         delete shiftRoster.vehicle;
@@ -397,6 +403,8 @@ const ShortIntervalControl = () => {
                     delete shiftRoster._type;
                     delete shiftRoster.createdAt;
                     delete shiftRoster.updatedAt;
+                    delete shiftRoster.createdBy;
+                    delete shiftRoster.updatedBy;
                     delete shiftRoster.id;
                     delete shiftRoster._id;
                     delete shiftRoster.vehicle;
@@ -440,6 +448,8 @@ const ShortIntervalControl = () => {
                         delete shiftRoster._type;
                         delete shiftRoster.createdAt;
                         delete shiftRoster.updatedAt;
+                        delete shiftRoster.createdBy;
+                        delete shiftRoster.updatedBy;
                         delete shiftRoster.id;
                         delete shiftRoster._id;
                         delete shiftRoster.vehicle;

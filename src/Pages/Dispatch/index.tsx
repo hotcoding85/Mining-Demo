@@ -33,7 +33,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { equipmentStateProps, OperatorStateProps } from "./types";
 // import { equipmentStateProps, OperatorStateProps } from "./types";
 
-
 const Dispatch = () => {
   document.title = "Dispatch | FMS Live";
 
@@ -60,7 +59,7 @@ const Dispatch = () => {
     })
   );
 
-  const { shiftrosters } = useSelector(rostersProperties);
+  const { shiftrosters = [] } = useSelector(rostersProperties);
   const { users } = useSelector(usersProperties);
   const { fleet } = useSelector(fleetProperties);
   const [operators, setOperators] = useState<any>([]);
@@ -73,12 +72,16 @@ const Dispatch = () => {
     useState<equipmentStateProps[]>(fleet);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
+  useEffect(() => {
+    setEquipmentList(fleet);
+  }, [fleet]);
+
   const [targetOperatorFileds, setTargetOperatorFileds] = useState<any>({
     shiftIndex: 0,
     field: "",
     value: "",
     index: 0,
-    operator: {}
+    operator: {},
   });
   const [targetEquipment, setTargetEquipment] = useState<any>();
 
@@ -111,7 +114,7 @@ const Dispatch = () => {
         isDragging: !!monitor.isDragging(),
       }),
     }));
-  
+
     return (
       <div
         className={style}
@@ -133,7 +136,7 @@ const Dispatch = () => {
       </div>
     );
   }
-  
+
   const DropTarget = ({
     dropId,
     shiftIndex,
@@ -152,7 +155,7 @@ const Dispatch = () => {
         isOver: !!monitor.isOver(),
       }),
     }));
-  
+
     return (
       <div ref={drop} className={style}>
         {children}
@@ -161,7 +164,7 @@ const Dispatch = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
+    dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
     dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
     const queryParams = new URLSearchParams(window.location.search);
@@ -216,9 +219,9 @@ const Dispatch = () => {
     // updateUsedOperatorsAndTrucks();
     // }, 2000);
 
-    let totalAllocatedOpertors =  getAllocatedOperators(shiftrosters)
+    let totalAllocatedOpertors = getAllocatedOperators(shiftrosters);
     setAllocatedOperators(totalAllocatedOpertors);
-    getAvailableOperators()
+    getAvailableOperators();
   }, [shiftrosters]);
 
   // useEffect(() => {
@@ -305,8 +308,8 @@ const Dispatch = () => {
     let rosterTrucks = shiftrosters.map((roster) => {
       return roster.trucks && roster.trucks[0]
         ? roster.trucks.map((truck) => {
-          return truck.id;
-        })
+            return truck.id;
+          })
         : undefined;
     });
 
@@ -356,6 +359,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -372,6 +377,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -391,6 +398,8 @@ const Dispatch = () => {
     delete shiftRoster._type;
     delete shiftRoster.createdAt;
     delete shiftRoster.updatedAt;
+    delete shiftRoster.createdBy;
+    delete shiftRoster.updatedBy;
     delete shiftRoster.id;
     delete shiftRoster._id;
     delete shiftRoster.vehicle;
@@ -484,16 +493,14 @@ const Dispatch = () => {
       let equiments = JSON.parse(JSON.stringify(equipmentList));
       setTargetEquipment(equiments[shiftIndex]);
 
-      if(equiments[shiftIndex].state.toLowerCase() !== 'down'){
-        if (
-          getOperators(equiments[shiftIndex]?.id)?.length
-        ) {
+      if (equiments[shiftIndex].state.toLowerCase() !== "down") {
+        if (getOperators(equiments[shiftIndex]?.id)?.length) {
           setIsModalVisible(true);
         } else {
           equiments[shiftIndex].operator = person;
 
-          let active = {id: person.id}
-          let over = {id: equiments[shiftIndex].id}
+          let active = { id: person.id };
+          let over = { id: equiments[shiftIndex].id };
           processDroppedData(active, over);
         }
       }
@@ -546,6 +553,8 @@ const Dispatch = () => {
           delete shiftRoster._type;
           delete shiftRoster.createdAt;
           delete shiftRoster.updatedAt;
+          delete shiftRoster.createdBy;
+          delete shiftRoster.updatedBy;
           delete shiftRoster.id;
           delete shiftRoster._id;
           delete shiftRoster.vehicle;
@@ -588,6 +597,8 @@ const Dispatch = () => {
             delete shiftRoster._type;
             delete shiftRoster.createdAt;
             delete shiftRoster.updatedAt;
+            delete shiftRoster.createdBy;
+            delete shiftRoster.updatedBy;
             delete shiftRoster.id;
             delete shiftRoster._id;
             delete shiftRoster.vehicle;
@@ -614,13 +625,12 @@ const Dispatch = () => {
   const updateTargetOperator = () => {
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     const { shiftIndex, field, value, person } = targetOperatorFileds;
-    let active = {id: person.id}
-    let over = {id: equiments[shiftIndex].id}
+    let active = { id: person.id };
+    let over = { id: equiments[shiftIndex].id };
     processDroppedData(active, over);
   };
 
   const updateEquipmentState = (key: number, value: string) => {
-
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     equiments[key].state = value;
     let vehicle = equiments[key];
@@ -633,8 +643,8 @@ const Dispatch = () => {
       name: vehicle.name,
       serial: vehicle.serial,
       state: vehicle.state,
-      status: vehicle.status
-    }
+      status: vehicle.status,
+    };
     dispatch(updateVehicle(id, updatedvehicle));
   };
 
@@ -722,7 +732,7 @@ const Dispatch = () => {
                         <span style={{ fontSize: "20px" }}>Fleet</span>
                         <Row className="">
                           {equipmentList.map((equipment: any, key: number) => (
-                            <Col md="2" className="px-2">
+                            <Col md="2" className="px-2" key={key}>
                               <div className="my-2 equipment-cards-bg">
                                 <DropTarget
                                   dropId="operator"
@@ -738,12 +748,25 @@ const Dispatch = () => {
                                           {equipment.status}
                                         </div> */}
                                         <div className="d-flex align-items-center gap-1 text-color">
-                                          <span className="fs-4">{equipment.name}</span>
-                                          (<span className="fs-6 text-truncate p-0" onMouseEnter={() => handleMouseEnter(key)}
-                                            onMouseLeave={handleMouseLeave}>
+                                          <span className="fs-4">
+                                            {equipment.name}
+                                          </span>
+                                          (
+                                          <span
+                                            className="fs-6 text-truncate p-0"
+                                            onMouseEnter={() =>
+                                              handleMouseEnter(key)
+                                            }
+                                            onMouseLeave={handleMouseLeave}
+                                          >
                                             {`${equipment.model}`}
-                                            {tooltipIndex == key && <div className="position-absolute bg-white text-black px-2 py-1 rounded tooltip-value">{equipment.model}</div>}
-                                            </span>)
+                                            {tooltipIndex == key && (
+                                              <div className="position-absolute bg-white text-black px-2 py-1 rounded tooltip-value">
+                                                {equipment.model}
+                                              </div>
+                                            )}
+                                          </span>
+                                          )
                                         </div>
                                         {/* <Tag></Tag> */}
                                         <div className="select-icon">

@@ -88,7 +88,7 @@ const ShiftRoster = (props: any) => {
       setSearchParams(params);
     }
 
-    dispatch(getAllUsers()); // Dispatch action to fetch users data on component mount
+    dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
   }, [dispatch]);
 
   useEffect(() => {
@@ -167,6 +167,8 @@ const ShiftRoster = (props: any) => {
       delete roster._type;
       delete roster.createdAt;
       delete roster.updatedAt;
+      delete roster.createdBy;
+      delete roster.updatedBy;
       delete roster.id;
       delete roster._id;
       roster.vehicleId = _.cloneDeep(roster.vehicle.id);

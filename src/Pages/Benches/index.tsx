@@ -16,6 +16,7 @@ import {
   updateBench,
   removeBench,
   upsertBenches,
+  getAllMaterials,
 } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
@@ -51,8 +52,18 @@ const Benches = (props: any) => {
 
   const { data } = useSelector(selectProperties);
 
+  const selectMaterialProperties = createSelector(
+    (state: any) => state.Materials,
+    (benches) => ({
+      materials: benches.data,
+    })
+  );
+
+  const { materials } = useSelector(selectMaterialProperties);
+
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
+    dispatch(getAllMaterials(1, 100));
   }, [dispatch]);
 
   const toggle = useCallback(() => {
@@ -63,15 +74,19 @@ const Benches = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
-  // TODO: remove hardcoded blockId - revisit the logic
   const parseBenchData = (doc) => {
     return {
       id: (doc && doc.id) || "",
       name: (doc && doc.name) || "",
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
+      grade: (doc && doc.grade) || "",
+      tonnes: (doc && doc.tonnes) || "",
+      volume: (doc && doc.volume) || "",
+      density: (doc && doc.density) || "",
       status: (doc && doc.status) || "ACTIVE",
-      blockId: "WS01",
+      blockId: doc && doc.blockId,
+      materialId: doc && (materials?.find((material) => material.name === doc.blockId)?.id) || ""
     };
   };
 
@@ -130,6 +145,17 @@ const Benches = (props: any) => {
       inputType: "text",
     },
     {
+      id: "blockId",
+      name: "blockId",
+      label: "Material",
+      type: "select",
+      options: materials?.map((item, key) => ({
+        key: key,
+        value: item.name,
+        label: item.name,
+      })),
+    },
+    {
       id: "category",
       name: "category",
       label: "Category",
@@ -140,6 +166,38 @@ const Benches = (props: any) => {
       id: "elevation",
       name: "elevation",
       label: "Elevation",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "grade",
+      name: "grade",
+      label: "Grade",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "density",
+      name: "density",
+      label: "Density",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "tonnes",
+      name: "tonnes",
+      label: "Tonnes",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "volume",
+      name: "volume",
+      label: "Volume",
       type: "input",
       editable: true,
       inputType: "number",
