@@ -343,3 +343,22 @@ body[data-layout-mode="light"] .ant-progress-dot {
   border: none;
   text-align: center;
 }
+
+.digging-summary table {
+  border-spacing: 6px;
+}
+
+.digging-summary tfoot.ant-table-summary tr td.ant-table-cell {
+  padding: 8px 12px;
+  border: 1px solid #828282 !important;
+  border-radius: 3px;
+}
+
+.digging-summary tfoot.ant-table-summary tr td:first-child {
+  border: none !important;
+  text-align: center;
+}
+
+.digging-summary tfoot.ant-table-summary tr td.table-cell-empty {
+  border: none !important;
+}
