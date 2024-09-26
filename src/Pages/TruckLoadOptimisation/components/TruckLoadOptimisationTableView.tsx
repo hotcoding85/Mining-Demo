@@ -27,6 +27,7 @@ const columns = [
     key: "vehicleName",
     dataType: "string",
     align: "center",
+    fixed: "left",
   },
   {
     title: "Operator Name",
