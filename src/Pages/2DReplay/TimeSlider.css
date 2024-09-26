@@ -7,12 +7,15 @@
     margin-left: 12px;
     margin-right: 12px;
     margin-bottom: 12px;
+    position: absolute;
+    bottom: 0;
+    z-index: 100;
 }
 body[data-layout-mode="dark"] .time-slider-container{
-    background-color: #293754;
+    background-color: #2A2A2A;
 }
-body[data-layout-mode="dark"] .time-slider-container{
-    background-color: whtie;
+body[data-layout-mode="light"] .time-slider-container{
+    background-color: white;
 }
 
 .speed-indicator {
@@ -24,7 +27,7 @@ body[data-layout-mode="dark"] .time-slider-container{
 .time-value {
     margin-left: 10px;
     font-weight: bold;
-    color: gold;
+    color: #fff;
 }
 
 .ant-slider {
@@ -38,15 +41,11 @@ body[data-layout-mode="dark"] .time-slider-container{
 .ant-select-arrow{
     color: white !important;
 }
-.ant-select-selector{
-    /* background-color: #293754 !important; */
-    /* color: white !important; */
-}
 .ant-slider-rail{
     background-color: rgb(107 107 107) !important;
 }
 .ant-slider-track{
-    background-color: #37a300 !important;
+    background-color: #FFFFFF !important;
 }
 body[data-layout-mode="dark"] .ant-slider-mark-text{
     color: white !important;
@@ -57,4 +56,13 @@ body[data-layout-mode="light"] .ant-slider-mark-text{
 :where(.css-dev-only-do-not-override-2mb38x).ant-btn.ant-btn-icon-only .anticon{
     font-size: 22px !important;
 }
+
+:where(.css-dev-only-do-not-override-2mb38x).ant-btn.ant-btn-icon-only .anticon {
+    font-size: 18px !important; 
+}
+
+.time-slider-container button {
+    margin: 0 5px; 
+}
+
 
