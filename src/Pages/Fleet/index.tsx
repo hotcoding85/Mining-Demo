@@ -5,11 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, {
-  TableColumn,
-} from "../../Components/Common/TableContainer";
 import {
   getAllFleet,
   addVehicle,
@@ -31,8 +28,9 @@ import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
-import { Tag } from "antd";
+import { Input, Tag } from "antd";
 import ImportFileModal from "Components/Common/ImportFileModal";
+import Table from "Components/Common/Table";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -45,6 +43,7 @@ const Fleet = (props: any) => {
 
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const importCsvModalToggle = useCallback(() => {
     setImportFileModal(!importCsvModal);
@@ -259,70 +258,67 @@ const Fleet = (props: any) => {
     }
   };
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: "Name",
-        accessorKey: "name",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        dataType: "string",
       },
       {
-        header: "Serial",
-        accessorKey: "serial",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Serial",
+        dataIndex: "serial",
+        key: "serial",
+        dataType: "string",
       },
       {
-        header: "Make",
-        accessorKey: "make",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Make",
+        dataIndex: "make",
+        key: "make",
+        dataType: "string",
       },
       {
-        header: "Model",
-        accessorKey: "model",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Model",
+        dataIndex: "model",
+        key: "model",
+        dataType: "string",
       },
       {
-        header: "Category",
-        accessorKey: "category",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const category = cellProps.row.original.category;
-          return (
-            <Tag color={getVehicleCategoryColor(category)}>
-              {category.replace("_", " ")}
-            </Tag>
-          );
-        },
+        title: "Category",
+        dataIndex: "category",
+        key: "category",
+        dataType: "string",
+        render: ((text, records) => {
+          let category = text;
+        return (<Tag color={getVehicleCategoryColor(category)}>
+          {category.replace("_", " ")}
+        </Tag>)
+      })
       },
       {
-        header: "Capacity",
-        accessorKey: "capacity",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Capacity",
+        dataIndex: "capacity",
+        key: "capacity",
+        dataType: "string",
       },
       {
-        header: "State",
-        accessorKey: "state",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const state = cellProps.row.original.state;
-          return <Tag color={getStateColor(state)}>{state}</Tag>;
-        },
+        title: "State",
+        dataIndex: "state",
+        key: "state",
+        dataType: "string",
+        render: ((text, records) => {
+          return <Tag color={getStateColor(text)}>{text}</Tag>;
+        })
       },
       {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: "",
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`;
-          const id = cellProps.row.original.id;
+        title: "Action",
+        dataIndex: "action",
+        key: "action",
+        dataType: "any",
+        render: ((text, records) => {
+          const name = `${records.name}`;
+          const id = records.id;
           return (
             <div className="d-flex gap-3">
               <Link
@@ -330,7 +326,7 @@ const Fleet = (props: any) => {
                 className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const vehicleData = cellProps.row.original;
+                  const vehicleData = records;
                   handleOnEdit(vehicleData);
                 }}
               >
@@ -339,7 +335,7 @@ const Fleet = (props: any) => {
               <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
             </div>
           );
-        },
+        })
       },
     ],
     [handleOnEdit, handleOnDelete]
@@ -382,6 +378,18 @@ const Fleet = (props: any) => {
     importCsvModalToggle();
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data;
+    return data.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [data, searchTerm, columns]);
+
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -391,19 +399,42 @@ const Fleet = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
-                    columns={columns}
-                    data={data || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={true}
-                    buttonName="New Vehicle"
-                    isImportButton={true}
-                    importButtonName="Import Vehicles"
-                  />
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                      />
+                    </Col>
+                    <Col sm={8}>
+                      <div className="d-flex justify-content-end text-sm-end gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleOnAdd}
+                        >
+                          <i className="mdi mdi-plus me-1"></i> New Vehicle
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleOnImport}
+                        >
+                          <i className="mdi mdi-plus me-1"></i> Import Vehicles
+                        </Button>
+
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col >
+                      <Table
+                        columns={columns}
+                        data={filteredData || []}
+                        paginationPageSize={10}
+                      />
+                    </Col>
+                  </Row>
                 </CardBody>
               </Card>
               <FormModal
