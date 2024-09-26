@@ -40,7 +40,12 @@ const TableLightTheme = {
 const getSorter = (key: string, type?: string) => {
   switch (type) {
     case "string":
-      return (a: any, b: any) => a[key].localeCompare(b[key]);
+      return (a: any, b: any) => {
+        const valueA = a[key] || "";
+        const valueB = b[key] || "";
+        return valueA.localeCompare(valueB);
+      };
+
     case "number":
       return (a: any, b: any) => a[key] - b[key];
     case "date":
