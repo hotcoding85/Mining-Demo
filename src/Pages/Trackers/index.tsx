@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
 import { AppState } from 'store';
 import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +15,7 @@ import { createSelector } from 'reselect';
 import FormModal from 'Components/Common/FormModal';
 import { StatusOptions } from "common/options";
 import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
+import Table from 'Components/Common/Table';
 
 const Trackers = (props: any) => {
   document.title = "Trackers | FMS Live";
@@ -48,6 +48,7 @@ const Trackers = (props: any) => {
   //delete customer
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [qRCodeModal, setQRCodeModal] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   var vehicles: any = {};
   vehicles = fleet.map(option => {
@@ -249,46 +250,46 @@ const Trackers = (props: any) => {
     status: Yup.string()
   });
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: 'Tracker Name',
-        accessorKey: 'name',
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Tracker Name",
+        dataIndex: "name",
+        key: "name",
+        dataType: "string",
       },
       {
-        header: 'Vehicle',
-        accessorKey: 'vehicle.name',
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Vehicle",
+        dataIndex: "vehicle.name",
+        key: "name",
+        dataType: "string",
       },
       {
-        header: 'AppVersion',
-        accessorKey: 'appVersion',
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "AppVersion",
+        dataIndex: "appVersion",
+        key: "appVersion",
+        dataType: "string",
       },
       {
-        header: 'Status',
-        accessorKey: 'status',
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        dataType: "string",
       },
       {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: '',
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`
-          const id = cellProps.row.original.id
+        title: "Actions",
+        dataIndex: "actions",
+        key: "actions",
+        dataType: "any",
+        render: ((text, records) => {
+          let id = records.id;
+          let name = records.name;
           return (
             <div className="d-flex gap-3">
               <Link to="#!" className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const deviceData = cellProps.row.original;
+                  const deviceData = records;
                   handleUserClick(deviceData);
                 }} >
                 <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
@@ -297,15 +298,15 @@ const Trackers = (props: any) => {
               <Link to="#!" className="text-view"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const deviceData = cellProps.row.original;
+                  const deviceData = records;
                   onQRCodeView(deviceData);
                 }}  >
                 <i className="mdi mdi-qrcode font-size-18" id="qrcode" />
               </Link>
             </div>
           );
-        },
-      }
+        })
+      },
     ],
     [handleUserClick]
   );
@@ -319,6 +320,17 @@ const Trackers = (props: any) => {
     toggle();
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data;
+    return data?.filter((item) =>
+      columns?.some((col) =>
+        String(item[col.key])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [data, searchTerm, columns]);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -328,16 +340,31 @@ const Trackers = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                      />
+                    </Col>
+                    <Col sm={8}>
+                      <div className="d-flex justify-content-end text-sm-end gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleUserClicks}
+                        >
+                          <i className="mdi mdi-plus me-1"></i> New Tracker
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Table
                     columns={columns}
-                    data={data || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleUserClicks}
-                    isPagination={true}
-                    isAddButton={true}
-                    buttonName="New Tracker"
-                  />
+                    data={filteredData || []}
+                    paginationPageSize={10}
+                    />
                 </CardBody>
               </Card>
               <FormModal fields={fields}
