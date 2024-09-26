@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, { TableColumn } from "../../Components/Common/TableContainer";
 import { getTonnesMoved } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
@@ -11,6 +10,7 @@ import { getContentByState, shiftTimings, shiftTimingsByDateandShift, shifts, sh
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
 import { getRandomInt } from "utils/random";
+import Table from "Components/Common/Table";
 
 const OperatorReport = (props: any) => {
   document.title = "Operator Report | FMS Live";
@@ -75,136 +75,113 @@ const OperatorReport = (props: any) => {
     //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
-  const columns: TableColumn[] = useMemo(
-    () => [
-      {
-        header: "Operator Name",
-        accessorKey: "operatorName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-left" style={{paddingLeft:'20px'}}>{cellProps.row.original.operatorName}</div>
-          )
-        }
+  const columns = [
+    {
+      title: "Operator Name",
+      dataIndex: "operatorName",
+      key: "operatorName",
+      dataType: "string",
+      align: "center",
+    },
+    {
+      title: "Vehicle Name",
+      dataIndex: "vehicleName",
+      key: "vehicleName",
+      dataType: "string",
+      align: "center",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      dataType: "string",
+      align: "center",
+      render: (text: any, record: any) => {
+        const displayContent = getContentByState(record.status);
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
+            <span
+              style={{
+                height: '8px',
+                width: '8px',
+                backgroundColor: displayContent.color,
+                borderRadius: '50%',
+                fontSize: '1px',
+              }}
+            ></span>
+            <span className="text-center px-2">
+              {displayContent.displayState}
+            </span>
+          </div>
+        );
       },
-      {
-        header: "Vehicle Name",
-        accessorKey: "vehicleName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.vehicleName}</div>
-          )
-        }
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const displayContent = getContentByState(cellProps.row.original.status);
-          return (
-            <div style={{ display:'flex', alignItems: 'center', justifyContent: 'left' }}>
-              <span style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></span>
-              <span className="text-center px-2">{displayContent.displayState}</span>
-            </div>
-          )
-        }
-      },
-      {
-        header: "Active Hours",
-        accessorKey: "active",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.active}</div>
-          )
-        }
-      },
-      {
-        header: "Standby Hours",
-        accessorKey: "standby",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.standby}</div>
-          )
-        }
-      },
-      {
-        header: "Idle Hours",
-        accessorKey: "idle",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.idle}</div>
-          )
-        }
-      },
-      {
-        header: "Operation Delay Hours",
-        accessorKey: "delay",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.delay}</div>
-          )
-        }
-      },
-      // {
-      //   header: "Tonnes (Actual)",
-      //   accessorKey: "actualTonnes",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cellProps: any) => {
-      //     return (
-      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualTonnes}</div>
-      //     )
-      //   }
-      // },
-      {
-        header: "Tonnes (Actual / Planned)",
-        accessorKey: "plannedTonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.plannedTonnes}</div>
-          )
-        }
-      },
-      {
-        header: "Loads (Actual / Planned)",
-        accessorKey: "actualLoads",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.actualLoads}</div>
-          )
-        }
-      },
-      // {
-      //   header: "Loads (Planned)",
-      //   accessorKey: "plannedLoads",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cellProps: any) => {
-      //     return (
-      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedLoads}</div>
-      //     )
-      //   }
-      // }
-    ],
-    []
-  );
+    },
+    {
+      title: "Active Hours",
+      dataIndex: "active",
+      key: "active",
+      dataType: "string",
+      align: "center",
+    },
+    {
+      title: "Standby Hours",
+      dataIndex: "standby",
+      key: "standby",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Idle Hours",
+      dataIndex: "idle",
+      key: "idle",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Operation Delay Hours",
+      dataIndex: "delay",
+      key: "delay",
+      dataType: "number",
+      align: "center",
+    },
+    // {
+    //   title: "Tonnes (Actual)",
+    //   dataIndex: "actualTonnes",
+    //   key: "actualTonnes",
+    //   dataType: "number",
+    //   align: "center",
+    //   render: ((text: any, record:any) =>
+    //     <div style={{ textAlign: 'center' }}>{record.actualTonnes}</div>
+    //   )
+    // },
+    {
+      title: "Tonnes (Actual / Planned)",
+      dataIndex: "plannedTonnes",
+      key: "plannedTonnes",
+      dataType: "number",
+      align: "center",
+      render: ((text: any, record: any) => 
+        <div className="text-center">{record.plannedTonnes}</div>
+      )
+    },
+    {
+      title: "Loads (Actual / Planned)",
+      dataIndex: "actualLoads",
+      key: "actualLoads",
+      dataType: "number",
+      align: "center",
+    },
+    // {
+    //   title: "Loads (Planned)",
+    //   dataIndex: "plannedLoads",
+    //   key: "plannedLoads",
+    //   dataType: "number",
+    //   align: "center",
+    //   render: ((text: any, record: any) =>
+    //     <div style={{ textAlign: 'center' }}>{record.plannedLoads}</div>
+    //   )
+    // },
+  ];
 
   opReportData = [{
     operatorName: 'Paul',
@@ -386,15 +363,14 @@ const OperatorReport = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
-                    columns={columns}
-                    data={opReportData || []}
-                    theadClass="theadCenterAlign"
-                    // total={total || 0}
-                    isGlobalFilter={false}
-                    isPagination={false}
-                    isAddButton={false}
-                  />
+                  <div className="mt-3">
+                    <Table
+                      columns={columns}
+                      data={opReportData || []}
+                      paginationPageSize={10}
+                      scroll={{ x: "max-content" }}
+                    />
+                  </div>
                 </CardBody>
               </Card>
             </Col>
