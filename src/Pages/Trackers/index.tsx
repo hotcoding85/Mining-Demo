@@ -263,6 +263,7 @@ const Trackers = (props: any) => {
         dataIndex: "vehicle.name",
         key: "name",
         dataType: "string",
+        render: ((text, records) => <span>{records?.vehicle?.name}</span>)
       },
       {
         title: "AppVersion",
