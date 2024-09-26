@@ -9,6 +9,8 @@ interface TableProps {
   columns: any[];
   data: any[];
   paginationPageSize?: number;
+  scroll?: any;
+  summary?: any;
 }
 
 const TableDarkTheme = {
@@ -20,6 +22,7 @@ const TableDarkTheme = {
   colorBgContainer: "transparent",
   headerBg: "none",
   headerSortHoverBg: "none",
+  stickyScrollBarBg: "#535e77",
 };
 
 const TableLightTheme = {
@@ -29,6 +32,9 @@ const TableLightTheme = {
   borderColor: "transparent",
   headerSplitColor: "transparent",
   colorBgContainer: "transparent",
+  headerBg: "none",
+  headerSortHoverBg: "none",
+  stickyScrollBarBg: "#e0e0e0",
 };
 
 const getSorter = (key: string, type?: string) => {
@@ -48,6 +54,8 @@ const Table: React.FC<TableProps> = ({
   columns,
   data,
   paginationPageSize = 10,
+  scroll,
+  summary,
 }) => {
   const selectLeadData = createSelector(
     (state: any) => state.Layout,
@@ -80,6 +88,8 @@ const Table: React.FC<TableProps> = ({
         dataSource={data}
         pagination={{ pageSize: paginationPageSize }}
         rowKey={(record) => record.key || record.id}
+        scroll={scroll}
+        summary={summary}
       />
     </ConfigProvider>
   );
