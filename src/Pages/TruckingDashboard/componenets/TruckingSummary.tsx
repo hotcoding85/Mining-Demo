@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from "react";
-import { Card, CardBody, Table } from "reactstrap";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Card, CardBody } from "reactstrap";
 import { getRandomInt } from "utils/random";
 import { Pagination, PaginationProps, DatePicker, Input } from "antd";
+import { Table as AntTable } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined } from "@ant-design/icons";
 import CustomDateRangePicker from "Components/Common/DateRangePicker";
 import { round2Two } from "utils/common";
+import Table from 'Components/Common/Table';
 
 const { RangePicker } = DatePicker;
 
-interface TruckingSummaryTableRowProps {
+interface TruckingSummaryTableRow {
   modelName: string;
   equipmentName: string;
   completed: string;
@@ -32,101 +34,11 @@ interface TruckingSummaryTableRowProps {
   avgQueueTime: string;
 }
 
-const TruckingSummaryTableRow: React.FC<TruckingSummaryTableRowProps> = (
-  props
-) => {
-  return (
-    <tr>
-      <td width={104}>
-        <div>{props.modelName}</div>
-      </td>
-      <td width={104}>
-        <div>{props.equipmentName}</div>
-      </td>
-      <td width={104}>
-        <div>{props.completed}</div>
-      </td>
-      <td width={104}>
-        <div>{props.actual.toLocaleString("US-en")}</div>
-      </td>
-      <td width={104}>
-        <div>{props.planned.toLocaleString("US-en")}</div>
-      </td>
-      <td width={104}>
-        <div>{props.availability}</div>
-      </td>
-      <td width={104}>
-        <div>{props.standBy}</div>
-      </td>
-      <td width={104}>
-        <div>{props.idel}</div>
-      </td>
-      <td width={104}>
-        <div>{props.idle}</div>
-      </td>
-      <td width={104}>
-        <div>{props.operationalyDelay}</div>
-      </td>
-      <td width={104}>
-        <div>{props.breakdown}</div>
-      </td>
-      <td width={104}>
-        <div>{props.avgLoadPerHour}</div>
-      </td>
-      <td width={104}>
-        <div>{props.tonnesPerHour}</div>
-      </td>
-      <td width={104}>
-        <div>{props.wastedMoved}</div>
-      </td>
-      <td width={104}>
-        <div>{props.tonnesMoved}</div>
-      </td>
-      <td width={104}>
-        <div>{props.avgLoadTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.plannedLoadTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.avgCycleTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.plannedCycleTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.avgQueueTime}</div>
-      </td>
-    </tr>
-  );
-};
-
 interface TruckingSummaryProps { }
 
-const TableHeaders = [
-  "Model",
-  "Equipment Name",
-  "Completed",
-  "Actual (Tonnes)",
-  "Planned (Tonnes)",
-  "Active (mins)",
-  "Standby (mins)",
-  "Idle (mins)",
-  "Idle (%)",
-  "Operational Delay (mins)",
-  "Breakdown (mins)",
-  "Avg Load per Hour",
-  "Tonnes per Hour",
-  "Waste Moved",
-  "Tonnes Moved",
-  "Avg Load Time",
-  "Planned Load Time",
-  "Avg Cycle Time",
-  "Planned Cycle Time",
-  "Avg Queue Time",
-];
 const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
+  const [totalOfTable, setTotalOfTable] = useState<TruckingSummaryTableRow | any>({});
 
   const tableData = useMemo(
     () =>
@@ -154,6 +66,151 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
       })),
     []
   );
+
+  const columns = useMemo(
+    () => [
+      {
+        title: "Model",
+        dataIndex: "modelName",
+        key: "modelName",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Equipment Name",
+        dataIndex: "equipmentName",
+        key: "equipmentName",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Completed",
+        dataIndex: "completed",
+        key: "completed",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Actual (Tonnes)",
+        dataIndex: "actual",
+        key: "actual",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Planned (Tonnes)",
+        dataIndex: "planned",
+        key: "planned",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Active (mins)",
+        dataIndex: "availability",
+        key: "availability",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Standby (mins)",
+        dataIndex: "standBy",
+        key: "standBy",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Idle (mins)	",
+        dataIndex: "idel",
+        key: "idel",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Idle (%)",
+        dataIndex: "idle",
+        key: "idle",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Operational Delay (mins)",
+        dataIndex: "operationalyDelay",
+        key: "operationalyDelay",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Breakdown (mins)",
+        dataIndex: "breakdown",
+        key: "breakdown",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Avg Load per Hour",
+        dataIndex: "avgLoadPerHour",
+        key: "avgLoadPerHour",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Tonnes per Hour",
+        dataIndex: "tonnesPerHour",
+        key: "tonnesPerHour",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Waste Moved",
+        dataIndex: "wastedMoved",
+        key: "wastedMoved",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Tonnes Moved",
+        dataIndex: "tonnesMoved",
+        key: "tonnesMoved",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Avg Load Time",
+        dataIndex: "avgLoadTime",
+        key: "avgLoadTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Planned Load Time",
+        dataIndex: "plannedLoadTime",
+        key: "plannedLoadTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Avg Cycle Time",
+        dataIndex: "avgCycleTime",
+        key: "avgCycleTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Planned Cycle Time",
+        dataIndex: "plannedCycleTime",
+        key: "plannedCycleTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Avg Queue Time",
+        dataIndex: "avgQueueTime",
+        key: "avgQueueTime",
+        dataType: "string",
+        align: "center"
+      },
+    ], [tableData]
+  )
 
   const filters = {
     model: [
@@ -186,6 +243,56 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
     console.log("Page: ", pageNumber);
   };
 
+  const calculateTotals = (listItems) => {
+    const totals = {};
+
+    listItems.forEach(item => {
+        Object.entries(item).forEach(([key, value]: any) => {
+            if (key === "completed") {
+                const completedFraction = value.split('/');
+                if (!totals[key]) {
+                    totals[key] = [0, 0];
+                }
+                totals[key][0] += parseInt(completedFraction[0], 10);
+                totals[key][1] += parseInt(completedFraction[1], 10);
+            } else if (typeof value === 'number') {
+                if (!totals[key]) {
+                    totals[key] = 0;
+                }
+                totals[key] += value;
+            } else {
+                totals[key] = '';
+            }
+        });
+    });
+
+    if (totals["completed"]) {
+        totals["completed"] = `${totals["completed"][0]}/${totals["completed"][1]}`;
+    }
+
+    return totals;
+}
+
+  const tableSummary = () => {
+    const listItems = JSON.parse(JSON.stringify(totalOfTable));
+    listItems.modelName = "Total";
+    listItems.completed = "120/350";
+    return (
+      <AntTable.Summary.Row style={{ textAlign: "center" }}>
+        {
+          Object?.entries(listItems)?.map(([key, value]: any) =>
+            <AntTable.Summary.Cell index={0} className={value? '' : "table-cell-empty"}>{value}</AntTable.Summary.Cell>
+          )
+        }
+      </AntTable.Summary.Row>
+    )
+  }
+
+  useEffect(() => {
+    const totalOfTableData = calculateTotals(tableData);
+    setTotalOfTable(totalOfTableData);
+  },[tableData]);
+
   return (
     <Card className="trucking-summary">
       <CardBody>
@@ -205,103 +312,10 @@ const TruckingSummary: React.FC<TruckingSummaryProps> = () => {
           </div>
         </div>
         <div className="mt-3">
-          <Table borderless responsive className="trucking-summary-table">
-            <thead>
-              <tr>
-                {TableHeaders.map((header) => (
-                  <th style={{justifyContent:'start', }}>{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((row) => (
-                <TruckingSummaryTableRow {...row} />
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td className="truck-footer">
-                  <div>
-                    Totals
-                  </div>
-                </td>
-                <td>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    120/350
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    264,875
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    297,500
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    234
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    34
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    94
-                  </div>
-                </td>
-                <td className="truck-footer">
-                  <div>
-                    324
-                  </div>
-                </td>
-              </tr>
-            </tfoot>
-          </Table>
-        </div>
-        <div className="d-flex justify-content-end align-items-center mt-3">
-          <Pagination
-            showQuickJumper
-            defaultCurrent={2}
-            total={500}
-            onChange={onChange}
+          <Table columns={columns}
+            data={tableData} paginationPageSize={10}
+            summary={tableSummary}
+            scroll={{ x: "max-content" }}
           />
         </div>
       </CardBody>
