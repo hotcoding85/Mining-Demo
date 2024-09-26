@@ -127,21 +127,21 @@ const OperatorReport = (props: any) => {
       title: "Standby Hours",
       dataIndex: "standby",
       key: "standby",
-      dataType: "number",
+      dataType: "string",
       align: "center",
     },
     {
       title: "Idle Hours",
       dataIndex: "idle",
       key: "idle",
-      dataType: "number",
+      dataType: "string",
       align: "center",
     },
     {
       title: "Operation Delay Hours",
       dataIndex: "delay",
       key: "delay",
-      dataType: "number",
+      dataType: "string",
       align: "center",
     },
     // {
@@ -158,7 +158,7 @@ const OperatorReport = (props: any) => {
       title: "Tonnes (Actual / Planned)",
       dataIndex: "plannedTonnes",
       key: "plannedTonnes",
-      dataType: "number",
+      dataType: "string",
       align: "center",
       render: ((text: any, record: any) => 
         <div className="text-center">{record.plannedTonnes}</div>
@@ -168,7 +168,7 @@ const OperatorReport = (props: any) => {
       title: "Loads (Actual / Planned)",
       dataIndex: "actualLoads",
       key: "actualLoads",
-      dataType: "number",
+      dataType: "string",
       align: "center",
     },
     // {
