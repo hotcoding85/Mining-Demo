@@ -275,7 +275,7 @@ const Benches = (props: any) => {
         title: "Source",
         key: "source",
         dataIndex: "source",
-        dataType: "string",
+        dataType: "",
         align: "center",
       },
       {
@@ -335,7 +335,7 @@ const Benches = (props: any) => {
         title: "Actions",
         key: "actions",
         dataIndex: "",
-        dataType: "string",
+        dataType: "",
         align: "center",
         render: (_, benchData) => {
           return (
