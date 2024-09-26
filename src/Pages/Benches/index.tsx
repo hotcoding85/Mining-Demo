@@ -5,17 +5,15 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, {
-  TableColumn,
-} from "../../Components/Common/TableContainer";
 import {
   getAllBenches,
   addBench,
   updateBench,
   removeBench,
   upsertBenches,
+  getAllMaterials,
 } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
@@ -27,7 +25,9 @@ import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { csvFileToJson } from "utils/csvConverter";
-import { round2Two, roundOff } from "utils/common";
+import { round2Two } from "utils/common";
+import Table from "Components/Common/Table";
+import { Input } from "antd";
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
@@ -40,6 +40,8 @@ const Benches = (props: any) => {
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
   const selectProperties = createSelector(
     (state: any) => state.Benches,
     (benches) => ({
@@ -51,8 +53,18 @@ const Benches = (props: any) => {
 
   const { data } = useSelector(selectProperties);
 
+  const selectMaterialProperties = createSelector(
+    (state: any) => state.Materials,
+    (benches) => ({
+      materials: benches.data,
+    })
+  );
+
+  const { materials } = useSelector(selectMaterialProperties);
+
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
+    dispatch(getAllMaterials(1, 100));
   }, [dispatch]);
 
   const toggle = useCallback(() => {
@@ -63,15 +75,22 @@ const Benches = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
-  // TODO: remove hardcoded blockId - revisit the logic
   const parseBenchData = (doc) => {
     return {
       id: (doc && doc.id) || "",
       name: (doc && doc.name) || "",
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
+      grade: (doc && doc.grade) || "",
+      tonnes: (doc && doc.tonnes) || "",
+      volume: (doc && doc.volume) || "",
+      density: (doc && doc.density) || "",
       status: (doc && doc.status) || "ACTIVE",
-      blockId: "WS01",
+      blockId: doc && doc.blockId,
+      materialId:
+        (doc &&
+          materials?.find((material) => material.name === doc.blockId)?.id) ||
+        "",
     };
   };
 
@@ -130,6 +149,17 @@ const Benches = (props: any) => {
       inputType: "text",
     },
     {
+      id: "blockId",
+      name: "blockId",
+      label: "Material",
+      type: "select",
+      options: materials?.map((item, key) => ({
+        key: key,
+        value: item.name,
+        label: item.name,
+      })),
+    },
+    {
       id: "category",
       name: "category",
       label: "Category",
@@ -140,6 +170,38 @@ const Benches = (props: any) => {
       id: "elevation",
       name: "elevation",
       label: "Elevation",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "grade",
+      name: "grade",
+      label: "Grade",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "density",
+      name: "density",
+      label: "Density",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "tonnes",
+      name: "tonnes",
+      label: "Tonnes",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "volume",
+      name: "volume",
+      label: "Volume",
       type: "input",
       editable: true,
       inputType: "number",
@@ -193,114 +255,105 @@ const Benches = (props: any) => {
     [dispatch]
   );
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: "Name",
-        accessorKey: "name",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Name",
+        key: "name",
+        dataIndex: "name",
+        dataType: "string",
       },
       {
-        header: "Block ID",
-        accessorKey: "blockId",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Block ID",
+        key: "blockId",
+        dataIndex: "blockId",
+        dataType: "string",
+        align: "center",
+      },
+
+      {
+        title: "Source",
+        key: "source",
+        dataIndex: "source",
+        dataType: "",
+        align: "center",
       },
       {
-        header: "Source",
-        accessorKey: "source",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Category",
+        key: "category",
+        dataIndex: "category",
+        dataType: "string",
+        align: "center",
+
+        render: (text) => (
+          <div className="badge badge-soft-primary font-size-11">{text}</div>
+        ),
       },
       {
-        header: "Category",
-        accessorKey: "category",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
+        title: "Grade",
+        key: "grade",
+        dataIndex: "grade",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
+      },
+      {
+        title: "Density",
+        key: "density",
+        dataIndex: "density",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
+      },
+      {
+        title: "Tonnes",
+        key: "tonnes",
+        dataIndex: "tonnes",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
+      },
+      {
+        title: "Volume",
+        key: "volume",
+        dataIndex: "volume",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
+      },
+      {
+        title: "Status",
+        key: "status",
+        dataIndex: "status",
+        dataType: "string",
+        align: "center",
+        render: (text) => (
+          <div className="badge badge-soft-primary font-size-11">{text}</div>
+        ),
+      },
+      {
+        title: "Actions",
+        key: "actions",
+        dataIndex: "",
+        dataType: "",
+        align: "center",
+        render: (_, benchData) => {
           return (
-            <div className="badge badge-soft-primary font-size-11 m-1">
-              {cellProps.row.original.category}
-            </div>
-          );
-        },
-      },
-      {
-        header: "Grade",
-        accessorKey: "grade",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const grade = cellProps.row.original.grade as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(grade)}</div>;
-        },
-      },
-      {
-        header: "Density",
-        accessorKey: "density",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const density = cellProps.row.original.density as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(density)}</div>;
-        },
-      },
-      {
-        header: "Tonnes",
-        accessorKey: "tonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const tonnes = cellProps.row.original.tonnes as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(tonnes)}</div>;
-        },
-      },
-      {
-        header: "Volume",
-        accessorKey: "volume",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const volume = cellProps.row.original.volume as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(volume)}</div>;
-        },
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="badge badge-soft-primary font-size-11 m-1">
-              {cellProps.row.original.status}
-            </div>
-          );
-        },
-      },
-      {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: "",
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`;
-          const id = cellProps.row.original.id;
-          return (
-            <div className="d-flex gap-3">
+            <div className="d-flex gap-3 justify-content-center">
               <Link
                 to="#!"
                 className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const benchData = cellProps.row.original;
                   handleOnEdit(benchData);
                 }}
               >
                 <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
               </Link>
-              <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
+              <DeleteButton
+                item={benchData.name}
+                onDelete={() => handleOnDelete(benchData.id)}
+              />
             </div>
           );
         },
@@ -349,6 +402,15 @@ const Benches = (props: any) => {
     });
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data;
+    return data.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [data, searchTerm, columns]);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -358,18 +420,30 @@ const Benches = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                      />
+                    </Col>
+                    <Col sm={8}>
+                      <div className="d-flex justify-content-end text-sm-end gap-2">
+                        <Button type="button" onClick={handleOnAdd}>
+                          <i className="mdi mdi-plus me-1"></i> New Bench
+                        </Button>
+                        <Button type="button" onClick={handleOnImport}>
+                          <i className="mdi mdi-plus me-1"></i> Import Benches
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Table
                     columns={columns}
-                    data={data || []}
-                    // total={total || 0}
-                    isGlobalFilter={true}
-                    handleOnAddClick={handleOnAdd}
-                    handleOnImportClick={handleOnImport}
-                    isPagination={true}
-                    isAddButton={true}
-                    buttonName="New Bench"
-                    isImportButton={true}
-                    importButtonName="Import Benches"
+                    data={filteredData || []}
+                    paginationPageSize={8}
                   />
                 </CardBody>
               </Card>

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ConfigProvider, Table as AntTable } from "antd";
 import { createSelector } from "reselect";
 import { useSelector } from "react-redux";
@@ -9,32 +9,43 @@ interface TableProps {
   columns: any[];
   data: any[];
   paginationPageSize?: number;
+  scroll?: any;
+  summary?: any;
 }
 
 const TableDarkTheme = {
   colorText: "#fff",
   headerBorderRadius: 0,
   headerColor: "#9CA3B1",
-  borderColor: "transparent",
-  headerSplitColor: "transparent",
-  colorBgContainer: "transparent",
-  headerBg: "none",
+  borderColor: "#283655",
+  headerSplitColor: "#283655",
+  colorBgContainer: "#283655",
+  headerBg: "#283655",
   headerSortHoverBg: "none",
+  stickyScrollBarBg: "#535e77",
 };
 
 const TableLightTheme = {
   colorText: "#2A2A2A",
   headerBorderRadius: 0,
   headerColor: "#828282",
-  borderColor: "transparent",
-  headerSplitColor: "transparent",
-  colorBgContainer: "transparent",
+  borderColor: "#fff",
+  headerSplitColor: "#fff",
+  colorBgContainer: "#fff",
+  headerBg: "#fff",
+  headerSortHoverBg: "none",
+  stickyScrollBarBg: "#e0e0e0",
 };
 
 const getSorter = (key: string, type?: string) => {
   switch (type) {
     case "string":
-      return (a: any, b: any) => a[key].localeCompare(b[key]);
+      return (a: any, b: any) => {
+        const valueA = a[key] || "";
+        const valueB = b[key] || "";
+        return valueA.localeCompare(valueB);
+      };
+
     case "number":
       return (a: any, b: any) => a[key] - b[key];
     case "date":
@@ -48,7 +59,11 @@ const Table: React.FC<TableProps> = ({
   columns,
   data,
   paginationPageSize = 10,
+  scroll,
+  summary,
 }) => {
+  const [recordsPerPage, setRecordsPerPage] = useState(paginationPageSize);
+
   const selectLeadData = createSelector(
     (state: any) => state.Layout,
     (layout) => ({
@@ -78,8 +93,16 @@ const Table: React.FC<TableProps> = ({
         rowClassName={"common-table-row"}
         columns={enhancedColumns}
         dataSource={data}
-        pagination={{ pageSize: paginationPageSize }}
+        pagination={{
+          pageSize: recordsPerPage,
+          showSizeChanger: true,
+          onShowSizeChange: (current, size) => {
+            setRecordsPerPage(size);
+          },
+        }}
         rowKey={(record) => record.key || record.id}
+        scroll={scroll}
+        summary={summary}
       />
     </ConfigProvider>
   );

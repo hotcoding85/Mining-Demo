@@ -1,4 +1,4 @@
-import { getTargetByRoster, getTargetByRosterAndCategory, postTarget, putTarget, deleteTarget } from "Helpers/api_target_helper";
+import { getTargetByRoster, getTargetByRosterAndCategory, putTarget, deleteTarget, postTargets } from "Helpers/api_target_helper";
 import { allSuccess, apiError, createSuccess, updateSuccess, deleteSuccess } from "./reducer";
 import { toast } from "react-toastify";
 
@@ -26,7 +26,7 @@ export const getTargetsByRosterAndCategory = (roster, category) => async (dispat
 export const addTargets = (targets: any) => async (dispatch: any) => {
     try {
         let response: any;
-        response = await postTarget(targets)
+        response = await postTargets(targets)
         toast.success("Targets updated successfully", { autoClose: 1000, position: 'top-center' });
         dispatch(createSuccess(response));
     } catch (error) {

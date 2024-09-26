@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 export const getAllFleet =
   (
     page = 1,
-    limit = 10,
+    limit = 100,
     sortBy = "name",
     sortOrder = "ASC",
     name?,
