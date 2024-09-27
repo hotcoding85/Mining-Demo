@@ -128,7 +128,7 @@ const DiggingDashboard = (props: any) => {
           </Row>
 
           <Row className="mt-3">
-            <Col lg="6">
+            <Col lg="12">
               <EfficiencyRating value="good" />
             </Col>
           </Row>

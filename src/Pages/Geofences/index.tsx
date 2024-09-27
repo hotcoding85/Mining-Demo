@@ -29,6 +29,7 @@ const Geofences = ({ socket }) => {
     const [lng, setLng] = useState(120.44463458272295,);
     const [lat, setLat] = useState(-29.146790943732764);
     const [zoom, setZoom] = useState(19.5);
+    const [mapStylesLoaded, setMapStylesLoaded] = useState<boolean>(false);
 
     const popupRef = useRef<mapboxgl.Popup | null>(null);
 
@@ -86,62 +87,64 @@ const Geofences = ({ socket }) => {
     const { data: fences } = useSelector(selectProperties);
 
     useEffect(() => {
-        fences.map((feature) => {
-            mapRef.current?.addSource(feature.id, {
-                type: "geojson",
-                data: feature.geoJson,
-            });
-
-            mapRef.current?.addLayer({
-                id: feature.id,
-                type: "fill",
-                source: feature.id,
-                layout: {},
-                paint: {
-                    "fill-color": "#000000",
-                    "fill-opacity": 0.1,
-                },
-            });
-
-            mapRef.current?.on("mouseenter", feature.id, (e) => {
-                mapRef.current.getCanvas().style.cursor = "pointer";
-                const coordinates = e.lngLat;
-                const properties = e.features[0].properties;
-
-                // Remove existing popup if it exists
-                if (popupRef.current) {
-                  popupRef.current.remove();
-                }
-
-                // Create and display a new popup
-
-                popupRef.current = new mapboxgl.Popup({ closeButton: false })
-                  .setLngLat(coordinates)
-                  .setHTML(
-                    ReactDOMServer.renderToString(
-                      <BlockPopupContent properties={properties} />
-                    )
-                  )
-                  .addTo(mapRef.current);
-            });
-
-            // Remove the popup when the cursor leaves the layer
-            mapRef.current?.on("mouseleave", feature.id, () => {
-                mapRef.current.getCanvas().style.cursor = "";
-                // if (popupRef.current) {
-                //   popupRef.current.remove();
-                //   popupRef.current = null; // Clear the reference
-                // }
-            });
-
-            const bounds = new mapboxgl.LngLatBounds();
-            const coordinates = feature.geoJson.geometry.coordinates.flat();
-            coordinates.forEach(([lng, lat]) => bounds.extend([lng, lat]));
-
-            // Fit map to bounds
-            // mapRef.current?.fitBounds(bounds, { padding: 20 });
+        if (mapStylesLoaded) {
+            fences.map((feature) => {
+                mapRef.current?.addSource(feature.id, {
+                    type: "geojson",
+                    data: feature.geoJson,
+                });
+    
+                mapRef.current?.addLayer({
+                    id: feature.id,
+                    type: "fill",
+                    source: feature.id,
+                    layout: {},
+                    paint: {
+                        "fill-color": "#000000",
+                        "fill-opacity": 0.1,
+                    },
+                });
+    
+                mapRef.current?.on("mouseenter", feature.id, (e) => {
+                    mapRef.current.getCanvas().style.cursor = "pointer";
+                    const coordinates = e.lngLat;
+                    const properties = e.features[0].properties;
+    
+                    // Remove existing popup if it exists
+                    if (popupRef.current) {
+                      popupRef.current.remove();
+                    }
+    
+                    // Create and display a new popup
+    
+                    popupRef.current = new mapboxgl.Popup({ closeButton: false })
+                      .setLngLat(coordinates)
+                      .setHTML(
+                        ReactDOMServer.renderToString(
+                          <BlockPopupContent properties={properties} />
+                        )
+                      )
+                      .addTo(mapRef.current);
+                });
+    
+                // Remove the popup when the cursor leaves the layer
+                mapRef.current?.on("mouseleave", feature.id, () => {
+                    mapRef.current.getCanvas().style.cursor = "";
+                    // if (popupRef.current) {
+                    //   popupRef.current.remove();
+                    //   popupRef.current = null; // Clear the reference
+                    // }
+                });
+    
+                const bounds = new mapboxgl.LngLatBounds();
+                const coordinates = feature.geoJson.geometry.coordinates.flat();
+                coordinates.forEach(([lng, lat]) => bounds.extend([lng, lat]));
+    
+                // Fit map to bounds
+                // mapRef.current?.fitBounds(bounds, { padding: 20 });
+            }
+            );
         }
-        );
     }, [fences])
 
     useEffect(() => {
@@ -229,6 +232,7 @@ const Geofences = ({ socket }) => {
                     window.tb.update();
                 }
             });
+            setMapStylesLoaded(true);
         });
 
         let hoveredPolygonId = null;
