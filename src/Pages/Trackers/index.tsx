@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { AppState } from 'store';
 import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'slices/thunk';
@@ -17,6 +17,7 @@ import { StatusOptions } from "common/options";
 import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
 import Table from 'Components/Common/Table';
 import { debounce } from 'lodash';
+import { Input } from 'antd';
 
 const Trackers = (props: any) => {
   document.title = "Trackers | FMS Live";
@@ -353,6 +354,7 @@ const Trackers = (props: any) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 16 }}
+                        allowClear
                       />
                     </Col>
                     <Col sm={8}>
