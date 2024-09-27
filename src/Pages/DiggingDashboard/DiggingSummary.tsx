@@ -1,14 +1,16 @@
-import React, { useMemo, useState } from "react";
-import { Card, CardBody, Table } from "reactstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Card, CardBody } from "reactstrap";
 import { getRandomInt } from "utils/random";
-import { Pagination, PaginationProps, DatePicker, Input } from "antd";
+import { PaginationProps, DatePicker, Input } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined } from "@ant-design/icons";
 import CustomDateRangePicker from "Components/Common/DateRangePicker";
+import Table from 'Components/Common/Table';
+import { Table as AntTable } from "antd";
 
 const { RangePicker } = DatePicker;
 
-interface DiggingSummaryTableRowProps {
+interface DiggingSummaryTable {
 
   equipmentName: string;
   completed: string;
@@ -25,69 +27,11 @@ interface DiggingSummaryTableRowProps {
 
 }
 
-const DiggingSummaryTableRow: React.FC<DiggingSummaryTableRowProps> = (
-  props
-) => {
-  return (
-    <tr>
-
-      <td width={120}>
-        <div>{props.equipmentName}</div>
-      </td>
-      <td width={120}>
-        <div>{props.completed}</div>
-      </td>
-      <td width={120}>
-        <div>{props.actual.toLocaleString("US-en")}</div>
-      </td>
-      <td width={120}>
-        <div>{props.planned.toLocaleString("US-en")}</div>
-      </td>
-
-      <td width={120}>
-        <div>{props.avgLoadPerHour}</div>
-      </td>
-      <td width={120}>
-        <div>{props.tonnesPerHour}</div>
-      </td>
-
-      <td width={120}>
-        <div>{props.avgLoadTime}</div>
-      </td>
-      <td width={120}>
-        <div>{props.plannedLoadTime}</div>
-      </td>
-      <td width={120}>
-        <div>{props.avgCycleTime}</div>
-      </td>
-      <td width={120}>
-        <div>{props.plannedCycleTime}</div>
-      </td>
-
-    </tr>
-  );
-};
-
 interface DiggingSummaryProps { }
 
-const TableHeaders = [
-
-  "Equipment Name",
-  "Completed",
-  "Actual (Tonnes)",
-  "Planned (Tonnes)",
-
-  "Avg Load per Hour",
-  "Tonnes per Hour",
-
-  "Avg Load Time",
-  "Planned Load Time",
-  "Avg Cycle Time",
-  "Planned Cycle Time",
-
-];
 const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
+  const [totalOfTable, setTotalOfTable] = useState<DiggingSummaryTable | any>({});
 
   const tableData = useMemo(
     () =>
@@ -141,6 +85,131 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
     console.log("Page: ", pageNumber);
   };
 
+  const columns = useMemo(
+    () => [
+      {
+        title: "Equipment Name",
+        dataIndex: "equipmentName",
+        key: "equipmentName",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Completed",
+        dataIndex: "completed",
+        key: "completed",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Actual (Tonnes)",
+        dataIndex: "actual",
+        key: "actual",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Planned (Tonnes)",
+        dataIndex: "planned",
+        key: "planned",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Avg Load per Hour",
+        dataIndex: "avgLoadPerHour",
+        key: "avgLoadPerHour",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Tonnes per Hour",
+        dataIndex: "tonnesPerHour",
+        key: "tonnesPerHour",
+        dataType: "number",
+        align: "center"
+      },
+      {
+        title: "Avg Load Time",
+        dataIndex: "avgLoadTime",
+        key: "avgLoadTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Planned Load Time",
+        dataIndex: "plannedLoadTime",
+        key: "plannedLoadTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Avg Cycle Time",
+        dataIndex: "avgCycleTime",
+        key: "avgCycleTime",
+        dataType: "string",
+        align: "center"
+      },
+      {
+        title: "Planned Cycle Time",
+        dataIndex: "plannedCycleTime",
+        key: "plannedCycleTime",
+        dataType: "string",
+        align: "center"
+      },
+    ], [tableData]
+  )
+
+  const calculateTotals = (listItems) => {
+    const totals = {};
+
+    listItems.forEach(item => {
+      Object.entries(item).forEach(([key, value]: any) => {
+        if (key === "completed") {
+          const completedFraction = value.split('/');
+          if (!totals[key]) {
+            totals[key] = [0, 0];
+          }
+          totals[key][0] += parseInt(completedFraction[0], 10);
+          totals[key][1] += parseInt(completedFraction[1], 10);
+        } else if (typeof value === 'number') {
+          if (!totals[key]) {
+            totals[key] = 0;
+          }
+          totals[key] += value;
+        } else {
+          totals[key] = '';
+        }
+      });
+    });
+
+    if (totals["completed"]) {
+      totals["completed"] = `${totals["completed"][0]}/${totals["completed"][1]}`;
+    }
+
+    return totals;
+  }
+
+  const tableSummary = () => {
+    const listItems = JSON.parse(JSON.stringify(totalOfTable));
+    listItems.equipmentName = "Total";
+    listItems.completed = "120/350";
+    return (
+      <AntTable.Summary.Row style={{ textAlign: "center" }}>
+        {
+          Object?.entries(listItems)?.map(([key, value]: any) =>
+            <AntTable.Summary.Cell index={0} className={value ? '' : "table-cell-empty"}>{value}</AntTable.Summary.Cell>
+          )
+        }
+      </AntTable.Summary.Row>
+    )
+  }
+
+  useEffect(() => {
+    const totalOfTableData = calculateTotals(tableData);
+    setTotalOfTable(totalOfTableData);
+  },[tableData]);
+
   return (
     <Card className="digging-summary">
       <CardBody>
@@ -160,86 +229,11 @@ const DiggingSummary: React.FC<DiggingSummaryProps> = () => {
           </div>
         </div>
         <div className="mt-3">
-          <Table borderless responsive className="digging-summary-table">
-            <thead>
-              <tr>
-                {TableHeaders.map((header) => (
-                  <th>{header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.map((row) => (
-                <DiggingSummaryTableRow {...row} />
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td width={120}>
-                  <div>
-                    Totals
-                  </div>
-                </td>
-                <td width={120} className="dig-footer">
-                  <div>
-                  120/350
-                  </div>
-                </td>
-                <td width={120} className="dig-footer">
-                  <div>
-                    264,875
-                  </div>
-                </td>
-                <td width={120} className="dig-footer">
-                  <div>
-                    2,564,875
-                  </div>
-                </td>
-                <td className="dig-footer">
-                  <div>
-                    48
-                  </div>
-                </td>
-                <td className="dig-footer">
-                  <div>
-                    369
-                  </div>
-                </td>
-                <td>
-                  <div>
-
-                  </div>
-                </td>
-                <td>
-                  <div>
-
-                  </div>
-                </td>
-                <td>
-                  <div>
-
-                  </div>
-                </td>
-                <td>
-                  <div>
-
-                  </div>
-                </td>
-                <td>
-                  <div>
-
-                  </div>
-                </td>
-              </tr>
-            </tfoot>
-          </Table>
-        </div>
-        <div className="d-flex justify-content-end align-items-center mt-3">
-          <Pagination
-            showQuickJumper
-            defaultCurrent={2}
-            total={500}
-            onChange={onChange}
+          <Table columns={columns}
+            data={tableData || []}
+            paginationPageSize={10}
+            summary={tableSummary}
+            scroll={{ x: "max-content" }}
           />
         </div>
       </CardBody>
