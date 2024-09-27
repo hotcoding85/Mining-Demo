@@ -232,6 +232,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
                 </li>
+                <li>
+                  <Link to="/blend-plans">{props.t("Blend Plans")}</Link>
+                </li>
               </ul>
             </li>
 
