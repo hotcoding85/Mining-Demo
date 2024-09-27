@@ -361,6 +361,7 @@ const Materials = (props: any) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 16 }}
+                        allowClear
                       />
                     </Col>
                     <Col sm={8}>
