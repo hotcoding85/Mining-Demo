@@ -22,23 +22,24 @@ const HeaderTitle = styled.div`
   line-height: 32px;
 `;
 
-interface MaintenanceStatusHeaderProps {
-  viewMode: string;
-  onChangeViewMode: (mode: string) => void;
-  filter?: {};
+interface FuelStatusHeaderProps {
+  displayType: string;
+  setDisplayType: (mode: string) => void;
 }
 
-const MaintenanceStatusHeader: React.FC<MaintenanceStatusHeaderProps> = ({
-  filter,
-  viewMode,
-  onChangeViewMode,
+const FuelStatusHeader: React.FC<FuelStatusHeaderProps> = ({
+  displayType,
+  setDisplayType,
 }) => {
+  const onDisplayTypeChange = (displayInfo) => {
+    setDisplayType(displayInfo);
+  };
   return (
     <HeaderContainer>
       <div className="d-flex justify-content-start align-items-center gap-4">
-        <HeaderTitle>Maintenance Status</HeaderTitle>
+        <HeaderTitle>Fuel Status</HeaderTitle>
       </div>
-      <div className="d-flex justify-content-start align-items-center gap-4">
+      <div className="d-flex align-items-center gap-4">
         <Button
           icon={
             <i
@@ -54,12 +55,12 @@ const MaintenanceStatusHeader: React.FC<MaintenanceStatusHeaderProps> = ({
           Filter
         </Button>
         <Segmented
-          className="customSegmentLabel maintenance-status-segment"
-          value={viewMode}
-          onChange={onChangeViewMode}
+          className="customSegmentLabel fuel-status-segment"
+          value={displayType}
+          onChange={onDisplayTypeChange}
           options={[
-            { value: "table", label: "TABLE" },
-            { value: "grid", label: "GRID" },
+            { value: "TABLE", label: "TABLE" },
+            { value: "GRID", label: "GRID" },
           ]}
         />
       </div>
@@ -67,4 +68,4 @@ const MaintenanceStatusHeader: React.FC<MaintenanceStatusHeaderProps> = ({
   );
 };
 
-export default MaintenanceStatusHeader;
+export default FuelStatusHeader;
