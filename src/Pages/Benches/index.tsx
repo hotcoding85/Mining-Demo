@@ -82,16 +82,16 @@ const Benches = (props: any) => {
       name: (doc && doc.name) || "",
       category: (doc && doc.category) || "",
       elevation: (doc && doc.elevation) || "",
-      grade: (doc && doc.grade) || "",
-      tonnes: (doc && doc.tonnes) || "",
-      volume: (doc && doc.volume) || "",
-      density: (doc && doc.density) || "",
+      grade: (doc && doc.grade) || undefined,
+      tonnes: (doc && doc.tonnes) || undefined,
+      volume: (doc && doc.volume) || undefined,
+      density: (doc && doc.density) || undefined,
       status: (doc && doc.status) || "ACTIVE",
       blockId: doc && doc.blockId,
       materialId:
         (doc &&
           materials?.find((material) => material.name === doc.blockId)?.id) ||
-        "",
+        undefined,
     };
   };
 
@@ -139,6 +139,7 @@ const Benches = (props: any) => {
               return true;
             }
           ),
+    blockId: Yup.string().required("Please select the material"),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
     status: Yup.string(),
