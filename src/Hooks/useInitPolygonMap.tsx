@@ -64,6 +64,7 @@ export const useInitPolygonMap = (props: {
 
   // state values
   const [geoJson, setGeoJson] = useState<any>(null);
+  const [mapStylesLoaded, setMapStylesLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     if (mapRef.current) return; // Initialize map only once
@@ -111,6 +112,7 @@ export const useInitPolygonMap = (props: {
         source: "mapbox-terrain-rgb",
         exaggeration: 1,
       });
+      setMapStylesLoaded(true);
     });
 
     mapRef.current.on("zoom", () => {});
@@ -246,14 +248,14 @@ export const useInitPolygonMap = (props: {
       });
     }, 1000);
 
-    if (wasteDumpFences.length > 0 && !!mapRef.current) {
+    if (mapStylesLoaded && wasteDumpFences.length > 0 && !!mapRef.current) {
       drawGeofences(wasteDumpFences);
     }
 
     return () => {
       drawGeofences.cancel();
     };
-  }, [wasteDumpFences]);
+  }, [wasteDumpFences, mapStylesLoaded]);
 
   useEffect(() => {
     const setEventListners = _.debounce((fences) => {

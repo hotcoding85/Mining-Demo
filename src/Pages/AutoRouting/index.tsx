@@ -62,6 +62,8 @@ const AutoRouting = () => {
     const [isStopSign, setIsStopSign] = useState<boolean>(false);
     const [stopSignPoint, setStopSignPoint] = useState<[number, number] | null>(null)
 
+    const [mapStylesLoaded, setMapStylesLoaded] = useState<boolean>(false);
+
     const geojsonData = useRef<any>();
     
     const { layoutModeType } = useSelector(
@@ -97,7 +99,7 @@ const AutoRouting = () => {
     );
     const { routes } = useSelector(routesProperties);
     useEffect(() => {
-        if (mapRef.current && routes){
+        if (mapStylesLoaded && mapRef.current && routes){
             while(stopMarkers.current.length > 0) {
                 stopMarkers.current.pop()?.remove()
             }
@@ -142,7 +144,7 @@ const AutoRouting = () => {
             // Draw Stop Signs
             // drawStopSign()
         }
-    }, [routes, mapRef])
+    }, [routes, mapRef, mapStylesLoaded])
     useEffect(() => {
         if (!mapRef) return
         dispatch(getAllVehicleRoutes())
@@ -183,6 +185,7 @@ const AutoRouting = () => {
             });
 
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
+            setMapStylesLoaded(true);
         });
 
         mapRef.current.on('click', handleMapClick);
