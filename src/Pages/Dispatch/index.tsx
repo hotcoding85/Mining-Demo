@@ -5,6 +5,9 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import { createSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
+import { List, Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons"; // Import the default avatar icon
+
 import {
   getShiftRosters,
   updateShiftRoster,
@@ -119,10 +122,10 @@ const Dispatch = () => {
       <div
         className={style}
         style={{
-          padding: "8px",
-          margin: "4px",
-          backgroundColor: disabled ? "#d0d0d0" : "rgb(83, 94, 119)",
-          borderRadius: "24px",
+          // padding: "8px",
+          // margin: "4px",
+          // backgroundColor: disabled ? "#d0d0d0" : "rgb(83, 94, 119)",
+          // borderRadius: "24px",
           cursor: disabled ? "not-allowed" : "move",
           opacity: disabled ? 0.5 : 1,
           color: disabled ? "black" : "white",
@@ -848,30 +851,45 @@ const Dispatch = () => {
                   </Col>
                 </Row>
               </Col>
-
               <Col xs={2}>
                 <Card className="cards-operator">
                   <CardBody>
                     <span style={{ fontSize: "20px" }}>Operator</span>
                     <div className="mt-3">
-                      {filteredOperators.map((person, index) => (
-                        <DragTarget
-                          key={person.id}
-                          id={"operator"}
-                          style="task-chips py-2 px-3 btn-drag"
-                          disabled={false}
-                          name={person.firstName + " " + person.lastName}
-                          person={person}
-                          onDragStart={() => {}}
-                        >
-                          <>
-                            <div style={{ textAlign: "center" }}>
-                              {person.firstName + " " + person.lastName}
-                            </div>
-                            <div>Skill - Truck, dozzer</div>
-                          </>
-                        </DragTarget>
-                      ))}
+                      {" "}
+                      <List
+                        itemLayout="horizontal"
+                        dataSource={filteredOperators}
+                        renderItem={(person) => (
+                          <DragTarget
+                            key={person.id}
+                            id={"operator"}
+                            style=""
+                            disabled={false}
+                            name={person.firstName + " " + person.lastName}
+                            person={person}
+                            onDragStart={() => {}}
+                          >
+                            <List.Item
+                              style={{ borderBottom: "1px solid #e8e8e8" }}
+                            >
+                              <List.Item.Meta
+                                avatar={<Avatar icon={<UserOutlined />} />}
+                                title={
+                                  <a href="#">
+                                    {person.firstName + " " + person.lastName}
+                                  </a>
+                                }
+                                description={
+                                  person.skills && person.skills.length > 0
+                                    ? `Skills - ${person.skills.join(", ")}`
+                                    : ""
+                                }
+                              />
+                            </List.Item>
+                          </DragTarget>
+                        )}
+                      />
                     </div>
                   </CardBody>
                 </Card>

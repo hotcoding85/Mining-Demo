@@ -9,6 +9,8 @@ export interface OperatorStateProps {
     role: string;
     status: string;
     updatedAt: number;
+    skills: string[]; 
+
     username: string;
   }
 
