@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import {
   getAllMaterials,
@@ -24,8 +24,9 @@ import { isMaterialNameUnique } from "../../Helpers/api_materials_helper";
 import { round2Two } from "utils/common";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import Table from "Components/Common/Table";
-import { Input } from "antd";
+import { Dropdown, Input, MenuProps } from "antd";
 import { debounce } from "lodash";
+import './style.scss';
 
 const Materials = (props: any) => {
   document.title = "Materials | FMS Live";
@@ -345,6 +346,18 @@ const Materials = (props: any) => {
     );
   }, [data, searchTerm, columns]);
 
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click');
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <span><i className="mdi mdi-plus me-1" />Import Materials</span>,
+      onClick: handleOnImport,
+    },
+  ];
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -366,12 +379,14 @@ const Materials = (props: any) => {
                     </Col>
                     <Col sm={8}>
                       <div className="d-flex justify-content-end text-sm-end gap-2">
-                        <Button type="button" onClick={handleOnAdd}>
-                          <i className="mdi mdi-plus me-1"></i> New Material
-                        </Button>
-                        <Button type="button" onClick={handleOnImport}>
-                          <i className="mdi mdi-plus me-1"></i> Import Materials
-                        </Button>
+                        <Dropdown.Button
+                          menu={{ items, onClick: onMenuClick, }}
+                          onClick={handleOnAdd}
+                          style={{ width: 'auto' }}
+                          overlayClassName="materials-dropdown"
+                        >
+                          <i className="mdi mdi-plus" />New Material
+                        </Dropdown.Button >
                       </div>
                     </Col>
                   </Row>
