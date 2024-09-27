@@ -53,13 +53,36 @@ const MaintenanceStatusHeader: React.FC<MaintenanceStatusHeaderProps> = ({
         >
           Filter
         </Button>
+
         <Segmented
           className="customSegmentLabel maintenance-status-segment"
           value={viewMode}
           onChange={onChangeViewMode}
           options={[
-            { value: "table", label: "TABLE" },
-            { value: "grid", label: "GRID" },
+            {
+              value: "table",
+              icon: (
+                <i
+                  className="mdi mdi-menu"
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: "0",
+                  }}
+                />
+              ),
+            },
+            {
+              value: "grid",
+              icon: (
+                <i
+                  className="mdi mdi-view-grid"
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: "0",
+                  }}
+                />
+              ),
+            },
           ]}
         />
       </div>

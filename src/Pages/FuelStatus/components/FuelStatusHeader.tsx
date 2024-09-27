@@ -59,8 +59,30 @@ const FuelStatusHeader: React.FC<FuelStatusHeaderProps> = ({
           value={displayType}
           onChange={onDisplayTypeChange}
           options={[
-            { value: "TABLE", label: "TABLE" },
-            { value: "GRID", label: "GRID" },
+            {
+              value: "TABLE",
+              icon: (
+                <i
+                  className="mdi mdi-menu"
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: "0",
+                  }}
+                />
+              ),
+            },
+            {
+              value: "GRID",
+              icon: (
+                <i
+                  className="mdi mdi-view-grid"
+                  style={{
+                    fontSize: "16px",
+                    lineHeight: "0",
+                  }}
+                />
+              ),
+            },
           ]}
         />
       </div>
