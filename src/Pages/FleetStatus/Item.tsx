@@ -118,13 +118,13 @@ const Item = (data: any) => {
           <div>
             <img
               src={getImage(data.data.model)}
-              width={"100px"}
+              width={"64px"}
               alt="Equipment"
             />
           </div>
           <div>
-            <span style={{ fontSize: "1.6em", fontWeight: "500" }}>
-              {data.data.name}
+            <span style={{ fontSize: "14px", fontWeight: "500" }}>
+              {data.data.name} ( {data.data.model} )
             </span>
             <div style={{ fontSize: "14px", color: "#9CA3B1" }}>J. Brown</div>
             <div

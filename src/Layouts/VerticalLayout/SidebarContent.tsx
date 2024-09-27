@@ -104,13 +104,20 @@ const SidebarContent = (props: any) => {
 
     for (let i = 0; i < items.length; ++i) {
       if (items[i].pathname === "/") continue;
-      if (pathName.startsWith(items[i].pathname)) {
-        matchingMenuItem = items[i];
+      const pathNameMatch = pathName.match(/\/([^\\/]+)/);
+      const itemPathNameMatch = items[i].pathname.match(/\/([^\\/]+)/);
+
+      if (
+        pathNameMatch?.[1] &&
+        itemPathNameMatch?.[1] &&
+        pathNameMatch[1] === itemPathNameMatch[1]
+      ) {
+        activateParentDropdown(items[i]);
         break;
       }
-    }
-    if (matchingMenuItem) {
-      activateParentDropdown(matchingMenuItem);
+      if (matchingMenuItem) {
+        activateParentDropdown(matchingMenuItem);
+      }
     }
   }, [props.router.location.pathname, activateParentDropdown]);
 
