@@ -25,7 +25,7 @@ const FuelSchedulerCard: FC<FuelData> = ({
   handleDragOver,
 }) => {
   return (
-    <div className="fuel-card" onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div className="fuel-scheduler-card" onDrop={handleDrop} onDragOver={handleDragOver}>
       <div className="fuel-card-header">
         <div className="vehicle-name">{id}</div>
         {isRequestingFuel && (

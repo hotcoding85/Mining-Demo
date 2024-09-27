@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
 
-.fuel-card {
+.fuel-scheduler-card {
   background-color: var(--bg-color);
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -97,7 +97,7 @@
   gap: 25px;
 }
 
-.fuel-card {
+.fuel-scheduler-card {
   flex: 1 1 calc(24% - 10px);
   max-width: calc(24% - 10px);
   background-color: var(--bg-color);
@@ -140,14 +140,14 @@
 }
 
 @media screen and (max-width: 1200px) {
-  .fuel-card {
+  .fuel-scheduler-card {
     flex: 1 1 calc(48% - 10px);
     max-width: calc(48% - 10px);
   }
 }
 
 @media screen and (max-width: 768px) {
-  .fuel-card {
+  .fuel-scheduler-card {
     flex: 1 1 100%;
     max-width: 100%;
   }
