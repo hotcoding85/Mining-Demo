@@ -1,5 +1,4 @@
-import { Button } from "antd";
-import { DATA_VIEW_MODE } from "Components/constants/constants";
+import { Button, Segmented } from "antd";
 import { styled } from "styled-components";
 
 const HeaderContainer = styled.div`
@@ -23,36 +22,9 @@ const HeaderTitle = styled.div`
   line-height: 32px;
 `;
 
-const IconButton = ({
-  active,
-  iconClassName,
-  onClick,
-}: {
-  active: boolean;
-  iconClassName: any;
-  onClick: () => void;
-}) => {
-  return (
-    <Button
-      icon={
-        <i
-          className={iconClassName}
-          style={{
-            fontSize: "16px",
-            lineHeight: "0",
-            color: "white",
-          }}
-        />
-      }
-      className={`header-action-btn ${active && "header-action-btn-active"}`}
-      onClick={onClick}
-    />
-  );
-};
-
 interface MaintenanceStatusHeaderProps {
-  viewMode: DATA_VIEW_MODE;
-  onChangeViewMode: (mode: DATA_VIEW_MODE) => void;
+  viewMode: string;
+  onChangeViewMode: (mode: string) => void;
   filter?: {};
 }
 
@@ -65,33 +37,32 @@ const MaintenanceStatusHeader: React.FC<MaintenanceStatusHeaderProps> = ({
     <HeaderContainer>
       <div className="d-flex justify-content-start align-items-center gap-4">
         <HeaderTitle>Maintenance Status</HeaderTitle>
-        <div className="d-flex justify-content-start align-items-center">
-          <IconButton
-            iconClassName="mdi mdi-menu"
-            onClick={() => onChangeViewMode(DATA_VIEW_MODE.TABLE)}
-            active={viewMode === DATA_VIEW_MODE.TABLE}
-          />
-          <IconButton
-            iconClassName="mdi mdi-view-grid"
-            onClick={() => onChangeViewMode(DATA_VIEW_MODE.GRID)}
-            active={viewMode === DATA_VIEW_MODE.GRID}
-          />
-        </div>
       </div>
-      <Button
-        icon={
-          <i
-            className={"mdi mdi-filter-variant"}
-            style={{
-              fontSize: "16px",
-              lineHeight: "0",
-            }}
-          />
-        }
-        className="header-action-btn"
-      >
-        Filter
-      </Button>
+      <div className="d-flex justify-content-start align-items-center gap-4">
+        <Button
+          icon={
+            <i
+              className={"mdi mdi-filter-variant"}
+              style={{
+                fontSize: "16px",
+                lineHeight: "0",
+              }}
+            />
+          }
+          className="header-action-btn"
+        >
+          Filter
+        </Button>
+        <Segmented
+          className="customSegmentLabel maintenance-status-segment"
+          value={viewMode}
+          onChange={onChangeViewMode}
+          options={[
+            { value: "table", label: "TABLE" },
+            { value: "grid", label: "GRID" },
+          ]}
+        />
+      </div>
     </HeaderContainer>
   );
 };

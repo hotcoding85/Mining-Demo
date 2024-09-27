@@ -15,9 +15,7 @@ const FleetOrder = ["DUMP_TRUCK", "EXCAVATOR", "LOADER"];
 const MaintenanceStatus = (props: any) => {
   document.title = "Maintenance Status | FMS Live";
 
-  const [viewMode, setViewMode] = useState<DATA_VIEW_MODE>(
-    DATA_VIEW_MODE.TABLE
-  );
+  const [viewMode, setViewMode] = useState<string>(DATA_VIEW_MODE.TABLE);
 
   const selectProperties = createSelector(
     (state: any) => state.Fleet,
