@@ -1,103 +1,107 @@
-import { Col, Row } from "reactstrap";
-import TableContainer, { TableColumn } from "Components/Common/TableContainer";
-import React, { useMemo } from "react";
+import { Card, CardBody, Col, Row } from "reactstrap";
 import { getContentByState } from "utils/common";
 import DiggingOptimisationHeader from "./DiggingOptimisationHeader";
+import Table from "Components/Common/Table";
 
 const DiggingOptimisationTableView = () => {
-  const columns: TableColumn[] = useMemo(
-    () => [
-      {
-        header: "Vehicle Name",
-        accessorKey: "vehicleName",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Operator Name",
-        accessorKey: "operatorName",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const displayContent = getContentByState(
-            cellProps.row.original.status
-          );
-          return (
-            <div
+  const columns = [
+    {
+      title: "Vehicle Name",
+      dataIndex: "vehicleName",
+      key: "vehicleName",
+      dataType: "string",
+      align: "center",
+    },
+    {
+      title: "Operator Name",
+      dataIndex: "operatorName",
+      key: "operatorName",
+      dataType: "string",
+      align: "center",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      dataType: "string",
+      align: "center",
+      render: (text) => {
+        const displayContent = getContentByState(text);
+        return (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "left",
+            }}
+          >
+            <span
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "left",
+                height: "8px",
+                width: "8px",
+                color: "transparent",
+                backgroundColor: displayContent.color,
+                borderRadius: "50%",
+                fontSize: "1px",
               }}
-            >
-              <span
-                style={{
-                  height: "8px",
-                  width: "8px",
-                  color: "transparent",
-                  backgroundColor: displayContent.color,
-                  borderRadius: "50%",
-                  fontSize: "1px",
-                }}
-              ></span>
-              <span className="text-center px-2">
-                {displayContent.displayState}
-              </span>
-            </div>
-          );
-        },
+            ></span>
+            <span className="text-center px-2">
+              {displayContent.displayState}
+            </span>
+          </div>
+        );
       },
-      {
-        header: "Passes",
-        accessorKey: "passes",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Current Load",
-        accessorKey: "currentLoad",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Active Hours",
-        accessorKey: "activeHours",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Avg Load Time",
-        accessorKey: "avgLoadTime",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Truck Waiting Time",
-        accessorKey: "truckWaitingTime",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Avg Load per Hour",
-        accessorKey: "avgLoadPerHour",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Tonnes per Hour",
-        accessorKey: "tonnesLoadPerHour",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-    ],
-    []
-  );
+    },
+    {
+      title: "Passes",
+      dataIndex: "passes",
+      key: "passes",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Current Load",
+      dataIndex: "currentLoad",
+      key: "currentLoad",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Active Hours",
+      dataIndex: "activeHours",
+      key: "activeHours",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Avg Load Time",
+      dataIndex: "avgLoadTime",
+      key: "avgLoadTime",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Truck Waiting Time",
+      dataIndex: "truckWaitingTime",
+      key: "truckWaitingTime",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Avg Load per Hour",
+      dataIndex: "avgLoadPerHour",
+      key: "avgLoadPerHour",
+      dataType: "number",
+      align: "center",
+    },
+    {
+      title: "Tonnes per Hour",
+      dataIndex: "tonnesLoadPerHour",
+      key: "tonnesLoadPerHour",
+      dataType: "string",
+      align: "center",
+    },
+  ];
 
   const tableData = [
     {
@@ -142,11 +146,15 @@ const DiggingOptimisationTableView = () => {
       <Row>
         <Col lg="12">
           <DiggingOptimisationHeader />
-        </Col>
-      </Row>
-      <Row>
-        <Col lg="12" className="text-center">
-          <TableContainer columns={columns} data={tableData} />
+          <Card>
+            <CardBody>
+              <Table
+                columns={columns}
+                data={tableData}
+                paginationPageSize={5}
+              />
+            </CardBody>
+          </Card>
         </Col>
       </Row>
     </>

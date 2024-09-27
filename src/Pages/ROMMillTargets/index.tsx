@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
-import {Input} from 'antd';
+import { Input } from "antd";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { DatePicker, Select, Button } from "antd";
 import { round2Two, roundOff } from "utils/common";
@@ -18,360 +18,380 @@ const ROMMillTargets = (props: any) => {
   const [avgTonnesPerHour, setAvgTonnesPerHour] = useState<number>(21.53);
 
   useEffect(() => {
-    setData(generateData())
-  }, [])
+    setData(generateData());
+  }, []);
 
   const generateData = () => {
-    return [{
-      equipmentName: "WA600",
-      plannedLoads: 38,
-      averageLoadTonnes: 6.8,
-      plannedShiftTonnesToMill: 258.4,
-      gramsPerTonne: 2.1,
-      averageTripTime: 0,
-      standbyHours: 0,
-      hour1PlannedTonnes: 0,
-      hour2PlannedTonnes: 0,
-      hour3PlannedTonnes: 0,
-      hour4PlannedTonnes: 0,
-      hour5PlannedTonnes: 0,
-      hour6PlannedTonnes: 0,
-      hour7PlannedTonnes: 0,
-      hour8PlannedTonnes: 0,
-      hour9PlannedTonnes: 0,
-      hour10PlannedTonnes: 0,
-      hour11PlannedTonnes: 0,
-      hour12PlannedTonnes: 0,
-      availabilityHours: 0,
-      utilisationHours: 0,
-    }]
-  }
+    return [
+      {
+        equipmentName: "WA600",
+        plannedLoads: 38,
+        averageLoadTonnes: 6.8,
+        plannedShiftTonnesToMill: 258.4,
+        gramsPerTonne: 2.1,
+        averageTripTime: 0,
+        standbyHours: 0,
+        hour1PlannedTonnes: 0,
+        hour2PlannedTonnes: 0,
+        hour3PlannedTonnes: 0,
+        hour4PlannedTonnes: 0,
+        hour5PlannedTonnes: 0,
+        hour6PlannedTonnes: 0,
+        hour7PlannedTonnes: 0,
+        hour8PlannedTonnes: 0,
+        hour9PlannedTonnes: 0,
+        hour10PlannedTonnes: 0,
+        hour11PlannedTonnes: 0,
+        hour12PlannedTonnes: 0,
+        availabilityHours: 0,
+        utilisationHours: 0,
+      },
+    ];
+  };
 
-  const onFieldChange = (row, columnId, value) => {
-
-    const rowIndex = row.index;
-    const rowData = row.original;
-    
+  const onFieldChange = (rowIndex, columnId, value) => {
     setData((prevState) => {
-      
       const newData = _.cloneDeep(prevState);
       newData[rowIndex][columnId] = value;
 
-      let plannedLoads = newData[rowIndex]['plannedLoads'];
-      let avgLoadTonnes = newData[rowIndex]['averageLoadTonnes']
-      let gramsPerTonne = newData[rowIndex]['gramsPerTonne']
-      let plannedShiftTonnes = plannedLoads * avgLoadTonnes
-      let tonnesPerHour = (plannedShiftTonnes / 12)
-      let gradePerHour = tonnesPerHour * gramsPerTonne
+      let plannedLoads = newData[rowIndex]["plannedLoads"];
+      let avgLoadTonnes = newData[rowIndex]["averageLoadTonnes"];
+      let gramsPerTonne = newData[rowIndex]["gramsPerTonne"];
+      let plannedShiftTonnes = plannedLoads * avgLoadTonnes;
+      let tonnesPerHour = plannedShiftTonnes / 12;
+      let gradePerHour = tonnesPerHour * gramsPerTonne;
 
-      newData[rowIndex]['plannedShiftTonnesToMill'] = plannedShiftTonnes
+      newData[rowIndex]["plannedShiftTonnesToMill"] = plannedShiftTonnes;
 
-      let loadsPerHour = plannedLoads / 12
-      setLoadsPerHour(loadsPerHour)
-      setTargetTonnes(plannedShiftTonnes)
-      setGradePerHour(gradePerHour)
-      setAvgTonnesPerHour(tonnesPerHour)
+      let loadsPerHour = plannedLoads / 12;
+      setLoadsPerHour(loadsPerHour);
+      setTargetTonnes(plannedShiftTonnes);
+      setGradePerHour(gradePerHour);
+      setAvgTonnesPerHour(tonnesPerHour);
       return newData;
-    })
-  }
+    });
+  };
+
   const tableColumns = [
     {
-      header: "Equipment Name",
-      accessorKey: "equipmentName",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ row, getValue }) => {
-        return <>{getValue()}</>;
-      },
+      title: "Equipment Name",
+      key: "equipmentName",
+      dataIndex: "equipmentName",
+      fixed: "left",
     },
     {
-      header: "Planned Loads",
-      accessorKey: "plannedLoads",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Planned Loads",
+      key: "plannedLoads",
+      dataIndex: "plannedLoads",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           min={1}
           step={1}
           onWheel={(event) => event.currentTarget.blur()}
-          onChange={(event) => onFieldChange(row, column.id, event.target.value)}
-          value={getValue()}
+          onChange={(event) =>
+            onFieldChange(index, "plannedLoads", event.target.value)
+          }
+          value={text}
         />
       ),
     },
     {
-      header: "Average Load Tonnes",
-      accessorKey: "averageLoadTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Average Load Tonnes",
+      key: "averageLoadTonnes",
+      dataIndex: "averageLoadTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           min={1}
           step={0.1}
-          onChange={(event) => onFieldChange(row, column.id, event.target.value)}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          onChange={(event) =>
+            onFieldChange(index, "averageLoadTonnes", event.target.value)
+          }
+          value={text}
         />
       ),
     },
     {
-      header: "Planned Shift Tonnes to Mill",
-      accessorKey: "plannedShiftTonnesToMill",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Planned Shift Tonnes to Mill",
+      key: "plannedShiftTonnesToMill",
+      dataIndex: "plannedShiftTonnesToMill",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
-          disabled
           style={{ textAlign: "center" }}
+          disabled
           onWheel={(event) => event.currentTarget.blur()}
-          value={round2Two(getValue())}
+          value={text}
         />
       ),
     },
     {
-      header: "Grams per Tonne",
-      accessorKey: "gramsPerTonne",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Grams per Tonne",
+      key: "gramsPerTonne",
+      dataIndex: "gramsPerTonne",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
+          style={{ textAlign: "center" }}
           min={1}
           step={0.01}
-          style={{ textAlign: "center" }}
-          onChange={(event) => onFieldChange(row, column.id, event.target.value)}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          onChange={(event) =>
+            onFieldChange(index, "gramsPerTonne", event.target.value)
+          }
+          value={text}
         />
       ),
     },
     {
-      header: "Average Trip Time",
-      accessorKey: "averageTripTime",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Average Trip Time",
+      key: "averageTripTime",
+      dataIndex: "averageTripTime",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Standby (Hours)",
-      accessorKey: "standbyHours",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Standby (Hours)",
+      key: "standbyHours",
+      dataIndex: "standbyHours",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 1 Planned Tonnes",
-      accessorKey: "hour1PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 1 Planned Tonnes",
+      key: "hour1PlannedTonnes",
+      dataIndex: "hour1PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 2 Planned Tonnes",
-      accessorKey: "hour2PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 2 Planned Tonnes",
+      key: "hour2PlannedTonnes",
+      dataIndex: "hour2PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 3 Planned Tonnes",
-      accessorKey: "hour3PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 3 Planned Tonnes",
+      key: "hour3PlannedTonnes",
+      dataIndex: "hour3PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 4 Planned Tonnes",
-      accessorKey: "hour4PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 4 Planned Tonnes",
+      key: "hour4PlannedTonnes",
+      dataIndex: "hour4PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 5 Planned Tonnes",
-      accessorKey: "hour5PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 5 Planned Tonnes",
+      key: "hour5PlannedTonnes",
+      dataIndex: "hour5PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 6 Planned Tonnes",
-      accessorKey: "hour6PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 6 Planned Tonnes",
+      key: "hour6PlannedTonnes",
+      dataIndex: "hour6PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 7 Planned Tonnes",
-      accessorKey: "hour7PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 7 Planned Tonnes",
+      key: "hour7PlannedTonnes",
+      dataIndex: "hour7PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 8 Planned Tonnes",
-      accessorKey: "hour8PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 8 Planned Tonnes",
+      key: "hour8PlannedTonnes",
+      dataIndex: "hour8PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 9 Planned Tonnes",
-      accessorKey: "hour9PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 9 Planned Tonnes",
+      key: "hour9PlannedTonnes",
+      dataIndex: "hour9PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 10 Planned Tonnes",
-      accessorKey: "hour10PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 10 Planned Tonnes",
+      key: "hour10PlannedTonnes",
+      dataIndex: "hour10PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 11 Planned Tonnes",
-      accessorKey: "hour11PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 11 Planned Tonnes",
+      key: "hour11PlannedTonnes",
+      dataIndex: "hour11PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Hour 12 Planned Tonnes",
-      accessorKey: "hour12PlannedTonnes",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Hour 12 Planned Tonnes",
+      key: "hour12PlannedTonnes",
+      dataIndex: "hour12PlannedTonnes",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
-        />
-      ),
-    },
-    // Continue with other columns for hours 4 through 12
-    {
-      header: "Availability (Hours)",
-      accessorKey: "availabilityHours",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
-        <Input
-          type="number"
-          style={{ textAlign: "center" }}
-          onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
         />
       ),
     },
     {
-      header: "Utilisation (Hours)",
-      accessorKey: "utilisationHours",
-      enableColumnFilter: false,
-      enableSorting: true,
-      cell: ({ getValue, row, column }) => (
+      title: "Availability (Hours)",
+      key: "availabilityHours",
+      dataIndex: "availabilityHours",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
         <Input
           type="number"
           style={{ textAlign: "center" }}
           onWheel={(event) => event.currentTarget.blur()}
-          value={getValue()}
+          value={text}
+        />
+      ),
+    },
+    {
+      title: "Utilisation (Hours)",
+      key: "utilisationHours",
+      dataIndex: "utilisationHours",
+      align: "center",
+      width: "110px",
+      render: (text, record, index) => (
+        <Input
+          type="number"
+          style={{ textAlign: "center" }}
+          onWheel={(event) => event.currentTarget.blur()}
+          value={text}
         />
       ),
     },
@@ -428,7 +448,10 @@ const ROMMillTargets = (props: any) => {
             </Col>
           </Row>
 
-          <Row className="mb-4 rommil-contents" style={{justifyContent:'space-evenly'}}>
+          <Row
+            className="mb-4 rommil-contents"
+            style={{ justifyContent: "space-evenly" }}
+          >
             <Col xs={2}>
               <Card className="h-100">
                 <CardBody>
@@ -511,7 +534,7 @@ const ROMMillTargets = (props: any) => {
 
           <Row className="mt-3 rommil-load-targets">
             <Col lg="12">
-              <LoadTarget tableColumns={tableColumns} data={data}/>
+              <LoadTarget tableColumns={tableColumns} data={data} />
             </Col>
           </Row>
         </Container>

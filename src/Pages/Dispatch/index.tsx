@@ -229,21 +229,21 @@ const Dispatch = () => {
   // }, []);
 
   const getOperators = (excavatorId: string) => {
-    let shiftRoster = shiftrosters.find(
+    let shiftRoster = shiftrosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.operators ? shiftRoster.operators : [];
   };
 
   const getTrainers = (excavatorId: string) => {
-    let shiftRoster = shiftrosters.find(
+    let shiftRoster = shiftrosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.trainers ? shiftRoster.trainers : [];
   };
 
   const getTrucks = (excavatorId: string) => {
-    let shiftRoster = shiftrosters.find(
+    let shiftRoster = shiftrosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.trucks ? shiftRoster.trucks : [];
@@ -649,18 +649,18 @@ const Dispatch = () => {
   };
 
   const getAllocatedOperators = (rosters) => {
-    return rosters.filter(
+    return rosters?.filter(
       (roster) => Array.isArray(roster.operators) && roster.operators.length > 0
     ).length;
   };
 
   const getAvailableOperators = () => {
     const shiftOperators = shiftrosters
-      .filter((roster) => roster.operators && roster.operators.length > 0)
+      ?.filter((roster) => roster.operators && roster.operators.length > 0)
       .map((roster) => roster.operators[0]);
 
     let newOperators = users.filter(
-      (user) => !shiftOperators.some((operator) => operator.id === user.id)
+      (user) => !shiftOperators?.some((operator) => operator.id === user.id)
     );
     setFilteredOperators(newOperators);
   };

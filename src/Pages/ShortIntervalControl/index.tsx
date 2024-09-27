@@ -166,7 +166,7 @@ const ShortIntervalControl = () => {
 
     const getTrucks = (excavatorId: string) => {
 
-        let shiftRoster = shiftrosters.find(roster => roster.vehicleId === excavatorId);
+        let shiftRoster = shiftrosters?.find(roster => roster.vehicleId === excavatorId);
         return shiftRoster && shiftRoster.trucks ? shiftRoster.trucks : [];
     };
 
@@ -209,26 +209,26 @@ const ShortIntervalControl = () => {
         var updatedTrucks: Array<any> = [];
 
 
-        const rosterOperators = shiftrosters.map((roster) => {
+        const rosterOperators = shiftrosters?.map((roster) => {
             return roster.operators && roster.operators[0] ? roster.operators[0].id : undefined;
         });
-        const rosterTrainers = shiftrosters.map((roster) => {
+        const rosterTrainers = shiftrosters?.map((roster) => {
             return roster.trainers && roster.trainers[0] ? roster.trainers[0].id : undefined;
         });
-        let rosterTrucks = shiftrosters.map((roster) => {
+        let rosterTrucks = shiftrosters?.map((roster) => {
             return roster.trucks && roster.trucks[0] ? roster.trucks.map(truck => { return truck.id }) : undefined;
         });
 
         rosterTrucks = _.compact(_.flattenDeep(rosterTrucks));
 
         // Disable the person after being dropped
-        updatedPersons = operators.map(p =>
-            (rosterOperators.includes(p.id) || rosterTrainers.includes(p.id)) ? { ...p, disabled: true } : { ...p, disabled: false }
+        updatedPersons = operators?.map(p =>
+            (rosterOperators?.includes(p.id) || rosterTrainers?.includes(p.id)) ? { ...p, disabled: true } : { ...p, disabled: false }
         );
 
         // Disable the person after being dropped
         updatedTrucks = trucks.map(p =>
-            rosterTrucks.includes(p.id) ? { ...p, disabled: true } : { ...p, disabled: false }
+            rosterTrucks?.includes(p.id) ? { ...p, disabled: true } : { ...p, disabled: false }
         );
 
         if (updatedPersons && updatedPersons[0] && updatedPersons[0].id) {

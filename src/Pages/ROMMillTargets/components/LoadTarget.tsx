@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardBody } from "reactstrap";
-import { Pagination, PaginationProps, Input, Select } from "antd";
+import { Input, Select } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined } from "@ant-design/icons";
-import TableContainer from "Components/Common/TableContainer";
+import Table from "Components/Common/Table";
 
 const LoadTarget = ({ tableColumns, data, ...props }) => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -35,10 +35,6 @@ const LoadTarget = ({ tableColumns, data, ...props }) => {
     ],
   };
 
-  const onChange: PaginationProps["onChange"] = (pageNumber) => {
-    console.log("Page: ", pageNumber);
-  };
-
   return (
     <Card className="loader-target rommil-loader">
       <CardBody>
@@ -63,23 +59,12 @@ const LoadTarget = ({ tableColumns, data, ...props }) => {
             />
           </div>
         </div>
-        <div className="mt-3 load-target-table">
-          <TableContainer
+
+        <div className="mt-3">
+          <Table
             columns={tableColumns}
-            data={data}
-            theadClass="theadCenterAlign"
-            isGlobalFilter={false}
-            isPagination={false}
-            isAddButton={false}
-            isBordered={false}
-          />
-        </div>
-        <div className="d-flex justify-content-end align-items-center mt-3">
-          <Pagination
-            showQuickJumper
-            defaultCurrent={2}
-            total={500}
-            onChange={onChange}
+            data={data || []}
+            scroll={{ x: "max-content" }}
           />
         </div>
       </CardBody>

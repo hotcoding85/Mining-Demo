@@ -18,6 +18,9 @@ body[data-layout-mode="dark"] {
     .ant-pagination-item-active {
       background: #535e77 !important;
     }
+    .ant-table-summary td {
+      border: 1px solid #fff !important;
+    }
   }
 }
 
@@ -39,5 +42,10 @@ body[data-layout-mode="dark"] {
 
   .ant-pagination-item-active {
     background: #e0e0e0 !important;
+  }
+
+  .ant-table-summary td {
+    border: 1px solid #24314d !important;
+    background: none !important;
   }
 }

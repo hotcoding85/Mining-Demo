@@ -1,23 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  Card, CardBody, Col, Row, Button,
-} from "reactstrap";
+import React, { useEffect, useState } from "react";
+import { Card, CardBody, Col, Row, Button } from "reactstrap";
 import { Input } from "antd";
 import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
-import TableContainer from "Components/Common/TableContainer";
 import { getRandomInt } from "utils/random";
 import { minutesToHhMm } from "utils/common";
-import { LoadHaulCycleTimeBreakdownData, LoadHaulCycleTimeBreakdownReport } from "../interfaces";
+import {
+  LoadHaulCycleTimeBreakdownData,
+  LoadHaulCycleTimeBreakdownReport,
+} from "../interfaces";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import "../styles/loadTruckCycle.scss";
 import { loadHaulCycleTimeBreakdownReport } from "../data/sampleData";
+import Table from "Components/Common/Table";
 
 const LoadHaulCycleTimeBreakdown = (props: any) => {
-  const [totalData, setTotalData] = useState<any>({});
+  const [loadCycleList, setLoadCycleList] = useState<
+    LoadHaulCycleTimeBreakdownData[]
+  >([]);
 
-  const [loadCycleList, setLoadCycleList] = useState<LoadHaulCycleTimeBreakdownData[]>([]);
-
-  const [loadCycleRows, setLoadCycleRows] = useState<LoadHaulCycleTimeBreakdownReport[]>([]);
+  const [loadCycleRows, setLoadCycleRows] = useState<
+    LoadHaulCycleTimeBreakdownReport[]
+  >([]);
 
   const [globalFilter, setGlobalFilter] = useState<string>("");
 
@@ -25,11 +28,11 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
     let value = getRandomInt(min, max);
     const time = minutesToHhMm(Math.round(value));
     return time;
-  }
+  };
 
   const getDeviationVaulue = (actualTime: string, mineIdeal: string) => {
-    const [startHours, startMinutes] = actualTime.split(':').map(Number);
-    const [endHours, endMinutes] = mineIdeal.split(':').map(Number);
+    const [startHours, startMinutes] = actualTime.split(":").map(Number);
+    const [endHours, endMinutes] = mineIdeal.split(":").map(Number);
 
     const startTotalMinutes = startHours * 60 + startMinutes;
     const endTotalMinutes = endHours * 60 + endMinutes;
@@ -40,55 +43,16 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
     const hours = Math.floor(absoluteDifference / 60);
     const minutes = absoluteDifference % 60;
 
-    const formattedHours = String(hours).padStart(2, '0');
-    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedHours = String(hours).padStart(2, "0");
+    const formattedMinutes = String(minutes).padStart(2, "0");
 
     return differenceInMinutes < 0
       ? `- ${formattedHours}:${formattedMinutes}`
       : `${formattedHours}:${formattedMinutes}`;
   };
 
-  const convertToSeconds = (timeString) => {
-    const parts = timeString.split(':').map(Number);
-    return parts.length === 2 ? parts[0] * 60 + parts[1] : parts[0];
-  }
-
-  const handleConvertSeconds = (timeString) => {
-    const isNegative = timeString.trim().startsWith('-');
-    const timeInSeconds = convertToSeconds(timeString.replace('-', '').trim());
-
-    return isNegative ? -timeInSeconds : timeInSeconds;
-  }
-
-  const convertToTimeString = (totalSeconds) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }
-
-  const calculateTotals = (data) => {
-    let totalActualSiteAverage = 0;
-    let totalMineIdeal = 0;
-    let totalDeviation = 0;
-
-    data.forEach(item => {
-      totalActualSiteAverage += handleConvertSeconds(item.actualSiteAverage);
-      totalMineIdeal += handleConvertSeconds(item.mineIdeal);
-      totalDeviation += handleConvertSeconds(item.deviation);
-    });
-
-    return {
-      totalCycleActivities: "Total",
-      totalActualSiteAverage: convertToTimeString(totalActualSiteAverage),
-      totalMineIdeal: convertToTimeString(totalMineIdeal),
-      totalDeviation: convertToTimeString(totalDeviation),
-    };
-  }
-
-
   const getHaulRoadReport = () => {
     let loadCycleData = loadCycleList?.map((haulRoadData) => {
-
       let actualSiteAverage = "";
 
       if (haulRoadData.cycleActivities === "Spotting at Loading") {
@@ -124,36 +88,34 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
     });
 
     setLoadCycleRows(loadCycleData);
-    let totalsOfRow = calculateTotals(loadCycleData);
-    setTotalData(totalsOfRow);
   };
-  const columns: any[] = useMemo(
-    () => [
-      {
-        header: "Cycle Activities",
-        accessorKey: "cycleActivities",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Actual Site Average",
-        accessorKey: "actualSiteAverage",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Mine ideal",
-        accessorKey: "mineIdeal",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-      {
-        header: "Deviation",
-        accessorKey: "deviation",
-        enableColumnFilter: false,
-        enableSorting: true,
-      },
-    ], [totalData])
+
+  const columns = [
+    {
+      title: "Cycle Activities",
+      dataIndex: "cycleActivities",
+      key: "cycleActivities",
+      dataType: "string",
+    },
+    {
+      title: "Actual Site Average",
+      dataIndex: "actualSiteAverage",
+      key: "actualSiteAverage",
+      dataType: "string",
+    },
+    {
+      title: "Mine Ideal",
+      dataIndex: "mineIdeal",
+      key: "mineIdeal",
+      dataType: "string",
+    },
+    {
+      title: "Deviation",
+      dataIndex: "deviation",
+      key: "deviation",
+      dataType: "string",
+    },
+  ];
 
   const filters = {
     model: [
@@ -188,7 +150,7 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
 
   useEffect(() => {
     getHaulRoadReport();
-  }, [loadCycleList, loadHaulCycleTimeBreakdownReport])
+  }, [loadCycleList, loadHaulCycleTimeBreakdownReport]);
   return (
     <React.Fragment>
       <Row className="haul-timebreakdown">
@@ -196,7 +158,9 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
           <Card>
             <CardBody>
               <div className="d-flex justify-content-between align-items-center">
-                <div className="haulroad-summary-title">Load Haul Cycle Time Breakdown</div>
+                <div className="haulroad-summary-title">
+                  Load Haul Cycle Time Breakdown
+                </div>
                 <div className="d-flex justify-content-end align-items-center gap-3">
                   <SearchDropdown itemsGroup={filters} />
                   <Button className="digging-csv-btn">
@@ -213,17 +177,19 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
                   />
                 </div>
               </div>
-              <TableContainer
-                columns={columns}
-                data={loadCycleRows || []}
-                isImportButton={false}
-                isFooter={true}
-              />
+              <div className="mt-3">
+                <Table
+                  columns={columns}
+                  data={loadCycleRows}
+                  paginationPageSize={5}
+                />
+              </div>
             </CardBody>
           </Card>
         </Col>
       </Row>
-    </React.Fragment>)
-}
+    </React.Fragment>
+  );
+};
 
 export default LoadHaulCycleTimeBreakdown;

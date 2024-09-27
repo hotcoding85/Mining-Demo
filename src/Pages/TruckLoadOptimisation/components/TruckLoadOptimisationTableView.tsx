@@ -3,14 +3,13 @@ import { getRandomInt } from "utils/random";
 import {
   Card,
   CardBody,
-  Table,
   Button,
   Dropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
-import { Pagination, PaginationProps, Input } from "antd";
+import { Input } from "antd";
 import { SearchDropdown } from "Components/Common/Dropdown";
 import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import "../styles/tableView.css";
@@ -18,31 +17,198 @@ import LoadHaulCycleTimeBreakdown from "./LoadHaulCycleTimeBreakdown";
 import { BarGraph } from "Components/Charts/BarChart";
 import { TextColor } from "Components/Charts/interfaces/general";
 import { PayloadBeforeData, PayloadWithData } from "../data/sampleData";
+import { getContentByState } from "utils/common";
+import Table from "Components/Common/Table";
 
-const TableHeaders = [
-  "Vehicle Name",
-  "Operator Name",
-  "Status",
-  "Dump Location",
-  "Active Hours",
-  "Target Hours",
-  "Empty Run",
-  "Waiting Load Time",
-  "Loading Time",
-  "Hauling Time",
-  "Avg Cycle Time",
-  "Payload",
-  "Material Type",
-  "Current Load(Tonnes)",
-  "MaximumLoad(Tonnes)",
-  "Speed",
-  "Engine RPM",
-  "Travel Time",
-  "Pitch",
-  "Alcometer Degrees",
-  "Distance",
-  "Altitude Change",
-  "Fuel Rate",
+const columns = [
+  {
+    title: "Vehicle Name",
+    dataIndex: "vehicleName",
+    key: "vehicleName",
+    dataType: "string",
+    align: "center",
+    fixed: "left",
+  },
+  {
+    title: "Operator Name",
+    dataIndex: "operatorName",
+    key: "operatorName",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+    dataType: "string",
+    align: "center",
+    render: (text) => {
+      const displayContent = getContentByState(text);
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "left",
+          }}
+        >
+          <span
+            style={{
+              height: "8px",
+              width: "8px",
+              color: "transparent",
+              backgroundColor: displayContent.color,
+              borderRadius: "50%",
+              fontSize: "1px",
+            }}
+          ></span>
+          <span className="text-center px-2">
+            {displayContent.displayState}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    title: "Dump Location",
+    dataIndex: "dumpLocation",
+    key: "dumpLocation",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Active Hours",
+    dataIndex: "activeHours",
+    key: "activeHours",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Target Hours",
+    dataIndex: "targetHours",
+    key: "targetHours",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Empty Run",
+    dataIndex: "emptyRun",
+    key: "emptyRun",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Waiting Load Time",
+    dataIndex: "waitingLoadTime",
+    key: "waitingLoadTime",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Loading Time",
+    dataIndex: "loadingTime",
+    key: "loadingTime",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Hauling Time",
+    dataIndex: "haulingTime",
+    key: "haulingTime",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Avg Cycle Time",
+    dataIndex: "avgCycleTime",
+    key: "avgCycleTime",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Payload",
+    dataIndex: "payload",
+    key: "payload",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Material Type",
+    dataIndex: "materialType",
+    key: "materialType",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Current Load(Tonnes)",
+    dataIndex: "currentLoad",
+    key: "currentLoad",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Maximum Load(Tonnes)",
+    dataIndex: "maximumLoad",
+    key: "maximumLoad",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Speed",
+    dataIndex: "speed",
+    key: "speed",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Engine RPM",
+    dataIndex: "engineRPM",
+    key: "engineRPM",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Travel Time",
+    dataIndex: "travelTime",
+    key: "travelTime",
+    dataType: "string",
+    align: "center",
+  },
+  {
+    title: "Pitch",
+    dataIndex: "pitch",
+    key: "pitch",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Alcometer Degrees",
+    dataIndex: "alcometerDegrees",
+    key: "alcometerDegrees",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Distance",
+    dataIndex: "distance",
+    key: "distance",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Altitude Change",
+    dataIndex: "altitudeChange",
+    key: "altitudeChange",
+    dataType: "number",
+    align: "center",
+  },
+  {
+    title: "Fuel Rate",
+    dataIndex: "fuelRate",
+    key: "fuelRate",
+    dataType: "number",
+    align: "center",
+  },
 ];
 
 const barOptions = {
@@ -72,7 +238,7 @@ const barOptions = {
         display: false,
       },
       ticks: {
-        color: '#9CA3B1',
+        color: "#9CA3B1",
         font: {
           size: 14,
         },
@@ -87,7 +253,7 @@ const barOptions = {
         lineWidth: 0.1,
       },
       ticks: {
-        color: '#9CA3B1',
+        color: "#9CA3B1",
         font: {
           size: 14,
         },
@@ -100,140 +266,7 @@ const barOptions = {
   },
 };
 
-const textColor: TextColor[] = [
-  { text: "Ton Target", color: "#9CA3B1" },
-
-];
-
-interface TruckLoadOptimisationTableRowProps {
-  vehicleName: string;
-  operatorName: string;
-  status: string;
-  dumpLocation: number;
-  activeHours: string;
-  targetHours: string;
-  emptyRun: string;
-  waitingLoadTime: string;
-  loadingTime: string;
-  haulingTime: string;
-  avgCycleTime: string;
-  payload: number;
-  materialType: string;
-  currentLoad: number;
-  maximumLoad: number;
-  speed: string;
-  engineRPM: number;
-  travelTime: string;
-  pitch: string;
-  alcometerDegrees: number;
-  distance: number;
-  altitudeChange: number;
-  fuelRate: number;
-}
-
-const statusColors = {
-  Active: "#389E0D",
-  Standby: "#FAAD14",
-  Delayed: "#722ED1",
-  Down: "#CF1322",
-};
-
-const TruckLoadOptimisationTableRow: React.FC<
-  TruckLoadOptimisationTableRowProps
-> = (props) => {
-  const getStatusDot = (status: string) => {
-    const color = statusColors[status] || "gray";
-    return (
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <span
-          style={{
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            backgroundColor: color,
-            display: "inline-block",
-            marginRight: 8,
-          }}
-        ></span>
-        <span>{status}</span>
-      </div>
-    );
-  };
-
-  return (
-    <tr>
-      <td width={104}>
-        <div>{props.vehicleName}</div>
-      </td>
-      <td width={104}>
-        <div>{props.operatorName}</div>
-      </td>
-      <td width={104}>
-        <div>{getStatusDot(props.status)}</div>
-      </td>
-      <td width={104}>
-        <div>{props.dumpLocation}</div>
-      </td>
-      <td width={104}>
-        <div>{props.activeHours}</div>
-      </td>
-      <td width={104}>
-        <div>{props.targetHours}</div>
-      </td>
-      <td width={104}>
-        <div>{props.emptyRun}</div>
-      </td>
-      <td width={104}>
-        <div>{props.waitingLoadTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.loadingTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.haulingTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.avgCycleTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.payload}</div>
-      </td>
-      <td width={104}>
-        <div>{props.materialType}</div>
-      </td>
-      <td width={104}>
-        <div>{props.currentLoad}</div>
-      </td>
-      <td width={104}>
-        <div>{props.maximumLoad}</div>
-      </td>
-      <td width={104}>
-        <div>{props.speed}</div>
-      </td>
-      <td width={104}>
-        <div>{props.engineRPM}</div>
-      </td>
-      <td width={104}>
-        <div>{props.travelTime}</div>
-      </td>
-      <td width={104}>
-        <div>{props.pitch}</div>
-      </td>
-      <td width={104}>
-        <div>{props.alcometerDegrees}</div>
-      </td>
-      <td width={104}>
-        <div>{props.distance}</div>
-      </td>
-      <td width={104}>
-        <div>{props.altitudeChange}</div>
-      </td>
-      <td width={104}>
-        <div>{props.fuelRate}</div>
-      </td>
-    </tr>
-  );
-};
+const textColor: TextColor[] = [{ text: "Ton Target", color: "#9CA3B1" }];
 
 const TruckLoadOptimisationTableView = () => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -399,15 +432,14 @@ const TruckLoadOptimisationTableView = () => {
     ],
   };
 
-  const onChange: PaginationProps["onChange"] = (pageNumber) => {
-    console.log("Page: ", pageNumber);
-  };
   return (
     <>
       <Card className="haulroad-summary" id="haulroad-summary-tableview">
         <CardBody>
           <div className="d-flex justify-content-between align-items-center">
-            <div className="haulroad-summary-title">Truck Load Optimization</div>
+            <div className="haulroad-summary-title">
+              Truck Load Optimization
+            </div>
             <div className="d-flex justify-content-end align-items-center gap-3">
               <SearchDropdown itemsGroup={filters} />
               <div className="export">
@@ -436,27 +468,11 @@ const TruckLoadOptimisationTableView = () => {
             </div>
           </div>
           <div className="mt-3">
-            <Table borderless responsive className="haulroad-summary-table">
-              <thead>
-                <tr>
-                  {TableHeaders.map((header) => (
-                    <th style={{ justifyContent: "start" }}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {tableData.map((row) => (
-                  <TruckLoadOptimisationTableRow {...row} />
-                ))}
-              </tbody>
-            </Table>
-          </div>
-          <div className="d-flex justify-content-end align-items-center mt-3">
-            <Pagination
-              showQuickJumper
-              defaultCurrent={2}
-              total={500}
-              onChange={onChange}
+            <Table
+              columns={columns}
+              data={tableData}
+              paginationPageSize={5}
+              scroll={{ x: "max-content" }}
             />
           </div>
         </CardBody>
@@ -465,9 +481,11 @@ const TruckLoadOptimisationTableView = () => {
         <LoadHaulCycleTimeBreakdown />
       </div>
       <div className="payload-chart">
-        <Card style={{ width: '100%' }}>
+        <Card style={{ width: "100%" }}>
           <CardBody>
-            <div className="haulroad-summary-title text-start">Payload Compliance (Before Mine Dynamics)</div>
+            <div className="haulroad-summary-title text-start">
+              Payload Compliance (Before Mine Dynamics)
+            </div>
             <BarGraph
               data={PayloadBeforeData}
               options={barOptions}
@@ -477,9 +495,11 @@ const TruckLoadOptimisationTableView = () => {
         </Card>
       </div>
       <div className="payload-chart">
-        <Card style={{ width: '100%' }}>
+        <Card style={{ width: "100%" }}>
           <CardBody>
-            <div className="haulroad-summary-title text-start">Payload Compliance (With Mine Dynamics)</div>
+            <div className="haulroad-summary-title text-start">
+              Payload Compliance (With Mine Dynamics)
+            </div>
             <BarGraph
               data={PayloadWithData}
               options={barOptions}

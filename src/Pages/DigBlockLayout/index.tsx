@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import TableContainer, {
   TableColumn,
@@ -26,9 +26,10 @@ import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
-import { Segmented } from "antd";
+import { Input, Segmented } from "antd";
 import DigBlockLayoutMap from "./DigBlockLayoutMap";
 import { round2Two } from "utils/common";
+import Table from "Components/Common/Table";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -42,6 +43,8 @@ const DigBlockLayout = (props: any) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const [displayType, setDisplayType] = useState<string>("TABLE");
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const selectProperties = createSelector(
     (state: any) => state.GeoFence,
@@ -198,114 +201,111 @@ const DigBlockLayout = (props: any) => {
     [dispatch]
   );
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: "Name",
-        accessorKey: "name",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Name",
+        key: "name",
+        dataIndex: "name",
+        dataType: "string",
       },
       {
-        header: "Block ID",
-        accessorKey: "blockId",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Block ID",
+        key: "blockId",
+        dataIndex: "blockId",
+        dataType: "string",
+        align: "center",
       },
       {
-        header: "Source",
-        accessorKey: "source",
-        enableColumnFilter: false,
-        enableSorting: true,
+        title: "Source",
+        key: "source",
+        dataIndex: "source",
+        dataType: "string",
+        align: "center",
       },
       {
-        header: "Category",
-        accessorKey: "category",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
+        title: "Category",
+        key: "category",
+        dataIndex: "category",
+        dataType: "string",
+        align: "center",
+        render: (text) => {
           return (
             <div className="badge badge-soft-primary font-size-11 m-1">
-              {cellProps.row.original.category}
+              {text}
             </div>
           );
         },
       },
       {
-        header: "Grade",
-        accessorKey: "grade",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const grade = cellProps.row.original.grade as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(grade)}</div>;
-        },
+        title: "Grade",
+        key: "grade",
+        dataIndex: "grade",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
       },
       {
-        header: "Density",
-        accessorKey: "density",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const density = cellProps.row.original.density as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(density)}</div>;
-        },
+        title: "Density",
+        key: "density",
+        dataIndex: "density",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
       },
       {
-        header: "Tonnes",
-        accessorKey: "tonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const tonnes = cellProps.row.original.tonnes as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(tonnes)}</div>;
-        },
+        title: "Tonnes",
+        key: "tonnes",
+        dataIndex: "tonnes",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
       },
       {
-        header: "Volume",
-        accessorKey: "volume",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const volume = cellProps.row.original.volume as number;
-          return <div style={{ textAlign: "right" }}>{round2Two(volume)}</div>;
-        },
+        title: "Volume",
+        key: "volume",
+        dataIndex: "volume",
+        dataType: "number",
+        align: "center",
+        render: (text) => round2Two(text),
       },
       {
-        header: "Status",
-        accessorKey: "status",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
+        title: "Status",
+        key: "status",
+        dataIndex: "status",
+        dataType: "string",
+        align: "center",
+        render: (text) => {
           return (
             <div className="badge badge-soft-primary font-size-11 m-1">
-              {cellProps.row.original.status}
+              {text}
             </div>
           );
         },
       },
       {
-        header: "Actions",
-        enableColumnFilter: false,
-        accessorKey: "",
-        enableSorting: false,
-        cell: (cellProps: any) => {
-          const name = `${cellProps.row.original.name}`;
-          const id = cellProps.row.original.id;
+        title: "Actions",
+        dataIndex: "actions",
+        key: "actions",
+        align: "center",
+        dataType: "",
+        render: (_, record) => {
           return (
-            <div className="d-flex gap-3">
+            <div className="d-flex gap-3 justify-content-center">
               <Link
                 to="#!"
                 className="text-success"
                 onClick={(event: any) => {
                   event.preventDefault();
-                  const benchData = cellProps.row.original;
-                  handleOnEdit(benchData);
+                  handleOnEdit(record);
                 }}
               >
                 <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
               </Link>
-              <DeleteButton item={name} onDelete={() => handleOnDelete(id)} />
+              <DeleteButton
+                item={record.name}
+                onDelete={() => handleOnDelete(record.id)}
+              />
             </div>
           );
         },
@@ -348,6 +348,15 @@ const DigBlockLayout = (props: any) => {
     setDisplayType(displayInfo);
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data;
+    return data.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [data, searchTerm, columns]);
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -371,18 +380,31 @@ const DigBlockLayout = (props: any) => {
               {displayType === "TABLE" ? (
                 <Card>
                   <CardBody>
-                    <TableContainer
+                    <Row>
+                      <Col sm={4}>
+                        <Input
+                          placeholder="Search..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          style={{ marginBottom: 16 }}
+                        />
+                      </Col>
+                      <Col sm={8}>
+                        <div className="d-flex justify-content-end text-sm-end gap-2">
+                          <Button type="button" onClick={handleOnAdd}>
+                            <i className="mdi mdi-plus me-1"></i> New Dig Block
+                          </Button>
+                          <Button type="button" onClick={handleOnImport}>
+                            <i className="mdi mdi-plus me-1"></i> Import Dig
+                            Block Data
+                          </Button>
+                        </div>
+                      </Col>
+                    </Row>
+                    <Table
                       columns={columns}
-                      data={data || []}
-                      // total={total || 0}
-                      isGlobalFilter={true}
-                      handleOnAddClick={handleOnAdd}
-                      handleOnImportClick={handleOnImport}
-                      isPagination={true}
-                      isAddButton={false}
-                      buttonName="New Dig Block"
-                      isImportButton={true}
-                      importButtonName="Import Dig Block Data"
+                      data={filteredData || []}
+                      paginationPageSize={7}
                     />
                   </CardBody>
                 </Card>
