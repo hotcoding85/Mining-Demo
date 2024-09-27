@@ -95,3 +95,25 @@ body[data-layout-mode="light"] {
     line-height: 24px;
   }
 }
+.maintenance-status-segment {
+  &.ant-segmented {
+    background: var(--bg-color);
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    padding: 0;
+    label {
+      .ant-segmented-item-label {
+        min-height: 30px;
+        line-height: 30px;
+        padding: 0 16px;
+        font-weight: 700;
+        color: #fff;
+      }
+      &.ant-segmented-item-selected {
+        .ant-segmented-item-label {
+          color: var(--bg-color);
+        }
+      }
+    }
+  }
+}

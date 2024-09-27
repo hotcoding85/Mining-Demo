@@ -44,6 +44,7 @@ const Replay = (props: any) => {
     const currentSpeed = useRef<number>(1);
     const [timeValue, setTimeValue] = useState(0);
     const currentTimeValue = useRef<number>(-1)
+    const [mapStylesLoaded, setMapStylesLoaded] = useState<boolean>(false);
 
     const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
 
@@ -293,6 +294,7 @@ const Replay = (props: any) => {
             });
             
             mapRef.current?.setTerrain({ source: 'mapbox-terrain-rgb', exaggeration: 1 });
+            setMapStylesLoaded(true);
         });
 
         mapRef.current.on('zoom', () => {
@@ -372,47 +374,49 @@ const Replay = (props: any) => {
     }
 
     useEffect(() => {
-        stopSignData.current.map((item: any, key) => {
-            const map = mapRef.current;
-            if (!map) return;
-        
-            // Convert LineString to Point assuming the first coordinate is the desired location
-            const pointFeature = {
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: item.geoJson.geometry.coordinates[0]
-                },
-                properties: item.geoJson.properties
-            };
-        
-            // Check if the source does not exist before adding it
-            if (!map.getSource(item.id)) {
-                map.addSource(item.id, {
-                    type: 'geojson',
-                    data: pointFeature
-                });
-            }
-        
-            // Remove existing layer if it exists
-            if (map.getLayer(item.id)) {
-                map.removeLayer(item.id);
-            }
-        
-            // Add a new circle layer for STOP_SIGNS
-            map.addLayer({
-                id: item.id,
-                type: 'circle',
-                source: item.id,
-                paint: {
-                    'circle-radius': 10,  // This sets the radius in pixels
-                    'circle-color': item.color,
-                    'circle-opacity': 1
+        if (mapStylesLoaded) {
+            stopSignData.current.map((item: any, key) => {
+                const map = mapRef.current;
+                if (!map) return;
+            
+                // Convert LineString to Point assuming the first coordinate is the desired location
+                const pointFeature = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: item.geoJson.geometry.coordinates[0]
+                    },
+                    properties: item.geoJson.properties
+                };
+            
+                // Check if the source does not exist before adding it
+                if (!map.getSource(item.id)) {
+                    map.addSource(item.id, {
+                        type: 'geojson',
+                        data: pointFeature
+                    });
                 }
-            });
-    
-          })
-    }, [stopSignData, mapRef.current])
+            
+                // Remove existing layer if it exists
+                if (map.getLayer(item.id)) {
+                    map.removeLayer(item.id);
+                }
+            
+                // Add a new circle layer for STOP_SIGNS
+                map.addLayer({
+                    id: item.id,
+                    type: 'circle',
+                    source: item.id,
+                    paint: {
+                        'circle-radius': 10,  // This sets the radius in pixels
+                        'circle-color': item.color,
+                        'circle-opacity': 1
+                    }
+                });
+        
+            })
+        }
+    }, [stopSignData, mapRef.current, mapStylesLoaded])
     
     const handleMapClick = useCallback((e: mapboxgl.MapMouseEvent) => {
 

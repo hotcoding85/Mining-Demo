@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Card,
   CardBody,
@@ -6,99 +6,55 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Col,
 } from "reactstrap";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { FaCogs } from "react-icons/fa";
-import { Space } from "antd";
+import { Input, Space } from "antd";
 import Table from "Components/Common/Table";
 const OilAnalysisTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedData, setSelectedData] = useState<any>(null);
   const navigate = useNavigate();
-
-  const columns = [
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [data] = useState([
     {
-      title: "Machine ID",
-      dataIndex: "machineId",
-      key: "machineId",
-      dataType: "string",
-    },
-    {
-      title: "Viscosity",
-      dataIndex: "viscosity",
-      key: "viscosity",
-      dataType: "string",
-    },
-    {
-      title: "Wear Metals",
-      dataIndex: "wearMetals",
-      key: "wearMetals",
-      dataType: "date",
-    },
-    {
-      title: "Water Content",
-      dataIndex: "waterContent",
-      key: "waterContent",
-      dataType: "date",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      dataType: "string",
-      render: (text) => {
-        return handleStatus(text);
-      },
-    },
-    {
-      title: "View Report",
-      key: "viewReport",
-      render: (_, record) => (
-        <Space size="middle">
-          <i onClick={() => toggleModal(record)} className="fas fa-eye"></i>
-        </Space>
-      ),
-    },
-  ];
-
-  const data = [
-    {
-      key: "DT106",
-      machineId: "DT106",
+      key: "DT101",
+      machineId: "DT101",
       viscosity: "Low",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
       status: "Caution",
     },
     {
-      key: "DT106",
-      machineId: "DT106",
+      key: "DT102",
+      machineId: "DT102",
       viscosity: "Medium",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
       status: "Normal",
     },
     {
-      key: "DT106",
-      machineId: "DT106",
+      key: "DT103",
+      machineId: "DT103",
       viscosity: "Unknown",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
       status: "Critical",
     },
     {
-      key: "DT101",
-      machineId: "DT101",
+      key: "DT104",
+      machineId: "DT104",
       viscosity: "Recently Tested",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
       status: "Normal",
     },
     {
-      key: "DT106",
-      machineId: "DT106",
+      key: "DT105",
+      machineId: "DT105",
       viscosity: "Unknown",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
@@ -113,14 +69,62 @@ const OilAnalysisTable = () => {
       status: "Normal",
     },
     {
-      key: "DT106",
-      machineId: "DT106",
+      key: "DT107",
+      machineId: "DT107",
       viscosity: "Unknown",
       wearMetals: "07/11/24",
       waterContent: "07/11/24",
       status: "Normal",
     },
-  ];
+  ]);
+
+  const columns: any = useMemo(
+    () => [
+      {
+        title: "Machine ID",
+        dataIndex: "machineId",
+        key: "machineId",
+        dataType: "string",
+      },
+      {
+        title: "Viscosity",
+        dataIndex: "viscosity",
+        key: "viscosity",
+        dataType: "string",
+      },
+      {
+        title: "Wear Metals",
+        dataIndex: "wearMetals",
+        key: "wearMetals",
+        dataType: "date",
+      },
+      {
+        title: "Water Content",
+        dataIndex: "waterContent",
+        key: "waterContent",
+        dataType: "date",
+      },
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        dataType: "string",
+        render: (text) => {
+          return handleStatus(text);
+        },
+      },
+      {
+        title: "View Report",
+        key: "viewReport",
+        render: (_, record) => (
+          <Space size="middle">
+            <i onClick={() => toggleModal(record)} className="fas fa-eye"></i>
+          </Space>
+        ),
+      },
+    ],
+    []
+  );
 
   const toggleModal = (rowData: any) => {
     setSelectedData(rowData);
@@ -142,12 +146,37 @@ const OilAnalysisTable = () => {
     }
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return data;
+    const result = data.filter((item) =>
+      columns.some((col) =>
+        String(item[col.dataIndex])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    );
+    return result;
+  }, [data, searchTerm, columns]);
+
   return (
     <div>
       <Card className="oil-analysis-card">
         <CardBody>
           <h2 className="mb-4">Oil Analysis Report</h2>
-          <Table columns={columns} data={data} paginationPageSize={5} />
+          <Col sm={4}>
+            <Input
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ marginBottom: 16 }}
+              allowClear
+            />
+          </Col>
+          <Table
+            columns={columns}
+            data={filteredData || []}
+            paginationPageSize={5}
+          />
         </CardBody>
       </Card>
 
