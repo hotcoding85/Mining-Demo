@@ -103,7 +103,8 @@ const SidebarContent = (props: any) => {
     removeActivation(items);
 
     for (let i = 0; i < items.length; ++i) {
-      if (pathName === items[i].pathname) {
+      if (items[i].pathname === "/") continue;
+      if (pathName.startsWith(items[i].pathname)) {
         matchingMenuItem = items[i];
         break;
       }
@@ -173,9 +174,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/fuel-dashboard">
-                    {props.t("Fuel Dashboard")}
-                  </Link>
+                  <Link to="/fuel-dashboard">{props.t("Fuel Dashboard")}</Link>
                 </li>
                 {/* <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
@@ -225,9 +224,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/rom-management">
-                    {props.t("ROM Management")}
-                  </Link>
+                  <Link to="/rom-management">{props.t("ROM Management")}</Link>
                 </li>
                 <li>
                   <Link to="/message-centre">{props.t("Message Centre")}</Link>
@@ -342,10 +339,14 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/truck-load-optimisation">{props.t("Truck Load Optimisation")}</Link>
+                  <Link to="/truck-load-optimisation">
+                    {props.t("Truck Load Optimisation")}
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/digging-optimisation">{props.t("Digging Optimisation")}</Link>
+                  <Link to="/digging-optimisation">
+                    {props.t("Digging Optimisation")}
+                  </Link>
                 </li>
                 <li>
                   <Link to="/sic">{props.t("Short Interval Control")}</Link>

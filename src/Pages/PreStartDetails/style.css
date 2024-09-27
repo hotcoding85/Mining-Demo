@@ -1,27 +1,22 @@
-/* General Styling */
-.page-content {
-    padding: 20px;
-  }
- /* Row for the banner */
+/* Row for the banner */
 .banner-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
 }
 
 /* Banner Section */
 .banner-card {
-  background-color: #24314D;
-  border-radius: 5px; 
+  background-color: #24314d;
+  border-radius: 5px;
   display: flex;
-  justify-content: space-between; 
-  align-items: center; 
+  justify-content: space-between;
+  align-items: center;
   margin: 0 0 20px !important;
 }
 /* Attention Banner */
 .attention-banner {
-  background-color: #CF1322; 
+  background-color: #cf1322;
   color: white;
   padding: 5px 15px;
   font-size: 16px;
@@ -38,26 +33,25 @@
 
 /* Schedule Button */
 .schedule-button {
-    background-color: #24314D;; 
-    color: white;
-    padding: 10px 20px; 
-    font-size: 14px; 
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    text-align: center;
-    white-space: nowrap; 
-    display: inline-block;
+  background-color: #24314d;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 /* Checklist Banner */
 .checklist-banner {
-  background-color: #24314D; 
-  padding: 15px; 
-  border-radius: 5px; 
-  color: white; 
+  background-color: #24314d;
+  padding: 15px;
+  border-radius: 5px;
+  color: white;
   margin: 0 0 20px !important;
-
 }
 
 .checklist-banner h5 {
@@ -65,185 +59,178 @@
   font-weight: bold;
 }
 
-  
-  /* IF FITTED WITH HYDRAULICS Section */
-  .checklist-card {
-    background-color: #2C3E50;
-    color: white;
-    padding: 20px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-  }
-  
-  .checklist-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #3B4A63;
-  }
-  
-  .checklist-item:last-child {
-    border-bottom: none;
-  }
-  
-  .checklist-options {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-  }
-  
-  .checklist-options input[type="radio"] {
-    margin: 0 10px;
-  }
-  
-  .red-border {
-    border: 1px solid red; 
-  }
-  
-  .view-dropdown {
-    display: inline-block;
-    margin-left: 15px;
-  }
-  
-  .view-dropdown .dropdown-toggle {
-    background-color: transparent;
-    border: none;
-    color: #ffffff;
-  }
-  
-  /* Notes Section */
-  .notes-section{
-    height: 215px;
-    width: 80%;
-    margin: 0 auto 60px !important;
-  }
-  .notes-card {
-    background-color: var(--bg-color);
-    color: white;
-    padding: 20px;
-    border-radius: 5px;
-    overflow-y: auto;
-    scrollbar-width: 10px;
-    scrollbar-color: #596379 #2C3E50;
+/* IF FITTED WITH HYDRAULICS Section */
+.checklist-card {
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
 
-  }
-  .notes-card::-webkit-scrollbar{
-    width: 5px;
-  }
-  .notes-content {
-    max-height: 150px;
-    overflow-y: auto;
-  }
-  
-  /* Image Gallery Section */
-  .image-gallery-container {
-  
-    width: 80%;
-    margin: 0 auto !important;
-  }
-  
-  .image-gallery {
-    display: flex;
-    overflow: hidden;
+.checklist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #3b4a63;
+}
 
-  }
-  
-  .image-item {
-    flex: 0 0 auto;
-    width: 100px;
-    margin-right: 10px;
-  }
-  
-  .gallery-nav {
-    color: white;
-    background: none !important;
-    border: none !important;
-    font-size: 2rem !important;
-    opacity: 0.5 !important;
-  }
-  
-  .gallery-nav:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  /* Checklist Table Section */
-  .table-section{
-   background-color:  var(--bg-color);
-  }
-  .checklist-table {
-    width: 100%;
-    border-collapse: collapse;
-    color: white;
-    background-color: var(--bg-color);
-  }
-  table th td{
-    border: none !important;
-    background-color: var(--bg-color);
-  }
-  .checklist-table th, .checklist-table td {
-    border: 1px solid var(--bg-color);
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .checklist-table th {
-    background-color: var(--bg-color);
-  }
-  
-  .checklist-table td input[type="radio"],
-  .checklist-table td input[type="checkbox"] {
-    transform: scale(1.2); 
-  }
-  
-  .checklist-table td {
-    background-color: var(--bg-color);
-    color: #ECF0F1;
-  }
- th:first-child,td:first-child{
+.checklist-item:last-child {
+  border-bottom: none;
+}
+
+.checklist-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.checklist-options input[type="radio"] {
+  margin: 0 10px;
+}
+
+.red-border {
+  border: 1px solid red;
+}
+
+.view-dropdown {
+  display: inline-block;
+  margin-left: 15px;
+}
+
+.view-dropdown .dropdown-toggle {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+}
+
+/* Notes Section */
+.notes-section {
+  height: 215px;
+  width: 80%;
+  margin: 0 auto 60px !important;
+}
+.notes-card {
+  background-color: var(--bg-color);
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  overflow-y: auto;
+  scrollbar-width: 10px;
+  scrollbar-color: #596379 #2c3e50;
+}
+.notes-card::-webkit-scrollbar {
+  width: 5px;
+}
+.notes-content {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+/* Image Gallery Section */
+.image-gallery-container {
+  width: 80%;
+  margin: 0 auto !important;
+}
+
+.image-gallery {
+  display: flex;
+  overflow: hidden;
+}
+
+.image-item {
+  flex: 0 0 auto;
+  width: 100px;
+  margin-right: 10px;
+}
+
+.gallery-nav {
+  color: white;
+  background: none !important;
+  border: none !important;
+  font-size: 2rem !important;
+  opacity: 0.5 !important;
+}
+
+.gallery-nav:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Checklist Table Section */
+.table-section {
+  background-color: var(--bg-color);
+}
+.checklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+  background-color: var(--bg-color);
+}
+table th td {
+  border: none !important;
+  background-color: var(--bg-color);
+}
+.checklist-table th,
+.checklist-table td {
+  border: 1px solid var(--bg-color);
+  padding: 10px;
+  text-align: center;
+}
+
+.checklist-table th {
+  background-color: var(--bg-color);
+}
+
+.checklist-table td input[type="radio"],
+.checklist-table td input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+.checklist-table td {
+  background-color: var(--bg-color);
+  color: #ecf0f1;
+}
+th:first-child,
+td:first-child {
   text-align: left;
 }
 
-  /* General Styling */
-.page-content {
-    padding: 20px;
-  }
-  
+/* General Styling */
 
-  
-  .modal-header {
-    background-color: #2C3E50;
-    color: white;
-  }
-  
-  .modal-footer {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .modal-footer .btn {
-    width: 100px;
-  }
-  .section-group{
-    background-color: #24314D;
-  }
-  input[type="radio"]{
-   display: none;
-  }
-  
-.custom-radio label{
+.modal-header {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-footer .btn {
+  width: 100px;
+}
+.section-group {
+  background-color: #24314d;
+}
+input[type="radio"] {
+  display: none;
+}
+
+.custom-radio label {
   display: inline-block;
   width: 30px;
   height: 30px;
   border-radius: 50%;
   border: 2px solid #ccc;
-  background-color: #24314D;
+  background-color: #24314d;
 
   cursor: pointer;
 }
 
-.custom-radio input[type="radio"]:checked + label{
-  background-color: #CF1322;
-  border: 5px solid #24314D;
+.custom-radio input[type="radio"]:checked + label {
+  background-color: #cf1322;
+  border: 5px solid #24314d;
 }
