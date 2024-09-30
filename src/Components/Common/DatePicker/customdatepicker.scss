@@ -1,0 +1,60 @@
+.custom-date-picker {
+  position: relative;
+}
+
+.custom-date-picker .ant-picker {
+  height: 36px;
+  background: var(--bs-body-bg-rgb) !important;
+  color: white !important;
+  border: 1px solid var(--border-dark-default);
+}
+
+.custom-date-picker .ant-picker .ant-picker-suffix svg {
+  fill: white !important;
+}
+
+.custom-date-picker-label {
+  position: absolute;
+  top: -8px;
+  left: 5px;
+  background-color: var(--bg-color);
+  padding-left: 4px;
+  padding-right: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: white;
+}
+
+body[data-layout-mode="light"] {
+  .custom-date-picker .ant-picker {
+    height: 36px;
+    background: transparent !important;
+    color: rgba(0, 0, 0, 0.88) !important;
+    border: 1px solid rgba(0, 0, 0, 0.65);
+  }
+
+  .custom-date-picker .ant-picker .ant-picker-suffix svg {
+    fill: rgba(0, 0, 0, 0.88) !important;
+  }
+
+  .custom-date-picker-label {
+    background-color: white!important;
+    color: rgba(0, 0, 0, 0.88)!important;
+  }
+  .custom-date-picker {
+    position: relative;
+  }
+
+  .custom-date-picker .ant-picker {
+    height: 36px;
+  }
+
+  .custom-date-picker-label {
+    position: absolute;
+    top: -10px;
+    left: 5px;
+    background-color: var(--bg-color);
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+}

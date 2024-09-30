@@ -24,6 +24,7 @@ import {
   DownAnalysis,
   StandByAnalysis,
 } from "./_mock";
+import CustomDatePicker from "Components/Common/DatePicker/CustomDatePicker";
 
 const EquipmentTypes = [
   {
@@ -223,13 +224,15 @@ const FleetTimeline = (props: any) => {
             </Col>
             <Col xs={2}>
               <div className="d-flex justify-content-center align-items-center gap-2">
-                <DatePicker
+                <CustomDatePicker
+                  label={"Start date"}
                   allowClear={false}
                   value={dayjs(startDate)}
                   format={"MM/DD/YY"}
                   onChange={onStartDateChange}
                 />
-                <DatePicker
+                <CustomDatePicker
+                  label={"End date"}
                   allowClear={false}
                   value={dayjs(endDate)}
                   format={"MM/DD/YY"}

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { AppState } from "store";
 import {
@@ -24,8 +24,9 @@ import FormModal from 'Components/Common/FormModal';
 import axios from 'axios';
 import { createSelector } from 'reselect';
 import _ from 'lodash';
-import { Input, Tag } from 'antd';
+import { Dropdown, Input, MenuProps, Tag } from 'antd';
 import ImportFileModal from "Components/Common/ImportFileModal";
+import './style.scss';
 import Table from "Components/Common/Table";
 
 const Users = (props: any) => {
@@ -324,6 +325,21 @@ const Users = (props: any) => {
 
   const initialValues = parseUserData(user);
 
+  const checkUserNameUnique = _.debounce(async (value) => {
+    try {
+      const response = await axios.get(
+        `/users/check-username/${value}`
+      );
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking username uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
   const validationSchema = Yup.object().shape({
     employeeId: Yup.string().required("Please enter employee id"),
     username: isEdit
@@ -336,18 +352,7 @@ const Users = (props: any) => {
           "User with this username already exists",
           async function (value) {
             if (value && value.length >= 5) {
-              try {
-                const response = await axios.get(
-                  `/users/check-username/${value}`
-                );
-                return response.available; // assuming your API returns { available: true } if username is unique
-              } catch (error) {
-                console.error("Error checking username uniqueness:", error);
-                if (error && error["data"] && error["data"]["available"]) {
-                  return true;
-                }
-                return false; // treat as not unique on error
-              }
+              return await checkUserNameUnique(value);
             }
             return true;
           }
@@ -499,7 +504,18 @@ const Users = (props: any) => {
     );
   }, [xda, searchTerm, columns]);
 
-  console.log(xda)
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click');
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <span><i className="mdi mdi-plus me-1" />Import Users</span>,
+      onClick: handleOnImport,
+    },
+  ];
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -516,22 +532,19 @@ const Users = (props: any) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 16 }}
+                        allowClear
                       />
                     </Col>
                     <Col sm={8}>
                       <div className="d-flex justify-content-end text-sm-end gap-2">
-                        <Button
-                          type="button"
+                        <Dropdown.Button
+                          menu={{ items, onClick: onMenuClick,}}
                           onClick={handleOnAdd}
+                          style={{ width: 'auto' }}
+                          overlayClassName="users-dropdown"
                         >
-                          <i className="mdi mdi-plus me-1"></i> New User
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={handleOnImport}
-                        >
-                          <i className="mdi mdi-plus me-1"></i> Import Users
-                        </Button>
+                         <i className="mdi mdi-plus" />New User
+                        </Dropdown.Button >
                       </div>
                     </Col>
                   </Row>

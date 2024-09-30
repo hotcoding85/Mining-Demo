@@ -8,7 +8,7 @@ import {
   Button,
   Checkbox,
   Dropdown,
-  Menu,
+  Input,
   Segmented,
   Space,
   Tooltip,
@@ -25,7 +25,6 @@ import _ from "lodash";
 import { EyeOutlined, FilterOutlined, LaptopOutlined } from "@ant-design/icons";
 import "./telemetry.css";
 import { Link } from "react-router-dom";
-import Item from "antd/es/list/Item";
 import { errorDefinitions } from "./errorDefinitions";
 import Table from "Components/Common/Table";
 
@@ -560,6 +559,7 @@ const TelemetryReport = (props: any) => {
   const [shiftInfo, setShiftInfo] = useState(shiftTimings());
   const [filter, setFilter] = useState<string>("All Equipment");
   const [filteredData, setFilteredData] = useState<string>(opReportData);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [visibleColumns, setVisibleColumns] = useState({
     vehicleName: true,
     status: true,
@@ -642,6 +642,17 @@ const TelemetryReport = (props: any) => {
     });
   };
 
+  const filteredReportData = useMemo(() => {
+    if (!searchTerm) return opReportData;
+    return opReportData?.filter((item) =>
+      columns?.some((col) =>
+        String(item[col.key])
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [opReportData, searchTerm]);
+
   useEffect(() => {
     //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
@@ -655,6 +666,15 @@ const TelemetryReport = (props: any) => {
     setVisibleColumns(visibleColumns);
     setColumns(allColumns.filter((column) => visibleColumns[column.key!]));
   };
+
+  const handleSelectAll = () => {
+    const updatedState: any = Object.keys(visibleColumns).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {});
+    setVisibleColumns(updatedState);
+    setColumns(allColumns);
+  }
 
   const getColorBySyncTime = (time) => {
     let color = "#008000";
@@ -732,28 +752,36 @@ const TelemetryReport = (props: any) => {
     return children;
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Divider />
-      {getColumnHeaders().map((option) => (
-        <Item key={option.value}>
-          <Checkbox
-            className="checkbox-color"
-            checked={
-              columns.filter((col) => {
-                return col.key === option.value;
-              }).length > 0
-                ? true
-                : false
-            }
-            onChange={() => onVisibleColumnsChange(option.value)}
-          >
-            {option.label}
-          </Checkbox>
-        </Item>
-      ))}
-    </Menu>
-  );
+  const items = useMemo(() => [
+    {
+      label: (
+        <Checkbox
+          className="checkbox-color"
+          checked={Object.values(visibleColumns).every(value => value)}
+          onChange={handleSelectAll}
+        >
+          Select All
+        </Checkbox>
+      ),
+      key: "select-all",
+    },
+    ...getColumnHeaders().map((option) => ({
+      label: (
+        <Checkbox
+          className="checkbox-color"
+          checked={columns.some((col) => col.key === option.value)}
+          onChange={() => onVisibleColumnsChange(option.value)}
+        >
+          {option.label}
+        </Checkbox>
+      ),
+      key: option.label,
+    }))
+  ], [columns, getColumnHeaders, onVisibleColumnsChange])
+
+  const menuProps = {
+    items,
+  }
 
   return (
     <React.Fragment>
@@ -762,12 +790,12 @@ const TelemetryReport = (props: any) => {
           <Breadcrumb title="Dashboard" breadcrumbItem="Telemetry Report" />
           <Row className="mb-3">
             <Col xs={2}>
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomLeft"
-              >
-                <Button icon={<FilterOutlined />} />
+              <Dropdown menu={menuProps}>
+                <Button>
+                  <Space>
+                  <FilterOutlined /> Filter
+                  </Space>
+                </Button>
               </Dropdown>
             </Col>
             <Col className="d-flex flex-row-reverse">
@@ -802,9 +830,20 @@ const TelemetryReport = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                        allowClear
+                      />
+                    </Col>
+                  </Row>
                   <Table
                     columns={columns}
-                    data={opReportData}
+                    data={filteredReportData || []}
                     paginationPageSize={8}
                     scroll={{ x: "max-content" }}
                   />

@@ -1,10 +1,8 @@
 @import "../../assets/scss/app.scss";
 
-
 body[data-layout-mode="dark"] {
-
   .status-card-header {
-    color: white
+    color: white;
   }
 
   .loadsView {
@@ -14,10 +12,13 @@ body[data-layout-mode="dark"] {
   .tonnesView {
     background-color: var(--dark-bg-color);
   }
+
+  .loadtonn-wrapper {
+    color: #fff;
+  }
 }
 
 body[data-layout-mode="light"] {
-
   .loadsView {
     background-color: #f6f6f6;
   }
@@ -30,14 +31,8 @@ body[data-layout-mode="light"] {
 .status-cards-container {
   display: flex;
   flex-wrap: wrap;
-  // justify-content: space-between;
   gap: 16px;
-  // margin-bottom: 16px;
 }
-
-// .status-cards-container {
-//   grid-template-columns: repeat(3, 1fr);
-// }
 
 .status-card {
   flex: 1 1 calc(24% - 10px);
@@ -49,16 +44,18 @@ body[data-layout-mode="light"] {
 }
 
 .status-card-header {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: flex-start;
   padding-left: 16px;
   padding-top: 16px;
+  width: calc(100% - 80px);
 }
 
 .status-card-secondary-header {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -67,12 +64,52 @@ body[data-layout-mode="light"] {
 }
 
 .card-status {
+  position: absolute;
+  right: 0;
   padding: 2px 16px;
   margin-right: 0;
   color: #ffffff;
   border-radius: 20px 0 0 20px;
-  font-weight: '500';
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.loadtonn-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: "bleck";
+}
+
+.loadsView,
+.tonnesView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 6px;
+  padding: 8px 16px;
+  .contents {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  p {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3b1;
+    margin: 0;
+  }
+}
+
+@media screen and (max-width: 1500px) {
+  .status-card {
+    flex: 1 1 calc(33% - 10px);
+    max-width: calc(33% - 10px);
+  }
 }
 
 @media screen and (max-width: 1200px) {

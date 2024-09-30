@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button, Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import {
   getAllFleet,
@@ -28,9 +28,11 @@ import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
 import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
-import { Input, Tag } from "antd";
+import { Dropdown, Input, MenuProps, Segmented, Space, Tag } from "antd";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import Table from "Components/Common/Table";
+import { debounce } from "lodash";
+import "./style.scss";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -44,6 +46,7 @@ const Fleet = (props: any) => {
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filter, setFilter] = useState<string>('All Equipment');
 
   const importCsvModalToggle = useCallback(() => {
     setImportFileModal(!importCsvModal);
@@ -194,6 +197,21 @@ const Fleet = (props: any) => {
     },
   ];
 
+
+  const checkMaterialNameUnique = debounce(async (value) => {
+    try {
+      const response = await isVehicleNameUnique(value);
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking name uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
+
   const validationSchema = Yup.object().shape({
     name: isEdit
       ? Yup.string()
@@ -205,16 +223,7 @@ const Fleet = (props: any) => {
             "vehicle with this name already exists",
             async function (value) {
               if (value && value.length >= 2) {
-                try {
-                  const response = await isVehicleNameUnique(value);
-                  return response.available; // assuming your API returns { available: true } if username is unique
-                } catch (error) {
-                  console.error("Error checking name uniqueness:", error);
-                  if (error && error["data"] && error["data"]["available"]) {
-                    return true;
-                  }
-                  return false; // treat as not unique on error
-                }
+               return await checkMaterialNameUnique(value);
               }
               return true;
             }
@@ -291,16 +300,16 @@ const Fleet = (props: any) => {
         dataType: "string",
         render: ((text, records) => {
           let category = text;
-        return (<Tag color={getVehicleCategoryColor(category)}>
-          {category.replace("_", " ")}
-        </Tag>)
-      })
+          return (<Tag color={getVehicleCategoryColor(category)}>
+            {category.replace("_", " ")}
+          </Tag>)
+        })
       },
       {
         title: "Capacity",
         dataIndex: "capacity",
         key: "capacity",
-        dataType: "string",
+        dataType: "number",
       },
       {
         title: "State",
@@ -379,16 +388,33 @@ const Fleet = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    return data.filter((item) =>
-      columns.some((col) =>
-        String(item[col.key])
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [data, searchTerm, columns]);
+    let filtered = data;
+    if (filter !== 'All Equipment') {
+      filtered = filtered.filter((item) => item.category === filter);
+    }
+    if (searchTerm) {
+      filtered = filtered.filter((item) =>
+        columns.some((col) =>
+          String(item[col.key])
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+    return filtered;
+  }, [data, searchTerm, filter, columns]);
 
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click');
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <span><i className="mdi mdi-plus" />Import Vehicles</span>,
+      onClick: handleOnImport,
+    },
+  ];
 
   return (
     <React.Fragment>
@@ -406,23 +432,22 @@ const Fleet = (props: any) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 16 }}
+                        allowClear
                       />
                     </Col>
                     <Col sm={8}>
                       <div className="d-flex justify-content-end text-sm-end gap-2">
-                        <Button
-                          type="button"
+                        <Space>
+                          <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+                        </Space>
+                        <Dropdown.Button
+                          menu={{ items, onClick: onMenuClick }}
                           onClick={handleOnAdd}
+                          style={{ width: 'auto' }}
+                          overlayClassName="vehicle-dropdown"
                         >
-                          <i className="mdi mdi-plus me-1"></i> New Vehicle
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={handleOnImport}
-                        >
-                          <i className="mdi mdi-plus me-1"></i> Import Vehicles
-                        </Button>
-
+                          <i className="mdi mdi-plus" />New Vehicle
+                        </Dropdown.Button>
                       </div>
                     </Col>
                   </Row>

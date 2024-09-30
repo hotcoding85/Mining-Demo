@@ -27,7 +27,9 @@ import ImportFileModal from "Components/Common/ImportFileModal";
 import { csvFileToJson } from "utils/csvConverter";
 import { round2Two } from "utils/common";
 import Table from "Components/Common/Table";
-import { Input } from "antd";
+import { Dropdown, Input, MenuProps } from "antd";
+import { debounce } from "lodash";
+import './style.scss';
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
@@ -109,6 +111,19 @@ const Benches = (props: any) => {
 
   const initialValues = parseBenchData(bench);
 
+  const checkBenchNameUnique = debounce(async (value) => {
+    try {
+      const response = await isBenchNameUnique(value);
+      return response.available; // assuming your API returns { available: true } if username is unique
+    } catch (error) {
+      console.error("Error checking name uniqueness:", error);
+      if (error && error["data"] && error["data"]["available"]) {
+        return true;
+      }
+      return false; // treat as not unique on error
+    }
+  }, 500);
+
   const validationSchema = Yup.object().shape({
     name: isEdit
       ? Yup.string()
@@ -120,16 +135,7 @@ const Benches = (props: any) => {
             "Bench with this name already exists",
             async function (value) {
               if (value && value.length >= 2) {
-                try {
-                  const response = await isBenchNameUnique(value);
-                  return response.available; // assuming your API returns { available: true } if username is unique
-                } catch (error) {
-                  console.error("Error checking name uniqueness:", error);
-                  if (error && error["data"] && error["data"]["available"]) {
-                    return true;
-                  }
-                  return false; // treat as not unique on error
-                }
+                return await checkBenchNameUnique(value);
               }
               return true;
             }
@@ -411,6 +417,18 @@ const Benches = (props: any) => {
     );
   }, [data, searchTerm, columns]);
 
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click', e);
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: <span><i className="mdi mdi-plus" />Import Benches</span>,
+      onClick: handleOnImport,
+    },
+  ];
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -427,16 +445,19 @@ const Benches = (props: any) => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         style={{ marginBottom: 16 }}
+                        allowClear
                       />
                     </Col>
                     <Col sm={8}>
                       <div className="d-flex justify-content-end text-sm-end gap-2">
-                        <Button type="button" onClick={handleOnAdd}>
-                          <i className="mdi mdi-plus me-1"></i> New Bench
-                        </Button>
-                        <Button type="button" onClick={handleOnImport}>
-                          <i className="mdi mdi-plus me-1"></i> Import Benches
-                        </Button>
+                        <Dropdown.Button
+                          menu={{ items, onClick: onMenuClick }}
+                          onClick={handleOnAdd}
+                          style={{ width: 'auto' }}
+                          overlayClassName="benche-dropdown"
+                        >
+                          <i className="mdi mdi-plus" />New Bench
+                        </Dropdown.Button>
                       </div>
                     </Col>
                   </Row>

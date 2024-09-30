@@ -1,8 +1,9 @@
 :root {
   --bg-color: #283655;
-  --dark-bg-color: #2a3042;
+  --dark-bg-color: #24314d;
   --dark-text-color: #333;
   --light-text-color: #fff;
+  --border-dark-default: #5f7197;
 }
 
 .App {
@@ -31,7 +32,7 @@
   color: white;
 }
 
-.auth-logo>img {
+.auth-logo > img {
   max-width: 250px;
   width: 100%;
 }
@@ -63,7 +64,6 @@ body[data-layout-mode="dark"] {
   .leaflet-control-attribution {
     filter: invert(10%) hue-rotate(180deg) brightness(95%) contrast(90%);
   } */
-
 }
 
 body[data-layout-mode="dark"] {
@@ -76,13 +76,11 @@ body[data-layout-mode="dark"] {
   }
 
   .table {
-
     th,
     td {
       color: white !important;
       font-size: 0.9rem;
     }
-
   }
 
   .ant-select-item-option-selected {
@@ -100,7 +98,6 @@ body[data-layout-mode="light"] {
   }
 
   .table {
-
     th,
     td {
       color: var(--dark-text-color) !important;
@@ -113,7 +110,7 @@ body[data-layout-mode="light"] {
   }
 
   .ant-select-item-option-selected {
-    background-color: #9A9A9A !important;
+    background-color: #9a9a9a !important;
     /* Customize background color of selected item */
     color: white !important;
     /* Customize text color of selected item */
@@ -126,7 +123,7 @@ body[data-layout-mode="light"] {
 }
 
 .activemarker {
-  background-image: url('./assets/images/equipment/check_active.png');
+  background-image: url("./assets/images/equipment/check_active.png");
   background-size: cover;
   width: 86px;
   height: 60px;
@@ -134,7 +131,7 @@ body[data-layout-mode="light"] {
 }
 
 .animationmarker {
-  background-image: url('./assets/images/map/active_truck.png');
+  background-image: url("./assets/images/map/active_truck.png");
   background-size: cover;
   width: 50px;
   height: 60px;
@@ -143,7 +140,7 @@ body[data-layout-mode="light"] {
 }
 
 .delaymarker {
-  background-image: url('./assets/images/equipment/check_delay.png');
+  background-image: url("./assets/images/equipment/check_delay.png");
   background-size: cover;
   width: 86px;
   height: 60px;
@@ -167,7 +164,7 @@ body[data-layout-mode="light"] {
   cursor: pointer;
 }
 
-.route-item>i {
+.route-item > i {
   right: 25px;
   font-size: 20px;
   position: absolute;
@@ -180,7 +177,7 @@ body[data-layout-mode="light"] {
 .arrow-png {
   width: 20px;
   height: 20px;
-  background-image: url('./assets/images/right-arrow-svgrepo-com.svg');
+  background-image: url("./assets/images/right-arrow-svgrepo-com.svg");
   /* Use absolute path here */
   background-size: cover;
   background-repeat: no-repeat;
@@ -213,7 +210,6 @@ body[data-layout-mode="light"] {
   background-color: white;
 }
 
-
 .text-right {
   text-align: right;
 }
@@ -240,4 +236,4 @@ body[data-layout-mode="light"] {
 */
 .footer {
   display: none;
-} 
+}

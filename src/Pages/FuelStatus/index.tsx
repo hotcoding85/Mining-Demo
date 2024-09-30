@@ -1,12 +1,23 @@
-import React, { useEffect } from "react";
-import FuelCard from "./FuelCard";
+import React, { useEffect, useState } from "react";
+import FuelCard from "./components/FuelCard";
 import "./style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { getAllFleet } from "slices/thunk";
-import { getRandomFloat, getRandomInt } from "utils/random";
-import { getImage } from "utils/fleet";
-import { hd1500, hd785, pc1250, pc2000, placeHolder, wa600 } from "assets/images/equipment";
+import { getRandomFloat, getRandomIndex, getRandomInt } from "utils/random";
+import { getImage, MaintenanceStatus } from "utils/fleet";
+import {
+  hd1500,
+  hd785,
+  pc1250,
+  pc2000,
+  placeHolder,
+  wa600,
+} from "assets/images/equipment";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import Breadcrumb from "Components/Common/Breadcrumb";
+import FuelStatusHeader from "./components/FuelStatusHeader";
+import FuelStatusTableView from "./components/FuelStatusTableView";
 
 const FuelStatusDashboard: React.FC = () => {
   document.title = "Fuel Status | FMS Live";
@@ -21,6 +32,8 @@ const FuelStatusDashboard: React.FC = () => {
   );
 
   const { fleetList, loading } = useSelector(selectProperties);
+
+  const [displayType, setDisplayType] = useState<string>("TABLE");
 
   useEffect(() => {
     dispatch(getAllFleet(1, 50, "name", "ASC")); // Dispatch action to fetch data on component mount
@@ -44,7 +57,7 @@ const FuelStatusDashboard: React.FC = () => {
     } else {
       return placeHolder;
     }
-  }
+  };
 
   function containsCaseInsensitive(str: string, substr: string): boolean {
     return str.toLowerCase().includes(substr.toLowerCase());
@@ -54,7 +67,11 @@ const FuelStatusDashboard: React.FC = () => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function getRandomFloat(min: number, max: number, decimalPlaces: number): number {
+  function getRandomFloat(
+    min: number,
+    max: number,
+    decimalPlaces: number
+  ): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
@@ -67,45 +84,57 @@ const FuelStatusDashboard: React.FC = () => {
     return Math.abs(diffMinutes);
   }
 
-  function getRandomHealthStatus() {
-      const position = getRandomInt(0, 2)
-      const status = ['Healthy', 'Scheduled', 'Critical']
-      return status[position]
-  }
+  const fleetData = fleetList.map((item) => ({
+    id: item.id,
+    name: item.name,
+    status: MaintenanceStatus[getRandomIndex(0, 3)],
+    gpsLocation: getRandomFloat(23000, 38000, 1),
+    smu: getRandomFloat(23000, 38000, 1),
+    fuelLevel: getRandomInt(20, 100),
+    fuelRate: getRandomFloat(40, 80, 1),
+    imageUrl: getImage(item.model),
+    lastUpdated: getMinutesDifference("2024-08-20T22:49:20.030Z"),
+    sync: "active",
+  }));
 
   return (
     <div className="page-content">
-      <div className="fuel-cards-container">
-        {fleetList.map((item) => (
-          <FuelCard
-            key={item.id}
-            id={item.name}
-            status={getRandomHealthStatus()}
-            smu={getRandomFloat(23000, 38000, 1)}
-            fuelLevel={getRandomInt(20, 100)}
-            fuelRate={getRandomFloat(40, 80, 1)}
-            imageUrl={getImage(item.model)}
-            lastUpdated={getMinutesDifference("2024-08-20T22:49:20.030Z")}
-            sync={"active"}
-          />
-        ))}
-      </div>
-      {/* <Container fluid>
-          <Breadcrumb title="Maintenance" breadcrumbItem="Fuel Status" />
-          {fleetList.map((item) => (
-            <FuelCard
-              key={item.id}
-              id={item.name}
-              status={'Healthy'}
-              smu={getRandomFloat(23000, 38000, 1)}
-              fuelLevel={getRandomInt(20, 100)}
-              fuelRate={getRandomFloat(40, 80, 1)}
-              imageUrl={getImage(item.model)}
-              lastUpdated={item.updatedAt}
-              sync={item.sync}
+      <Container fluid>
+        <Breadcrumb title="Maintenance" breadcrumbItem="Fuel Status" />
+        <Row>
+          <Col lg={12}>
+            <FuelStatusHeader
+              displayType={displayType}
+              setDisplayType={setDisplayType}
             />
-          ))}
-        </Container> */}
+          </Col>
+
+          {displayType === "TABLE" && (
+            <Col lg="12">
+              <FuelStatusTableView data={fleetData} />
+            </Col>
+          )}
+        </Row>
+        <Row className="mt-3 gy-4">
+          {displayType === "GRID" &&
+            fleetData.map((item) => (
+              <Col xs={3}>
+                <FuelCard
+                  key={item.id}
+                  id={item.name}
+                  status={item.status}
+                  gpsLocation={item.gpsLocation}
+                  smu={item.smu}
+                  fuelLevel={item.fuelLevel}
+                  fuelRate={item.fuelRate}
+                  imageUrl={getImage(item.model)}
+                  lastUpdated={item.lastUpdated}
+                  sync="active"
+                />
+              </Col>
+            ))}
+        </Row>
+      </Container>
     </div>
   );
 };

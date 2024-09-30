@@ -1,21 +1,35 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import TableContainer, { TableColumn } from "../../Components/Common/TableContainer";
 import { getTonnesMoved } from "slices/thunk";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { } from "../../Helpers/api_events_helper";
-import { DatePicker, Segmented, Space } from "antd";
-import { getContentByState, shiftTimings, shiftTimingsByDateandShift, shifts, shiftsInFormat } from "utils/common";
+import {} from "../../Helpers/api_events_helper";
+import { DatePicker, Input, Segmented, Space } from "antd";
+import {
+  getContentByState,
+  shiftTimings,
+  shiftTimingsByDateandShift,
+  shifts,
+  shiftsInFormat,
+} from "utils/common";
 import { Dayjs } from "dayjs";
 import { ShiftTimingsInfo } from "Models/Shift";
 import { getRandomInt } from "utils/random";
+import Table from "Components/Common/Table";
 
 const OperatorReport = (props: any) => {
   document.title = "Operator Report | FMS Live";
 
   const dispatch: any = useDispatch();
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const opReportProperties = createSelector(
     (state: any) => state.OperatorReport,
@@ -28,340 +42,345 @@ const OperatorReport = (props: any) => {
 
   let { opReportData } = useSelector(opReportProperties);
 
-  const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
+  const [timeRange, setTimeRange] = useState("CURRENT_SHIFT");
   const [shiftInfo, setShiftInfo] = useState(shiftTimings());
 
   useEffect(() => {
-    if (timeRange === 'CURRENT_SHIFT') {
+    if (timeRange === "CURRENT_SHIFT") {
       let currentShiftInfo = shiftTimings();
       setShiftInfo((prevState) => {
         return {
           ...prevState,
-          ...currentShiftInfo
-        }
-      })
-    } else if (timeRange === 'PREVIOUS_SHIFT') {
-      let prevShiftInfo = shiftTimings(shiftInfo.start.subtract(2, 'hours'));
+          ...currentShiftInfo,
+        };
+      });
+    } else if (timeRange === "PREVIOUS_SHIFT") {
+      let prevShiftInfo = shiftTimings(shiftInfo.start.subtract(2, "hours"));
       setShiftInfo((prevState) => {
         return {
           ...prevState,
-          ...prevShiftInfo
-        }
-      })
+          ...prevShiftInfo,
+        };
+      });
     }
   }, [timeRange]);
 
   const onShiftDateChange = (date: Dayjs): void => {
-    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(date.format('YYYY-MM-DD'), shiftInfo.shift);
+    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(
+      date.format("YYYY-MM-DD"),
+      shiftInfo.shift
+    );
     setShiftInfo((prevState: ShiftTimingsInfo) => {
       return {
         ...prevState,
-        ...newShiftTimings
-      }
-    })
-  }
+        ...newShiftTimings,
+      };
+    });
+  };
 
   const onShiftChange = (shift: string): void => {
-    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(shiftInfo.shiftDate, shift);
+    const newShiftTimings: ShiftTimingsInfo = shiftTimingsByDateandShift(
+      shiftInfo.shiftDate,
+      shift
+    );
     setShiftInfo((prevState: ShiftTimingsInfo) => {
       return {
         ...prevState,
-        ...newShiftTimings
-      }
-    })
-  }
+        ...newShiftTimings,
+      };
+    });
+  };
 
   useEffect(() => {
     //dispatch(getTonnesMoved(1)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
 
-  const columns: TableColumn[] = useMemo(
+  const columns = useMemo(
     () => [
       {
-        header: "Operator Name",
-        accessorKey: "operatorName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-left" style={{paddingLeft:'20px'}}>{cellProps.row.original.operatorName}</div>
-          )
-        }
+        title: "Operator Name",
+        dataIndex: "operatorName",
+        key: "operatorName",
+        dataType: "string",
+        align: "center",
+        fixed: "left",
       },
       {
-        header: "Vehicle Name",
-        accessorKey: "vehicleName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.vehicleName}</div>
-          )
-        }
+        title: "Equipment",
+        dataIndex: "vehicleName",
+        key: "vehicleName",
+        dataType: "string",
+        align: "center",
+        fixed: "left",
       },
       {
-        header: "Status",
-        accessorKey: "status",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          const displayContent = getContentByState(cellProps.row.original.status);
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        dataType: "string",
+        align: "center",
+        render: (text: any, record: any) => {
+          const displayContent = getContentByState(record.status);
           return (
-            <div style={{ display:'flex', alignItems: 'center', justifyContent: 'left' }}>
-              <span style={{ height: '8px', width: '8px', color: 'transparent', backgroundColor: displayContent.color, borderRadius: '50%', fontSize: '1px' }}></span>
-              <span className="text-center px-2">{displayContent.displayState}</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "left",
+              }}
+            >
+              <span
+                style={{
+                  height: "8px",
+                  width: "8px",
+                  backgroundColor: displayContent.color,
+                  borderRadius: "50%",
+                  fontSize: "1px",
+                }}
+              ></span>
+              <span className="text-center px-2">
+                {displayContent.displayState}
+              </span>
             </div>
-          )
-        }
+          );
+        },
       },
       {
-        header: "Active Hours",
-        accessorKey: "active",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.active}</div>
-          )
-        }
+        title: "Active Hours",
+        dataIndex: "active",
+        key: "active",
+        dataType: "string",
+        align: "center",
       },
       {
-        header: "Standby Hours",
-        accessorKey: "standby",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.standby}</div>
-          )
-        }
+        title: "Standby Hours",
+        dataIndex: "standby",
+        key: "standby",
+        dataType: "string",
+        align: "center",
       },
       {
-        header: "Idle Hours",
-        accessorKey: "idle",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.idle}</div>
-          )
-        }
+        title: "Idle Hours",
+        dataIndex: "idle",
+        key: "idle",
+        dataType: "string",
+        align: "center",
       },
       {
-        header: "Operation Delay Hours",
-        accessorKey: "delay",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.delay}</div>
-          )
-        }
+        title: "Operation Delay Hours",
+        dataIndex: "delay",
+        key: "delay",
+        dataType: "string",
+        align: "center",
       },
       // {
-      //   header: "Tonnes (Actual)",
-      //   accessorKey: "actualTonnes",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cellProps: any) => {
-      //     return (
-      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.actualTonnes}</div>
-      //     )
-      //   }
+      //   title: "Tonnes (Actual)",
+      //   dataIndex: "actualTonnes",
+      //   key: "actualTonnes",
+      //   dataType: "number",
+      //   align: "center",
+      //   render: ((text: any, record:any) =>
+      //     <div style={{ textAlign: 'center' }}>{record.actualTonnes}</div>
+      //   )
       // },
       {
-        header: "Tonnes (Actual / Planned)",
-        accessorKey: "plannedTonnes",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.plannedTonnes}</div>
-          )
-        }
+        title: "Tonnes (Actual / Planned)",
+        dataIndex: "plannedTonnes",
+        key: "plannedTonnes",
+        dataType: "string",
+        align: "center",
+        render: (text: any, record: any) => (
+          <div className="text-center">{record.plannedTonnes}</div>
+        ),
       },
       {
-        header: "Loads (Actual / Planned)",
-        accessorKey: "actualLoads",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cellProps: any) => {
-          return (
-            <div className="text-center">{cellProps.row.original.actualLoads}</div>
-          )
-        }
+        title: "Loads (Actual / Planned)",
+        dataIndex: "actualLoads",
+        key: "actualLoads",
+        dataType: "string",
+        align: "center",
       },
       // {
-      //   header: "Loads (Planned)",
-      //   accessorKey: "plannedLoads",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cellProps: any) => {
-      //     return (
-      //       <div style={{ textAlign: 'center' }}>{cellProps.row.original.plannedLoads}</div>
-      //     )
-      //   }
-      // }
+      //   title: "Loads (Planned)",
+      //   dataIndex: "plannedLoads",
+      //   key: "plannedLoads",
+      //   dataType: "number",
+      //   align: "center",
+      //   render: ((text: any, record: any) =>
+      //     <div style={{ textAlign: 'center' }}>{record.plannedLoads}</div>
+      //   )
+      // },
     ],
     []
   );
 
-  opReportData = [{
-    operatorName: 'Paul',
-    vehicleName: 'DT101',
-    status: 'ACTIVE',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2565',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'John Shein',
-    vehicleName: 'DT102',
-    status: 'DOWN',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Liam',
-    vehicleName: 'DT103',
-    status: 'STANDBY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/3125',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Noah',
-    vehicleName: 'DT104',
-    status: 'STANDBY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2465',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Jack',
-    vehicleName: 'DT105',
-    status: 'DELAY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2685',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'William',
-    vehicleName: 'DT106',
-    status: 'STANDBY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'James',
-    vehicleName: 'DT107',
-    status: 'DOWN',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2945',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Oliver',
-    vehicleName: 'DT108',
-    status: 'DOWN',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2685',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Smith',
-    vehicleName: 'DT109',
-    status: 'DELAY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '3000/2765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Jones',
-    vehicleName: 'DT110',
-    status: 'DOWN',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765.34,
-    plannedTonnes: '4000/3765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Brown',
-    vehicleName: 'DT111',
-    status: 'DOWN',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 2765,
-    plannedTonnes: '3000/2765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  },
-  {
-    operatorName: 'Katie',
-    vehicleName: 'DT112',
-    status: 'STANDBY',
-    active: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    standby: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    idle: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    delay: '0' + getRandomInt(0, 9) + ':' + getRandomInt(10, 55),
-    actualTonnes: 3965,
-    plannedTonnes: '3965.34/2765',
-    actualLoads: '35/45',
-    plannedLoads: 35,
-  }];
+  opReportData = [
+    {
+      operatorName: "Paul",
+      vehicleName: "DT101",
+      status: "ACTIVE",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2565",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "John Shein",
+      vehicleName: "DT102",
+      status: "DOWN",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Liam",
+      vehicleName: "DT103",
+      status: "STANDBY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/3125",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Noah",
+      vehicleName: "DT104",
+      status: "STANDBY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2465",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Jack",
+      vehicleName: "DT105",
+      status: "DELAY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2685",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "William",
+      vehicleName: "DT106",
+      status: "STANDBY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "James",
+      vehicleName: "DT107",
+      status: "DOWN",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2945",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Oliver",
+      vehicleName: "DT108",
+      status: "DOWN",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2685",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Smith",
+      vehicleName: "DT109",
+      status: "DELAY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "3000/2765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Jones",
+      vehicleName: "DT110",
+      status: "DOWN",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765.34,
+      plannedTonnes: "4000/3765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Brown",
+      vehicleName: "DT111",
+      status: "DOWN",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 2765,
+      plannedTonnes: "3000/2765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+    {
+      operatorName: "Katie",
+      vehicleName: "DT112",
+      status: "STANDBY",
+      active: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      standby: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      idle: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      delay: "0" + getRandomInt(0, 9) + ":" + getRandomInt(10, 55),
+      actualTonnes: 3965,
+      plannedTonnes: "3965.34/2765",
+      actualLoads: "35/45",
+      plannedLoads: 35,
+    },
+  ];
+
+  const filteredData = useMemo(() => {
+    if (!searchTerm) return opReportData;
+    return opReportData.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [opReportData, searchTerm, columns]);
 
   return (
     <React.Fragment>
@@ -369,7 +388,7 @@ const OperatorReport = (props: any) => {
         <Container fluid>
           <Breadcrumb title="Dashboard" breadcrumbItem="Operator Report" />
           <Row className="mb-3">
-            <Col className='d-flex flex-row-reverse'>
+            <Col className="d-flex flex-row-reverse">
               {/* <Space>
                 {
                   timeRange == 'CUSTOM' &&
@@ -386,15 +405,25 @@ const OperatorReport = (props: any) => {
             <Col lg="12">
               <Card>
                 <CardBody>
-                  <TableContainer
-                    columns={columns}
-                    data={opReportData || []}
-                    theadClass="theadCenterAlign"
-                    // total={total || 0}
-                    isGlobalFilter={false}
-                    isPagination={false}
-                    isAddButton={false}
-                  />
+                  <Row>
+                    <Col sm={4}>
+                      <Input
+                        placeholder="Search..."
+                        value={searchTerm}
+                        allowClear
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                      />
+                    </Col>
+                  </Row>
+                  <div className="mt-3">
+                    <Table
+                      columns={columns}
+                      data={filteredData || []}
+                      paginationPageSize={10}
+                      scroll={{ x: "max-content" }}
+                    />
+                  </div>
                 </CardBody>
               </Card>
             </Col>
