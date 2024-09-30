@@ -61,10 +61,13 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     background-color: #00000085;
 }
 .geofence-property-value{
-    color: gold
+    color: gold;
+    font-weight: 600;
 }
 .geofence-property-key{
-    color: white
+    color: white;
+    text-transform: capitalize;
+    font-weight: 600;
 }
 .geofence-tooltip table::after {
     content: '';
