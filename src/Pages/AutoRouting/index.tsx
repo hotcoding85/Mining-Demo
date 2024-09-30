@@ -273,7 +273,7 @@ const AutoRouting = () => {
         });
 
         if (nearestFeature) {
-            return Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100; // Adjust property name if different
+            return Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100; // Adjust property name if different
         } else {
             return Math.round((parseFloat(mapRef.current.queryTerrainElevation(point))* 100) / 100);
         }
