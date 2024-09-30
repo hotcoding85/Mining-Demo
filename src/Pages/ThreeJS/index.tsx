@@ -1,5 +1,5 @@
 import { Source, Map, MapPicker } from './modules/Source'
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,7 +15,7 @@ import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
 import { createSelector } from 'reselect';
 import * as Leaflet from 'leaflet';
-import { getAllVehicleRoutes } from 'slices/thunk';
+import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
 import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
 declare global {
@@ -24,6 +24,16 @@ declare global {
         mapPicker: any;
         controls: any
     }
+}
+type Propertytype = {
+    blockId: string;
+    name: string;
+    source: string;
+    status: string;
+    tonnes: number;
+    volume: number;
+    density: number;
+    grade: number;
 }
 interface Geofence {
     id: number,
@@ -34,19 +44,23 @@ export const ThreeJS = () => {
     const dispatch: any = useDispatch();
 
     const vehicleRoutesState = (state) => state.VehicleRoutes;
-    
+    const geoFenceState = (state) => state.GeoFence;
+
     const stateProperties = createSelector(
-        [vehicleRoutesState],
-        (vehicleRoutesState) => ({
-          routes: vehicleRoutesState.data
+        [geoFenceState, vehicleRoutesState],
+        (geofenceState, vehicleRoutesState) => ({
+            routes: vehicleRoutesState.data,
+            data: geofenceState ? geofenceState.data : [],
+            total: geofenceState ? geofenceState.total : 0,
         })
     );
+
 
     const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
     const defaultLayers = ['Current Haul Routes', 'Active Benches'];
 
     const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
-
+    const geoFences = useRef<any>([])
 
     const onChange = (list: string[]) => {
         setCheckedList(list);
@@ -65,13 +79,13 @@ export const ThreeJS = () => {
         { label: 'Restricted', value: 'RESTRICTED' },
     ];
 
-    const { routes } = useSelector(stateProperties);
+    const { routes, data: fences } = useSelector(stateProperties);
 
     document.title = "3D Pit View | FMS Live";
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapBoxContainer = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<mapboxgl.Map | null>(null);
+    const mapRef = useRef<any>(null);
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
     const [lng, setLng] = useState(120.44871814239025);
     const [lat, setLat] = useState(-29.1506602184213);
@@ -85,11 +99,12 @@ export const ThreeJS = () => {
 
     useEffect(() => {
         dispatch(getAllVehicleRoutes())
+        dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
     }, [dispatch]);
 
     useEffect(() => {
-        let initializedMap = false;
         setIsLoading(true);
+        fetchGeofences()
         fetchZipFile()
         // Clean up on component unmount
         return () => {
@@ -127,11 +142,65 @@ export const ThreeJS = () => {
             return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
         }).then((text) => {
             var geojsonData = JSON.parse(text as string)
-            loadMapView(geojsonData)
+            processZipFile(geojsonData)
         })
     }
+    const processZipFile = async (geojsonData) => {
+        // Fetch the ZIP file and get its ArrayBuffer
+        const zipBuffer = await fetch('./images.zip').then(response => response.arrayBuffer());
+        
+        // Initialize an object to hold image data
+        const image_data = {};
+        
+        // Load the ZIP file using JSZip
+        const zip = await JSZip.loadAsync(zipBuffer);
+    
+        // Create an array to hold promises
+        const promises: any = [];
+    
+        // Iterate through each file in the ZIP
+        zip.forEach((relativePath, file) => {
+            // Check if the file is a WebP image
+            if (file.name.endsWith('.webp')) {
+                // Create a promise for each image processing
+                const promise = file.async('arraybuffer').then(data => {
+                    // Extract the filename without extension
+                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+                    // Store the image data in the object
+                    image_data[fileNameWithoutExtension] = data;
+                });
+                promises.push(promise);
+            }
+        });
+    
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+    
+        loadMapView(geojsonData, image_data);
+    };
+    const fetchGeofences = async () => {
+        const fences = await fetch('./SWK_S01_422.geojson')
+            .then(response => response.json())  // Parse it as JSON
+            .then(data => {
+                return data;  // Return the parsed GeoJSON data
+            })
+            .catch(error => {
+                console.error('Error fetching GeoJSON:', error);
+            });
 
-    const loadMapView = (_geojsonData: JSON) => {
+        if (fences) {
+            const features = fences.features;
+            
+            // Iterate over the features to access polygons or other geometry types
+            const _fences: any = []
+            _.map(features, feature => {
+                _fences.push(feature)
+            });
+            geoFences.current = _fences
+        }
+    }
+
+    const loadMapView = (_geojsonData: JSON, image_data) => {
         geojsonData.current = _geojsonData;
     
         const scene = new THREE.Scene();
@@ -151,6 +220,8 @@ export const ThreeJS = () => {
         if (mapContainer.current) {
             renderer.domElement.className = "threejs-view";
             mapContainer.current.appendChild(renderer.domElement);
+            mapRef.current = renderer.domElement
+            mapRef.current.addEventListener('mousemove', onDocumentMouseMove , false);
         }
 
         renderer.shadowMap.enabled = true;
@@ -180,9 +251,9 @@ export const ThreeJS = () => {
 
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 11;
-        let zoom = 17
-        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
+        let nTiles = 24;
+        let zoom = 18
+        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
         window.map = map;
         console.log(map)
         const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
@@ -260,6 +331,7 @@ export const ThreeJS = () => {
                 setIsLoading(false);
                 if (!drawed){
                     map.drawRoutes()
+                    drawGeofences()
                     drawed = true
                 }
             } else {
@@ -274,7 +346,61 @@ export const ThreeJS = () => {
         cubeRenderer.render(cubeScene, cubeCamera);
         WindowResize(renderer, camera);
 
+        return () => {
+            mapRef.current.removeEventListener('mousemove', onDocumentMouseMove , false);
+            mapRef.current.remove()
+        };
     }
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const [showToolTip, setShowToolTip] = useState<boolean>(false)
+    const [properties, setProperties] = useState<Propertytype | null>(null)
+    const onDocumentMouseMove = useCallback((event) => {
+        if (!mapContainer.current) return
+        // Normalize mouse position to -1 to 1 range
+        const rect = mapContainer.current.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
+        // Update raycaster with the mouse position and the camera
+        window.map.camera.updateProjectionMatrix();
+        window.map.camera.updateMatrixWorld();
+        raycaster.setFromCamera(mouse, window.map.camera);
+        
+        const x = (mouse.x * 0.5 + 0.5) * mapContainer.current.clientWidth;
+        const y = -(mouse.y * 0.5 - 0.5) * mapContainer.current.clientHeight;
+        // Check for intersections with clickable sprites
+        const intersects = raycaster.intersectObjects(window.map.scene.children, true);
+        // Change cursor style based on intersection
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+            if (intersectedObject.userData && intersectedObject.userData.isGeoFence) {
+                document.body.style.cursor = 'pointer'; // Change to desired cursor style
+                setShowToolTip(true)
+                setProperties(intersectedObject.userData.properties)
+
+                const tooltipRef = document.getElementById(`tooltipRef`);
+                if (tooltipRef) {
+                    tooltipRef.style.left = `${x - 120}px`;
+                    tooltipRef.style.top = `${y - 270}px`;
+                }
+            }
+            else{
+                document.body.style.cursor = 'auto'; // Default cursor style
+                setShowToolTip(false)
+            }
+        } else {
+            document.body.style.cursor = 'auto'; // Default cursor style
+            setShowToolTip(false)
+        }
+    }, [showToolTip])
+
+    const cursorChange = useCallback((flag, properties) => {
+        console.log(flag)
+        if (showToolTip !== flag) {
+            
+        }
+    }, [showToolTip])
 
     useEffect(() => {
         const selectedCategories = _layerOptions
@@ -283,6 +409,57 @@ export const ThreeJS = () => {
         window.map && window.map.setFilteredCategories(selectedCategories)
     }, [routes, checkedList])
 
+
+    const drawGeofences = useCallback(() => {
+        if (geoFences.current.length === 0 || !window.map) return
+
+        const center = {
+            tileX: window.map.center.x,
+            tileY: window.map.center.y
+        }
+        _.map(geoFences.current, _fence => {
+            if (_fence.geometry.coordinates[0].length === 0) return
+
+            const properties = _fence.properties
+            const shape = new THREE.Shape();
+
+            _.map(_fence.geometry.coordinates[0], (coord: [number, number, number], index: number) => {
+                const tileData = window.map.convertGeoToPixel(coord[1], coord[0])
+                const tileX = tileData.tileX;          // tile X coordinate of the point
+                const tileY = tileData.tileY;          // tile Y coordinate of the point
+                const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
+                const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
+                
+                const worldPos = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+                const point = new THREE.Vector3(worldPos.x, worldPos.y, (coord[2] - 400) * 2);
+                if (index === 0) {
+                    shape.moveTo(point.x, point.y);
+                } else {
+                    shape.lineTo(point.x, point.y);
+                }
+            })
+            // Extrude geometry based on the shape and elevation
+            const extrudeSettings = {
+                steps: 1,                    // Number of points along the path
+                depth:  (_fence.properties.altitude - 400) * 2,                   // Extrude along the Z axis (depth)
+                bevelEnabled: true,          // No bevel for the shape
+            };
+            shape.autoClose = true;
+            // Create the geometry and material
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: properties.fillColor, 
+                opacity: 1 // Adjust opacity if needed
+            });
+            
+            // Create the mesh and add it to the scene
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = 0
+            mesh.userData = { isGeoFence: true, properties: properties }
+            window.map.scene.add(mesh);
+        })
+    }, [geoFences])
+
     const checkAll = layerOptions.length === checkedList.length;
     const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
     const CheckboxGroup = Checkbox.Group;
@@ -290,7 +467,7 @@ export const ThreeJS = () => {
     return (
         <>
             <React.Fragment>
-                <div className="page-content">
+                <div className="page-content" style={{paddingBottom: '0px'}}>
                     <Container fluid>
                     <Breadcrumb title="Home" breadcrumbItem="3D Pit View" />
                     <Row>
@@ -315,6 +492,30 @@ export const ThreeJS = () => {
                                         <></>
                                     )}
                                 <div ref={mapContainer} style={{ width: '100%', height: "calc(100%)", opacity: isLoading ? '0.05' : '1'}} />
+                                <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
+                                    <table
+                                        style={{
+                                        fontFamily: "arial, sans-serif",
+                                        borderCollapse: "collapse",
+                                        width: "100%",
+                                        // border: "1px solid #000",
+                                        }}
+                                    >
+                                        <tbody>
+                                        {properties && Object.entries(properties).map(([key, value], index) => {
+                                            if (key != "id" && key != "locationId") {
+                                                return (
+                                                    <tr key={key}>
+                                                        <td style={{ padding: "4px" }} className='geofence-property-key'>{key}</td>
+                                                        <td style={{ padding: "4px" }} className='geofence-property-value'>{key == 'fillColor' ? <><div style={{width: '50px', height: '20px', background: value}}></div></> : value}</td>
+                                                    </tr>
+                                                );
+                                            }
+                                            return "";
+                                        })}
+                                        </tbody>
+                                    </table>
+                                    </div>
                             </CardBody>
                         </Card>
                         </Col>
