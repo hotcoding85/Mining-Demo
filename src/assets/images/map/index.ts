@@ -7,11 +7,9 @@ import standbyExcavator from "./standby_excavator.png";
 import delayExcavator from "./delay_excavator.png";
 import downExcavator from "./down_excavator.png";
 import activeExcavator from "./active_excavator.png";
-import mapGLB from "./map.glb";
-import surfaceGLB from "./surface.glb";
 
 export {
-  standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator, mapGLB, surfaceGLB
+  standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator
 }
 
 export const truckImages = {

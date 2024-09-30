@@ -4,9 +4,7 @@ import _ from 'lodash';
 
 import mapboxgl, { LngLatLike } from 'mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { Feature, FeatureCollection, GeoJsonObject, LineString } from 'geojson';
 import { Threebox } from "threebox-plugin";
-import { mapGLB, surfaceGLB } from '../../assets/images/map'
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -132,39 +130,39 @@ const PitView = ({ socket }) => {
         }
 
         mapRef.current.on('style.load', () => {
-            mapRef.current.addLayer({
-                id: 'custom-threebox-model',
-                type: 'custom',
-                renderingMode: '3d',
-                onAdd: function () {
-                    window.tb = new Threebox(
-                        mapRef.current,
-                        mapRef.current.getCanvas().getContext('webgl'),
-                        { defaultLights: true }
-                    );
-                    const scale = 1;
-                    const options = {
-                        obj: surfaceGLB,
-                        type: 'gltf',
-                        scale: 0.75,
-                        units: 'meters',
-                        // rotation: { x: 90, y: -90, z: 0 }
-                    };
+            // mapRef.current.addLayer({
+            //     id: 'custom-threebox-model',
+            //     type: 'custom',
+            //     renderingMode: '3d',
+            //     onAdd: function () {
+            //         window.tb = new Threebox(
+            //             mapRef.current,
+            //             mapRef.current.getCanvas().getContext('webgl'),
+            //             { defaultLights: true }
+            //         );
+            //         const scale = 1;
+            //         const options = {
+            //             obj: surfaceGLB,
+            //             type: 'gltf',
+            //             scale: 0.75,
+            //             units: 'meters',
+            //             // rotation: { x: 90, y: -90, z: 0 }
+            //         };
 
-                    window.tb.loadObj(options, (model) => {
-                        console.log('loadObj', options, model)
-                        model.setCoords([120.452246,
-                            -29.160889]);
-                        // model.setRotation({ x: 0, y: 0, z: 0 });
-                        window.tb.add(model);
-                        window.tb.createTerrainLayer()
-                    });
-                },
+            //         window.tb.loadObj(options, (model) => {
+            //             console.log('loadObj', options, model)
+            //             model.setCoords([120.452246,
+            //                 -29.160889]);
+            //             // model.setRotation({ x: 0, y: 0, z: 0 });
+            //             window.tb.add(model);
+            //             window.tb.createTerrainLayer()
+            //         });
+            //     },
 
-                render: function () {
-                    window.tb.update();
-                }
-            });
+            //     render: function () {
+            //         window.tb.update();
+            //     }
+            // });
         });
 
         let hoveredPolygonId = null;
