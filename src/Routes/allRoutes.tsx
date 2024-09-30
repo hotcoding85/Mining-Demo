@@ -93,7 +93,7 @@ const TimelineReport = React.lazy(() => import("Pages/Reports/TimelineReport"));
 const Dispatch = React.lazy(() => import("Pages/Dispatch"));
 const ROMManagement = React.lazy(() => import("Pages/ROMManagement"));
 const WasteDumpManagement = React.lazy(() => import("Pages/WasteDumpManagement"));
-
+const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
@@ -136,6 +136,7 @@ const authProtectedRoutes = [
   { path: "/maintenance-scheduler", exact: true, component: <MaintenanceScheduler /> },
   { path: "/fuel-scheduler", exact: true, component: <FuelScheduler /> },
   { path: "/message-centre", exact: true, component: <MessageCentre /> },
+  { path: "/blend-plans", exact: true, component: <BlendPlans /> },
   { path: "/trucking", exact: true, component: <TruckingDashboard /> },
   { path: "/digging", exact: true, component: <DiggingDashboard /> },
   { path: "/fuel-status", exact: true, component: <FuelStatusDashboard /> },
