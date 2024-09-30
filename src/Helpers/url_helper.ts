@@ -46,3 +46,6 @@ export const CONFIGURATIONS = "/configurations";
 
 // AUTO ROUTING
 export const VEHICLE_ROUTES = "/routes"
+
+// TARGETS
+export const VEHICLE_STATE_REASONS = "/vehiclestatereasons";

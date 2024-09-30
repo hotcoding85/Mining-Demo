@@ -3,7 +3,6 @@
 .standby-input:focus,
 .standby-input:focus-visible,
 .standby-input:focus-within {
-    width: 500px;
     background-color: #1C263c;
     color: white !important;
     outline: none;
@@ -52,11 +51,11 @@
 .error-text-inline {
   position: absolute;
   color: #f46a6a;
-  font-size: 12px;
+  font-size: 10px;
   display: block;
+  white-space: nowrap;
 }
 
 .input-container {
   position: relative;
-  margin-bottom: 1rem; 
 }
