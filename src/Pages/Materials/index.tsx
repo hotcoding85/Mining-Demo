@@ -99,6 +99,7 @@ const Materials = (props: any) => {
       color: (doc && doc.color) || undefined,
       density: (doc && doc.density) || undefined,
       grade: (doc && doc.grade) || undefined,
+      tonnes: (doc && doc.tonnes) || undefined,
       status: (doc && doc.status) || "ACTIVE",
     };
   };
@@ -141,6 +142,14 @@ const Materials = (props: any) => {
       id: "density",
       name: "density",
       label: "Density",
+      type: "input",
+      editable: true,
+      inputType: "number",
+    },
+    {
+      id: "tonnes",
+      name: "tonnes",
+      label: "Tonnes",
       type: "input",
       editable: true,
       inputType: "number",
@@ -230,6 +239,14 @@ const Materials = (props: any) => {
         dataType: "number",
         align: "center",
         render: (_, record) => round2Two(record.density),
+      },
+      {
+        title: "Tonnes",
+        dataIndex: "tonnes",
+        key: "tonnes",
+        dataType: "number",
+        align: "center",
+        render: (_, record) => round2Two(record.tonnes),
       },
       {
         title: "Color",
