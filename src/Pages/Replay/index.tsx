@@ -27,6 +27,7 @@ import { WindowResize } from "Pages/ThreeJS/modules/WindowResize";
 import * as THREE from "three";
 import { MapControls } from "three/examples/jsm/controls/OrbitControls";
 import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
+import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
 import { MapPicker, Source, Map } from "Pages/ThreeJS/modules/Source";
 import InfiniteGridHelper from "Pages/ThreeJS/modules/InfiniteGridHelper";
 import MARKER from 'assets/images/Truck.png'
@@ -36,6 +37,7 @@ import { DatePicker, DatePickerProps } from 'antd';
 import dayjs from 'dayjs';
 import { dumpingPaths, EquipmentLocation, equipments, travellingPaths } from '../Map/sample';
 import { getMinutesDifference, getStatusColor, getSyncText } from "./common";
+import mapLocationImage from "assets/images/map/map-location.png";
 export type TripRoutesDataType = {
     id: string,
     routes: RouteDataType[]
@@ -136,19 +138,112 @@ const Replay = (props: any) => {
     );
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
     
+    const currentAnimationMarker = useRef<any>(null)
+    const [isAnimation, setIsAnimation] = useState<boolean>(false)
+    const currentAnimationStatus = useRef<boolean>(false)
+    const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
+    const updateMarkerTooltip = useCallback(() => {
+        if (!mapContainer.current || !currentAnimationMarker.current) return
+        const screenPosition = currentAnimationMarker.current.clone();
+        screenPosition.project(window.map.camera); // Project to screen space
+        
+        const x = mapContainer.current.clientWidth / 2;
+        const y = mapContainer.current.clientHeight / 2;
+        
+        const annotationDiv = document.getElementById(`marker-tooltip`);
+        if (annotationDiv) {
+            annotationDiv.style.left = `${x - 60}px`;
+            annotationDiv.style.top = `${y - 180}px`;
+        }
+    }, [isAnimation]);
+
+    const updateAnnotations = useCallback(() => {
+        const center = {
+            tileX: window.map.center.x,
+            tileY: window.map.center.y
+        }
+        eqMarkers.forEach((annotation: any, index) => {
+            if (!mapContainer.current || !annotation) return
+            const tileData = window.map.convertGeoToPixel(annotation.position[1], annotation.position[0])
+            const tileX = tileData.tileX;          // tile X coordinate of the point
+            const tileY = tileData.tileY;          // tile Y coordinate of the point
+            const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
+            const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
+            
+            const worldPos = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+            let elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+            let realWorldPosition = new THREE.Vector3(worldPos.x, worldPos.y, elevationValue * 2);
+            const screenPosition = annotation.position.clone();
+            screenPosition.project(window.camera); // Project to screen space
+            
+            const x = (screenPosition.x * 0.5 + 0.5) * mapContainer.current.clientWidth;
+            const y = -(screenPosition.y * 0.5 - 0.5) * mapContainer.current.clientHeight;
+            
+            const annotationDiv = document.getElementById(`annotation-${annotation.userData.data.id}`);
+
+            if (annotationDiv) {
+                annotationDiv.style.left = `${x}px`;
+                annotationDiv.style.top = `${y}px`;
+                const isInViewport = (
+                    x >= 0 && x <= mapContainer.current.clientWidth &&
+                    y >= 0 && y <= mapContainer.current.clientHeight
+                );
+                
+                annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) ? 'block' : 'none';
+            }
+        });
+    }, [isAnimation]);
+
+
+    useEffect(() => {
+        currentAnimationStatus.current = isAnimation
+    }, [isAnimation])
     const fetchZipFile = async () => {
         const zipBuffer = await fetch('./240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
         JSZip.loadAsync(zipBuffer).then(data => {
             return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
         }).then((text) => {
             var geojsonData = JSON.parse(text as string)
-            loadMapView(geojsonData)
+            processZipFile(geojsonData)
         })
     }
+    const processZipFile = async (geojsonData) => {
+        // Fetch the ZIP file and get its ArrayBuffer
+        const zipBuffer = await fetch('./images.zip').then(response => response.arrayBuffer());
+        
+        // Initialize an object to hold image data
+        const image_data = {};
+        
+        // Load the ZIP file using JSZip
+        const zip = await JSZip.loadAsync(zipBuffer);
+    
+        // Create an array to hold promises
+        const promises: any = [];
+    
+        // Iterate through each file in the ZIP
+        zip.forEach((relativePath, file) => {
+            // Check if the file is a WebP image
+            if (file.name.endsWith('.webp')) {
+                // Create a promise for each image processing
+                const promise = file.async('arraybuffer').then(data => {
+                    // Extract the filename without extension
+                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+                    // Store the image data in the object
+                    image_data[fileNameWithoutExtension] = data;
+                });
+                promises.push(promise);
+            }
+        });
+    
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+    
+        loadMapView(geojsonData, image_data);
+    };
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const loadMapView = (_geojsonData: JSON) => {
+    const loadMapView = useCallback((_geojsonData: JSON, image_data) => {
         geojsonData.current = _geojsonData;
     
         _.map(geojsonData.current.features, (feature) => {
@@ -194,10 +289,18 @@ const Replay = (props: any) => {
         window.controls = controls;
         
         // Load the background image using THREE.TextureLoader
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND, (texture) => {
-            scene.background = texture;  // Set the loaded texture as the background
-        });
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
 
         // scene.background = new THREE.Color(0x91abb5);
         scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
@@ -211,9 +314,9 @@ const Replay = (props: any) => {
 
         const position = [lat, lng];
         const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 11;
-        let zoom = 17
-        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData);
+        let nTiles = 24;
+        let zoom = 18
+        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
         window.map = map;
         console.log(map)
         const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
@@ -239,33 +342,42 @@ const Replay = (props: any) => {
         // Main render loop
         const mainLoop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(mainLoop);
+            
             if (map.progress >= nTiles * nTiles) {
                 if (drawed) {
                     setIsLoading(false);
                     drawMarkers()
+                    drawed = false
                 }
-                drawed = false
             } else {
-                setProgress((prev) => (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100)));
+                let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
+                setProgress(_progress);
             }
             renderer.render(scene, camera);
             controls.update();
-            // labelRenderer.render(scene, camera); 
-            // update the picking ray with the camera and pointer position
-            raycaster.setFromCamera( mouse, camera );
-
-            // calculate objects intersecting the picking ray
-            const intersects = raycaster.intersectObjects( scene.children );
-
-            for ( let i = 0; i < intersects.length; i ++ ) {
-                // intersects[ i ].object.material?.color.set( 0xff0000 );
-                
-            }
+            updateAnnotations();
+            // updateMarkerTooltip();
         };
         mainLoop(0);
         WindowResize(renderer, camera);
+    }, [setProgress])
 
-    }
+    useEffect(() => {
+        if (!window.map) return
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+    }, [isLight])
+    
     const eqMarkers: any = []
     const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
         if (eq.vehicleType == 'EXCAVATOR') {
@@ -295,50 +407,34 @@ const Replay = (props: any) => {
     }
     // Array to hold all clickable sprites
     const clickableSprites = useRef<any>([]);
-    const rippleIcon = (eq) => {
-        const rippleStyles = `
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                background-color: ${eq.color};
-                animation: ripple 1s infinite;`;
+    const RippleIcon = ({ annotation }) => {    
+        const textStyle: any = {
+            position: 'absolute',
+            top: '-65px',
+            left: '-50px',
+            border: '1px dashed',
+            background: annotation.color,
+            borderRadius: '20px',
+            fontSize: '1rem',
+            color: 'white',
+            fontWeight: 600,
+            padding: '6px 16px',
+            width: '108px',
+            textAlign: 'center',
+        };
     
-        const textStyle = `
-                background-color: white;
-                position: absolute;
-                top: -96px;
-                left: -46px;
-                border: 4px solid ${eq.color};
-                border-radius: 20px;
-                font-size: 20px;
-                color: ${eq.color};
-                font-weight: 600;
-                padding-left: 12px;
-                padding-right: 12px;
-                width: 100px;
-                text-align: center;`;
-    
-    
-    
-        const isNotActive: boolean = eq.status.toLowerCase() != 'ACTIVE';
-        const standardIconTemplate = `<div style="${textStyle}">${eq.name}</div>
-                <div id="imageContainer" style="position: absolute;bottom: 5px;transform: translateX(-40%); z-index:1;">
-                  <img src="${getEquipmentStatusIcon(eq)}" alt="Description of the image">
-                </div>`
-    
-        const icon = document.createElement('div');
-        icon.className = "mapboxgl-marker mapboxgl-marker-anchor-center"
-        icon.innerHTML = standardIconTemplate//isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate
-        // const icon = Leaflet.divIcon({
-        //     className: 'marker',
-        //     html: isNotActive ? `${standardIconTemplate}<div class="ripple" style="${rippleStyles}"></div>` : standardIconTemplate,
-        // });
-        return icon
-    }
+        return (
+            <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => setSelectedEq(annotation)}>
+                <div style={textStyle}>
+                    <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
+                    {annotation.name}
+                </div>
+                <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)' }}>
+                    <img src={mapLocationImage} alt="Description of the image" />
+                </div>
+            </div>
+        );
+    };
 
     const drawMarkers = useCallback(() => {
         if (!mapContainer.current) return;
@@ -347,7 +443,7 @@ const Replay = (props: any) => {
             const iconUrl = getEquipmentStatusIcon(eq);
             if (iconUrl === undefined) return;
     
-            const imageTexture = new THREE.TextureLoader().load(iconUrl); // Load the marker icon image
+            const imageTexture = new THREE.TextureLoader().load(mapLocationImage); // Load the marker icon image
             const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture, depthWrite: false, transparent: true, depthTest: false });
             const marker = new THREE.Sprite(spriteMaterial);
     
@@ -365,7 +461,7 @@ const Replay = (props: any) => {
     
             // Set the marker position
             marker.position.set(worldPos.x, worldPos.y, elevationValue * 2);  // Set Z to 0 or adjust for elevation
-            marker.scale.set(80, 80, 0); // Adjust based on zoom level
+            marker.scale.set(0, 0, 0); // Adjust based on zoom level
             // Attach rippleIcon HTML to the marker (syncs the 3D position)
     
             // Add marker and icon label to the scene
@@ -433,7 +529,6 @@ const Replay = (props: any) => {
             if (intersectedObject.userData && intersectedObject.userData.isAnnotation) {
                 const position = intersectedObject.position.clone();
                 document.body.style.cursor = 'pointer'; // Change to desired cursor style
-                console.log('3D Coordinates:', position);
                 // selectedPoints.push(position);
                 setSelectedEq(intersectedObject.userData.data);  // Handle click event
             }
@@ -481,7 +576,7 @@ const Replay = (props: any) => {
             currentTimeValue.current = 0
             clearAnimation()
         }
-    }, [timeValue, totalTime]);
+    }, [timeValue, totalTime, isPlaying]);
 
     const handleSpeedChange = (value: number) => {
         setSpeed(value);
@@ -756,7 +851,7 @@ const Replay = (props: any) => {
           })
     }, [stopSignData, mapRef.current])
     
-    const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null });
+    const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
     const marker = useRef<mapboxgl.Marker | null>(null);
     const pausedTimeValue = useRef<number>(0)
     const xaxisValues = useRef<number[]>([])
@@ -786,7 +881,6 @@ const Replay = (props: any) => {
             let stopSignDuration = getStopSignsDuration(_route.geoJson.geometry.coordinates)
             setTotalTime(_route.duration && _route.duration != 0 ? _route.duration + stopSignDuration : 3600)
             const [xaxis, yaxis] = extractDistanceAndElevationArrayWithTurf(_route.geoJson)
-            console.log(yaxis)
             const distanceData: any = _.map(xaxis, (distance, index) => distance);
             const elevationData: any = _.map(yaxis, (elevation, index) => elevation);
             defaultSeries[0].data = elevationData
@@ -866,10 +960,10 @@ const Replay = (props: any) => {
         });
     
         if (nearestFeature) {
-            return Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100; // Adjust property name if different
+            return Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100; // Adjust property name if different
         } else {
             const tileData = window.map.convertGeoToPixel(point[1], point[0])
-            return Math.round((window.map.getElevationAt([tileData.tilePixelX, tileData.tilePixelY], tileData.tileX, tileData.tileY) + 500) * 100) / 100
+            return Math.round((window.map.getElevationAt([tileData.tilePixelX, tileData.tilePixelY], tileData.tileX, tileData.tileY) + 400) * 100) / 100
         }
     };
 
@@ -920,6 +1014,7 @@ const Replay = (props: any) => {
 
     const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
     const clearAnimation = () => {
+        setIsAnimation(false)
         // Remove previous route
         if (activeObjects.current && activeObjects.current.tube) {
             window.map.scene.remove(activeObjects.current.tube);
@@ -948,15 +1043,82 @@ const Replay = (props: any) => {
             animationRef.current.animationFrameId = null
         }
     }
+    // Function to create a tube with custom shader to control visibility
+    function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
+        const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 6, 6, false);
+    
+        // Calculate the length of the tube curve
+        const tubeLength = curve.getLength();
+    
+        // Shader material with progress uniform to control visibility
+        const tubeMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                progress: { value: 0.0 },  // Controls how much of the tube is revealed
+                tubeColor: { value: new THREE.Color(color) },  // Uniform for tube color
+            },
+            vertexShader: `
+                varying float vProgressAlongTube;
+                void main() {
+                    // Use the UV coordinate along the tube's length to track progress
+                    vProgressAlongTube = uv.x;
+                    
+                    // Standard vertex position transformation
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying float vProgressAlongTube;
+                uniform float progress;
+                uniform vec3 tubeColor;
+                
+                void main() {
+                    // Reveal the tube only up to the current progress point
+                    if (vProgressAlongTube <= progress) {
+                        gl_FragColor = vec4(tubeColor, 1.0);  // Show tube color if within progress
+                    } else {
+                        discard;  // Hide the part of the tube ahead of the marker
+                    }
+                }
+            `,
+            transparent: true,
+            depthWrite: false,
+            depthTest: false,
+        });
+    
+        const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+        return tube;
+    }
+
+    const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
+        let stopsign: any = null
+        _.map(stopSignData.current, _stopsign => {
+            if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
+                if (_stopsign.geoJson.geometry.coordinates[0][0] == coord[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]) {
+                    stopsign = _stopsign
+                }
+            }
+        })
+
+        return stopsign
+    }, [stopSignData.current])
+
     const drawRoute = useCallback((saving_data, totalTime, distance, animation = true, stopSignDuration = 0) => {
         clearAnimation()
-
+        setIsAnimation(true)
         const coordinates = saving_data.geoJson.geometry.coordinates;
         const center = {
             tileX: window.map.center.x,
             tileY: window.map.center.y
         }
-
+        let total_stopSignDuration = 0
+        let stopSigns: any[] = []
+        _.map(coordinates, _coord => {
+            let _stopSignPoint: any = isStopSignPoint(_coord)
+            if (_stopSignPoint) {
+                total_stopSignDuration += _stopSignPoint.duration
+                stopSigns.push(_stopSignPoint)
+            }
+        })
         // Convert geoJson coordinates to Three.js Vector3 points
         const points: any = []
         coordinates.map(coord => {
@@ -970,30 +1132,7 @@ const Replay = (props: any) => {
             const point = new THREE.Vector3(worldPos.x, worldPos.y, 0);
             // Get the elevation for this point and set the Z coordinate
             let elevationValue = 0
-            const candidates = index.search({
-              minX: lng,
-              minY: lat,
-              maxX: lng,
-              maxY: lat
-            });
-  
-            let nearestFeature: any = null;
-  
-            candidates.forEach((item) => {
-                const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
-                if (isInside) {
-                    nearestFeature = item.feature;
-                    return false; // Exit loop early if point is inside a polygon
-                }
-            });
-            if (nearestFeature) {
-              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
-            }
-  
-            if (!nearestFeature || isNaN(elevationValue)) {
-              // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-              elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
-            }
+            elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
             point.z = elevationValue * 2
 
             points.push(point)
@@ -1001,14 +1140,12 @@ const Replay = (props: any) => {
         // Create a CatmullRomCurve3 from the points
         const curve = new THREE.CatmullRomCurve3(points);
         // Create a tube geometry along the curve
-        const tubeGeometry = new THREE.TubeGeometry(curve, 100, 8, 8, false);  // 100 segments, radius 0.1, 8 radial segments
-        const tubeMaterial = new THREE.MeshBasicMaterial({ color: saving_data.color || 0x00ff00, opacity: 0.8, transparent: true, depthTest: false, depthWrite: false  });
-        const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-        tube.renderOrder = 2;
-        window.map.scene.add(tube);
+        const segmentTube = createTubeWithFootprint(curve, points, saving_data.color || 0x00ff00, 100);
+        segmentTube.renderOrder = 2;
+        window.map.scene.add(segmentTube);
 
         // Store the tube reference
-        activeObjects.current.tube = tube;
+        activeObjects.current.tube = segmentTube;
         
         // Manually calculate the direction vector between the last two points
         const dirVector = new THREE.Vector3().subVectors(points[1], points[0]).normalize();
@@ -1019,13 +1156,10 @@ const Replay = (props: any) => {
         window.map.scene.add(arrow);
         activeObjects.current.arrow = arrow;
         // Set up marker (a sphere)
-        // const markerGeometry = new THREE.SphereGeometry(10, 32, 32);  // Small sphere for the marker
-        // const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, depthTest: false, depthWrite: false });
-        // const marker = new THREE.Mesh(markerGeometry, markerMaterial);
         const imageTexture = new THREE.TextureLoader().load(MARKER); // Load your image
         const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture, depthWrite: false, transparent: true, depthTest: false });
         const marker = new THREE.Sprite(spriteMaterial);
-        marker.scale.set(50, 50, 0);
+        marker.scale.set(30, 30, 0);
         marker.renderOrder = 2
         window.map.scene.add(marker);
 
@@ -1045,6 +1179,7 @@ const Replay = (props: any) => {
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
 
         const animate = (timestamp) => {
+            updateMarkerTooltip()
             const currentPlaybackSpeed = currentSpeed.current;
             if (!animationRef.current.startTime) {
                 animationRef.current.startTime = timestamp;
@@ -1129,19 +1264,31 @@ const Replay = (props: any) => {
                     prevYvalue = newYValue
                 }
             }
-            // Pulsing Effect Parameters
-            const pulseFrequency = 2; // Pulses per second
-            const pulseAmplitude = 1.05; // Scale factor
-            const pulseTime = timestamp * 0.001; // Convert to seconds
-            const pulseScale = 1 + (Math.sin(pulseTime * pulseFrequency * Math.PI * 2) * (pulseAmplitude - 1)); // Pulsing scale
 
             // Calculate the point along the curve based on progress
             if (_progress < 1) {
                 const point = curve.getPointAt(_progress);  // Get the point along the tube curve
-                point && marker.position.set(point.x, point.y, point.z);
+                const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
+                if (point) {
+                    currentAnimationMarker.current = point
+                    marker.position.set(point.x, point.y, point.z + 20);
+                    activeObjects.current.tube.material.uniforms.progress.value = _progress;
+                    // Calculate the forward direction (from point to nextPoint)
+                    const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
-                // Apply the pulsing effect to the marker
-                marker.scale.set(pulseScale * 50, pulseScale * 50, 1); // Apply scale to the marker
+                    // Set camera offset behind the marker
+                    const cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
+                    cameraOffset.y += 200;  // Adjust height for a better view
+
+                    // Set the camera position behind the marker (car)
+                    const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
+                    window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+
+                    // Make the camera look ahead (at the next point on the curve)
+                    window.camera.lookAt(nextPoint);
+                    // set ToolTip content
+                    setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total Duration: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>StopSign Duration: </span>' + total_stopSignDuration + 's')
+                }
             }
             if (_progress < 1) {
                 animationRef.current.elapsedTime += deltaTime;
@@ -1157,9 +1304,38 @@ const Replay = (props: any) => {
                 }
 
             } else {
+                const point = curve.getPointAt(1); 
+                const startPosition = window.camera.position.clone();
+                const targetPosition = point.clone().add(point); // Zoom offset
+
+                // Animate the camera movement
+                const zoomDuration = 1000; // 1 second
+                let startTime: number | null = null;
+
+                const animateZoom = (time: number) => {
+                    if (startTime === null) startTime = time;
+                    const _elapsed = time - startTime;
+                    const progress = Math.min(_elapsed / zoomDuration, 1);
+
+                    window.camera.position.lerpVectors(startPosition, targetPosition, progress);
+                    window.controls.target.lerpVectors(startPosition, point, progress);
+                    window.controls.update();
+
+                    if (progress < 1) {
+                        animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
+                    } 
+                };
+
+                animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
+
+                // Clean up marker
+                window.map.scene.remove(marker);
+                marker.geometry.dispose();
+                marker.material.dispose();
+                setIsAnimation(false)
+                // Segment animation complete, proceed to next
                 animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
-                animationRef.current.elapsedTime = 0
-                animationRef.current.animationFrameId = null
+                animationRef.current.startTime = null;
             }
         };
 
@@ -1306,6 +1482,12 @@ const Replay = (props: any) => {
                                         onNext={handleNext}
                                         onPrev={handlePrev}
                                     />
+                                    {equipments.map((annotation, index) => (
+                                        <RippleIcon key={index} annotation={annotation} />
+                                    ))}
+                                    <div className="marker-tooltip" id="marker-tooltip" style={{display: isAnimation && isPlaying ? 'block' : 'none'}}>
+                                        <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
+                                    </div>
                                 </div>
                                 <Card style={{ height: 'calc(100vh - 240px)', width: '20%', marginLeft: '16px', padding: '16px', display: selectedEq ? 'block' : 'none' }}>
                                     <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>

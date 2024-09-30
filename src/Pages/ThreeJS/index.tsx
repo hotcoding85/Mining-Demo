@@ -18,6 +18,8 @@ import * as Leaflet from 'leaflet';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
 import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
+import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 declare global {
     interface Window {
         map: any;
@@ -82,6 +84,16 @@ export const ThreeJS = () => {
     const { routes, data: fences } = useSelector(stateProperties);
 
     document.title = "3D Pit View | FMS Live";
+
+    const { layoutModeType } = useSelector(
+        createSelector(
+          (state: any) => state.Layout,
+          (layout) => ({
+            layoutModeType: layout.layoutModeTypes,
+          })
+        )
+    );
+    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapBoxContainer = useRef<HTMLDivElement | null>(null);
@@ -234,10 +246,18 @@ export const ThreeJS = () => {
         window.controls = controls;
         
         // Load the background image using THREE.TextureLoader
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND, (texture) => {
-            scene.background = texture;  // Set the loaded texture as the background
-        });
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
 
         // scene.background = new THREE.Color(0x91abb5);
         scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
@@ -351,6 +371,22 @@ export const ThreeJS = () => {
             mapRef.current.remove()
         };
     }
+
+    useEffect(() => {
+        if (!window.map) return
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+    }, [isLight])
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
