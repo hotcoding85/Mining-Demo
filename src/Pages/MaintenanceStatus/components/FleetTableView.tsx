@@ -85,13 +85,13 @@ const FleetTableView: React.FC<FleetTableViewProps> = ({
 }) => {
   const columns = [
     {
-      title: "Equipment",
+      title: "Equipment Category",
       dataIndex: "equipment",
       key: "equipment",
       dataType: "",
     },
     {
-      title: "Assigned Truck/s",
+      title: "Equipment",
       dataIndex: "assignedTrucks",
       key: "assignedTrucks",
       dataType: "",

@@ -64,7 +64,7 @@ const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
 const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
 const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
 const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
-const DailyProductionDashboard = React.lazy(() => import("Pages/Daily Production"));
+const DailyProductionDashboard = React.lazy(() => import("Pages/DailySnapshot"));
 const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
 const FuelStatusDashboard = React.lazy(() => import("Pages/FuelStatus"));
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));

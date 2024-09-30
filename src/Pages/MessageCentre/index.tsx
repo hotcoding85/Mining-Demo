@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Col, Container, Row } from "reactstrap";
 import * as Leaflet from 'leaflet';
-import { Tabs, Table, Button, Layout, Tag, Badge } from 'antd';
-import { FilterOutlined, MessageOutlined } from '@ant-design/icons';
+import { Tabs, Layout } from 'antd';
 import './index.css';
 import { getGeoFences, getAllFleet, getAllEvents } from 'slices/thunk';
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";

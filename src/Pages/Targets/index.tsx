@@ -969,7 +969,7 @@ const Target = (props: any) => {
                       />
                       <DatePicker allowClear={false} value={dayjs(startDate)} format={pickerFormat} type={pickerType} onChange={onDateChange} />
                       <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
-                      <Button icon={<CloudUploadOutlined />} onClick={submit} >Publish to Production</Button>
+                      <Button style={{backgroundColor: 'var(--bg-color)', color:'white'}} icon={<CloudUploadOutlined />} onClick={submit} >Publish to Production</Button>
                     </Space>
                   </Col>
 
