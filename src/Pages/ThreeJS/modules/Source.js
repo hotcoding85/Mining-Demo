@@ -33,7 +33,8 @@ export class Source {
       const styleId = "cm0nq8gmt002p01pq62w695ce";
       const token = this.token;
       const url = `https://api.mapbox.com/v4/mykytas.3bho3ytt/${z}/${x}/${y}.webp?sku=101nNnqDhoG1q&access_token=${token}`
-      return await this.isValidImage(url, z, x, y)
+      // return await this.isValidImage(url, z, x, y)
+      return `./images/${z}_${x}_${y}.webp`
     }
     async isValidImage(url, z, x, y) {
         const styleId = "cm0nq8gmt002p01pq62w695ce";
@@ -129,7 +130,8 @@ class Tile {
   }
 
   mapUrl() {
-    return this.map.source.mapUrl(this.z, this.x, this.y)
+    // return this.map.source.mapUrl(this.z, this.x, this.y)
+    return this.map.imageData[this.z + '_' + this.x + '_' + this.y]
   }
   pixelToLatLng(
     tileX,
@@ -160,38 +162,36 @@ class Tile {
     const height = this.shape[0];
     const width = this.shape[1];
     const elevation = new Float32Array(height * width);
-    
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
           const ij = i + height * j;
-          const rgba = pixels.data.slice(ij * 4, ij * 4 + 4);
+          // const rgba = pixels.data.slice(ij * 4, ij * 4 + 4);
 
           let elevationValue = 0;
           const coord = this.pixelToLatLng(this.x, this.y, i, j, this.z);
-          
           const candidates = index.search({
               minX: coord.longitude,
               minY: coord.latitude,
               maxX: coord.longitude,
               maxY: coord.latitude
           });
-
           let nearestFeature = null;
 
           candidates.forEach((item) => {
               const isInside = booleanPointInPolygon([coord.longitude, coord.latitude], item.feature.geometry);
               if (isInside) {
-                  nearestFeature = item.feature;
+                nearestFeature = item.feature;
                   return false; // Exit loop early if point is inside a polygon
               }
           });
           if (nearestFeature) {
-            elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+            elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
           }
 
           if (!nearestFeature || isNaN(elevationValue)) {
             // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-            elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 500;
+            // elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 400;
+            elevationValue = 90
           }
 
           // Here you can decide how to use rgba values if needed
@@ -264,14 +264,19 @@ class Tile {
 
   fetch() {
     return new Promise((resolve, reject) => {
-      getPixels(this.url(), (err, pixels) => {
-        if (err) console.error(err)
-        this.map.progress ++
-        this.computeElevation(pixels)
-        this.buildGeometry()
-        this.buildmesh()
-        resolve(this)
-      })
+      // Simulating the delay with setTimeout
+      setTimeout(() => {
+        const pixels = {
+            width: 256,
+            height: 256,
+            data: []
+        };
+        this.map.progress++;
+        this.computeElevation(pixels);
+        this.buildGeometry();
+        this.buildmesh();
+        resolve(this); // Resolving the promise after delay
+      }, 1); // 1ms delay for bulk action
     })
   }
 
@@ -416,11 +421,15 @@ class Utils {
   }
 
   static pointToTilePixel(x, y, center, z, tileSize = baseTileSize) {
-    const centerPosition = Utils.tile2position(z, center.x, center.y, center, tileSize)
-    const deltaX = Math.round((x - centerPosition.x) / tileSize)
-    const deltaY = Math.round(-(y - centerPosition.y) / tileSize)
-    const tilePixelX = Math.floor((x - centerPosition.x) % tileSize);
-    const tilePixelY = Math.floor(-(y - centerPosition.y) % tileSize)
+    const centerPosition = Utils.tile2position(z, center.x, center.y, center, tileSize);
+    const deltaX = Math.round((x - centerPosition.x) / tileSize);
+    const deltaY = Math.round(-(y - centerPosition.y) / tileSize);
+
+    let tilePixelX = ((x - centerPosition.x) % tileSize + tileSize / 2) % tileSize;
+    let tilePixelY = (-(y - centerPosition.y) % tileSize + tileSize / 2) % tileSize;
+    
+    if (tilePixelX < 0) tilePixelX = tilePixelX + tileSize
+    if (tilePixelY < 0) tilePixelY = tilePixelY + tileSize
     // Calculate the tile coordinates
     const tileX = deltaX + center.x;
     const tileY = deltaY + center.y;
@@ -431,7 +440,9 @@ class Utils {
         tilePixelX,
         tilePixelY
     };
-  }
+}
+
+
 
   static tilePixelToLatLng(tileX, tileY, tilePixelX, tilePixelY, zoom, tileSize = baseTileSize) {
     // // Calculate world pixel coordinates
@@ -457,7 +468,7 @@ class Utils {
 }
 
 export class Map {
-  constructor (scene, camera, source, geoLocation, nTiles, zoom=10, options, geojson) {
+  constructor (scene, camera, source, geoLocation, nTiles, zoom=10, options, geojson, image_data) {
     this.scene = scene
     this.camera = camera
     this.source = source
@@ -472,7 +483,8 @@ export class Map {
     this.routes = []
     this.tubeMeshes = [];
     this.stopSignSprites = [];
-    this.filteredCategories = []
+    this.filteredCategories = [];
+    this.imageData = image_data
     this.init()
 
     geojson.features.map((feature) => {
@@ -565,7 +577,7 @@ export class Map {
                     }
                 });
                 if (nearestFeature) {
-                  elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+                  elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
                 }
       
                 if (!nearestFeature || isNaN(elevationValue)) {
@@ -635,7 +647,7 @@ export class Map {
             });
             let elevationValue = 0
             if (nearestFeature) {
-              elevationValue = Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100 - 500;
+              elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
             }
   
             if (!nearestFeature || isNaN(elevationValue)) {
