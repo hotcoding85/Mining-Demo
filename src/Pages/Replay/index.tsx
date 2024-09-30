@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardBody, Col, Container, Row, TabPane } from "reactstrap";
-import Breadcrumb from "Components/Common/Breadcrumb";
-import { Button, Collapse, Menu, Progress, Spin, Tabs } from "antd";
+import { Card, Col, Container, Row, TabPane } from "reactstrap";
+import { Button, Collapse, Progress, Spin, Tabs } from "antd";
 import _ from "lodash";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
@@ -12,10 +11,7 @@ import bbox from '@turf/bbox';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import TimeSlider from "./components/TimeSlider";
 import './assets/index.css';
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-
 import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
-import { getAll } from "Helpers/api_auto_routing";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
@@ -35,9 +31,10 @@ import { ListView } from "./components/ListView";
 import { DropdownType, Dropdown } from "Components/Common/Dropdown";
 import { DatePicker, DatePickerProps } from 'antd';
 import dayjs from 'dayjs';
-import { dumpingPaths, EquipmentLocation, equipments, travellingPaths } from '../Map/sample';
-import { getMinutesDifference, getStatusColor, getSyncText } from "./common";
+import { EquipmentLocation, equipments} from '../Map/sample';
+import { getMinutesDifference, getSyncText } from "./common";
 import mapLocationImage from "assets/images/map/map-location.png";
+
 export type TripRoutesDataType = {
     id: string,
     routes: RouteDataType[]
@@ -155,7 +152,7 @@ const Replay = (props: any) => {
             annotationDiv.style.left = `${x - 60}px`;
             annotationDiv.style.top = `${y - 180}px`;
         }
-    }, [isAnimation]);
+    }, [isAnimation])
 
     const updateAnnotations = useCallback(() => {
         const center = {
@@ -192,7 +189,7 @@ const Replay = (props: any) => {
                 annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) ? 'block' : 'none';
             }
         });
-    }, [isAnimation]);
+    }, [isAnimation])
 
 
     useEffect(() => {
@@ -207,6 +204,7 @@ const Replay = (props: any) => {
             processZipFile(geojsonData)
         })
     }
+
     const processZipFile = async (geojsonData) => {
         // Fetch the ZIP file and get its ArrayBuffer
         const zipBuffer = await fetch('./images.zip').then(response => response.arrayBuffer());
@@ -239,7 +237,8 @@ const Replay = (props: any) => {
         await Promise.all(promises);
     
         loadMapView(geojsonData, image_data);
-    };
+    }
+
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -332,13 +331,6 @@ const Replay = (props: any) => {
         // draw the routes only one time
         let drawed = true
 
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(renderer.domElement.width, renderer.domElement.height);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.className = "mapboxgl-canvas-container mapboxgl-interactive mapboxgl-touch-drag-pan mapboxgl-touch-zoom-rotate"
-        // document.body.appendChild(labelRenderer.domElement);
-
         // Main render loop
         const mainLoop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(mainLoop);
@@ -377,7 +369,7 @@ const Replay = (props: any) => {
             });
         }
     }, [isLight])
-    
+
     const eqMarkers: any = []
     const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
         if (eq.vehicleType == 'EXCAVATOR') {
@@ -405,6 +397,7 @@ const Replay = (props: any) => {
             }
         }
     }
+
     // Array to hold all clickable sprites
     const clickableSprites = useRef<any>([]);
     const RippleIcon = ({ annotation }) => {    
@@ -540,14 +533,6 @@ const Replay = (props: any) => {
             selectedPoints = []; // Reset points
         }
     }
-
-    const drawLineBetweenPoints = (point1, point2) => {
-        const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 10, depthTest: false, depthWrite: false });
-        // Create the points array directly from the two selected points
-        const geometry = new THREE.BufferGeometry().setFromPoints([point1, point2]);
-        const line = new THREE.Line(geometry, material);
-        window.map.scene.add(line);
-    }
     
     useEffect(() => {
         if (selectedEq) {
@@ -568,6 +553,7 @@ const Replay = (props: any) => {
             }
         }
     }, [routes, selectedEq])
+
     const togglePlay = useCallback(() => {
         setIsPlaying(!isPlaying);
         currentIsPlaying.current = !isPlaying
@@ -635,8 +621,6 @@ const Replay = (props: any) => {
             }
         };
     }, [isPlaying, speed, timeValue]);
-
-    const { Panel } = Collapse;
 
     let defaultApexOptions: ApexCharts.ApexOptions = {
         chart: {
@@ -755,10 +739,11 @@ const Replay = (props: any) => {
                 }
             }]
         }
-    };
+    }
+
     const [apexOptions, setApexOptions] = useState<ApexCharts.ApexOptions>(
         defaultApexOptions
-    );
+    )
 
     let defaultSeries = [
         {
@@ -766,12 +751,12 @@ const Replay = (props: any) => {
             data: []
         }
     ]
+
     const [series, setSeries] = useState(
         defaultSeries
     );
 
     useEffect(() => {
-        let initializedMap = false;
         setIsLoading(true);
         fetchZipFile()
 
@@ -852,7 +837,6 @@ const Replay = (props: any) => {
     }, [stopSignData, mapRef.current])
     
     const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
-    const marker = useRef<mapboxgl.Marker | null>(null);
     const pausedTimeValue = useRef<number>(0)
     const xaxisValues = useRef<number[]>([])
     const yaxisValues = useRef<number[]>([])
@@ -897,7 +881,6 @@ const Replay = (props: any) => {
             animationRef.current.elapsedTime = 0
             drawRoute(_route, _route.duration, _route.distance, true, stopSignDuration)
             const coordinates = _route.geoJson.geometry.coordinates;
-            // Move to camera
             // Extract the first point
             const firstCoordinate = coordinates[0];
             
@@ -916,10 +899,6 @@ const Replay = (props: any) => {
             const elevationValue = window.map.getElevationAt([tileData.tilePixelX, tileData.tilePixelY], tileData.tileX, tileData.tileY);
             firstPoint.z = elevationValue * 2 + 50;
             // Set the camera position to the first point
-            const camera = window.map.camera;
-            // camera.zoom = 5;
-            camera.position.set(-firstPoint.x, -firstPoint.y, 0); // Offset the camera slightly above the point
-            // camera.lookAt(firstPoint); // Make the camera look at the point
         }
     }, [routeData, selectedTrip])
 
@@ -949,7 +928,6 @@ const Replay = (props: any) => {
             maxY: lngLat.lat
         });
         let nearestFeature: any = null;
-        let minDistance = Infinity;
     
         _.map(candidates, (item) => {
             const isInside = booleanPointInPolygon(point, item.feature.geometry);
@@ -972,7 +950,6 @@ const Replay = (props: any) => {
         const coordinates = geoJson.geometry.coordinates;
         const distanceArray: number[] = [];
         const elevationArray: number[] = [];
-        let totalDistance = 0;
     
         // Calculate the total length of the entire route
         const line = turf.lineString(coordinates);
@@ -1043,6 +1020,7 @@ const Replay = (props: any) => {
             animationRef.current.animationFrameId = null
         }
     }
+
     // Function to create a tube with custom shader to control visibility
     function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
         const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 6, 6, false);
@@ -1367,7 +1345,8 @@ const Replay = (props: any) => {
 
     const handleSyncHover = () => {
         setIsHoveringSync(!isHoveringSync);
-    };
+    }
+
     const getSyncIcon = (sync, lastUpdated) => {
         switch (sync) {
           case "manual":
@@ -1420,7 +1399,8 @@ const Replay = (props: any) => {
                 </svg>
               );
         }
-    };
+    }
+    
     return (
         <React.Fragment>
             <div className="page-content">
