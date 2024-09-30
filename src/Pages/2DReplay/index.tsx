@@ -591,7 +591,7 @@ const Replay2D = (props: any) => {
 
     if (nearestFeature) {
       return (
-        Math.round(parseFloat(nearestFeature.properties.height) * 100) / 100
+        Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100
       ); // Adjust property name if different
     } else {
       return Math.round(
