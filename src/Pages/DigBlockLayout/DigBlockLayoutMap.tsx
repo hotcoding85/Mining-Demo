@@ -3,6 +3,24 @@ import ReactDOMServer from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import BlockPopupContent from "./BlockPopupContent";
 
+const blockData = [
+  { block_id: "HG01", fillColor: "#C3AA03" },
+  { block_id: "IG02", fillColor: "#8D7E1A" },
+  { block_id: "IG01", fillColor: "#9A8914" },
+  { block_id: "IG03", fillColor: "#7F7320" },
+  { block_id: "LG01", fillColor: "#736926" },
+  { block_id: "HG02", fillColor: "#B59F09" },
+  { block_id: "HG03", fillColor: "#A8940E" },
+  { block_id: "WS01", fillColor: "#4A4837" },
+  { block_id: "WS02", fillColor: "#585332" },
+  { block_id: "WS03", fillColor: "#655E2C" },
+];
+
+function getFillColor(blockId) {
+  const block = blockData.find((item) => item.block_id === blockId);
+  return block ? block.fillColor : null;
+}
+
 const DigBlockLayoutMap = (data: any) => {
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
@@ -48,7 +66,9 @@ const DigBlockLayoutMap = (data: any) => {
             source: feature.id,
             layout: {},
             paint: {
-              "fill-color": "#0080ff",
+              "fill-color": feature.color
+                ? feature.color
+                : getFillColor(feature.blockId),
               "fill-opacity": 0.5,
             },
           });
