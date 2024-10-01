@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Card, Col, Container, Row, TabPane } from "reactstrap";
-import { Button, Collapse, Progress, Spin, Tabs } from "antd";
+import { Button, Progress, Spin, Tabs } from "antd";
 import _ from "lodash";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
@@ -54,8 +54,8 @@ type ActiveObjectType = {
     arrow: any
 }
 const index = new RBush();
-const Replay = (props: any) => {
-    document.title = "GPS Fleet Tracking | FMS Live";
+const Replay = () => {
+    document.title = "3D GPS Fleet Tracking | FMS Live";
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any>(null);
@@ -173,8 +173,8 @@ const Replay = (props: any) => {
             const screenPosition = annotation.position.clone();
             screenPosition.project(window.camera); // Project to screen space
             
-            const x = (screenPosition.x * 0.5 + 0.5) * mapContainer.current.clientWidth;
-            const y = -(screenPosition.y * 0.5 - 0.5) * mapContainer.current.clientHeight;
+            const x = (screenPosition.x * 0.5 + 0.5) * (mapContainer.current.clientWidth);
+            const y = -(screenPosition.y * 0.5 - 0.5) * (mapContainer.current.clientHeight);
             
             const annotationDiv = document.getElementById(`annotation-${annotation.userData.data.id}`);
 
@@ -182,14 +182,14 @@ const Replay = (props: any) => {
                 annotationDiv.style.left = `${x}px`;
                 annotationDiv.style.top = `${y}px`;
                 const isInViewport = (
-                    x >= 0 && x <= mapContainer.current.clientWidth &&
-                    y >= 0 && y <= mapContainer.current.clientHeight
+                    x >= 50 && x <= (mapContainer.current.clientWidth - 50) &&
+                    y >= 50 && y <= (mapContainer.current.clientHeight - 25)
                 );
                 
-                annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) ? 'block' : 'none';
+                annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) && !isLoading ? 'block' : 'none';
             }
         });
-    }, [isAnimation])
+    }, [isAnimation, isLoading])
 
 
     useEffect(() => {
@@ -475,7 +475,7 @@ const Replay = (props: any) => {
         }
     }
     const onDocumentMouseMove  = (event) => {
-        if (!mapContainer.current) return
+        if (!mapContainer.current || !window.map) return
         // Normalize mouse position to -1 to 1 range
         const rect = mapContainer.current.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
@@ -598,15 +598,15 @@ const Replay = (props: any) => {
         if (isPlaying) {
             const intervalTime = 1000 / speed;
             intervalRef.current = setInterval(() => {
-                setTimeValue((prev) => {
-                    const newValue = prev + 1;
-                    if (newValue >= totalTime) {
-                        setIsPlaying(false); // Stop when reaching the end
-                        currentIsPlaying.current = false
-                        return totalTime;
-                    }
-                    return newValue;
-                });
+                // setTimeValue((prev) => {
+                //     const newValue = prev + 1;
+                //     if (newValue >= totalTime) {
+                //         setIsPlaying(false); // Stop when reaching the end
+                //         currentIsPlaying.current = false
+                //         return totalTime;
+                //     }
+                //     return newValue;
+                // });
             }, intervalTime);
         } else if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -1176,7 +1176,6 @@ const Replay = (props: any) => {
                 animationRef.current.elapsedTime = currentTimeValue.current * 1000;
                 currentTimeValue.current = -1
             }
-
             const _progress = Math.min(elapsed / duration, 1);
             const distanceCovered = _progress * totalDistance;
             currentTructDistance.current = distanceCovered
@@ -1245,6 +1244,7 @@ const Replay = (props: any) => {
 
             // Calculate the point along the curve based on progress
             if (_progress < 1) {
+                setTimeValue(Math.floor(_progress / 1 * totalTime))
                 const point = curve.getPointAt(_progress);  // Get the point along the tube curve
                 const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
                 if (point) {
@@ -1282,6 +1282,7 @@ const Replay = (props: any) => {
                 }
 
             } else {
+                activeObjects.current.tube.material.uniforms.progress.value = 1
                 const point = curve.getPointAt(1); 
                 const startPosition = window.camera.position.clone();
                 const targetPosition = point.clone().add(point); // Zoom offset
@@ -1311,6 +1312,7 @@ const Replay = (props: any) => {
                 marker.geometry.dispose();
                 marker.material.dispose();
                 setIsAnimation(false)
+                setTimeValue(totalTime)
                 // Segment animation complete, proceed to next
                 animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
                 animationRef.current.startTime = null;
@@ -1321,7 +1323,7 @@ const Replay = (props: any) => {
         animationRef.current.startTime = null;
         animationRef.current.animationFrameId = requestAnimationFrame(animate);
     
-    }, [totalTime, speed, timeValue, isPlaying, apexOptions]);
+    }, [totalTime, speed, timeValue, isPlaying, apexOptions, currentSpeed, currentTimeValue]);
 
     function findNearestSmallerValue(array, target) {
         let nearest = null;
@@ -1400,7 +1402,7 @@ const Replay = (props: any) => {
               );
         }
     }
-    
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -1423,15 +1425,13 @@ const Replay = (props: any) => {
                                 </div>
                                 <Col lg="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
                                 {isLoading ? (
-                                    <>
                                         <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: selectedEq ? 'calc(80% - 20px)' : 'calc(100% - 20px)', height: '50%', left: '10px'}}>
                                             <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
                                                 <Progress className='map-loading-progress-bar' percent={progress} status="active" />
                                             </Spin>
                                         </div>
-                                    </>
                                     ) : (
-                                        <></>
+                                    <></>
                                 )}
                                 <div ref={mapContainer} id="3d-map-view" className="map-container" style={{ height: 'calc(100vh - 240px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
                                     <div style={{
@@ -1463,7 +1463,7 @@ const Replay = (props: any) => {
                                         onPrev={handlePrev}
                                     />
                                     {equipments.map((annotation, index) => (
-                                        <RippleIcon key={index} annotation={annotation} />
+                                        isLoading ? <></> : <RippleIcon key={index} annotation={annotation} />
                                     ))}
                                     <div className="marker-tooltip" id="marker-tooltip" style={{display: isAnimation && isPlaying ? 'block' : 'none'}}>
                                         <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>

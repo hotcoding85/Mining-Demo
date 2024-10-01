@@ -59,6 +59,7 @@ const Mock = React.lazy(() => import("Pages/Mock"));
 
 const Reports = React.lazy(() => import("Pages/Reports"));
 const Replay2D = React.lazy(() => import("Pages/2DReplay"));
+const Replay = React.lazy(() => import("Pages/Replay"));
 const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
 
 const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
@@ -131,7 +132,7 @@ const authProtectedRoutes = [
   { path: "/map-geofence", exact: true, component: <MapGeofence /> },
   { path: "/fleet-timeline", exact: true, component: <FleetTimeline /> },
   { path: "/reports", exact: true, component: <Reports /> },
-  { path: "/route-replay", exact: true, component: <Replay2D /> },
+  { path: "/route-replay", exact: true, component: <Replay /> },
   { path: "/maintenance-status", exact: true, component: <MaintenanceStatus /> },
   { path: "/maintenance-scheduler", exact: true, component: <MaintenanceScheduler /> },
   { path: "/fuel-scheduler", exact: true, component: <FuelScheduler /> },

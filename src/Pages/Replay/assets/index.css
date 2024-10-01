@@ -26,12 +26,6 @@ body[data-layout-mode="light"] .ant-menu{
     background-color: white !important;
     color: grey !important;
 }
-body[data-layout-mode="light"] .page-content {
-    background-color: white;
-}
-body[data-layout-mode="dark"] .page-content {
-    background-color: var(--dark-bg-color);
-}
 body[data-layout-mode="light"] .ant-menu-title-content {
     color: black;
 }

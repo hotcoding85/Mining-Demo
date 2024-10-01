@@ -42,7 +42,7 @@ interface MarkerData {
 
 const index = new RBush();
 const Replay2D = (props: any) => {
-  document.title = "GPS Fleet Tracking | FMS Live";
+  document.title = "2D GPS Fleet Tracking | FMS Live";
 
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
