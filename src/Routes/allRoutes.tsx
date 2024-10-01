@@ -33,17 +33,6 @@ import { Underground } from "Pages/Underground";
 // const EquipmentGantt = React.lazy(() => import("Pages/Equipment Gantt"));
 
 // Auth
-const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
-const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
-const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
-const Materials = React.lazy(() => import("Pages/Materials"));
-const Benches = React.lazy(() => import("Pages/Benches"));
-const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
-const Users = React.lazy(() => import("Pages/Users"));
-const Fleet = React.lazy(() => import("Pages/Fleet"));
-const Trackers = React.lazy(() => import("Pages/Trackers"));
-
-const Dashboard = React.lazy(() => import("Pages/Dashboard"));
 
 // const MaterialInventory = React.lazy(() => import("Pages/MaterialInventory"));
 import MaterialInventory from "Pages/MaterialInventory"
@@ -75,11 +64,6 @@ import TelemetryReport from "Pages/TelemetryReport";
 // const GanttScheduler = React.lazy(() => import("Pages/GanttScheduler"));
 import GanttScheduler from "Pages/GanttScheduler";
 
-const Mock = React.lazy(() => import("Pages/Mock"));
-
-const Reports = React.lazy(() => import("Pages/Reports"));
-
-const Replay2D = React.lazy(() => import("Pages/2DReplay"));
 // const Replay = React.lazy(() => import("Pages/Replay"));
 import Replay from "Pages/Replay";
 
@@ -104,8 +88,6 @@ import TruckingPerformance from "Pages/Trucking";
 // const FuelStatusDashboard = React.lazy(() => import("Pages/FuelStatus"));
 import FuelStatusDashboard from "Pages/FuelStatus";
 
-const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
-
 // const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
 import MaintenanceScheduler from "Pages/MaintenanceScheduler";
 
@@ -114,8 +96,6 @@ import OilAnalysis from "Pages/OilAnalysis";
 
 // const PreStarts = React.lazy(() => import("Pages/PreStarts"));
 import PreStarts from "Pages/PreStarts";
-
-const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
 
 // const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 import HaulRoadOptimisation from "Pages/HaulRoadOptimisation";
@@ -154,7 +134,7 @@ import CarryBackDescrepencies from "Pages/CarryBackDescrepencies";
 // const ROMMillTargets = React.lazy(() => import("Pages/ROMMillTargets"));
 import ROMMillTargets from "Pages/ROMMillTargets";
 
-const TimelineReport = React.lazy(() => import("Pages/Reports/TimelineReport"));
+
 
 // const Dispatch = React.lazy(() => import("Pages/Dispatch"));
 import Dispatch from "Pages/Dispatch";
@@ -167,6 +147,29 @@ import WasteDumpManagement from "Pages/WasteDumpManagement";
 
 // const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
 import BlendPlans from "Pages/BlendPlans";
+
+const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
+
+const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
+
+const TimelineReport = React.lazy(() => import("Pages/Reports/TimelineReport"));
+const Mock = React.lazy(() => import("Pages/Mock"));
+
+const Reports = React.lazy(() => import("Pages/Reports"));
+
+const Replay2D = React.lazy(() => import("Pages/2DReplay"));
+
+const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
+const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
+const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
+const Materials = React.lazy(() => import("Pages/Materials"));
+const Benches = React.lazy(() => import("Pages/Benches"));
+const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
+const Users = React.lazy(() => import("Pages/Users"));
+const Fleet = React.lazy(() => import("Pages/Fleet"));
+const Trackers = React.lazy(() => import("Pages/Trackers"));
+
+const Dashboard = React.lazy(() => import("Pages/Dashboard"));
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
