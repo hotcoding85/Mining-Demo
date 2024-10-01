@@ -249,13 +249,13 @@ const RomWasteSummary = () => {
               </div>
             </Col>
           </Row>
-          <Row style={{ padding: '1rem' }}>
+          <Row className='p-4 align-items-stretch extract-section'>
             <Col lg={4} md={6} sm={6} xs={12} >
-              <Card>
+              <Card className='h-100'>
                 <CardBody>
                   <h5 style={{ marginBottom: 0 }}>Rom Tonnes Extraction</h5>
-                  <div className='d-flex justify-content-center align-items-center'>
-                    <ProgressPieChart width={250} color={colorRom} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
+                  <div className='d-flex justify-content-center align-items-center h-100'>
+                    <ProgressPieChart width={300} height={300} color={colorRom} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
                     <div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <h5>Total Tonnes</h5>
@@ -271,11 +271,11 @@ const RomWasteSummary = () => {
               </Card>
             </Col>
             <Col lg={4} md={6} sm={6} xs={12} >
-              <Card>
+              <Card className='h-100'>
                 <CardBody>
                   <h5 style={{ marginBottom: 0 }}>Waste Extraction to Dumps</h5>
-                  <div className='d-flex justify-content-center align-items-center'>
-                    <ProgressPieChart width={250} color={colorWaste} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
+                  <div className='d-flex justify-content-center align-items-center h-100'>
+                    <ProgressPieChart width={300} height={300} color={colorWaste} bgColor={isLight ? 'gray' : colorRom} textColor='#a6b0cf' value={romTonnesExtraction} maxValue={100} />
                     <div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <h5>Total Tonnes</h5>
@@ -291,9 +291,9 @@ const RomWasteSummary = () => {
               </Card>
             </Col>
             <Col lg={4} md={4} sm={12} xs={12}>
-              <Card className='w-100'>
+              <Card className='h-100 w-100'>
                 <CardBody>
-                  <div className='d-flex justify-content-center align-items-center'>
+                  <div className='d-flex justify-content-center align-items-center h-100'>
                     <PieChart title="" showLegend={false} data={operationalDelaysData} />
                   </div>
                 </CardBody>

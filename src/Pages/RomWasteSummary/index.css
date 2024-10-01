@@ -34,3 +34,13 @@
 .text-color-red{
     color: red !important;
 }
+
+.extract-section .PieChartContainer {
+    margin-bottom: 0;
+    height: 300px;
+    width: 300px;
+}
+
+.extract-section .PieChartContainer .progress-header {
+    display: none;
+}
