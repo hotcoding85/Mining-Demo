@@ -2,32 +2,32 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactDOMServer from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import BlockPopupContent from "./BlockPopupContent";
-
-const blockData = [
-  { block_id: "HG01", fillColor: "#C3AA03" },
-  { block_id: "IG02", fillColor: "#8D7E1A" },
-  { block_id: "IG01", fillColor: "#9A8914" },
-  { block_id: "IG03", fillColor: "#7F7320" },
-  { block_id: "LG01", fillColor: "#736926" },
-  { block_id: "HG02", fillColor: "#B59F09" },
-  { block_id: "HG03", fillColor: "#A8940E" },
-  { block_id: "WS01", fillColor: "#4A4837" },
-  { block_id: "WS02", fillColor: "#585332" },
-  { block_id: "WS03", fillColor: "#655E2C" },
-];
-
-function getFillColor(blockId) {
-  const block = blockData.find((item) => item.block_id === blockId);
-  return block ? block.fillColor : null;
-}
+import { createSelector } from "reselect";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { getAllMaterials } from "slices/thunk";
 
 const DigBlockLayoutMap = (data: any) => {
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
   const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const dispatch: any = useDispatch();
 
   const [lng] = useState(120.44477292688124);
   const [lat] = useState(-29.147190282051838);
+
+  const selectMaterialProperties = createSelector(
+    (state: any) => state.Materials,
+    (benches) => ({
+      materials: benches.data,
+    })
+  );
+
+  const { materials } = useSelector(selectMaterialProperties);
+
+  useEffect(() => {
+    dispatch(getAllMaterials(1, 100));
+  }, [dispatch]);
 
   useEffect(() => {
     mapboxgl.accessToken =
@@ -52,6 +52,11 @@ const DigBlockLayoutMap = (data: any) => {
     );
     mapRef.current.addControl(new mapboxgl.FullscreenControl());
 
+    const getColorByName = (materialName) => {
+      const material = materials.find((item) => item.name === materialName);
+      return material ? material.color : null;
+    };
+
     data &&
       data.data.map((feature) =>
         mapRef.current.on("load", () => {
@@ -68,7 +73,7 @@ const DigBlockLayoutMap = (data: any) => {
             paint: {
               "fill-color": feature.color
                 ? feature.color
-                : getFillColor(feature.blockId),
+                : getColorByName(feature.blockId),
               "fill-opacity": 0.5,
             },
           });
@@ -112,7 +117,7 @@ const DigBlockLayoutMap = (data: any) => {
           mapRef.current.fitBounds(bounds, { padding: 20 });
         })
       );
-  }, [data, lat, lng]);
+  }, [data, lat, lng, materials]);
 
   return (
     <div
