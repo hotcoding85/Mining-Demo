@@ -194,8 +194,9 @@ body[data-layout-mode="light"] {
   }
 }
 
-.form-control {
+body[data-layout-mode="light"]  .form-control {
   color: var(--dark-text-color) !important;
+  background-color: transparent !important;
 }
 
 .ant-switch {

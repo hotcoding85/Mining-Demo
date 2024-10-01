@@ -53,7 +53,7 @@ const CustomSelect = ({
           // styles={customStyles}
           style={{ width: '100%' }}
           options={options}
-          value={options.find((option) => option.value === formValues[name])} // set selected value
+          value={options.filter((option) => formValues[name].includes(option.value)).map((option) => option.value)} // set selected value
           onChange={(option) => {
             setFieldValue(name, option)
           }}

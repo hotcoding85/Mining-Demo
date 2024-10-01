@@ -77,6 +77,10 @@ const ProfileMenu = (props: any) => {
             <i className="bx bx-devices font-size-16 align-middle me-1" />
             <span>{props.t("Trackers")}</span>
           </Link>
+          <Link to="/menu-settings" onClick={handleOptionChange} className="dropdown-item">
+            <i className="bx bx-menu font-size-16 align-middle me-1" />
+            <span>{props.t("Menu setting")}</span>
+          </Link>
           <div className="dropdown-divider" />
           <Link to="/logout" onClick={handleOptionChange} className="dropdown-item">
             <i className="bx bx-power-off font-size-16 align-middle me-1 text-danger" />

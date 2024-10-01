@@ -148,6 +148,8 @@ import WasteDumpManagement from "Pages/WasteDumpManagement";
 // const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
 import BlendPlans from "Pages/BlendPlans";
 
+import MenuSettings from "Pages/MenuSettings";
+
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
@@ -184,7 +186,7 @@ const authProtectedRoutes = [
   { path: "/realtime-postioning/:equipmentId", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
-  {path: "/admin-settings", exact: true, component: <AdminSettings />},
+  { path: "/admin-settings", exact: true, component: <AdminSettings /> },
   { path: "/users", exact: true, component: <Users /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/rom-management", exact: true, component: <ROMManagement /> },
@@ -253,6 +255,8 @@ const authProtectedRoutes = [
   { path: "//3d-pit-view", exact: true, component: <ThreeJS /> },
   // Underground Map View
   { path: "/underground-map", exact: true, component: <Underground /> },
+
+  { path: "/menu-settings", exact: true, component: <MenuSettings /> },
 ];
 
 const publicRoutes = [
