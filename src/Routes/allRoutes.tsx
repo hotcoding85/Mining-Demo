@@ -1,6 +1,5 @@
 import { Navigate } from "react-router-dom"
-import path from "path";
-import React, { Component } from "react";
+import React from "react";
 import socketIO from 'socket.io-client';
 import OilAnalysisReportPage from "Pages/OilAnalysis/OilAnalysisReportPage";
 import { ThreeJS } from "Pages/ThreeJS";
@@ -40,61 +39,134 @@ const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassw
 const Materials = React.lazy(() => import("Pages/Materials"));
 const Benches = React.lazy(() => import("Pages/Benches"));
 const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
-
 const Users = React.lazy(() => import("Pages/Users"));
 const Fleet = React.lazy(() => import("Pages/Fleet"));
 const Trackers = React.lazy(() => import("Pages/Trackers"));
+
 const Dashboard = React.lazy(() => import("Pages/Dashboard"));
-const MaterialInventory = React.lazy(() => import("Pages/MaterialInventory"));
-const DiggingPerformance = React.lazy(() => import("Pages/DiggingPerformance"));
-const OreTracker = React.lazy(() => import("Pages/OreTracker"));
-const ShiftRoster = React.lazy(() => import("Pages/ShiftRoster"));
-const MapGeofence = React.lazy(() => import("Pages/MapGeofences"));
-const FleetTimeline = React.lazy(() => import("Pages/FleetTimeline"));
-const Target = React.lazy(() => import("Pages/Targets"));
-const OperatorReport = React.lazy(() => import("Pages/OperatorReport"));
-const TelemetryReport = React.lazy(() => import("Pages/TelemetryReport"));
-const GanttScheduler = React.lazy(() => import("Pages/GanttScheduler"));
+
+// const MaterialInventory = React.lazy(() => import("Pages/MaterialInventory"));
+import MaterialInventory from "Pages/MaterialInventory"
+
+// const DiggingPerformance = React.lazy(() => import("Pages/DiggingPerformance"));
+import DiggingPerformance from "Pages/DiggingPerformance"
+
+// const OreTracker = React.lazy(() => import("Pages/OreTracker"));
+import OreTracker from "Pages/OreTracker";
+
+// const ShiftRoster = React.lazy(() => import("Pages/ShiftRoster"));
+import ShiftRoster from "Pages/ShiftRoster";
+
+// const MapGeofence = React.lazy(() => import("Pages/MapGeofences"));
+import MapGeofence from "Pages/MapGeofences";
+
+// const FleetTimeline = React.lazy(() => import("Pages/FleetTimeline"));
+import FleetTimeline from "Pages/FleetTimeline";
+
+// const Target = React.lazy(() => import("Pages/Targets"));
+import Target from "Pages/Targets";
+
+// const OperatorReport = React.lazy(() => import("Pages/OperatorReport"));
+import OperatorReport from "Pages/OperatorReport";
+
+// const TelemetryReport = React.lazy(() => import("Pages/TelemetryReport"));
+import TelemetryReport from "Pages/TelemetryReport";
+
+// const GanttScheduler = React.lazy(() => import("Pages/GanttScheduler"));
+import GanttScheduler from "Pages/GanttScheduler";
+
 const Mock = React.lazy(() => import("Pages/Mock"));
 
 const Reports = React.lazy(() => import("Pages/Reports"));
-const Replay2D = React.lazy(() => import("Pages/2DReplay"));
-const Replay = React.lazy(() => import("Pages/Replay"));
-const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
 
-const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
-const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
-const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
-const DailyProductionDashboard = React.lazy(() => import("Pages/DailySnapshot"));
-const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
-const FuelStatusDashboard = React.lazy(() => import("Pages/FuelStatus"));
+const Replay2D = React.lazy(() => import("Pages/2DReplay"));
+// const Replay = React.lazy(() => import("Pages/Replay"));
+import Replay from "Pages/Replay";
+
+// const MaintenanceStatus = React.lazy(() => import("Pages/MaintenanceStatus"));
+import MaintenanceStatus from "Pages/MaintenanceStatus";
+
+// const MaterialMovement = React.lazy(() => import("Pages/MaterialMovement"));
+import MaterialMovement from "Pages/MaterialMovement";
+
+// const ShiftReport = React.lazy(() => import("Pages/Reports/ShiftReport"));
+import ShiftReport from "Pages/Reports/ShiftReport";
+
+// const DigBlockLayout = React.lazy(() => import("Pages/DigBlockLayout"));
+import DigBlockLayout from "Pages/DigBlockLayout";
+
+// const DailyProductionDashboard = React.lazy(() => import("Pages/DailySnapshot"));
+import DailyProductionDashboard from "Pages/DailySnapshot";
+
+// const TruckingPerformance = React.lazy(() => import("Pages/Trucking"));
+import TruckingPerformance from "Pages/Trucking";
+
+// const FuelStatusDashboard = React.lazy(() => import("Pages/FuelStatus"));
+import FuelStatusDashboard from "Pages/FuelStatus";
+
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
-const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
-const OilAnalysis = React.lazy(() => import("Pages/OilAnalysis"));
-const PreStarts = React.lazy(() => import("Pages/PreStarts"));
+// const MaintenanceScheduler = React.lazy(() => import("Pages/MaintenanceScheduler"));
+import MaintenanceScheduler from "Pages/MaintenanceScheduler";
+
+// const OilAnalysis = React.lazy(() => import("Pages/OilAnalysis"));
+import OilAnalysis from "Pages/OilAnalysis";
+
+// const PreStarts = React.lazy(() => import("Pages/PreStarts"));
+import PreStarts from "Pages/PreStarts";
+
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
-const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
 
-const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulTruckIntelligence"));
+// const HaulRoadOptimisation = React.lazy(() => import("Pages/HaulRoadOptimisation"));
+import HaulRoadOptimisation from "Pages/HaulRoadOptimisation";
+
+// const HaulTruckIntelligence = React.lazy(() => import("Pages/HaulTruckIntelligence"));
+import HaulTruckIntelligence from "Pages/HaulTruckIntelligence";
+
 // const PitView = React.lazy(() => import("Pages/PitView"));
-const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
-const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
-const FuelScheduler = React.lazy(() => import("Pages/FuelScheduler"));
-const MessageCentre = React.lazy(() => import("Pages/MessageCentre"));
+// const ProductionSummary = React.lazy(() => import("Pages/ProductionSummary"));
+import ProductionSummary from "Pages/ProductionSummary";
 
+// const ShortIntervalControl = React.lazy(() => import("Pages/ShortIntervalControl"));
+import ShortIntervalControl from "Pages/ShortIntervalControl";
 
-const TelemetryDetails = React.lazy(() => import("Pages/TelemetryDetails"));
-const RomWasteSummary = React.lazy(() => import("Pages/RomWasteSummary"));
-const PreShiftInfo = React.lazy(() => import("Pages/PreShiftInfo"));
-const OreSpotter = React.lazy(() => import("Pages/OreSpotter"));
-const CarryBackDescrepencies = React.lazy(() => import("Pages/CarryBackDescrepencies"));
-const ROMMillTargets = React.lazy(() => import("Pages/ROMMillTargets"));
+// const FuelScheduler = React.lazy(() => import("Pages/FuelScheduler"));
+import FuelScheduler from "Pages/FuelScheduler";
+
+// const MessageCentre = React.lazy(() => import("Pages/MessageCentre"));
+import MessageCentre from "Pages/MessageCentre";
+
+// const TelemetryDetails = React.lazy(() => import("Pages/TelemetryDetails"));
+import TelemetryDetails from "Pages/TelemetryDetails";
+
+// const RomWasteSummary = React.lazy(() => import("Pages/RomWasteSummary"));
+import RomWasteSummary from "Pages/RomWasteSummary";
+
+// const PreShiftInfo = React.lazy(() => import("Pages/PreShiftInfo"));
+import PreShiftInfo from "Pages/PreShiftInfo";
+
+// const OreSpotter = React.lazy(() => import("Pages/OreSpotter"));
+import OreSpotter from "Pages/OreSpotter";
+
+// const CarryBackDescrepencies = React.lazy(() => import("Pages/CarryBackDescrepencies"));
+import CarryBackDescrepencies from "Pages/CarryBackDescrepencies";
+
+// const ROMMillTargets = React.lazy(() => import("Pages/ROMMillTargets"));
+import ROMMillTargets from "Pages/ROMMillTargets";
+
 const TimelineReport = React.lazy(() => import("Pages/Reports/TimelineReport"));
-const Dispatch = React.lazy(() => import("Pages/Dispatch"));
-const ROMManagement = React.lazy(() => import("Pages/ROMManagement"));
-const WasteDumpManagement = React.lazy(() => import("Pages/WasteDumpManagement"));
-const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
+
+// const Dispatch = React.lazy(() => import("Pages/Dispatch"));
+import Dispatch from "Pages/Dispatch";
+
+// const ROMManagement = React.lazy(() => import("Pages/ROMManagement"));
+import ROMManagement from "Pages/ROMManagement";
+
+// const WasteDumpManagement = React.lazy(() => import("Pages/WasteDumpManagement"));
+import WasteDumpManagement from "Pages/WasteDumpManagement";
+
+// const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
+import BlendPlans from "Pages/BlendPlans";
 
 const socket = socketIO(process.env.REACT_APP_API_URL!);
 
