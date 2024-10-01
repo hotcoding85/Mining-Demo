@@ -1,0 +1,53 @@
+.trucks-draggable {
+    .heading {
+      font-size: 16px;
+      font-weight: 500
+    }
+    [role=button],
+    .draggable-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 8px;
+      margin: 0 0 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #fff;
+      font-weight: 400;
+      font-size: 20px;
+      img {
+        width: 36px;
+      }
+      .anticon svg {
+        font-size: 20px;
+      }
+      span {
+        font-size: 8px;
+        margin-left:4px;
+      }
+    }
+  }
+
+  @media (max-width: 1700px) {
+    .trucks-draggable {
+      [role=button],
+      .draggable-btn {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    }
+  }
+
+  @media (max-width: 1500px) {
+    .trucks-draggable {
+      [role=button],
+      .draggable-btn {
+        span {
+            display: block;
+            margin-top: 4px;
+        }
+      }
+    }
+  }

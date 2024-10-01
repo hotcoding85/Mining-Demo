@@ -16,6 +16,7 @@ import ConfirmModal from 'Components/Common/ConfirmModal';
 import { shifts, shiftsInFormat } from 'utils/common';
 import { pc1250, truckIcon } from 'assets/images/equipment';
 import ExcavatorIcon from 'assets/icons/shovel.png';
+import './style.scss';
 
 function Draggable({ type, id, name, model, disabled, onDragStart }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -25,23 +26,20 @@ function Draggable({ type, id, name, model, disabled, onDragStart }) {
             ref={setNodeRef}
             {...listeners}
             {...attributes}
+            className='draggable-btn'
             style={{
                 transform: CSS.Translate.toString(transform),
-                padding: '8px',
-                margin: '4px',
                 backgroundColor: disabled ? '#d0d0d0' : 'var(--bg-color)',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
                 cursor: disabled ? 'not-allowed' : 'move',
                 opacity: disabled ? 0.5 : 1,
-                color: 'white',
-                fontWeight: '400',
-                fontSize: '20px'
             }}
             onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
         >
-            {type == "operators" ? (<><UserOutlined /><span style={{ paddingLeft: '8px', fontSize: '18px', fontWeight: 'normal' }}>{name}<span>{model}</span></span></>) : (<><img width={36} src={truckIcon} /><span style={{ paddingLeft: '8px' }}>{name}<span style={{fontSize:'8px', marginLeft:'4px' }}>({model})</span></span></>)}
-
+            {type == "operators" ?
+                (<><UserOutlined /><p className='m-0'>{name}</p><span>{model}</span></>)
+                :
+                (<><img src={truckIcon} alt='Truck' /><p className='m-0'>{name}<span>({model})</span></p></>)
+            }
         </div>
     );
 }
@@ -540,10 +538,10 @@ const ShortIntervalControl = () => {
                                     </div>
                                 </CardBody>
                             </Card>
-                            <Card className='col-2'>
+                            <Card className='col-2 trucks-draggable'>
                                 <CardBody>
-                                    <span style={{ fontSize: '16px', fontWeight: '500' }}>Trucks</span>
-                                    <div style={{ marginTop: '10px' }}>
+                                    <span className='heading'>Trucks</span>
+                                    <div className='mt-3'>
                                         {trucks.map(truck => (
                                             < Draggable
                                                 type="trucks"
