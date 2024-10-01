@@ -1,14 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Typography, Input, Row, Col, Select, Button } from "antd";
 import { Container } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { SearchOutlined } from "@ant-design/icons";
 import "./index.css";
+import { useDispatch } from "react-redux";
+import {
+  addVehicleStateReasons,
+  getVehicleStateReasons,
+  removeVehicleStateReason,
+} from "slices/stateReasons/thunk";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import DeleteButton from "Components/Common/DeleteButton";
 
 const { Title } = Typography;
 const { Option } = Select;
 
 interface Row {
+  id?: string;
   code: string;
   description: string;
   vehicleType: string;
@@ -23,6 +33,17 @@ interface RowErrors {
 const AdminSettings = (props: any) => {
   document.title = "Admin Settings | FMS Live";
 
+  const dispatch: any = useDispatch();
+
+  const { vehicleStateReasons } = useSelector(
+    createSelector(
+      (state: any) => state.VehicleStateReasons,
+      (vehicleStateReasons) => ({
+        vehicleStateReasons: vehicleStateReasons.data,
+      })
+    )
+  );
+
   const [standbyRows, setStandbyRows] = useState<Row[]>([
     { code: "", description: "", vehicleType: "" },
   ]);
@@ -32,6 +53,31 @@ const AdminSettings = (props: any) => {
   const [downRows, setDownRows] = useState<Row[]>([
     { code: "", description: "", vehicleType: "" },
   ]);
+
+  useEffect(() => {
+    if (dispatch) {
+      dispatch(getVehicleStateReasons());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (vehicleStateReasons.length > 0) {
+      setStandbyRows([
+        ...vehicleStateReasons.filter(
+          (item: any) => item.category === "STANDBY"
+        ),
+        ...standbyRows.filter((item) => !item?.id),
+      ]);
+      setDelayRows([
+        ...vehicleStateReasons.filter((item: any) => item.category === "DELAY"),
+        ...delayRows.filter((item) => !item?.id),
+      ]);
+      setDownRows([
+        ...vehicleStateReasons.filter((item: any) => item.category === "DOWN"),
+        ...downRows.filter((item) => !item?.id),
+      ]);
+    }
+  }, [vehicleStateReasons]);
 
   const [standbyErrors, setStandbyErrors] = useState<{
     [key: number]: RowErrors;
@@ -54,8 +100,10 @@ const AdminSettings = (props: any) => {
     field: keyof Row,
     value: string
   ) => {
-    const updatedRows = [...rows];
-    updatedRows[index][field] = value;
+    let updatedRows = [...rows];
+    const updatedRow = { ...updatedRows[index], [field]: value };
+    updatedRows[index] = updatedRow;
+
     setRows(updatedRows);
 
     validateField(updatedRows, errors, setErrors, index, field, value);
@@ -143,6 +191,23 @@ const AdminSettings = (props: any) => {
     return isValid;
   };
 
+  const normalizeDataToPublish = (rows, category) => {
+    return rows.map((item) => ({
+      id: item.id || undefined,
+      code: item.code,
+      description: item.description,
+      vehicleType: item.vehicleType,
+      category,
+      status: item.status || "ACTIVE",
+    }));
+  };
+
+  const handleDeleteRow = (id: string) => {
+    if (id) {
+      dispatch(removeVehicleStateReason(id?.toString()));
+    }
+  };
+
   const handlePublish = () => {
     console.log("Attempting to publish...");
 
@@ -151,20 +216,43 @@ const AdminSettings = (props: any) => {
     const filteredDownRows = removeEmptyRows(downRows);
 
     if (!validateRows(filteredStandbyRows, setStandbyErrors)) {
+      console.log("Standby validation failed!");
+      console.log(filteredStandbyRows);
       return;
     }
 
     if (!validateRows(filteredDelayRows, setDelayErrors)) {
+      console.log("Delay validation failed!");
+      console.log(filteredDelayRows);
       return;
     }
 
     if (!validateRows(filteredDownRows, setDownErrors)) {
+      console.log("Down validation failed!");
+      console.log(filteredDownRows);
       return;
     }
 
-    console.log("Publishing Standby Reasons Data:", filteredStandbyRows);
-    console.log("Publishing Delay Reasons Data:", filteredDelayRows);
-    console.log("Publishing Down Reasons Data:", filteredDownRows);
+    setStandbyRows((prev) => [
+      ...prev.filter((item) => !!item.id),
+      { code: "", description: "", vehicleType: "" },
+    ]);
+    setDelayRows((prev) => [
+      ...prev.filter((item) => !!item.id),
+      { code: "", description: "", vehicleType: "" },
+    ]);
+    setDownRows((prev) => [
+      ...prev.filter((item) => !!item.id),
+      { code: "", description: "", vehicleType: "" },
+    ]);
+
+    dispatch(
+      addVehicleStateReasons([
+        ...normalizeDataToPublish(filteredStandbyRows, "STANDBY"),
+        ...normalizeDataToPublish(filteredDelayRows, "DELAY"),
+        ...normalizeDataToPublish(filteredDownRows, "DOWN"),
+      ])
+    );
   };
 
   return (
@@ -216,6 +304,7 @@ const AdminSettings = (props: any) => {
           errors={standbyErrors}
           setErrors={setStandbyErrors}
           handleInputChange={handleInputChange}
+          handleDeleteRow={handleDeleteRow}
         />
 
         {/* Delay Reasons Section */}
@@ -226,6 +315,7 @@ const AdminSettings = (props: any) => {
           errors={delayErrors}
           setErrors={setDelayErrors}
           handleInputChange={handleInputChange}
+          handleDeleteRow={handleDeleteRow}
         />
 
         {/* Down Reasons Section */}
@@ -236,6 +326,7 @@ const AdminSettings = (props: any) => {
           errors={downErrors}
           setErrors={setDownErrors}
           handleInputChange={handleInputChange}
+          handleDeleteRow={handleDeleteRow}
         />
       </div>
     </React.Fragment>
@@ -250,6 +341,7 @@ const ReasonSection = ({
   handleInputChange,
   errors,
   setErrors,
+  handleDeleteRow,
 }: {
   title: string;
   rows: Row[];
@@ -267,56 +359,80 @@ const ReasonSection = ({
   ) => void;
   errors: { [key: number]: RowErrors };
   setErrors: React.Dispatch<React.SetStateAction<{ [key: number]: RowErrors }>>;
-}) => (
-  <>
-    <Row
+  handleDeleteRow: (id: string) => void;
+}) => {
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+
+  const filteredRows = useMemo(
+    () =>
+      rows.filter(
+        (item) =>
+          !searchKeyword ||
+          item.code.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchKeyword.toLowerCase())
+      ),
+    [rows, searchKeyword]
+  );
+
+  return (
+    <div
       style={{
-        padding: "10px 20px",
-        marginTop: "16px",
-        backgroundColor: "#283655",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
+        marginBottom: "24px",
       }}
     >
-      <Col lg="6" style={{ display: "flex", justifyContent: "flex-start" }}>
-        <Title level={5} style={{ color: "white", marginBottom: 0 }}>
-          {title}
-        </Title>
-      </Col>
-      <Col lg="6" style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Input
-          prefix={<SearchOutlined />}
-          className="trucking-summary-search"
-          placeholder="Search"
-          style={{ width: 200 }}
-        />
-      </Col>
-    </Row>
-
-    {/* Header row for Code, Description, and Vehicle Type */}
-    <Row className="align-items-center justify-content-between my-4 border-bottom pb-2">
-      <Col lg="6" className="custom-label text-center">
-        <strong>Code</strong>
-      </Col>
-      <Col lg="6" className="custom-label text-center">
-        <strong>Description</strong>
-      </Col>
-      <Col lg="2" className="custom-label text-right">
-        <strong>Vehicle Type</strong>
-      </Col>
-    </Row>
-
-    {/* Rendering rows */}
-    {rows.map((row, index) => (
       <Row
-        key={index}
-        className="custom-section mt-4"
-        style={{ background: "transparent" }}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#283655",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
       >
-        <Col span={24}>
-          <Row className="align-items-center justify-content-between my-4 border-bottom pb-2">
-            <Col lg="6">
+        <Col lg="6" style={{ display: "flex", justifyContent: "flex-start" }}>
+          <Title level={5} style={{ color: "white", marginBottom: 0 }}>
+            {title}
+          </Title>
+        </Col>
+        <Col lg="6" style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Input
+            prefix={<SearchOutlined />}
+            className="trucking-summary-search"
+            placeholder="Search"
+            style={{ width: 200 }}
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+        </Col>
+      </Row>
+
+      {/* Header row for Code, Description, and Vehicle Type */}
+
+      <div
+        style={{
+          padding: "8px 16px",
+        }}
+      >
+        <Row className="align-items-center justify-content-between border-bottom py-2 mb-2">
+          <Col span={4} className="custom-label text-left">
+            <strong>Code</strong>
+          </Col>
+          <Col span={12} className="custom-label text-left">
+            <strong>Description</strong>
+          </Col>
+          <Col span={3} className="custom-label text-right">
+            <strong>Vehicle Type</strong>
+          </Col>
+        </Row>
+        {/* Rendering rows */}
+        {filteredRows.map((row, index) => (
+          <Row
+            key={index}
+            gutter={[8, 8]}
+            className="custom-section py-2 align-items-center justify-content-between"
+            style={{ background: "transparent" }}
+          >
+            <Col span={6}>
               <div className="input-container">
                 <Input
                   placeholder="Enter Code"
@@ -336,12 +452,17 @@ const ReasonSection = ({
                     errors[index]?.code ? "input-error" : ""
                   }`}
                 />
-                {errors[index]?.code && (
-                  <span className="error-text-inline">Code is required</span>
-                )}
+                {errors[index]?.code &&
+                  (row.code.length > 0 ? (
+                    <span className="error-text-inline">
+                      This code is already existed!
+                    </span>
+                  ) : (
+                    <span className="error-text-inline">Code is required</span>
+                  ))}
               </div>
             </Col>
-            <Col lg="6">
+            <Col span={12}>
               <div className="input-container">
                 <Input
                   placeholder="Enter Description"
@@ -368,8 +489,8 @@ const ReasonSection = ({
                 )}
               </div>
             </Col>
-            <Col lg="2">
-              <div className="input-container">
+            <Col span={3}>
+              <Row className="input-container align-items-center justify-content-end">
                 <Select
                   value={row.vehicleType}
                   onChange={(value) =>
@@ -388,22 +509,40 @@ const ReasonSection = ({
                     errors[index]?.vehicleType ? "input-error" : ""
                   }`}
                 >
-                  <Option value="Excavator">Excavator</Option>
-                  <Option value="Truck">Truck</Option>
-                  <Option value="Loader">Loader</Option>
+                  <Option value="">Select Vehicle Type</Option>
+                  <Option value="EXCAVATOR">Excavator</Option>
+                  <Option value="DUMP_TRUCK">Truck</Option>
+                  <Option value="LOADER">Loader</Option>
                 </Select>
                 {errors[index]?.vehicleType && (
-                  <span className="error-text-inline" style={{ left: "-30px" }}>
+                  <span
+                    className="error-text-inline"
+                    style={{ right: "0px", bottom: "-16px" }}
+                  >
                     Vehicle Type is required
                   </span>
                 )}
-              </div>
+              </Row>
+            </Col>
+            <Col span={1}>
+              {row.id && (
+                <DeleteButton
+                  item={row.code}
+                  onDelete={async () => {
+                    if (row?.id) {
+                      await handleDeleteRow(row?.id);
+                    } else {
+                      setRows(rows.filter((item) => item.code !== row.code));
+                    }
+                  }}
+                />
+              )}
             </Col>
           </Row>
-        </Col>
-      </Row>
-    ))}
-  </>
-);
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default AdminSettings;
