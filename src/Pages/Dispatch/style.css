@@ -85,7 +85,7 @@
 
 .dispatch-scroll .equipment-cards,
 .dispatch-scroll .cards-operator {
-    height: calc(100vh - 380px);
+    height: calc(100vh - 415px);
     overflow: auto;
 }
 
@@ -103,4 +103,35 @@
 
 body[data-layout-mode="dark"] .equipment-cards-bg {
     background-color: #535E77
+}
+
+body[data-layout-mode="dark"] .cards-operator .ant-list-items .ant-list-item-meta-title a,
+body[data-layout-mode="dark"] .cards-operator .ant-list-items .ant-list-item-meta-title a:hover,
+body[data-layout-mode="dark"] .cards-operator .ant-list-items .ant-list-item-meta-content .ant-list-item-meta-description {
+    color: #fff;
+    font-weight: 400;
+}
+
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-content,
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-header {
+    color: #fff;
+    background-color: #24314D;
+}
+
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-content .ant-modal-title,
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-content .ant-modal-close-x {
+    color: #fff;
+}
+
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-header .ant-btn  {
+    font-weight: 700;
+}
+
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-content .ant-btn.ant-btn-default  {
+    color: var(--bg-color);
+}
+
+body[data-layout-mode="dark"] .modal-equipment .ant-modal-content .ant-btn.ant-btn-primary {
+    color: #fff;
+    background-color: #434F6B;
 }

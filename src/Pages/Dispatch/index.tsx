@@ -497,7 +497,7 @@ const Dispatch = () => {
       setTargetEquipment(equiments[shiftIndex]);
 
       if (equiments[shiftIndex].state.toLowerCase() !== "down") {
-        if (getOperators(equiments[shiftIndex]?.id)?.length) {
+        if (!matchSkill(equiments[shiftIndex]?.model, person)) {
           setIsModalVisible(true);
         } else {
           equiments[shiftIndex].operator = person;
@@ -535,9 +535,9 @@ const Dispatch = () => {
       }
 
       // Disable the person after being dropped
-      const updatedPersons = operators.map((p) =>
-        p.id === activeId ? { ...p, disabled: true } : p
-      );
+      // const updatedPersons = operators.map((p) =>
+      //   p.id === activeId ? { ...p, disabled: true } : p
+      // );
 
       let excavator = fleet.find((key) => key.id === userData[0]);
 
@@ -572,7 +572,7 @@ const Dispatch = () => {
         }
 
         // setS(updatedShiftRosters);
-        setOperators(updatedPersons);
+        // setOperators(updatedPersons);
       }
     }
 
@@ -667,6 +667,14 @@ const Dispatch = () => {
     );
     setFilteredOperators(newOperators);
   };
+
+  const matchSkill = (model: string, person: any) => {
+    if (!person?.skills || !Array.isArray(person.skills) || person.skills.length === 0) {
+      return false;
+    }
+
+    return person?.skills?.includes(model) || person?.skills?.filter(s => model.startsWith(s)).length > 0;
+  }
 
   const handleMouseEnter = (index: number) => setTooltipIndex(index);
 
@@ -911,9 +919,11 @@ const Dispatch = () => {
                 }}
                 okText="Confirm"
                 cancelText="Cancel"
-                className="modal-lists"
+                className="modal-equipment"
               >
-                <p>{`Do you want to replace ${targetEquipment?.name} operator ${targetEquipment?.operator?.lastName} with ${targetOperatorFileds?.person?.lastName}.`}</p>
+                {
+                  <p>{`Operator ${targetOperatorFileds?.person?.firstName} ${targetOperatorFileds?.person?.lastName} does not have the skills to operate the equipment ${targetEquipment?.name} (${targetEquipment?.model}). Do you still want to assign the operator to the equipment?`}</p>
+                }
               </Modal>
             </Col>
           </Row>
