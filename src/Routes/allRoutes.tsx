@@ -181,6 +181,7 @@ const authProtectedRoutes = [
   { path: "/", exact: true, component: <Navigate to="/fleet-status" /> },
   { path: "/fleet-status", component: <FMS /> },
   { path: "/realtime-postioning", component: <Map socket={socket} /> },
+  { path: "/realtime-postioning/:equipmentId", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
   {path: "/admin-settings", exact: true, component: <AdminSettings />},

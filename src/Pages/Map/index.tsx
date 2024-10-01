@@ -11,7 +11,7 @@ import {
   getAllVehicleRoutes,
 } from "slices/thunk";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import _ from "lodash";
+import _, { eq } from "lodash";
 import {
   standbyTruck,
   delayTruck,
@@ -42,6 +42,7 @@ import {
 } from "./sample";
 import mapLocationImage from "assets/images/map/map-location.png";
 import { excavatorImages, truckImages } from "assets/images/equipment";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -103,6 +104,9 @@ const Map = ({ socket }) => {
   var [geofences, setGeofences] = useState<any[]>([]);
   const [mapStylesLoaded, setMapStylesLoaded] = useState(false);
 
+  const navigate = useNavigate();
+  const { equipmentId } = useParams();
+
   const layerOptions = [
     "Active Benches",
     "Current Haul Routes",
@@ -127,7 +131,7 @@ const Map = ({ socket }) => {
   };
 
   const [selectedEquipment, setSelectedEquipment] =
-    useState<EquipmentLocation | null>(null);
+    useState<EquipmentLocation | null>();
   const mapContainer = useRef(null);
   const mapRef = useRef<any>(null);
   const [lng, setLng] = useState(120.44871814239025);
@@ -173,8 +177,8 @@ const Map = ({ socket }) => {
     const isNotActive: boolean = eq.status.toLowerCase() != "ACTIVE";
     const standardIconTemplate = `<div id="map-location" style="${textStyle}">
             <img width="28px" style="object-fit: contain" src="${getEquipmentStatusIcon(
-      eq
-    )}" alt="equipment-image" />
+              eq
+            )}" alt="equipment-image" />
             ${eq.name}
             </div>
             <div id="imageContainer" style="position: absolute;bottom: 0px;transform: translateX(-40%); z-index:1;">
@@ -191,6 +195,7 @@ const Map = ({ socket }) => {
     // Add a click event listener to the dynamically created icon to dispaly card
     icon.addEventListener("click", () => {
       setSelectedEquipment(eq);
+      navigate(`${eq.id}`);
     });
 
     return icon;
@@ -330,7 +335,10 @@ const Map = ({ socket }) => {
   useEffect(() => {
     if (mapStylesLoaded) {
       routes
-        .filter((_route) => _route.category != "STOP_SIGNS" && _route.status == 'ACTIVE')
+        .filter(
+          (_route) =>
+            _route.category != "STOP_SIGNS" && _route.status == "ACTIVE"
+        )
         .map((item, key) => {
           if (!mapRef.current?.getSource(item.id)) {
             mapRef.current?.addSource(item.id, {
@@ -352,7 +360,10 @@ const Map = ({ socket }) => {
           }
         });
       routes
-        .filter((_route) => _route.category === "STOP_SIGNS" && _route.status == 'ACTIVE')
+        .filter(
+          (_route) =>
+            _route.category === "STOP_SIGNS" && _route.status == "ACTIVE"
+        )
         .map((item, key) => {
           const map = mapRef.current;
 
@@ -554,6 +565,18 @@ const Map = ({ socket }) => {
     });
     // markersLayer.
     setMarkers(markersData);
+
+    if (equipmentId) {
+      const eq = filteredEquipment.find((item) => item.id === equipmentId);
+      if (eq) {
+        setSelectedEquipment(eq);
+        mapRef.current?.flyTo({
+          center: eq.position,
+          zoom: 20,
+          speed: 1,
+        });
+      }
+    }
   }, [mapStylesLoaded, filter]);
 
   const drawFeature = (geoFenceData: any) => {
@@ -637,7 +660,6 @@ const Map = ({ socket }) => {
   }, [checkedList, routes]);
 
   useEffect(() => {
-
     if (mapRef.current) return; // Initialize map only once
 
     mapRef.current = new mapboxgl.Map({
@@ -714,113 +736,121 @@ const Map = ({ socket }) => {
                 id="map"
                 ref={mapContainer}
                 className="map-container"
-                style={{ height: "calc(100vh - 274px)", width: "100%" }}
-              ></div>
+                style={{
+                  position: "relative",
+                  height: "calc(100vh - 274px)",
+                  width: "100%",
+                }}
+              >
+                {selectedEquipment && (
+                  <Card
+                    className="p-3 card-status"
+                    style={{
+                      position: "absolute",
+                      width: "20%",
+                      top: "10px",
+                      right: "10px",
+                    }}
+                  >
+                    <div className="d-flex justify-content-between">
+                      <div style={{ display: "flex", alignItems: "baseline" }}>
+                        <span
+                          style={{
+                            fontSize: "1.2em",
+                            fontWeight: "500",
+                            color: "white",
+                          }}
+                        >
+                          {selectedEquipment.name}
+                        </span>
+                      </div>
+                      <div>
+                        <span
+                          className="card-status"
+                          style={{
+                            backgroundColor: getStateColor(
+                              selectedEquipment.status
+                            ),
+                          }}
+                        >
+                          {selectedEquipment.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        fontStyle: "italic",
+                        fontSize: "small",
+                      }}
+                    >
+                      <img
+                        src={SyncIcon}
+                        alt="Sync Icon"
+                        style={{
+                          marginRight: "5px",
+                        }}
+                      />
+                      Synced {getRandomInt(0, 5)}h ago
+                    </span>
+                    <div className="assigned-truck-details mt-2">
+                      <div className="assigned-truck-progress">
+                        <p className="progress-text">
+                          <span className="progress-label">
+                            Total Planned Load
+                          </span>
+                          <span className="progress-value">23/35</span>
+                        </p>
+                        <Progress percent={66} showInfo={false} />
+                      </div>
+                      <div
+                        className="d-flex flex-column"
+                        style={{ width: "100%" }}
+                      >
+                        <p className="truck-props">
+                          <span className="props-label">Avg Load Time</span>
+                          <span className="props-value">04:21</span>
+                        </p>
+                        <p className="truck-props">
+                          <span className="props-label">Tonnes per hour</span>
+                          <span className="props-value">50t</span>
+                        </p>
+                        <p className="truck-props">
+                          <span className="props-label">
+                            Operational Delays
+                          </span>
+                          <span className="props-value">06:13</span>
+                        </p>
+                        <p className="truck-props">
+                          <span className="props-label">
+                            Number of Operational Delay Events
+                          </span>
+                          <span className="props-value">5</span>
+                        </p>
+                        <p className="truck-props cycle-time">
+                          <span className="props-label">
+                            Total Previous Cycle Time
+                          </span>
+                          <div
+                            className="cycle-time-container"
+                            style={{ gap: "6px" }}
+                          >
+                            <span className="time-chips">13:30</span>
+                            <span className="time-chips">14:27</span>
+                            <span className="time-chips">15:37</span>
+                            <span className="time-chips">15:44</span>
+                          </div>
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+              </div>
             </Col>
           </Row>
           {/* Display the information card dynamically when equipment is clicked */}
-          {selectedEquipment && (
-            <Row className="mt-3">
-              <Col md={{ size: 4, offset: 8 }}>
-                <Card
-                  className="p-3 card-status"
-                  style={{ top: "-930px", right: "-70px", width: "80%" }}
-                >
-                  <div className="d-flex justify-content-between">
-                    <div style={{ display: "flex", alignItems: "baseline" }}>
-                      <span
-                        style={{
-                          fontSize: "1.2em",
-                          fontWeight: "500",
-                          color: "white",
-                        }}
-                      >
-                        {selectedEquipment.name}
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        className="card-status"
-                        style={{
-                          backgroundColor: getStateColor(
-                            selectedEquipment.status
-                          ),
-                        }}
-                      >
-                        {selectedEquipment.status}
-                      </span>
-                    </div>
-                  </div>
-
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      fontStyle: "italic",
-                      fontSize: "small",
-                    }}
-                  >
-                    <img
-                      src={SyncIcon}
-                      alt="Sync Icon"
-                      style={{
-                        marginRight: "5px",
-                      }}
-                    />
-                    Synced {getRandomInt(0, 5)}h ago
-                  </span>
-                  <div className="assigned-truck-details mt-2">
-                    <div className="assigned-truck-progress">
-                      <p className="progress-text">
-                        <span className="progress-label">
-                          Total Planned Load
-                        </span>
-                        <span className="progress-value">23/35</span>
-                      </p>
-                      <Progress percent={66} showInfo={false} />
-                    </div>
-                    <div
-                      className="d-flex flex-column"
-                      style={{ width: "100%" }}
-                    >
-                      <p className="truck-props">
-                        <span className="props-label">Avg Load Time</span>
-                        <span className="props-value">04:21</span>
-                      </p>
-                      <p className="truck-props">
-                        <span className="props-label">Tonnes per hour</span>
-                        <span className="props-value">50t</span>
-                      </p>
-                      <p className="truck-props">
-                        <span className="props-label">Operational Delays</span>
-                        <span className="props-value">06:13</span>
-                      </p>
-                      <p className="truck-props">
-                        <span className="props-label">
-                          Number of Operational Delay Events
-                        </span>
-                        <span className="props-value">5</span>
-                      </p>
-                      <p className="truck-props cycle-time">
-                        <span className="props-label">
-                          Total Previous Cycle Time
-                        </span>
-                        <div
-                          className="cycle-time-container"
-                          style={{ gap: "6px" }}
-                        >
-                          <span className="time-chips">13:30</span>
-                          <span className="time-chips">14:27</span>
-                          <span className="time-chips">15:37</span>
-                          <span className="time-chips">15:44</span>
-                        </div>
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-          )}
         </Container>
       </div>
     </React.Fragment>
