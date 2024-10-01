@@ -36,6 +36,49 @@ const columns = [
   },
 ];
 
+const sampleData = [
+  {
+    key: "material_1",
+    materialName: "Gold",
+    materialGrade: "A",
+    fromPit: "Pit A",
+    intoCrusher: "Crusher 1",
+    currentStock: 500,
+  },
+  {
+    key: "material_2",
+    materialName: "Silver",
+    materialGrade: "B",
+    fromPit: "Pit B",
+    intoCrusher: "Crusher 2",
+    currentStock: 300,
+  },
+  {
+    key: "material_3",
+    materialName: "Copper",
+    materialGrade: "C",
+    fromPit: "Pit C",
+    intoCrusher: "Crusher 3",
+    currentStock: 700,
+  },
+  {
+    key: "material_4",
+    materialName: "Platinum",
+    materialGrade: "A",
+    fromPit: "Pit D",
+    intoCrusher: "Crusher 4",
+    currentStock: 150,
+  },
+  {
+    key: "material_5",
+    materialName: "Iron",
+    materialGrade: "D",
+    fromPit: "Pit A",
+    intoCrusher: "Crusher 5",
+    currentStock: 800,
+  },
+];
+
 const RomStatus = ({ shiftDate, shift }) => {
   const [data, setData] = useState([]);
 
@@ -58,7 +101,7 @@ const RomStatus = ({ shiftDate, shift }) => {
           <div className="mt-3">
             <Table
               columns={columns}
-              data={data || []}
+              data={sampleData || []}
               paginationPageSize={5}
               scroll={{ x: "max-content" }}
             />
