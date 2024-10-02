@@ -1,5 +1,7 @@
 export interface LoadHaulCycleTimeBreakdownData {
+  fleet: string,
   cycleActivities: string,
+  target: number,
   actualSiteAverage: string,
   mineIdeal: string,
 }

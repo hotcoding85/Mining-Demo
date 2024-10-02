@@ -33,16 +33,19 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 const GraphCard = () => {
   const data = [
-    { percent: 0, load: 0 },
-    { percent: 100, load: 90 },
-    { percent: 110, load: 10 },
-    { percent: 120, load: 0 },
-    { percent: 0, load: 0 },
+    { percent: -1, load: 0 },
+    { percent: "100%", load: 90 },
+    { percent: "110%", load: 10 },
+    { percent: "120%", load: 0 },
+    { percent: "", load: 0 },
   ];
 
   return (
     <Card>
       <CardBody>
+        <div className="haulroad-summary-title text-start">
+          Truck Payload Profile Management
+        </div>
         <div
           className="position-relative chart-container"
           style={{
@@ -50,12 +53,25 @@ const GraphCard = () => {
             height: "300px",
           }}
         >
+          <div>
+          </div>
+          <p
+            className="chart-names position-absolute d-block rounded-circle"
+            style={{
+              top: "4px",
+              left: "4px",
+              height: "18px",
+              width: "18px",
+              backgroundColor: "#D9D9D9",
+            }}
+          >
+          </p>
           <p
             className="chart-names position-absolute fw-bold"
             style={{
               color: "#fff",
               fontSize: "14px",
-              top: "16px",
+              top: "20px",
               left: "16px",
             }}
           >
@@ -66,12 +82,29 @@ const GraphCard = () => {
             style={{
               color: "#fff",
               fontSize: "14px",
-              top: "16px",
+              top: "20px",
               left: "51%",
             }}
           >
             Durability
           </p>
+          <p className="chart-names position-absolute fw-bold"
+            style={{
+              color: "#fff",
+              fontSize: "14px",
+              bottom: "100px",
+              left: "22%",
+              zIndex: "1",
+              background: "linear-gradient(90deg, rgb(0 143 0 / 0%) 0%, rgb(42 114 42) 50%, rgb(0 95 0 / 12%) 100%)",
+              padding: "15px"
+            }}>90% of Loads</p>
+          <p className="chart-names position-absolute fw-bold"
+            style={{
+              color: "#fff",
+              fontSize: "14px",
+              bottom: "100px",
+              left: "59%",
+            }}>10% of Loads</p>
           <p
             className="chart-names position-absolute fw-bold"
             style={{

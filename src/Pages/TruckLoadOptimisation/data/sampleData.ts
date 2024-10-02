@@ -73,27 +73,37 @@ export const PayloadWithData = {
 
 export const loadHaulCycleTimeBreakdownReport: LoadHaulCycleTimeBreakdownData[] = [
   {
+    fleet: "Digger Fleet 1",
     cycleActivities: "Loading",
+    target: 0,
     actualSiteAverage: "05:48",
     mineIdeal: "04:19",
   },
   {
+    fleet: "",
     cycleActivities: "Hauling Full",
+    target: 0,
     actualSiteAverage: "09:39",
     mineIdeal: "09:00",
   },
   {
+    fleet: "",
     cycleActivities: "Tipping",
+    target: 0,
     actualSiteAverage: "01:26",
     mineIdeal: "01:26",
   },
   {
+    fleet: "",
     cycleActivities: "Travel Empty",
+    target: 0,
     actualSiteAverage: "07:30",
     mineIdeal: "06:40",
   },
   {
+    fleet: "",
     cycleActivities: "Queuing",
+    target: 0,
     actualSiteAverage: "01:56",
     mineIdeal: "00:00",
   },

@@ -110,4 +110,14 @@ body[data-layout-mode="dark"]  {
     }
   }
  }
- 
+
+ .chart-container {
+  .recharts-tooltip-wrapper {
+    z-index: 9;
+  }
+  // .recharts-cartesian-grid-vertical {
+  //   line:first-child {
+  //     opacity: 0;
+  //   }
+  // }
+}

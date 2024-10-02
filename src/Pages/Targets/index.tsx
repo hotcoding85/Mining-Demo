@@ -13,7 +13,7 @@ import { round2One, round2Two, roundOff, shiftDuration, shifts, shiftsInFormat, 
 import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
-import './index.css'
+import './index.scss'
 
 const Target = (props: any) => {
   document.title = "Targets";
@@ -969,7 +969,7 @@ const Target = (props: any) => {
                       />
                       <DatePicker allowClear={false} value={dayjs(startDate)} format={pickerFormat} type={pickerType} onChange={onDateChange} />
                       <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
-                      <Button style={{backgroundColor: 'var(--bg-color)', color:'white'}} icon={<CloudUploadOutlined />} onClick={submit} >Publish to Production</Button>
+                      <Button icon={<CloudUploadOutlined />} onClick={submit} >Publish to Production</Button>
                     </Space>
                   </Col>
 
