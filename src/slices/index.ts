@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import { Reducer } from "@reduxjs/toolkit";
 
 // Front
 import LayoutReducer, { LayoutState } from "./layouts/reducer";
@@ -19,25 +18,25 @@ import VehicleStateReasonReducer, { VehicleStateReasonState } from "./stateReaso
 import MenuSettingReducer, { MenuSettingState } from "./menuSettings/reducer";
 
 export interface RootState {
-  Layout: Reducer<LayoutState> | undefined;
-  Auth: Reducer<ProfileState> | undefined;
-  Fleet: Reducer<FleetState> | undefined;
-  Users: Reducer<UsersState> | undefined;
-  Benches: Reducer<BenchesState> | undefined;
-  Trackers: Reducer<TrackersState> | undefined;
-  Materials: Reducer<MaterialsState> | undefined;
-  ShiftRosters: Reducer<ShiftRosterState> | undefined;
-  GeoFence: Reducer<GeoFenceState> | undefined;
-  Dispatch: Reducer<DispatchState> | undefined;
-  Events: Reducer<EventsState> | undefined;
-  Target: Reducer<TargetState> | undefined;
-  VehicleRoutes: Reducer<VehicleRoutesState> | undefined;
-  VehicleStateReasons: Reducer<VehicleStateReasonState> | undefined;
-  MenuSettings: Reducer<MenuSettingState> | undefined;
+  Layout: LayoutState;
+  Auth: ProfileState;
+  Fleet: FleetState;
+  Users: UsersState;
+  Benches: BenchesState;
+  Trackers: TrackersState;
+  Materials: MaterialsState;
+  ShiftRosters: ShiftRosterState;
+  GeoFences: GeoFenceState;
+  Dispatch: DispatchState;
+  Events: EventsState;
+  Targets: TargetState;
+  VehicleRoutes: VehicleRoutesState;
+  VehicleStateReasons: VehicleStateReasonState;
+  MenuSettings: MenuSettingState;
   // Add other slices as needed
 }
 
-const rootReducer = combineReducers<Partial<RootState>>({
+const rootReducer = combineReducers({
   Layout: LayoutReducer,
   Auth: ProfileReducer,
   Fleet: FleetReducer,
@@ -46,13 +45,15 @@ const rootReducer = combineReducers<Partial<RootState>>({
   Trackers: TrackersReducer,
   Materials: MaterialsReducer,
   ShiftRosters: ShiftRosterReducer,
-  GeoFence: GeoFenceReducer,
+  GeoFences: GeoFenceReducer,
   Dispatch: DispatchReducer,
   Events: EventsReducer,
-  Target: TargetReducer,
+  Targets: TargetReducer,
   VehicleRoutes: VehicleRoutesReducer,
   VehicleStateReasons: VehicleStateReasonReducer,
   MenuSettings: MenuSettingReducer
 });
 
 export default rootReducer;
+
+export type RootReducer = ReturnType<typeof rootReducer>;

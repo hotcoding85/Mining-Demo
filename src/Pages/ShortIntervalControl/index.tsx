@@ -17,6 +17,7 @@ import { shifts, shiftsInFormat } from 'utils/common';
 import { pc1250, truckIcon } from 'assets/images/equipment';
 import ExcavatorIcon from 'assets/icons/shovel.png';
 import './style.scss';
+import { FleetSelector, RosterSelector, UserSelector } from 'selectors';
 
 function Draggable({ type, id, name, model, disabled, onDragStart }) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -68,31 +69,9 @@ const ShortIntervalControl = () => {
     document.title = "SIC | FMS Live";
 
     const dispatch: any = useDispatch();
-
-    const rostersProperties = createSelector(
-        (state: any) => state.ShiftRosters,
-        (rosters) => ({
-            shiftrosters: rosters.data
-        })
-    );
-
-    const usersProperties = createSelector(
-        (state: any) => state.Users,
-        (usersState) => ({
-            users: usersState.data
-        })
-    );
-
-    const fleetProperties = createSelector(
-        (state: any) => state.Fleet,
-        (fleetState) => ({
-            fleet: fleetState.data
-        })
-    );
-
-    const { shiftrosters } = useSelector(rostersProperties);
-    const { users } = useSelector(usersProperties);
-    const { fleet } = useSelector(fleetProperties);
+    const { rosters } = useSelector(RosterSelector);
+    const { users } = useSelector(UserSelector);
+    const { fleet } = useSelector(FleetSelector);
 
     const [operators, setOperators] = useState<any>([]);
     const [filteredOperators, setFilteredOperators] = useState<any>([]);
@@ -128,7 +107,6 @@ const ShortIntervalControl = () => {
     }, [dispatch, shift, startDate]);
 
     useEffect(() => {
-        console.log(fleet)
         setDiggers(fleet.filter(vehicle => vehicle.category === "EXCAVATOR"))
         setTrucks(fleet.filter(vehicle => vehicle.category === "DUMP_TRUCK"))
         // setTimeout(() => {
@@ -148,23 +126,23 @@ const ShortIntervalControl = () => {
         // setTimeout(() => {
         updateUsedOperatorsAndTrucks();
         // }, 2000);
-    }, [shiftrosters]);
+    }, [rosters]);
 
     const getOperators = (excavatorId: string) => {
 
-        let shiftRoster = shiftrosters.find(roster => roster.vehicleId === excavatorId);
+        let shiftRoster = rosters.find(roster => roster.vehicleId === excavatorId);
         return shiftRoster && shiftRoster.operators ? shiftRoster.operators : [];
     };
 
     const getTrainers = (excavatorId: string) => {
 
-        let shiftRoster = shiftrosters.find(roster => roster.vehicleId === excavatorId);
+        let shiftRoster = rosters.find(roster => roster.vehicleId === excavatorId);
         return shiftRoster && shiftRoster.trainers ? shiftRoster.trainers : [];
     };
 
     const getTrucks = (excavatorId: string) => {
 
-        let shiftRoster = shiftrosters?.find(roster => roster.vehicleId === excavatorId);
+        let shiftRoster = rosters?.find(roster => roster.vehicleId === excavatorId);
         return shiftRoster && shiftRoster.trucks ? shiftRoster.trucks : [];
     };
 
@@ -207,13 +185,13 @@ const ShortIntervalControl = () => {
         var updatedTrucks: Array<any> = [];
 
 
-        const rosterOperators = shiftrosters?.map((roster) => {
+        const rosterOperators = rosters?.map((roster) => {
             return roster.operators && roster.operators[0] ? roster.operators[0].id : undefined;
         });
-        const rosterTrainers = shiftrosters?.map((roster) => {
+        const rosterTrainers = rosters?.map((roster) => {
             return roster.trainers && roster.trainers[0] ? roster.trainers[0].id : undefined;
         });
-        let rosterTrucks = shiftrosters?.map((roster) => {
+        let rosterTrucks: any = rosters?.map((roster) => {
             return roster.trucks && roster.trucks[0] ? roster.trucks.map(truck => { return truck.id }) : undefined;
         });
 
@@ -247,53 +225,57 @@ const ShortIntervalControl = () => {
         };
     };
 
-    const removeOperator = (event) => {
-        const deleteData = (event.currentTarget.id).split('::');
-        let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === deleteData[0]));
-        const rosterId = shiftRoster.id;
-        delete shiftRoster._type;
-        delete shiftRoster.createdAt;
-        delete shiftRoster.updatedAt;
-        delete shiftRoster.createdBy;
-        delete shiftRoster.updatedBy;
-        delete shiftRoster.id;
-        delete shiftRoster._id;
-        delete shiftRoster.vehicle;
-        shiftRoster['operators'] = [];
-        dispatch(updateShiftRoster(rosterId, shiftRoster));
-    }
+    // const removeOperator = (event) => {
+    //     const deleteData = (event.currentTarget.id).split('::');
+    //     let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === deleteData[0]));
+    //     const rosterId = shiftRoster.id;
+    //     delete shiftRoster._type;
+    //     delete shiftRoster.createdAt;
+    //     delete shiftRoster.updatedAt;
+    //     delete shiftRoster.createdBy;
+    //     delete shiftRoster.updatedBy;
+    //     delete shiftRoster.id;
+    //     delete shiftRoster._id;
+    //     delete shiftRoster.vehicle;
+    //     shiftRoster['operators'] = [];
+    //     dispatch(updateShiftRoster(rosterId, shiftRoster));
+    // }
 
-    const removeTrainer = (event) => {
-        const deleteData = (event.currentTarget.id).split('::');
-        let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === deleteData[0]));
-        const rosterId = shiftRoster.id;
-        delete shiftRoster._type;
-        delete shiftRoster.createdAt;
-        delete shiftRoster.updatedAt;
-        delete shiftRoster.createdBy;
-        delete shiftRoster.updatedBy;
-        delete shiftRoster.id;
-        delete shiftRoster._id;
-        delete shiftRoster.vehicle;
-        shiftRoster['trainers'] = [];
-        dispatch(updateShiftRoster(rosterId, shiftRoster));
-    }
+    // const removeTrainer = (event) => {
+    //     const deleteData = (event.currentTarget.id).split('::');
+    //     let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === deleteData[0]));
+    //     const rosterId = shiftRoster.id;
+    //     delete shiftRoster._type;
+    //     delete shiftRoster.createdAt;
+    //     delete shiftRoster.updatedAt;
+    //     delete shiftRoster.createdBy;
+    //     delete shiftRoster.updatedBy;
+    //     delete shiftRoster.id;
+    //     delete shiftRoster._id;
+    //     delete shiftRoster.vehicle;
+    //     shiftRoster['trainers'] = [];
+    //     dispatch(updateShiftRoster(rosterId, shiftRoster));
+    // }
 
     const removeTruck = (event) => {
         const deleteData = (event.currentTarget.id).split('::');
-        let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === deleteData[0]));
-        let trucks = _.filter(shiftRoster.trucks, (truck) => { return truck.id != deleteData[1] })
-        const rosterId = shiftRoster.id;
-        delete shiftRoster._type;
-        delete shiftRoster.createdAt;
-        delete shiftRoster.updatedAt;
-        delete shiftRoster.createdBy;
-        delete shiftRoster.updatedBy;
-        delete shiftRoster.id;
-        delete shiftRoster._id;
-        delete shiftRoster.vehicle;
-        shiftRoster['trucks'] = trucks;
-        dispatch(updateShiftRoster(rosterId, shiftRoster));
+        let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === deleteData[0]));
+        let trucks = _.filter(shiftRoster?.trucks, (truck) => { return truck.id != deleteData[1] })
+        const rosterId = shiftRoster?.id;
+        delete shiftRoster?._type;
+        delete shiftRoster?.createdAt;
+        delete shiftRoster?.updatedAt;
+        delete shiftRoster?.createdBy;
+        delete shiftRoster?.updatedBy;
+        delete shiftRoster?.id;
+        delete shiftRoster?._id;
+        delete shiftRoster?.vehicle;
+        if (shiftRoster) {
+            shiftRoster['trucks'] = trucks;
+        }
+        if (rosterId) {
+            dispatch(updateShiftRoster(rosterId, shiftRoster));
+        }
     }
     const handleDragStart = (event: DragEndEvent) => {
         const { active } = event;
@@ -318,7 +300,7 @@ const ShortIntervalControl = () => {
 
             const userData = overId.split('::');
 
-            let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
+            let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === userData[0]));
             if (person && !person.disabled) {
                 if (shiftRoster && userData && userData[1] && userData[1] === 'trainer') {
                     if (shiftRoster.trainers && shiftRoster.trainers[0]) {
@@ -389,7 +371,7 @@ const ShortIntervalControl = () => {
             if (excavator) {
 
                 // Update the person in shiftRoster
-                let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
+                let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === userData[0]));
                 // let updatedShiftRosters;
 
                 if (shiftRoster && shiftRoster.id) {
@@ -434,7 +416,7 @@ const ShortIntervalControl = () => {
                 let excavator = fleet.find(key => key.id === userData[0]);
                 if (excavator) {
                     // Update the person in shiftRoster
-                    let shiftRoster = _.cloneDeep(shiftrosters.find(roster => roster.vehicleId === userData[0]));
+                    let shiftRoster = _.cloneDeep(rosters.find(roster => roster.vehicleId === userData[0]));
                     // let updatedShiftRosters;
 
                     if (shiftRoster && shiftRoster.id) {
@@ -504,7 +486,7 @@ const ShortIntervalControl = () => {
                                     <div style={{ marginTop: '10px', overflow: 'scroll', height: '100vh' }}>
                                         {diggers.map(excavator => (
                                             <DropTarget key={excavator.id} id={excavator.id}>
-                                                <span style={{ fontSize: '22px', fontWeight: '500' }}>{excavator.name}<span style={{fontSize:'16px'}}>({excavator.model})</span></span>
+                                                <span style={{ fontSize: '22px', fontWeight: '500' }}>{excavator.name}<span style={{ fontSize: '16px' }}>({excavator.model})</span></span>
                                                 <div style={{
                                                     width: '100%', backgroundColor: '', padding: '10px',
                                                     margin: '4px',
@@ -522,7 +504,7 @@ const ShortIntervalControl = () => {
                                                                                 <CardBody style={{ padding: '8px 8px' }}>
                                                                                     <img width={36} src={truckIcon} />
                                                                                     <span style={{ fontSize: '18px' }}>{truck.name}</span>
-                                                                                    <span style={{fontSize:'10px', marginLeft:'6px'}}>({truck.model})</span>
+                                                                                    <span style={{ fontSize: '10px', marginLeft: '6px' }}>({truck.model})</span>
                                                                                     <Button id={excavator.id + '::' + truck.id} style={{ marginLeft: '10px' }} shape="circle" icon={<DeleteOutlined />} onClick={removeTruck} />
                                                                                 </CardBody>
                                                                             </Card>

@@ -4,9 +4,8 @@ import dayjs from "dayjs";
 import { format } from "date-fns";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import { getAllEvents } from "slices/thunk";
-import { DatePicker, DatePickerProps, Segmented } from "antd";
+import { DatePickerProps, Segmented } from "antd";
 import { Dropdown, DropdownType } from "Components/Common/Dropdown";
 import {
   FLEET_TIME_STATE_COLOR,
@@ -25,6 +24,7 @@ import {
   StandByAnalysis,
 } from "./_mock";
 import CustomDatePicker from "Components/Common/DatePicker/CustomDatePicker";
+import { FleetSelector, LayoutSelector } from "selectors";
 
 const EquipmentTypes = [
   {
@@ -80,32 +80,8 @@ const FleetTimeline = (props: any) => {
     slotCount: 2,
   };
 
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
-
-  const { fleet } = useSelector(
-    createSelector(
-      (state: any) => state.Fleet,
-      (fleetState) => ({
-        fleet: fleetState.data,
-      })
-    )
-  );
-
-  const { events } = useSelector(
-    createSelector(
-      (state: any) => state.Events,
-      (eventsState) => ({
-        events: eventsState.data,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
+  const { fleet } = useSelector(FleetSelector);
 
   const [fleetMode, setFleetMode] = useState<string>("CURRENT_SHIFT");
 

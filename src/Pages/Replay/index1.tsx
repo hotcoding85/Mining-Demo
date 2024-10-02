@@ -19,6 +19,7 @@ import ReactApexChart from "react-apexcharts";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
+import { LineString } from "interfaces/GeoJson";
 
 export type TripRoutesDataType = {
     id: string,
@@ -436,7 +437,7 @@ const Replay = (props: any) => {
                 currentTimeValue.current = -1
                 animationRef.current.elapsedTime = 0
             }
-            let stopSignDuration = getStopSignsDuration(selectedTrip.geoJson.geometry.coordinates)
+            let stopSignDuration = getStopSignsDuration((selectedTrip.geoJson.geometry as LineString).coordinates)
             drawRoute(selectedTrip, selectedTrip.duration, selectedTrip.distance, true, stopSignDuration)
         }
     }, [isPlaying, selectedTrip, animationRef, totalTime])
@@ -473,8 +474,8 @@ const Replay = (props: any) => {
         let duration = 0;
         _.map(coordinates, coor => {
             _.map(stopSignData.current, _stopsign => {
-                if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
-                    if (_stopsign.geoJson.geometry.coordinates[0][0] == coor[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coor[1]) {
+                if ((_stopsign.geoJson.geometry as LineString).coordinates && (_stopsign.geoJson.geometry as LineString).coordinates[0]) {
+                    if ((_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coor[0] && (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coor[1]) {
                         duration += _stopsign.duration
                     }
                 }
@@ -486,8 +487,8 @@ const Replay = (props: any) => {
 
     const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
         _.map(stopSignData.current, _stopsign => {
-            if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
-                if (_stopsign.geoJson.geometry.coordinates[0][0] == coord[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]) {
+            if ((_stopsign.geoJson.geometry as LineString).coordinates && (_stopsign.geoJson.geometry as LineString).coordinates[0]) {
+                if ((_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coord[0] && (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coord[1]) {
                     return _stopsign.duration
                 }
             }
@@ -575,7 +576,7 @@ const Replay = (props: any) => {
         if (marker.current) marker.current.remove();
         
         const segments: any = [];
-        const _coordinates = saving_data.geoJson.geometry.coordinates as [number, number][];
+        const _coordinates = (saving_data.geoJson.geometry as LineString).coordinates as [number, number][];
         const pinRoute = _coordinates;
         
         
@@ -693,7 +694,7 @@ const Replay = (props: any) => {
         let popup;
 
         const bounds = new mapboxgl.LngLatBounds();
-        saving_data.geoJson.geometry.coordinates?.forEach((coord: any) => bounds.extend(coord));
+        (saving_data.geoJson.geometry as LineString).coordinates?.forEach((coord: any) => bounds.extend(coord));
         mapRef.current.fitBounds(bounds, { padding: 50 });
         popup = new mapboxgl.Popup({ closeButton: false });
         const el = document.createElement('div');

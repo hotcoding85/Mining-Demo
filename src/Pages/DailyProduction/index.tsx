@@ -6,11 +6,11 @@ import MiningTruckGraphCard from "./MiningTruckGraphCard";
 import TruckingExecutionCard from './TruckExecutionCard';
 import { getAllFleet } from 'slices/fleet/thunk';
 import { useDispatch, useSelector } from 'react-redux';
-import { createSelector } from '@reduxjs/toolkit';
 import ForecastProgressBar from './ForecastProgressBar';
 
 import {hd1500} from 'assets/images/equipment'
 import { DatePicker, Segmented, Space } from 'antd';
+import { FleetSelector } from 'selectors';
 
 const { RangePicker } = DatePicker;
 
@@ -46,20 +46,10 @@ const DailyProduction = () => {
     labels: ['Utilization'],
   };
 
-  const selectProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleetState) => ({
-      fleetList: fleetState.data,
-      loading: fleetState.loading
-    })
-  );
+  const { fleet } = useSelector(FleetSelector);
 
-  const { fleetList, loading } = useSelector(selectProperties);
   const [timeRange, setTimeRange] = useState('CURRENT_SHIFT');
-  const [diggers, setDiggers] = useState<any>();
-  const [trucks, setTrucks] = useState<any>();
 
-  const [isLoading, setLoading] = useState<boolean>(loading);
   const [truckingExecution, setTruckingExecution] = useState({
     options: options,
     series: [62],
@@ -191,11 +181,6 @@ const DailyProduction = () => {
       },
     },
   };
-
-  useEffect(() => {
-    setDiggers(fleetList.filter(vehicle => vehicle.category === "EXCAVATOR"))
-    setTrucks(fleetList.filter(vehicle => vehicle.category === "DUMP_TRUCK"))
-  }, [fleetList])
 
   useEffect(() => {
     dispatch(getAllFleet()); // Dispatch action to fetch data on component mount

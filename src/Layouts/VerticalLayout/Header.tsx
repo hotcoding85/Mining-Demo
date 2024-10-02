@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
 
 // Reactstrap
-import { Row, Col, Dropdown, DropdownToggle, DropdownMenu, FormGroup, Input } from "reactstrap";
 
 // Import menuDropdown
 import LanguageDropdown from "../../Components/Common/LanguageDropdown";
@@ -16,16 +15,15 @@ import logoLightSvg from "../../assets/images/logo-light.svg";
 //i18n
 import { withTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
-import { changeLayoutMode, changeSideMenuState } from "slices/thunk";
+import { changeLayoutMode, changeUnits } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
-import { Switch } from "antd";
+import { Switch, Tooltip } from "antd";
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+import { LayoutSelector } from "selectors";
 
-const Header = (props: any) => {
+const Header = () => {
 
   const [fullscreen, setFullScreen] = useState<string>("bx bx-fullscreen");
-  const [theme, setTheme] = useState<boolean>(false);
 
   const toggleFullscreen = () => {
     let document: any = window.document;
@@ -80,25 +78,7 @@ const Header = (props: any) => {
 
   const dispatch = useDispatch<any>();
 
-  const selectLayoutState = (state: any) => state.Layout;
-  const selectProperties = createSelector(
-    selectLayoutState,
-    (layout) => ({
-      isSideMenuOpen: layout.sideMenuOpen,
-      layoutType: layout.layoutTypes,
-      layoutModeType: layout.layoutModeTypes,
-      layoutWidthType: layout.layoutWidthTypes,
-      topbarThemeType: layout.topbarThemeTypes,
-      leftSidebarThemeType: layout.leftSideBarThemeTypes,
-      leftSidebarImageType: layout.leftSidebarImageTypes,
-      leftSidebarTypes: layout.leftSidebarTypes
-    })
-  );
-
-  const {
-    isSideMenuOpen, layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
-  } = useSelector(selectProperties);
-
+  const { layoutModeType, units } = useSelector(LayoutSelector);
 
   return (
     <React.Fragment>
@@ -131,21 +111,37 @@ const Header = (props: any) => {
           </div>
           <div className="d-flex">
 
+            <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
+              <Tooltip title="Display Units">
+                {/* <span style={{ marginRight: '4px', color: 'white' }}>Display Units</span> */}
+                <Switch value={units == "t"} checkedChildren="Tonnes" unCheckedChildren="BCM" onChange={(checked: boolean) => {
+                  if (checked) {
+                    dispatch(changeUnits("t"))
+                  } else {
+                    dispatch(changeUnits("m3"))
+                  }
+                }} />
+              </Tooltip>
+            </div>
+
             <LanguageDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
-              <Switch checkedChildren={<MoonOutlined />} unCheckedChildren={<SunOutlined />} value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
-                if (checked) {
-                  dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
-                } else {
-                  dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.LIGHT));
-                }
-              }} />
+              <Tooltip title={layoutModeType == LAYOUT_MODE_TYPES.DARK ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+                <Switch checkedChildren={<MoonOutlined />} unCheckedChildren={<SunOutlined />} value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
+                  if (checked) {
+                    dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.DARK));
+                  } else {
+                    dispatch(changeLayoutMode(LAYOUT_MODE_TYPES.LIGHT));
+                  }
+                }} />
+              </Tooltip>
             </div>
 
 
 
             <div className="dropdown d-none d-lg-inline-block ms-1">
+
               <button
                 type="button"
                 onClick={() => {
@@ -154,7 +150,9 @@ const Header = (props: any) => {
                 className="btn header-item noti-icon "
                 data-toggle="fullscreen"
               >
-                <i className={fullscreen} />
+                <Tooltip title="Fullscreen">
+                  <i className={fullscreen} />
+                </Tooltip>
               </button>
             </div>
 

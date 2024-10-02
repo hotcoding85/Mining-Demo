@@ -18,9 +18,10 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { useDispatch, useSelector } from "react-redux";
 import { Dropdown, DropdownType } from 'Components/Common/Dropdown';
 import './index.css';
-import { createSelector } from 'reselect';
 import { LAYOUT_MODE_TYPES } from 'Components/constants/layout';
 import JSZip from '@turbowarp/jszip';
+import { LayoutSelector, VehicleRouteSelector } from 'selectors';
+import { LineString, Point } from 'interfaces/GeoJson';
 
 // default route's speed limit 40km/h
 const defaultSpeedLimit = 40;
@@ -64,16 +65,7 @@ const AutoRouting = () => {
 
     const [mapStylesLoaded, setMapStylesLoaded] = useState<boolean>(false);
 
-    const geojsonData = useRef<any>();
-    
-    const { layoutModeType } = useSelector(
-        createSelector(
-          (state: any) => state.Layout,
-          (layout) => ({
-            layoutModeType: layout.layoutModeTypes,
-          })
-        )
-    );
+    const { layoutModeType } = useSelector(LayoutSelector );
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
     
     const dispatch: any = useDispatch();
@@ -91,21 +83,16 @@ const AutoRouting = () => {
     
     const [currentCategory, setCurrentCategory] = useState<DropdownType>(layerOptions[0]);
 
-    const routesProperties = createSelector(
-        (state: any) => state.VehicleRoutes,
-        (routesState) => ({
-          routes: routesState.data
-        })
-    );
-    const { routes } = useSelector(routesProperties);
+    const { vehicleRoutes } = useSelector(VehicleRouteSelector);
+
     useEffect(() => {
-        if (mapStylesLoaded && mapRef.current && routes){
+        if (mapStylesLoaded && mapRef.current && vehicleRoutes){
             while(stopMarkers.current.length > 0) {
                 stopMarkers.current.pop()?.remove()
             }
-            const realRoutes = routes.filter(_route => _route.category != 'STOP_SIGNS' && _route.status == 'ACTIVE')
-            const stopSignRoutes = routes.filter(_route => _route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE')
-            const _routeData = _.map(routes, route => {
+            const realRoutes = vehicleRoutes.filter(_route => _route.category != 'STOP_SIGNS' && _route.status == 'ACTIVE')
+            const stopSignRoutes = vehicleRoutes.filter(_route => _route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE')
+            const _routeData = _.map(vehicleRoutes, route => {
                 return {
                     id: route.id,
                     name: route.name,
@@ -127,7 +114,7 @@ const AutoRouting = () => {
                 let route = _route
                 drawRoute(route, 4, _route.color)
                 const _routeAllMarkers = {
-                    coordinates: route.geoJson.geometry.coordinates as [number, number][],
+                    coordinates: (route.geoJson.geometry as LineString).coordinates,
                     speedlimit: route.speedLimits,
                     color: route.color,
                     markers: [],
@@ -136,7 +123,7 @@ const AutoRouting = () => {
                 }
                 routeAllMarkers.current.push(_routeAllMarkers)
 
-                _coordinates.push(route.geoJson.geometry.coordinates)
+                _coordinates.push((route.geoJson.geometry as LineString).coordinates)
             })
             setAllCoordinates([..._coordinates])
             currentRoute.current = realRoutes.length + 1
@@ -144,7 +131,7 @@ const AutoRouting = () => {
             // Draw Stop Signs
             // drawStopSign()
         }
-    }, [routes, mapRef, mapStylesLoaded])
+    }, [vehicleRoutes, mapRef, mapStylesLoaded])
     useEffect(() => {
         if (!mapRef) return
         dispatch(getAllVehicleRoutes())
@@ -676,9 +663,9 @@ const AutoRouting = () => {
     useEffect(() => {
         // show edit modal when clicking the line in the map
         const map = mapRef.current;
-        if (!map || !routes || routes.length === 0) return;
-        const realRoutes = routes.filter(_route => _route.category !== 'STOP_SIGNS')
-        const stopSigns = routes.filter(_route => _route.category === 'STOP_SIGNS')
+        if (!map || !vehicleRoutes || vehicleRoutes.length === 0) return;
+        const realRoutes = vehicleRoutes.filter(_route => _route.category !== 'STOP_SIGNS')
+        const stopSigns = vehicleRoutes.filter(_route => _route.category === 'STOP_SIGNS')
         const layerIds: string[] = [];
         _.map(realRoutes, _route => {
             const layerId = `${_route.id}-layer`;
@@ -719,13 +706,13 @@ const AutoRouting = () => {
                 }
             });
         };
-    }, [routes, saving_data]);
+    }, [vehicleRoutes, saving_data]);
 
     const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
         let stopsign: any = null
         _.map(stopSignData.current, _stopsign => {
-            if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
-                if (_stopsign.geoJson.geometry.coordinates[0][0] == coord[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]) {
+            if ((_stopsign.geoJson.geometry as Point).coordinates && (_stopsign.geoJson.geometry as Point).coordinates[0]) {
+                if ((_stopsign.geoJson.geometry as Point).coordinates[0][0] == coord[0] && (_stopsign.geoJson.geometry as Point).coordinates[0][1] == coord[1]) {
                     stopsign = _stopsign
                 }
             }
@@ -747,7 +734,7 @@ const AutoRouting = () => {
         const segments: any = [];
 
         // Assuming `_saving_data.geometry.coordinates` is an array of coordinates along the route
-        const _coordinates = _saving_data.geoJson.geometry.coordinates as [number, number][];
+        const _coordinates = (_saving_data.geoJson.geometry as LineString).coordinates as [number, number][];
         const pinRoute = _coordinates;
 
         let total_stopSignDuration = 0
@@ -764,7 +751,7 @@ const AutoRouting = () => {
             segments.push({
                 coordinates: [_coordinates[i - 1], _coordinates[i]],
                 color: _saving_data.colors ? _saving_data.colors[i] : _color, // Use segment-specific color or fallback to default color
-                speed: _saving_data.speeds && _saving_data.speeds.length > 0 ? _saving_data.speeds[i] : _saving_data.speedLimits
+                speed: _saving_data.speedLimits
             });
         }
 
@@ -868,7 +855,7 @@ const AutoRouting = () => {
 
         if (animation) {
             const bounds = new mapboxgl.LngLatBounds();
-            _saving_data.geoJson.geometry.coordinates?.forEach((coord: any) => bounds.extend(coord));
+            (_saving_data.geoJson.geometry as LineString).coordinates?.forEach((coord: any) => bounds.extend(coord));
             mapRef.current?.fitBounds(bounds, { padding: 50 });
             popup = new mapboxgl.Popup({ closeButton: false });
             const el = document.createElement('div');
@@ -1084,7 +1071,7 @@ const AutoRouting = () => {
     useEffect(() => {
         if (!mapRef.current || !stopSignData.current || stopSignData.current.length === 0) return
         _.map(stopSignData.current, (_stopsign) => {
-            _stopsign.geoJson?.geometry?.coordinates && _stopsign.geoJson?.geometry?.coordinates.length > 0 && _stopsign.geoJson?.geometry?.coordinates[0] && addMarker(_stopsign.geoJson?.geometry?.coordinates[0], 'stop', _stopsign.color)
+            (_stopsign.geoJson?.geometry as LineString)?.coordinates && (_stopsign.geoJson?.geometry as LineString)?.coordinates.length > 0 && (_stopsign.geoJson?.geometry as LineString)?.coordinates[0] && addMarker((_stopsign.geoJson?.geometry as LineString)?.coordinates[0], 'stop', _stopsign.color)
 
         })
         const addMarkerDoubleClickListener = (markers, handler) => {
@@ -1097,7 +1084,7 @@ const AutoRouting = () => {
         const handleMarkerDoubleClick = marker => {
             let lngLat = marker.getLngLat()
             const route: any = _.find(stopSignData.current, _stopsign => {
-                const coordinates = _stopsign?.geoJson?.geometry?.coordinates;
+                const coordinates = (_stopsign?.geoJson?.geometry as LineString)?.coordinates;
                 
                 // Check if coordinates exist and have the expected structure
                 return coordinates && 
@@ -1265,7 +1252,7 @@ const AutoRouting = () => {
             if (editingRouteId !== null && routeData) {
                 let _saving_data = _?.find(routeData, _route => editingRouteId === _route.id)
                 if (!_saving_data) return;
-                const coordinates = _saving_data.geoJson?.geometry?.coordinates;
+                const coordinates = (_saving_data.geoJson?.geometry as LineString)?.coordinates;
                 if (!coordinates) return;
 
                 let distance = Math.floor(turf.length(turf.lineString(coordinates), { units: 'meters' }))

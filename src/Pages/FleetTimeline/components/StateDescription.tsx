@@ -6,7 +6,7 @@ import {
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { LayoutSelector } from "selectors";
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,14 +42,8 @@ const Title = styled.div<{ color?: string }>`
 `;
 
 const StateDescription: React.FC = () => {
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 

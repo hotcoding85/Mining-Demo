@@ -149,6 +149,8 @@ import WasteDumpManagement from "Pages/WasteDumpManagement";
 import BlendPlans from "Pages/BlendPlans";
 
 import MenuSettings from "Pages/MenuSettings";
+// const Materials = React.lazy(() => import("Pages/Materials"));
+import Materials from "Pages/Materials";
 
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
@@ -164,7 +166,7 @@ const Replay2D = React.lazy(() => import("Pages/2DReplay"));
 const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
 const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
 const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
-const Materials = React.lazy(() => import("Pages/Materials"));
+
 const Benches = React.lazy(() => import("Pages/Benches"));
 const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
 const Users = React.lazy(() => import("Pages/Users"));
@@ -182,8 +184,7 @@ socket.on("connect_error", (err) => {
 const authProtectedRoutes = [
   { path: "/", exact: true, component: <Navigate to="/fleet-status" /> },
   { path: "/fleet-status", component: <FMS /> },
-  { path: "/realtime-postioning", component: <Map socket={socket} /> },
-  { path: "/realtime-postioning/:equipmentId", component: <Map socket={socket} /> },
+  { path: "/realtime-postioning/:equipmentId?", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
   { path: "/admin-settings", exact: true, component: <AdminSettings /> },

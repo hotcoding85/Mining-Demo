@@ -1,20 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Slider, Button, Select } from "antd";
+import React, {  } from "react";
+import { Slider, Button } from "antd";
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
-  RightOutlined,
-  LeftOutlined,
 } from "@ant-design/icons";
 import "./TimeSlider.css"; 
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import { MdOutlineForward10 } from "react-icons/md";
 import { MdOutlineReplay10 } from "react-icons/md";
-import { HiOutlinePause } from "react-icons/hi";
 import { CiSettings } from "react-icons/ci";
 import { RiFullscreenFill } from "react-icons/ri";
+import { LayoutSelector } from "selectors";
 
 interface TimeSliderProps {
   isPlaying: boolean;
@@ -39,21 +36,9 @@ const TimeSlider: React.FC<TimeSliderProps> = ({
   onNext,
   onPrev,
 }) => {
-  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const { Option } = Select;
-
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
-
-  const numSegments = 6;
 
   // Format seconds into hh:mm:ss
   const formatTime = (value?: number): React.ReactNode => {

@@ -1,23 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Col, Container, Form, FormFeedback, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import { AppState } from 'store';
 import { getAllTrackers, addTracker, updateTracker, removeTracker, getAllFleet } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
-import { useFormik } from "formik";
 import { Link } from 'react-router-dom';
-import DeleteModal from 'Components/Common/DeleteModal';
 import QRCodeModal from 'Components/Common/QRCodeModal';
 import { v4 as uuidv4 } from "uuid";
 import DeleteButton from "Components/Common/DeleteButton";
-import { createSelector } from 'reselect';
 import FormModal from 'Components/Common/FormModal';
 import { StatusOptions } from "common/options";
 import { isTrackerNameUnique } from 'Helpers/api_trackers_helper';
 import Table from 'Components/Common/Table';
 import { debounce } from 'lodash';
 import { Input } from 'antd';
+import { FleetSelector, TrackerSelector } from 'selectors';
 
 const Trackers = (props: any) => {
   document.title = "Trackers | FMS Live";
@@ -28,24 +25,9 @@ const Trackers = (props: any) => {
   const [modal, setModal] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const devicesProperties = createSelector(
-    (state: any) => state.Trackers,
-    (devices) => ({
-      data: devices.data,
-      total: devices.total,
-    })
-  );
+  const { trackers } = useSelector(TrackerSelector);
 
-  const fleetProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleet) => ({
-      fleet: fleet.data,
-    })
-  );
-
-  const { data, total } = useSelector(devicesProperties);
-
-  const { fleet } = useSelector(fleetProperties);
+  const { fleet } = useSelector(FleetSelector);
 
   //delete customer
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
@@ -328,15 +310,15 @@ const Trackers = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    return data?.filter((item) =>
+    if (!searchTerm) return trackers;
+    return trackers?.filter((item) =>
       columns?.some((col) =>
         String(item[col.key])
           .toLowerCase()
           .includes(searchTerm.toLowerCase())
       )
     );
-  }, [data, searchTerm, columns]);
+  }, [trackers, searchTerm, columns]);
 
   return (
     <React.Fragment>

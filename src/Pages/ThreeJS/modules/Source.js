@@ -700,7 +700,6 @@ export class Map {
 
   init() {
     this.center = Utils.geo2tile(this.geoLocation, this.zoom)
-    console.log({loc: this.geoLocation, center: this.center})
     const tileOffset = Math.floor(this.nTiles / 2)
 
     for (let i = 0; i < this.nTiles; i++) {

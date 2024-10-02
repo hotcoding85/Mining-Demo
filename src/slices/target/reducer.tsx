@@ -9,10 +9,22 @@ interface CreateResponse {
   data: Target;
 }
 
+interface TargetData {
+  availability: number;
+  avgLoad: number;
+  avgTime: number;
+  loads: number;
+  standby: number;
+  tonnes: number;
+  utilization: number;
+}
+
 interface Target {
   id: string;
   roster: string;
   operators: User[];
+  vehicleId: string;
+  data: TargetData;
   vehicle: Vehicle;
 }
 

@@ -198,17 +198,18 @@ body[data-layout-mode="light"]  .form-control {
   color: var(--dark-text-color) !important;
   background-color: transparent !important;
 }
-
+/* 
 .ant-switch {
   background-color: var(--dark-bg-color);
-}
+} */
 
 .ant-switch.ant-switch-checked {
-  background-color: var(--dark-bg-color);
+  /* background-color: var(--bg-color); */
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .ant-switch.ant-switch-checked:hover {
-  background-color: white;
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
 .text-right {
@@ -237,4 +238,9 @@ body[data-layout-mode="light"]  .form-control {
 */
 .footer {
   display: none;
+}
+
+.form-control:disabled {
+  background-color: white !important;
+  cursor: not-allowed;
 }

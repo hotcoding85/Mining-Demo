@@ -801,27 +801,7 @@ const MessageCentre = (props: any) => {
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
     const dispatch: any = useDispatch();
-    const geoFenceProperties = createSelector(
-        (state: any) => state.GeoFence,
-        (geofenceState) => ({
-        geofenceFromDB: geofenceState.data
-        })
-    );
-
-    const benchesProperties = createSelector(
-        (state: any) => state.Benches,
-        (benchesState) => ({
-        benches: benchesState.data
-        })
-    );
-
-    const fleetProperties = createSelector(
-        (state: any) => state.Fleet,
-        (fleetState) => ({
-        fleet: _.groupBy(fleetState.data, 'id')
-        })
-    );
-
+    
     const eventsProperties = createSelector(
         (state: any) => state.Events,
         (eventsState) => ({
@@ -834,9 +814,6 @@ const MessageCentre = (props: any) => {
     const [lng, setLng] = useState(120.44463458272295,);
     const [lat, setLat] = useState(-29.146790943732764);
 
-    const { geofenceFromDB } = useSelector(geoFenceProperties);
-    const { fleet } = useSelector(fleetProperties);
-    const { benches } = useSelector(benchesProperties);
     const [filter, setFilter] = useState<string>('All Equipment');
 
     const [markers, setMarkers] = useState<MarkerData[]>([]);
@@ -1005,13 +982,6 @@ const MessageCentre = (props: any) => {
         const { shift, shiftDate } = shiftTimings();
         dispatch(getAllEvents(shiftDate + ':' + shift));
     }, [dispatch]);
-    
-    useEffect(() => {
-        geofences = [];
-        geofenceFromDB.forEach((json) => {
-          // drawFeature(json);
-        })
-    }, [geofenceFromDB]);
     
     const clearMarkers = () => {
         markers.map(item => {

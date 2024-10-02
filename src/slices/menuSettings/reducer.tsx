@@ -92,4 +92,4 @@ export const {
   updateSuccess,
   deleteSuccess,
 } = menuSettingSlice.actions;
-export default menuSettingSlice.reducer as Reducer<MenuSettingState>;
+export default menuSettingSlice.reducer;

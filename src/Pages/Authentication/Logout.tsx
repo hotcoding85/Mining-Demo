@@ -6,19 +6,11 @@ import { logoutUser } from "slices/thunk";
 
 //redux
 import { useSelector, useDispatch } from "react-redux";
-import { createSelector } from "reselect";
+import { ProfileSelector } from "selectors";
 
 const Logout = () => {
   const dispatch = useDispatch<any>();
-
-  const selectProperties = createSelector(
-    (state: any) => state.Auth,
-    (profile) => ({
-      isUserLogout: profile.isUserLogout,
-    })
-  );
-
-  const { isUserLogout } = useSelector(selectProperties);
+  const { isUserLogout } = useSelector(ProfileSelector);
 
   useEffect(() => {
     dispatch(logoutUser());

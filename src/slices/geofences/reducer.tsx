@@ -2,6 +2,7 @@ import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
 import { User } from "slices/users/reducer";
 import { Vehicle } from "slices/fleet/reducer";
 import { uniqBy } from "lodash";
+import { Bench } from "slices/benches/reducer";
 
 interface CreateResponse {
   code: number;
@@ -18,6 +19,7 @@ interface GeoFence {
   id: string;
   name: string;
   locationId: string;
+  location: Bench;
   geoJson: object;
 }
 

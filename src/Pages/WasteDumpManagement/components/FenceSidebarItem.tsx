@@ -1,6 +1,6 @@
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { LayoutSelector } from "selectors";
 
 interface FenceSidebarItemProps {
   fence: any;
@@ -13,14 +13,8 @@ const FenceSidebarItem: React.FC<FenceSidebarItemProps> = ({
   onClick,
   onRemove,
 }) => {
-  const geoFencesProperties = createSelector(
-    (state: any) => state.Layout,
-    (Layout) => ({
-      layoutModeType: Layout.layoutModeTypes,
-    })
-  );
 
-  const { layoutModeType } = useSelector(geoFencesProperties);
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 

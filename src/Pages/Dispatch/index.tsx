@@ -3,7 +3,6 @@ import { DragEndEvent } from "@dnd-kit/core";
 import "./style.scss";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
-import { createSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
 import { List, Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons"; // Import the default avatar icon
@@ -34,6 +33,9 @@ import { shifts, shiftsInFormat } from "utils/common";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { equipmentStateProps, OperatorStateProps } from "./types";
+import { FleetSelector, RosterSelector, UserSelector } from "selectors";
+import { Vehicle } from "slices/fleet/reducer";
+import { User } from "slices/users/reducer";
 // import { equipmentStateProps, OperatorStateProps } from "./types";
 
 const Dispatch = () => {
@@ -41,38 +43,16 @@ const Dispatch = () => {
 
   const dispatch: any = useDispatch();
 
-  const rostersProperties = createSelector(
-    (state: any) => state.ShiftRosters,
-    (rosters) => ({
-      shiftrosters: rosters.data,
-    })
-  );
-
-  const usersProperties = createSelector(
-    (state: any) => state.Users,
-    (usersState) => ({
-      users: usersState.data,
-    })
-  );
-
-  const fleetProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleetState) => ({
-      fleet: fleetState.data,
-    })
-  );
-
-  const { shiftrosters = [] } = useSelector(rostersProperties);
-  const { users } = useSelector(usersProperties);
-  const { fleet } = useSelector(fleetProperties);
+  const { rosters } = useSelector(RosterSelector);
+  const { users } = useSelector(UserSelector);
+  const { fleet } = useSelector(FleetSelector);
   const [operators, setOperators] = useState<any>([]);
   const [filteredOperators, setFilteredOperators] = useState<
-    OperatorStateProps[]
+    User[]
   >([]);
   const [trucks, setTrucks] = useState<any>([]);
-  const [diggers, setDiggers] = useState<any>([]);
   const [equipmentList, setEquipmentList] =
-    useState<equipmentStateProps[]>(fleet);
+    useState<Vehicle[]>(fleet);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
@@ -191,13 +171,6 @@ const Dispatch = () => {
     dispatch(getShiftRosters(format(startDate, "yyyy-MM-dd") + ":" + shift)); // Dispatch action to fetch data on component mount
   }, [dispatch, shift, startDate]);
 
-  useEffect(() => {
-    setDiggers(fleet.filter((vehicle) => vehicle.category === "EXCAVATOR"));
-    setTrucks(fleet.filter((vehicle) => vehicle.category === "DUMP_TRUCK"));
-    // setTimeout(() => {
-    // updateUsedOperatorsAndTrucks();
-    // }, 2000);
-  }, [fleet]);
 
   useEffect(() => {
     setOperators(
@@ -222,31 +195,31 @@ const Dispatch = () => {
     // updateUsedOperatorsAndTrucks();
     // }, 2000);
 
-    let totalAllocatedOpertors = getAllocatedOperators(shiftrosters);
+    let totalAllocatedOpertors = getAllocatedOperators(rosters);
     setAllocatedOperators(totalAllocatedOpertors);
     getAvailableOperators();
-  }, [shiftrosters]);
+  }, [rosters]);
 
   // useEffect(() => {
   //   console.log("run");
   // }, []);
 
   const getOperators = (excavatorId: string) => {
-    let shiftRoster = shiftrosters?.find(
+    let shiftRoster = rosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.operators ? shiftRoster.operators : [];
   };
 
   const getTrainers = (excavatorId: string) => {
-    let shiftRoster = shiftrosters?.find(
+    let shiftRoster = rosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.trainers ? shiftRoster.trainers : [];
   };
 
   const getTrucks = (excavatorId: string) => {
-    let shiftRoster = shiftrosters?.find(
+    let shiftRoster = rosters?.find(
       (roster) => roster.vehicleId === excavatorId
     );
     return shiftRoster && shiftRoster.trucks ? shiftRoster.trucks : [];
@@ -298,21 +271,21 @@ const Dispatch = () => {
     var updatedPersons: Array<any> = [];
     var updatedTrucks: Array<any> = [];
 
-    const rosterOperators = shiftrosters.map((roster) => {
+    const rosterOperators = rosters.map((roster) => {
       return roster.operators && roster.operators[0]
         ? roster.operators[0].id
         : undefined;
     });
-    const rosterTrainers = shiftrosters.map((roster) => {
+    const rosterTrainers = rosters.map((roster) => {
       return roster.trainers && roster.trainers[0]
         ? roster.trainers[0].id
         : undefined;
     });
-    let rosterTrucks = shiftrosters.map((roster) => {
+    let rosterTrucks: any = rosters.map((roster) => {
       return roster.trucks && roster.trucks[0]
         ? roster.trucks.map((truck) => {
-            return truck.id;
-          })
+          return truck.id;
+        })
         : undefined;
     });
 
@@ -356,59 +329,66 @@ const Dispatch = () => {
   const removeOperator = (id: string) => {
     const deleteData = id.split("::");
     let shiftRoster = _.cloneDeep(
-      shiftrosters.find((roster) => roster.vehicleId === deleteData[0])
+      rosters.find((roster) => roster.vehicleId === deleteData[0])
     );
-    const rosterId = shiftRoster.id;
-    delete shiftRoster._type;
-    delete shiftRoster.createdAt;
-    delete shiftRoster.updatedAt;
-    delete shiftRoster.createdBy;
-    delete shiftRoster.updatedBy;
-    delete shiftRoster.id;
-    delete shiftRoster._id;
-    delete shiftRoster.vehicle;
-    shiftRoster["operators"] = [];
-    dispatch(updateShiftRoster(rosterId, shiftRoster));
+    const rosterId = shiftRoster?.id;
+    delete shiftRoster?._type;
+    delete shiftRoster?.createdAt;
+    delete shiftRoster?.updatedAt;
+    delete shiftRoster?.createdBy;
+    delete shiftRoster?.updatedBy;
+    delete shiftRoster?.id;
+    delete shiftRoster?._id;
+    delete shiftRoster?.vehicle;
+
+    if (shiftRoster)
+      shiftRoster["operators"] = [];
+
+    if (rosterId) {
+      dispatch(updateShiftRoster(rosterId, shiftRoster));
+    }
+
   };
 
-  const removeTrainer = (event) => {
-    const deleteData = event.currentTarget.id.split("::");
-    let shiftRoster = _.cloneDeep(
-      shiftrosters.find((roster) => roster.vehicleId === deleteData[0])
-    );
-    const rosterId = shiftRoster.id;
-    delete shiftRoster._type;
-    delete shiftRoster.createdAt;
-    delete shiftRoster.updatedAt;
-    delete shiftRoster.createdBy;
-    delete shiftRoster.updatedBy;
-    delete shiftRoster.id;
-    delete shiftRoster._id;
-    delete shiftRoster.vehicle;
-    shiftRoster["trainers"] = [];
-    dispatch(updateShiftRoster(rosterId, shiftRoster));
-  };
+  // const removeTrainer = (event) => {
+  //   const deleteData = event.currentTarget.id.split("::");
+  //   let shiftRoster = _.cloneDeep(
+  //     rosters.find((roster) => roster.vehicleId === deleteData[0])
+  //   );
+  //   const rosterId = shiftRoster.id;
+  //   delete shiftRoster._type;
+  //   delete shiftRoster.createdAt;
+  //   delete shiftRoster.updatedAt;
+  //   delete shiftRoster.createdBy;
+  //   delete shiftRoster.updatedBy;
+  //   delete shiftRoster.id;
+  //   delete shiftRoster._id;
+  //   delete shiftRoster.vehicle;
+  //   shiftRoster["trainers"] = [];
+  //   dispatch(updateShiftRoster(rosterId, shiftRoster));
+  // };
 
-  const removeTruck = (event) => {
-    const deleteData = event.currentTarget.id.split("::");
-    let shiftRoster = _.cloneDeep(
-      shiftrosters.find((roster) => roster.vehicleId === deleteData[0])
-    );
-    let trucks = _.filter(shiftRoster.trucks, (truck) => {
-      return truck.id != deleteData[1];
-    });
-    const rosterId = shiftRoster.id;
-    delete shiftRoster._type;
-    delete shiftRoster.createdAt;
-    delete shiftRoster.updatedAt;
-    delete shiftRoster.createdBy;
-    delete shiftRoster.updatedBy;
-    delete shiftRoster.id;
-    delete shiftRoster._id;
-    delete shiftRoster.vehicle;
-    shiftRoster["trucks"] = trucks;
-    dispatch(updateShiftRoster(rosterId, shiftRoster));
-  };
+  // const removeTruck = (event) => {
+  //   const deleteData = event.currentTarget.id.split("::");
+  //   let shiftRoster = _.cloneDeep(
+  //     rosters.find((roster) => roster.vehicleId === deleteData[0])
+  //   );
+  //   let trucks = _.filter(shiftRoster.trucks, (truck) => {
+  //     return truck.id != deleteData[1];
+  //   });
+  //   const rosterId = shiftRoster.id;
+  //   delete shiftRoster._type;
+  //   delete shiftRoster.createdAt;
+  //   delete shiftRoster.updatedAt;
+  //   delete shiftRoster.createdBy;
+  //   delete shiftRoster.updatedBy;
+  //   delete shiftRoster.id;
+  //   delete shiftRoster._id;
+  //   delete shiftRoster.vehicle;
+  //   shiftRoster["trucks"] = trucks;
+  //   dispatch(updateShiftRoster(rosterId, shiftRoster));
+  // };
+  
   const handleDragStart = (event: DragEndEvent) => {
     const { active } = event;
     const activeId = active.id as string;
@@ -432,7 +412,7 @@ const Dispatch = () => {
       const userData = overId.split("::");
 
       let shiftRoster = _.cloneDeep(
-        shiftrosters.find((roster) => roster.vehicleId === userData[0])
+        rosters.find((roster) => roster.vehicleId === userData[0])
       );
       if (person && !person.disabled) {
         if (
@@ -544,7 +524,7 @@ const Dispatch = () => {
       if (excavator) {
         // Update the person in shiftRoster
         let shiftRoster = _.cloneDeep(
-          shiftrosters.find((roster) => roster.vehicleId === userData[0])
+          rosters.find((roster) => roster.vehicleId === userData[0])
         );
         // let updatedShiftRosters;
 
@@ -588,7 +568,7 @@ const Dispatch = () => {
         if (excavator) {
           // Update the person in shiftRoster
           let shiftRoster = _.cloneDeep(
-            shiftrosters.find((roster) => roster.vehicleId === userData[0])
+            rosters.find((roster) => roster.vehicleId === userData[0])
           );
           // let updatedShiftRosters;
 
@@ -658,7 +638,7 @@ const Dispatch = () => {
   };
 
   const getAvailableOperators = () => {
-    const shiftOperators = shiftrosters
+    const shiftOperators = rosters
       ?.filter((roster) => roster.operators && roster.operators.length > 0)
       .map((roster) => roster.operators[0]);
 
@@ -784,12 +764,12 @@ const Dispatch = () => {
                                           <select
                                             className={
                                               equipment.state.toLowerCase() ===
-                                              "standby"
+                                                "standby"
                                                 ? "select-alert"
                                                 : equipment.state.toLowerCase() ===
                                                   "down"
-                                                ? "select-danger"
-                                                : ""
+                                                  ? "select-danger"
+                                                  : ""
                                             }
                                             value={equipment.state}
                                             onChange={(event) =>
@@ -828,10 +808,9 @@ const Dispatch = () => {
                                                 }}
                                                 onClick={() =>
                                                   removeOperator(
-                                                    `${equipment.id}::${
-                                                      getOperators(
-                                                        equipment?.id
-                                                      )[0].id
+                                                    `${equipment.id}::${getOperators(
+                                                      equipment?.id
+                                                    )[0].id
                                                     }`
                                                   )
                                                 }
@@ -876,7 +855,7 @@ const Dispatch = () => {
                             disabled={false}
                             name={person.firstName + " " + person.lastName}
                             person={person}
-                            onDragStart={() => {}}
+                            onDragStart={() => { }}
                           >
                             <List.Item
                               style={{ borderBottom: "1px solid #e8e8e8" }}

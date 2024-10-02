@@ -13,11 +13,11 @@ import NonAuthLayout from "./Layouts/NonLayout";
 import { LAYOUT_MODE_TYPES, LAYOUT_TYPES } from "./Components/constants/layout";
 
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import AuthProtected from "./Routes/AuthProtected";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "utils/theme";
+import { LayoutSelector } from "selectors";
 
 const getLayout = (layoutType: any) => {
   let Layout = VerticalLayout;
@@ -35,14 +35,8 @@ const getLayout = (layoutType: any) => {
 };
 
 function App() {
-  const selectLeadData = createSelector(
-    (state: any) => state.Layout,
-    (layout) => ({
-      layoutTypes: layout.layoutTypes,
-      layoutModeType: layout.layoutModeTypes,
-    })
-  );
-  const { layoutTypes, layoutModeType } = useSelector(selectLeadData);
+ 
+  const { layoutTypes, layoutModeType } = useSelector(LayoutSelector);
 
   const Layout = getLayout(layoutTypes);
   return (

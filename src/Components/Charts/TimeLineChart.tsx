@@ -6,17 +6,10 @@ import {
 import React, { useState } from "react";
 import Chart from "react-apexcharts";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { LayoutSelector } from "selectors";
 
 const GanttChart: React.FC = () => {
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 

@@ -4,7 +4,6 @@ import React, { useMemo } from "react";
 import { Card, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
@@ -13,18 +12,12 @@ import RadicalGraph from 'Components/Common/RadicalGraph'
 import EfficiencyRating from "./EfficiencyRating";
 import DiggingSummary from "./DiggingSummary";
 import EfficiencyMetrics from "./EfficiencyMetrics";
+import { LayoutSelector } from "selectors";
 
 const DiggingDashboard = (props: any) => {
   document.title = "Digging Plan vs Actual | FMS Live";
 
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = useMemo(
     () => layoutModeType === LAYOUT_MODE_TYPES.LIGHT,

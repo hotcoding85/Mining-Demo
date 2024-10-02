@@ -33,9 +33,6 @@ const TimelineReport = () => {
 
   for (let i = 0; i < 9; i++) {
     groupsData.push({ id: i, content: `DT10${i + 1}` });
-    console.log("Tasks for DT109:", tasksData.filter(task => task.group === 8)); 
-
-    console.log(`Calling generateTasks for group: DT10${i + 1}`);
     const tasks: DataItem[] = generateTasks(i);
     tasksData.push(...tasks);
   }

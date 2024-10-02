@@ -36,6 +36,7 @@ import { getMinutesDifference, getSyncText } from "./common";
 import mapLocationImage from "assets/images/map/map-location.png";
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { LineString } from "interfaces/GeoJson";
 
 export type TripRoutesDataType = {
     id: string,
@@ -383,7 +384,6 @@ const Replay = () => {
         let zoom = 18
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
         window.map = map;
-        console.log(map)
         const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
         window.mapPicker = mapPicker;
 
@@ -917,7 +917,7 @@ const Replay = () => {
                 currentTimeValue.current = -1
                 animationRef.current.elapsedTime = 0
             }
-            let stopSignDuration = getStopSignsDuration(selectedTrip.geoJson.geometry.coordinates)
+            let stopSignDuration = getStopSignsDuration((selectedTrip.geoJson.geometry as LineString).coordinates)
             drawRoute(selectedTrip, selectedTrip.duration, selectedTrip.distance, true, stopSignDuration)
         }
     }, [isPlaying, selectedTrip, animationRef, totalTime])
@@ -973,8 +973,8 @@ const Replay = () => {
         let duration = 0;
         _.map(coordinates, coor => {
             _.map(stopSignData.current, _stopsign => {
-                if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
-                    if (_stopsign.geoJson.geometry.coordinates[0][0] == coor[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coor[1]) {
+                if ((_stopsign.geoJson.geometry as LineString).coordinates && (_stopsign.geoJson.geometry as LineString).coordinates[0]) {
+                    if ((_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coor[0] && (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coor[1]) {
                         duration += _stopsign.duration
                     }
                 }
@@ -1134,8 +1134,8 @@ const Replay = () => {
     const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
         let stopsign: any = null
         _.map(stopSignData.current, _stopsign => {
-            if (_stopsign.geoJson.geometry.coordinates && _stopsign.geoJson.geometry.coordinates[0]) {
-                if (_stopsign.geoJson.geometry.coordinates[0][0] == coord[0] && _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]) {
+            if ((_stopsign.geoJson.geometry as LineString).coordinates && (_stopsign.geoJson.geometry as LineString).coordinates[0]) {
+                if ((_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coord[0] && (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coord[1]) {
                     stopsign = _stopsign
                 }
             }

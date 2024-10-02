@@ -20,7 +20,7 @@ import { withTranslation } from "react-i18next";
 import { changeLayoutMode } from "slices/thunk";
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { LayoutSelector } from "selectors";
 
 const Header = (props: any) => {
 
@@ -54,22 +54,7 @@ const Header = (props: any) => {
 
   const dispatch = useDispatch<any>();
 
-  const selectLayoutState = (state: any) => state.Layout;
-  const selectProperties = createSelector(
-    selectLayoutState,
-    (layout) => ({
-      layoutType: layout.layoutTypes,
-      layoutModeType: layout.layoutModeTypes,
-      layoutWidthType: layout.layoutWidthTypes,
-      topbarThemeType: layout.topbarThemeTypes,
-      leftSidebarThemeType: layout.leftSideBarThemeTypes,
-      leftSidebarImageType: layout.leftSidebarImageTypes,
-      leftSidebarTypes: layout.leftSidebarTypes
-    })
-  );
-  const {
-    layoutType, layoutModeType, layoutWidthType, topbarThemeType, leftSidebarThemeType, leftSidebarImageType, leftSidebarTypes
-  } = useSelector(selectProperties);
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   return (
     <React.Fragment>
@@ -149,7 +134,4 @@ const Header = (props: any) => {
 };
 
 export default (withTranslation()(Header));
-function dispatch(arg0: (dispatch: any) => Promise<void>) {
-  throw new Error("Function not implemented.");
-}
 

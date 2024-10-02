@@ -10,10 +10,19 @@ interface CreateResponse {
 }
 
 interface ShiftRoster {
-  id: string;
+  id?: string;
+  _id?:string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  _type?: string;
   roster: string;
   operators: User[];
-  vehicle: Vehicle;
+  vehicle?: Vehicle;
+  vehicleId: string;
+  trainers: User[];
+  trucks: Vehicle[]
 }
 
 export interface ShiftRosterState {

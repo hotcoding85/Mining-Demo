@@ -21,7 +21,6 @@ import { Link } from "react-router-dom";
 import { BenchCategories, StatusOptions } from "common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
-import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { csvFileToJson } from "utils/csvConverter";
@@ -30,6 +29,7 @@ import Table from "Components/Common/Table";
 import { Dropdown, Input, MenuProps } from "antd";
 import { debounce } from "lodash";
 import './style.scss';
+import { BenchSelector, MaterialSelector } from "selectors";
 
 const Benches = (props: any) => {
   document.title = "Benches | FMS Live";
@@ -44,25 +44,8 @@ const Benches = (props: any) => {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const selectProperties = createSelector(
-    (state: any) => state.Benches,
-    (benches) => ({
-      data: benches.data,
-      total: benches.total,
-      loading: benches.loading,
-    })
-  );
-
-  const { data } = useSelector(selectProperties);
-
-  const selectMaterialProperties = createSelector(
-    (state: any) => state.Materials,
-    (benches) => ({
-      materials: benches.data,
-    })
-  );
-
-  const { materials } = useSelector(selectMaterialProperties);
+  const { benches } = useSelector(BenchSelector);
+  const { materials } = useSelector(MaterialSelector);
 
   useEffect(() => {
     dispatch(getAllBenches(1, 100)); // Dispatch action to fetch data on component mount
@@ -410,13 +393,13 @@ const Benches = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    return data.filter((item) =>
+    if (!searchTerm) return benches;
+    return benches.filter((item) =>
       columns.some((col) =>
         String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-  }, [data, searchTerm, columns]);
+  }, [benches, searchTerm, columns]);
 
   const onMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click', e);

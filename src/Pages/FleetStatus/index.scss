@@ -85,6 +85,15 @@ body[data-layout-mode="light"] {
   color: "bleck";
 }
 
+.hole-wrapper {
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: "bleck";
+}
+
 .loadsView,
 .tonnesView {
   display: flex;

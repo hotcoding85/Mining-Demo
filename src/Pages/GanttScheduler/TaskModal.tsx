@@ -46,8 +46,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, onSave,  task })
 
   return (
     <div className={`modal-overlay ${isOpen ? 'show' : ''}`} onMouseDown={handleOverlayClick}>
-      <div className="modal-content" >
-        <div className="modal-header">
+      <div className="custom-modal-content" >
+        <div className="custom-modal-header">
           <h2>Edit the task</h2>
           <button className="close-button" onClick={onClose}>&times;</button>
         </div>

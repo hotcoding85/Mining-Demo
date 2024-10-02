@@ -1,4 +1,5 @@
 import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
+import { Feature } from "interfaces/GeoJson";
 
 export interface VehicleRoute {
   id: string;
@@ -12,7 +13,7 @@ export interface VehicleRoute {
   duration: number;
   speedLimits: number;
   category: string;
-  geoJson: object;
+  geoJson: Feature;
 }
 
 interface CreateResponse {

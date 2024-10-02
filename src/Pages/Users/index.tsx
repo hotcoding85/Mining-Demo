@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import { AppState } from "store";
 import {
   getAllUsers,
   addUser,
@@ -22,12 +21,12 @@ import { UserRoleOptions, StatusOptions, UserSkillOptions } from 'common/options
 import DeleteButton from 'Components/Common/DeleteButton';
 import FormModal from 'Components/Common/FormModal';
 import axios from 'axios';
-import { createSelector } from 'reselect';
 import _ from 'lodash';
 import { Dropdown, Input, MenuProps, Tag } from 'antd';
 import ImportFileModal from "Components/Common/ImportFileModal";
 import './style.scss';
 import Table from "Components/Common/Table";
+import { UserSelector } from "selectors";
 
 const Users = (props: any) => {
   document.title = "Users | FMS Live";
@@ -39,7 +38,6 @@ const Users = (props: any) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const [xda, setXda] = useState([])
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
@@ -47,24 +45,7 @@ const Users = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
-  const selectProperties = createSelector(
-    (state: any) => state.Users,
-    (users) => ({
-      data: users.data,
-      total: users.total,
-    })
-  );
-
-  const { data, total } = useSelector(selectProperties);
-
-  useEffect(() => {
-
-    const xdata = _.cloneDeep(data).map((item) => {
-      item.skills = ['PC1250', 'HD785', 'HD1500']
-      return item
-    })
-    setXda(xdata)
-  }, [data])
+  const { users } = useSelector(UserSelector);
 
   useEffect(() => {
     dispatch(getAllUsers(1, 100)); // Dispatch action to fetch data on component mount
@@ -494,15 +475,15 @@ const Users = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return xda;
-    return xda.filter((item) =>
+    if (!searchTerm) return users;
+    return users.filter((item) =>
       columns.some((col) =>
         String(item[col.key])
           .toLowerCase()
           .includes(searchTerm.toLowerCase())
       )
     );
-  }, [xda, searchTerm, columns]);
+  }, [users, searchTerm, columns]);
 
   const onMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click');

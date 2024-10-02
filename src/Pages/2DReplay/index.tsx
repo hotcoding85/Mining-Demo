@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Card, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import { Button, Collapse, Menu } from "antd";
+import { Collapse, Menu } from "antd";
 import _ from "lodash";
 import * as turf from "@turf/turf";
 import mapboxgl, { Marker } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import RBush from "rbush";
-import bbox from "@turf/bbox";
 import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
 import TimeSlider from "./TimeSlider";
 import mapLocationImage from "assets/images/map/map-location.png";
@@ -22,13 +21,12 @@ import {
 import * as Leaflet from "leaflet";
 import "./index.css";
 
-import { getAll } from "Helpers/api_auto_routing";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
-import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import { getAllVehicleRoutes } from "slices/thunk";
+import { LineString } from "interfaces/GeoJson";
+import { VehicleRouteSelector } from "selectors";
 
 export type TripRoutesDataType = {
   id: string;
@@ -72,16 +70,6 @@ const Replay2D = (props: any) => {
   const [filter, setFilter] = useState<string>("All Equipment");
 
   const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
-
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
-  const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -294,20 +282,11 @@ const Replay2D = (props: any) => {
 
   const dispatch: any = useDispatch();
 
-  const vehicleRoutesState = (state) => state.VehicleRoutes;
-
-  const stateProperties = createSelector(
-    [vehicleRoutesState],
-    (vehicleRoutesState) => ({
-      routes: vehicleRoutesState.data,
-    })
-  );
-
-  const { routes } = useSelector(stateProperties);
+  const { vehicleRoutes } = useSelector(VehicleRouteSelector);
 
   useEffect(() => {
     const _routeData = _.map(
-      routes.filter(
+      vehicleRoutes.filter(
         (_route) =>
           _route.category !== "STOP_SIGNS" && _route.status == "ACTIVE"
       ),
@@ -326,7 +305,7 @@ const Replay2D = (props: any) => {
     );
     setRouteData([{ id: "DT101", routes: _routeData }]);
     const _stopSignData = _.map(
-      routes.filter(
+      vehicleRoutes.filter(
         (_route) =>
           _route.category === "STOP_SIGNS" && _route.status == "ACTIVE"
       ),
@@ -345,7 +324,7 @@ const Replay2D = (props: any) => {
     );
 
     stopSignData.current = _stopSignData;
-  }, [routes]);
+  }, [vehicleRoutes]);
 
   useEffect(() => {
     if (mapRef.current) return; // Initialize map only once
@@ -461,7 +440,7 @@ const Replay2D = (props: any) => {
         animationRef.current.elapsedTime = 0;
       }
       let stopSignDuration = getStopSignsDuration(
-        selectedTrip.geoJson.geometry.coordinates
+        (selectedTrip.geoJson.geometry as LineString).coordinates
       );
       drawRoute(
         selectedTrip,
@@ -527,12 +506,12 @@ const Replay2D = (props: any) => {
       _.map(coordinates, (coor) => {
         _.map(stopSignData.current, (_stopsign) => {
           if (
-            _stopsign.geoJson.geometry.coordinates &&
-            _stopsign.geoJson.geometry.coordinates[0]
+            (_stopsign.geoJson.geometry as LineString).coordinates &&
+            (_stopsign.geoJson.geometry as LineString).coordinates[0]
           ) {
             if (
-              _stopsign.geoJson.geometry.coordinates[0][0] == coor[0] &&
-              _stopsign.geoJson.geometry.coordinates[0][1] == coor[1]
+              (_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coor[0] &&
+              (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coor[1]
             ) {
               duration += _stopsign.duration;
             }
@@ -550,12 +529,12 @@ const Replay2D = (props: any) => {
       //check the point is STOP_SIGNS, if so return stopSignDuration
       _.map(stopSignData.current, (_stopsign) => {
         if (
-          _stopsign.geoJson.geometry.coordinates &&
-          _stopsign.geoJson.geometry.coordinates[0]
+          (_stopsign.geoJson.geometry as LineString).coordinates &&
+          (_stopsign.geoJson.geometry as LineString).coordinates[0]
         ) {
           if (
-            _stopsign.geoJson.geometry.coordinates[0][0] == coord[0] &&
-            _stopsign.geoJson.geometry.coordinates[0][1] == coord[1]
+            (_stopsign.geoJson.geometry as LineString).coordinates[0][0] == coord[0] &&
+            (_stopsign.geoJson.geometry as LineString).coordinates[0][1] == coord[1]
           ) {
             return _stopsign.duration;
           }
@@ -656,10 +635,7 @@ const Replay2D = (props: any) => {
       if (marker.current) marker.current.remove();
 
       const segments: any = [];
-      const _coordinates = saving_data.geoJson.geometry.coordinates as [
-        number,
-        number
-      ][];
+      const _coordinates = (saving_data.geoJson.geometry as LineString).coordinates;
       const pinRoute = _coordinates;
 
       if (!distance || distance == 0) {
@@ -779,7 +755,7 @@ const Replay2D = (props: any) => {
       let popup;
 
       const bounds = new mapboxgl.LngLatBounds();
-      saving_data.geoJson.geometry.coordinates?.forEach((coord: any) =>
+      (saving_data.geoJson.geometry as LineString).coordinates?.forEach((coord: any) =>
         bounds.extend(coord)
       );
       mapRef.current.fitBounds(bounds, { padding: 50 });
@@ -1278,7 +1254,6 @@ const Replay2D = (props: any) => {
     ) {
       layer = Leaflet.geoJson(geoFenceData.geoJson, {
         pointToLayer: function (feature, latlng) {
-          console.log("latlng", latlng);
           return Leaflet.circle(latlng, {
             radius: geoFenceData.geoJson.properties.radius,
           });

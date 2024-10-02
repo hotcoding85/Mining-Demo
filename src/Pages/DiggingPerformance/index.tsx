@@ -4,8 +4,8 @@ import Breadcrumb from 'Components/Common/Breadcrumb';
 import DiggingExecutionCard from './DiggingExecutionCard';
 import { pc2000, pc1250, hd1500, hd785, wa600 } from 'assets/images/equipment';
 import { useDispatch, useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 import { getAllFleet } from 'slices/thunk';
+import { FleetSelector } from 'selectors';
 
 const DiggingPerformance = () => {
   document.title = "Digging Performance | FMS Live";
@@ -16,16 +16,7 @@ const DiggingPerformance = () => {
 
   const dispatch = useDispatch<any>();
 
-  const selectProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleetState) => ({
-      fleetList: fleetState.data,
-      loading: fleetState.loading
-    })
-  );
-
-  const { fleetList, loading } = useSelector(selectProperties);
-  const [isLoading, setLoading] = useState<boolean>(loading);
+  const { fleet } = useSelector(FleetSelector);
 
   function containsCaseInsensitive(str: string, substr: string): boolean {
 
@@ -86,7 +77,7 @@ const DiggingPerformance = () => {
         <Container fluid>
           <Breadcrumb title="Production" breadcrumbItem="Digging Performance" />
           {
-            fleetList.map((item: any, key: number) => (
+            fleet.map((item: any, key: number) => (
               <Row>
                 <DiggingExecutionCard
                   imgSrc={getImage(item.model)}

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Button,
   Card,
-  CardBody,
   CardHeader,
   Col,
   Container,
@@ -10,7 +9,6 @@ import {
 } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import "./index.scss";
-import { createSelector } from "reselect";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllMaterials } from "slices/thunk";
 import { round2Two } from "utils/common";
@@ -18,6 +16,7 @@ import Table from "Components/Common/Table";
 import { Input } from "antd";
 import { generateBlendPlan } from "utils/generateBlendPlan";
 import { max } from "lodash";
+import { MaterialSelector } from "selectors";
 
 const BlendPlans = () => {
   document.title = "Blend Plans | FMS Live";
@@ -26,15 +25,7 @@ const BlendPlans = () => {
   const [targetTonnes, setTargetTonnes] = useState<number>(0);
   const [blendPlans, setBlendPlans] = useState<any[]>();
 
-  const selectProperties = createSelector(
-    (state: any) => state.Materials,
-    (materials) => ({
-      data: materials.data,
-      total: materials.total,
-    })
-  );
-
-  const { data: materials, total } = useSelector(selectProperties);
+  const { materials } = useSelector(MaterialSelector);
 
   useEffect(() => {
     dispatch(getAllMaterials(1, 100)); // Dispatch action to fetch data on component mount
