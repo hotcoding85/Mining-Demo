@@ -86,7 +86,8 @@ const Replay = () => {
         }
     };
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+    const forwardDirection = useRef<any>(null)
+    const NextCameraPoistion = useRef<any>(null)
     const [showTimeline, setShowTimeline] = useState<boolean>(true)
     const locationItems = [
         {
@@ -152,8 +153,8 @@ const Replay = () => {
         
         const annotationDiv = document.getElementById(`marker-tooltip`);
         if (annotationDiv) {
-            annotationDiv.style.left = `${x - 60}px`;
-            annotationDiv.style.top = `${y - 180}px`;
+            annotationDiv.style.left = `${x - 50}px`;
+            annotationDiv.style.top = `${y - 190}px`;
         }
     }, [isAnimation])
 
@@ -621,15 +622,25 @@ const Replay = () => {
             }
         }
     }, [routes, selectedEq])
-
+    const lastCameraPosition = useRef<any>(null)
+    const lastCameraQuaternion = useRef<any>(null)
     const togglePlay = useCallback(() => {
-        setIsPlaying(!isPlaying);
         currentIsPlaying.current = !isPlaying
         if (isPlaying === false && timeValue === totalTime) {
             setTimeValue(0)
             currentTimeValue.current = 0
-            clearAnimation()
+            // clearAnimation()
+            setIsAnimation(false)
+            if (activeObjects.current && activeObjects.current.animationId) {
+                cancelAnimationFrame(activeObjects.current.animationId);
+                activeObjects.current.animationId = null;
+            }
         }
+        if (lastCameraPosition.current && window.map && currentAnimationMarker.current && lastCameraQuaternion.current) {
+            window.camera.position.copy(lastCameraPosition.current);
+            window.camera.quaternion.copy(lastCameraQuaternion.current);
+        }
+        setIsPlaying(!isPlaying);
     }, [timeValue, totalTime, isPlaying]);
 
     const handleSpeedChange = (value: number) => {
@@ -1082,6 +1093,18 @@ const Replay = () => {
         if (animationRef.current.animationFrameId) {
             cancelAnimationFrame(animationRef.current.animationFrameId);
             animationRef.current.animationFrameId = null
+            if (forwardDirection.current && window.map && currentAnimationMarker.current && NextCameraPoistion.current) {
+                // Set camera offset behind the marker
+                const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
+                cameraOffset.y += 200;  // Adjust height for a better view
+
+                // Set the camera position behind the marker (car)
+                const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+                window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+
+                // Make the camera look ahead (at the next point on the curve)
+                window.camera.lookAt(NextCameraPoistion.current);
+            }
         }
     }
 
@@ -1310,32 +1333,30 @@ const Replay = () => {
                 const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward 
                 if (point) {
                     currentAnimationMarker.current = point
-                    marker.position.set(point.x - 10, point.y - 10, point.z);
+                    NextCameraPoistion.current = nextPoint
+                    marker.position.set(point.x, point.y, point.z);
                     activeObjects.current.tube.material.uniforms.progress.value = _progress;
                     // Calculate the forward direction (from point to nextPoint)
-                    const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
-                    // Create a new quaternion for rotation
-                    const quaternion = new THREE.Quaternion();
+                    forwardDirection.current = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
-                    // Set the quaternion to rotate the object to face the forward direction
-                    quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), forwardDirection);
 
-                    const angle = Math.atan2(forwardDirection.y, forwardDirection.x);
+                    const angle = Math.atan2(forwardDirection.current.y, forwardDirection.current.x);
                     // // Rotate the object around the Z-axis based on the calculated angle
                     marker.rotation.z = angle + Math.PI / 2;
 
                     // Set camera offset behind the marker
-                    const cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
+                    const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
                     cameraOffset.y += 200;  // Adjust height for a better view
 
                     // Set the camera position behind the marker (car)
                     const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
                     window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
-
                     // Make the camera look ahead (at the next point on the curve)
                     window.camera.lookAt(nextPoint);
+                    lastCameraPosition.current = window.camera.position.clone();
+                    lastCameraQuaternion.current = window.camera.quaternion.clone();
                     // set ToolTip content
-                    setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total Duration: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>StopSign Duration: </span>' + total_stopSignDuration + 's')
+                    setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>Stop_Sign: </span>' + total_stopSignDuration + 's')
 
                     TruckObject.current && (TruckObject.current.visible = true)
 
@@ -1505,10 +1526,10 @@ const Replay = () => {
                                     ) : (
                                     <></>
                                 )}
-                                <div ref={mapContainer} id="3d-map-view" className="map-container" style={{ height: 'calc(100vh - 240px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
+                                <div ref={mapContainer} id="3d-map-view" className="map-container" style={{ height: 'calc(100vh - 292px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
                                     <div style={{
                                         position: 'absolute',
-                                        bottom: '40px',
+                                        bottom: '-25px',
                                         left: '0px',
                                         margin : '12px', 
                                         width: 'calc(100% - 24px)',
