@@ -34,6 +34,8 @@ import dayjs from 'dayjs';
 import { EquipmentLocation, equipments} from '../Map/sample';
 import { getMinutesDifference, getSyncText } from "./common";
 import mapLocationImage from "assets/images/map/map-location.png";
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
 export type TripRoutesDataType = {
     id: string,
@@ -101,6 +103,7 @@ const Replay = () => {
         },
     ]
 
+    const TruckObject = useRef<any>(null)
     const [locations, setLocaltions] = useState<DropdownType>({
         label: "ALL",
     });
@@ -239,10 +242,70 @@ const Replay = () => {
         loadMapView(geojsonData, image_data);
     }
 
+    const fetch3DTruck = async () => {
+        if (!window.map) return
+        try {
+            const mtlLoader = new MTLLoader();
+            const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
+                mtlLoader.load(
+                    './Truck/3D_Truck.mtl',
+                    (materials) => resolve(materials),
+                    undefined,
+                    (error) => reject(error)
+                );
+            });
+
+            materials.preload();
+
+            const response = await fetch('./Truck/3D_Truck.zip');
+            const arrayBuffer = await response.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+
+            const objFile = await zip.file('3D_Truck.obj')?.async("string");
+
+            if (!objFile) {
+                throw new Error("OBJ file not found in the zip archive");
+            }
+            const goldMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffff00, // Gold color in hex
+                metalness: 1,  // Fully metallic
+                roughness: 0.6,  // Adjust roughness for shiny effect
+                depthTest: false,
+                depthWrite: false
+            });
+            const object = new OBJLoader()
+                .setMaterials(materials)
+                .parse(objFile);
+
+            object.traverse((child: any) => {
+                if (child.isMesh) {
+                    child.material = goldMaterial;  // Apply gold material to all mesh parts
+                    child.material.needsUpdate = true;  // Ensure material is updated
+                }
+            });
+            
+            object.scale.set(0.4, 0.3 , 0.4);
+            // newObject.position.set(0, 0, -5)
+            object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
+            object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
+            object.rotation.z = 0;           // Z-axis correction if needed
+
+            // object.rotation.z += 0.5
+            const group = new THREE.Group();
+            group.add(object)
+            group.visible = false
+
+            TruckObject.current = group
+            window.map.scene.add(group);
+        } catch (error) {
+            console.error('An error happened:', error);
+        }
+    }
+
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const loadMapView = useCallback((_geojsonData: JSON, image_data) => {
+    const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
         geojsonData.current = _geojsonData;
     
         _.map(geojsonData.current.features, (feature) => {
@@ -301,6 +364,9 @@ const Replay = () => {
             });
         }
 
+        var axesHelper = new THREE.AxesHelper(2000)
+        // scene.add(axesHelper)
+
         // scene.background = new THREE.Color(0x91abb5);
         scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
 
@@ -330,6 +396,8 @@ const Replay = () => {
         map.setFilteredCategories([])
         // draw the routes only one time
         let drawed = true
+
+        await fetch3DTruck()
 
         // Main render loop
         const mainLoop = (timestamp: number) => {
@@ -759,7 +827,6 @@ const Replay = () => {
     useEffect(() => {
         setIsLoading(true);
         fetchZipFile()
-
         // Clean up on component unmount
         return () => {
             map && map.clean()
@@ -1000,10 +1067,7 @@ const Replay = () => {
             activeObjects.current.tube = null;
         }
         if ( activeObjects.current && activeObjects.current.marker) {
-            window.map.scene.remove(activeObjects.current.marker);
-            activeObjects.current.marker.geometry.dispose();
-            activeObjects.current.marker.material.dispose();
-            activeObjects.current.marker = null;
+            TruckObject.current.visible = false
         }
         if ( activeObjects.current && activeObjects.current.arrow) {
             window.map.scene.remove(activeObjects.current.arrow);
@@ -1023,7 +1087,7 @@ const Replay = () => {
 
     // Function to create a tube with custom shader to control visibility
     function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
-        const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 6, 6, false);
+        const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 4, 4, false);
     
         // Calculate the length of the tube curve
         const tubeLength = curve.getLength();
@@ -1134,15 +1198,13 @@ const Replay = () => {
         window.map.scene.add(arrow);
         activeObjects.current.arrow = arrow;
         // Set up marker (a sphere)
-        const imageTexture = new THREE.TextureLoader().load(MARKER); // Load your image
-        const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture, depthWrite: false, transparent: true, depthTest: false });
-        const marker = new THREE.Sprite(spriteMaterial);
-        marker.scale.set(30, 30, 0);
-        marker.renderOrder = 2
-        window.map.scene.add(marker);
 
         // Store the marker reference
-        activeObjects.current.marker = marker;
+        TruckObject.current.renderOrder = activeObjects.current.tube.renderOrder + 1
+        activeObjects.current.tube.layers.set(0);
+        TruckObject.current.layers.set(1);
+        activeObjects.current.marker = TruckObject.current;
+        const marker = TruckObject.current
         // Calculate the total distance and time if not provided
         if (!distance || distance === 0) {
             distance = Math.floor(turf.length(turf.lineString(coordinates), { units: 'meters' }));
@@ -1155,7 +1217,6 @@ const Replay = () => {
         const duration = totalTime * 1000;  // Convert total time to milliseconds
         const totalDistance = distance;
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
-
         const animate = (timestamp) => {
             updateMarkerTooltip()
             const currentPlaybackSpeed = currentSpeed.current;
@@ -1246,13 +1307,22 @@ const Replay = () => {
             if (_progress < 1) {
                 setTimeValue(Math.floor(_progress / 1 * totalTime))
                 const point = curve.getPointAt(_progress);  // Get the point along the tube curve
-                const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
+                const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward 
                 if (point) {
                     currentAnimationMarker.current = point
-                    marker.position.set(point.x, point.y, point.z + 20);
+                    marker.position.set(point.x - 10, point.y - 10, point.z);
                     activeObjects.current.tube.material.uniforms.progress.value = _progress;
                     // Calculate the forward direction (from point to nextPoint)
                     const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
+                    // Create a new quaternion for rotation
+                    const quaternion = new THREE.Quaternion();
+
+                    // Set the quaternion to rotate the object to face the forward direction
+                    quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), forwardDirection);
+
+                    const angle = Math.atan2(forwardDirection.y, forwardDirection.x);
+                    // // Rotate the object around the Z-axis based on the calculated angle
+                    marker.rotation.z = angle + Math.PI / 2;
 
                     // Set camera offset behind the marker
                     const cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
@@ -1266,6 +1336,9 @@ const Replay = () => {
                     window.camera.lookAt(nextPoint);
                     // set ToolTip content
                     setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total Duration: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>StopSign Duration: </span>' + total_stopSignDuration + 's')
+
+                    TruckObject.current && (TruckObject.current.visible = true)
+
                 }
             }
             if (_progress < 1) {
@@ -1282,6 +1355,7 @@ const Replay = () => {
                 }
 
             } else {
+                TruckObject.current.visible = false
                 activeObjects.current.tube.material.uniforms.progress.value = 1
                 const point = curve.getPointAt(1); 
                 const startPosition = window.camera.position.clone();
@@ -1308,9 +1382,7 @@ const Replay = () => {
                 animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
 
                 // Clean up marker
-                window.map.scene.remove(marker);
-                marker.geometry.dispose();
-                marker.material.dispose();
+                // window.map.scene.remove(marker);
                 setIsAnimation(false)
                 setTimeValue(totalTime)
                 // Segment animation complete, proceed to next
