@@ -11,8 +11,8 @@ import {
   removeVehicleStateReason,
 } from "slices/stateReasons/thunk";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import DeleteButton from "Components/Common/DeleteButton";
+import { StateReasonsSelector } from "selectors";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -35,14 +35,7 @@ const AdminSettings = (props: any) => {
 
   const dispatch: any = useDispatch();
 
-  const { vehicleStateReasons } = useSelector(
-    createSelector(
-      (state: any) => state.VehicleStateReasons,
-      (vehicleStateReasons) => ({
-        vehicleStateReasons: vehicleStateReasons.data,
-      })
-    )
-  );
+  const { reasons } = useSelector(StateReasonsSelector);
 
   const [standbyRows, setStandbyRows] = useState<Row[]>([
     { code: "", description: "", vehicleType: "" },
@@ -61,23 +54,23 @@ const AdminSettings = (props: any) => {
   }, []);
 
   useEffect(() => {
-    if (vehicleStateReasons.length > 0) {
+    if (reasons.length > 0) {
       setStandbyRows([
-        ...vehicleStateReasons.filter(
+        ...reasons.filter(
           (item: any) => item.category === "STANDBY"
         ),
         ...standbyRows.filter((item) => !item?.id),
       ]);
       setDelayRows([
-        ...vehicleStateReasons.filter((item: any) => item.category === "DELAY"),
+        ...reasons.filter((item: any) => item.category === "DELAY"),
         ...delayRows.filter((item) => !item?.id),
       ]);
       setDownRows([
-        ...vehicleStateReasons.filter((item: any) => item.category === "DOWN"),
+        ...reasons.filter((item: any) => item.category === "DOWN"),
         ...downRows.filter((item) => !item?.id),
       ]);
     }
-  }, [vehicleStateReasons]);
+  }, [reasons]);
 
   const [standbyErrors, setStandbyErrors] = useState<{
     [key: number]: RowErrors;

@@ -173,7 +173,6 @@ const PitView = ({ socket }) => {
 
             mapRef.current.on('mouseenter', 'HG01fill', (e) => {
                 mapRef.current.getCanvas().style.cursor = 'pointer';
-                console.log(e.features)
                 if (e.features.length > 0) {
                     if (hoveredPolygonId !== null) {
                         mapRef.current.setFeatureState(

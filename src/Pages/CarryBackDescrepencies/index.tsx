@@ -3,7 +3,6 @@ import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { TextColor } from "Components/Charts/interfaces/general";
 import { LineGraph } from "Components/Charts/LineGraph";
-import { createSelector } from "reselect";
 import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
 import { data } from "./sampleData";
 const CarryBackDescrepencies = (props: any) => {
@@ -14,15 +13,6 @@ const CarryBackDescrepencies = (props: any) => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [importCsvModal, setImportFileModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<any>();
-
-  const selectProperties = createSelector(
-    (state: any) => state.Benches,
-    (benches) => ({
-      data: benches.data,
-      total: benches.total,
-      loading: benches.loading,
-    })
-  );
 
   document.title = "Pre Starts | FMS Live";
   const lineOptions = {

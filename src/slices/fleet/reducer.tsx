@@ -24,7 +24,7 @@ export interface FleetState {
 
 export interface Vehicle {
   id: string;
-  name: string | undefined;
+  name: string;
   serial: string;
   make: string;
   model: string;
@@ -32,6 +32,11 @@ export interface Vehicle {
   capacity: number;
   odometer: number;
   status: string;
+  plannedTonnes: number;
+  plannedLoads: number;
+  data: any;
+  latestState: string;
+  bcm: number;
 }
 
 export const initialState: FleetState = {

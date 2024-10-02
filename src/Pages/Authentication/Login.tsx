@@ -15,7 +15,7 @@ import { changeLayoutMode, loginuser, resetLoginFlagState } from "slices/thunk";
 
 import withRouter from "Components/Common/withRouter";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { ProfileSelector } from "selectors";
 
 const LoginPage = (props: any) => {
 
@@ -25,19 +25,10 @@ const LoginPage = (props: any) => {
   //meta title
   document.title = "Login | FMS Live";
 
-  const selectProperties = createSelector(
-    (state: any) => state.Auth,
-    (profile) => ({
-      user: profile.user,
-      error: profile.error,
-      errorMsg: profile.errorMsg,
-    })
-  );
-
   const layout = useSelector((state: any) => state.Layout)
   dispatch(changeLayoutMode(layout.layoutModeTypes))
 
-  const { error, errorMsg } = useSelector(selectProperties);
+  const { error, errorMsg } = useSelector(ProfileSelector);
 
   // Form validation 
   const validation: any = useFormik({

@@ -1,4 +1,5 @@
 import { FC, DragEventHandler } from "react";
+import { Link } from "react-router-dom";
 
 export interface FuelData {
   id: string;
@@ -41,7 +42,7 @@ const FuelSchedulerCard: FC<FuelData> = ({
       <div className="fuel-card-details">
         <p className="fuel-card-props">
           <span className="fuel-label">GPS Location</span>
-          <span className="fuel-value">{smu}</span>
+          <Link to={"/realtime-postioning/"+id} className="fuel-value">View on Map</Link>
         </p>
         <p className="fuel-card-props">
           <span className="fuel-label">SMU</span>

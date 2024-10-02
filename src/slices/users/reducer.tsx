@@ -32,6 +32,8 @@ export interface User {
   email: string;
   mobile: string;
   status: string;
+  crew: string;
+  skills: string[];
 }
 
 export const initialState: UsersState = {

@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
+import { Dropdown, DropdownToggle, DropdownMenu } from "reactstrap";
 import { Avatar } from "antd";
 //i18n
 import { withTranslation } from "react-i18next";
 // Redux
 import { Link } from "react-router-dom";
 import withRouter from "../../Common/withRouter";
-import { createSelector } from 'reselect';
 
 // users
 import maleAvatar from "assets/images/users/m-avatar.png";
-import femaleAvatar from "assets/images/users/f-avatar.png";
 
 import { useSelector } from "react-redux";
+import { ProfileSelector } from "selectors";
 
 const ProfileMenu = (props: any) => {
   // Declare a new state variable, which we'll call "menu"
@@ -20,14 +19,7 @@ const ProfileMenu = (props: any) => {
 
   const [username, setUsername] = useState("Admin");
 
-  const selectProfileProperties = createSelector(
-    (state: any) => state.Auth,
-    (profile) => ({
-      user: profile.user,
-    })
-  );
-
-  const { user } = useSelector(selectProfileProperties);
+  const { user } = useSelector(ProfileSelector);
 
 
   useEffect(() => {
@@ -76,6 +68,10 @@ const ProfileMenu = (props: any) => {
           <Link to="/trackers" onClick={handleOptionChange} className="dropdown-item">
             <i className="bx bx-devices font-size-16 align-middle me-1" />
             <span>{props.t("Trackers")}</span>
+          </Link>
+          <Link to="/menu-settings" onClick={handleOptionChange} className="dropdown-item">
+            <i className="bx bx-menu font-size-16 align-middle me-1" />
+            <span>{props.t("Menu setting")}</span>
           </Link>
           <div className="dropdown-divider" />
           <Link to="/logout" onClick={handleOptionChange} className="dropdown-item">

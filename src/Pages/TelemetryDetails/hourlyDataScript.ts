@@ -27,5 +27,3 @@ function generateHourlyData(name, payloadPattern) {
 // Usage example
 const payloadPattern = [50.31, 60.31, 80.31]; // Example payload patterns
 const hourlyData = generateHourlyData("EX201", payloadPattern);
-
-console.log(hourlyData);

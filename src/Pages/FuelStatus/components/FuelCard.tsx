@@ -1,6 +1,7 @@
 import { useState, FC } from "react";
 import { FuelData } from "../interfaces/FuelData";
 import "../style.css";
+import { Link } from "react-router-dom";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -17,6 +18,7 @@ const getStatusColor = (status: string) => {
 
 const FuelCard: FC<FuelData> = ({
   id,
+  model,
   status,
   smu,
   fuelLevel,
@@ -131,7 +133,7 @@ const FuelCard: FC<FuelData> = ({
   return (
     <div className="fuel-card">
       <div className="fuel-card-header">
-        <div className="vehicle-name">{id}</div>
+        <div className="fuel-vehicle-name">{id}({model})</div>
         <span
           className="fuel-card-status"
           style={{ backgroundColor: statusColor }}
@@ -139,6 +141,7 @@ const FuelCard: FC<FuelData> = ({
           {status}
         </span>
       </div>
+      <div className="fuel-card-operator">James Taylor</div>
       <div className="fuel-card-sync">
         <div
           className="fuel-card-sync-icon"
@@ -160,7 +163,7 @@ const FuelCard: FC<FuelData> = ({
       <div className="fuel-card-details">
         <p className="fuel-card-props">
           <span className="fuel-label">GPS Location</span>
-          <span className="fuel-value">{gpsLocation}</span>
+          <Link to={"/realtime-postioning/"+id} className="fuel-value">View on Map</Link>
         </p>
         <p className="fuel-card-props">
           <span className="fuel-label">SMU</span>
@@ -176,6 +179,7 @@ const FuelCard: FC<FuelData> = ({
         </p>
       </div>
     </div>
+    
   );
 };
 

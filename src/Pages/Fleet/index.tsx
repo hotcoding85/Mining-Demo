@@ -26,13 +26,13 @@ import {
 } from "common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
-import { createSelector } from "reselect";
 import { isVehicleNameUnique } from "../../Helpers/api_vehicle_helper";
 import { Dropdown, Input, MenuProps, Segmented, Space, Tag } from "antd";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import Table from "Components/Common/Table";
 import { debounce } from "lodash";
 import "./style.scss";
+import { FleetSelector } from "selectors";
 
 const Fleet = (props: any) => {
   document.title = "Fleet | FMS Live";
@@ -52,15 +52,7 @@ const Fleet = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
-  const selectProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleet) => ({
-      data: fleet.data,
-      total: fleet.total,
-    })
-  );
-
-  const { data, total } = useSelector(selectProperties);
+  const { fleet } = useSelector(FleetSelector);
 
   useEffect(() => {
     dispatch(getAllFleet(1, 50)); // Dispatch action to fetch data on component mount
@@ -388,7 +380,7 @@ const Fleet = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    let filtered = data;
+    let filtered = fleet;
     if (filter !== 'All Equipment') {
       filtered = filtered.filter((item) => item.category === filter);
     }
@@ -402,7 +394,7 @@ const Fleet = (props: any) => {
       );
     }
     return filtered;
-  }, [data, searchTerm, filter, columns]);
+  }, [fleet, searchTerm, filter, columns]);
 
   const onMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click');

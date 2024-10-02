@@ -27,6 +27,7 @@ import FenceSidebarItem from "./components/FenceSidebarItem";
 import "./styles.scss";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import { BenchSelector, FenceSelector } from "selectors";
 
 // default wasted's polygon and line color - 'green'
 const defaultColor = "#00ff00";
@@ -65,26 +66,19 @@ const ROMManagement = () => {
     [setIsBoundboxModalOpen]
   );
 
-  const geoFencesProperties = createSelector(
-    (state: any) => state,
-    (state) => ({
-      geoFence: state.GeoFence.data,
-      benches: state.Benches.data,
-    })
-  );
-
-  const { geoFence = [], benches = [] } = useSelector(geoFencesProperties);
+  const { fences } = useSelector(FenceSelector);
+  const { benches } = useSelector(BenchSelector);
 
   const oreDumpFences = useMemo(() => {
-    const data: any[] = Array.from(geoFence);
+    const data: any[] = Array.from(fences);
     data.sort((a: any, b: any) => b.updatedAt - a.updatedAt);
     return data.filter((fence: any) => fence.category === "ORE_DUMP");
-  }, [geoFence]);
+  }, [fences]);
 
   const availalbeBenches = useMemo(() => {
-    const locationIds = geoFence.map((fence) => fence.locationId);
+    const locationIds = fences.map((fence) => fence.locationId);
     return benches.filter((location) => !locationIds.includes(location.id));
-  }, [geoFence, benches]);
+  }, [fences, benches]);
 
   useEffect(() => {
     if (!mapRef) return;

@@ -13,13 +13,13 @@ import _ from 'lodash';
 import { Checkbox, CheckboxProps, Progress, Spin } from 'antd';
 import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
-import { createSelector } from 'reselect';
 import * as Leaflet from 'leaflet';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
 import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
 import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { FenceSelector, LayoutSelector, VehicleRouteSelector } from 'selectors';
 declare global {
     interface Window {
         map: any;
@@ -45,19 +45,6 @@ interface Geofence {
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
 
-    const vehicleRoutesState = (state) => state.VehicleRoutes;
-    const geoFenceState = (state) => state.GeoFence;
-
-    const stateProperties = createSelector(
-        [geoFenceState, vehicleRoutesState],
-        (geofenceState, vehicleRoutesState) => ({
-            routes: vehicleRoutesState.data,
-            data: geofenceState ? geofenceState.data : [],
-            total: geofenceState ? geofenceState.total : 0,
-        })
-    );
-
-
     const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
     const defaultLayers = ['Current Haul Routes', 'Active Benches'];
 
@@ -81,18 +68,11 @@ export const ThreeJS = () => {
         { label: 'Restricted', value: 'RESTRICTED' },
     ];
 
-    const { routes, data: fences } = useSelector(stateProperties);
+    const { vehicleRoutes } = useSelector(VehicleRouteSelector);
 
     document.title = "3D Pit View | FMS Live";
 
-    const { layoutModeType } = useSelector(
-        createSelector(
-          (state: any) => state.Layout,
-          (layout) => ({
-            layoutModeType: layout.layoutModeTypes,
-          })
-        )
-    );
+    const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
     const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -336,7 +316,7 @@ export const ThreeJS = () => {
         scene.add(grid);
 
         // set routes to the map variable
-        map.setRoutes(routes)
+        map.setRoutes(vehicleRoutes)
         // set default categories
         const selectedCategories = _layerOptions
         .filter(option => checkedList.includes(option.label)) // Get matching label from _layerOptions
@@ -443,7 +423,7 @@ export const ThreeJS = () => {
             .filter(option => checkedList.includes(option.label)) // Get matching label from _layerOptions
             .map(option => option.value); // Extract corresponding values (categories)
         window.map && window.map.setFilteredCategories(selectedCategories)
-    }, [routes, checkedList])
+    }, [vehicleRoutes, checkedList])
 
 
     const drawGeofences = useCallback(() => {

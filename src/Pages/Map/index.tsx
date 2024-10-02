@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Container, Row, Col, Card } from "reactstrap";
-import { createSelector } from "reselect";
 import { Progress } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import * as Leaflet from "leaflet";
@@ -11,21 +10,11 @@ import {
   getAllVehicleRoutes,
 } from "slices/thunk";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import _, { eq } from "lodash";
-import {
-  standbyTruck,
-  delayTruck,
-  downTruck,
-  activeTruck,
-  standbyExcavator,
-  delayExcavator,
-  downExcavator,
-  activeExcavator,
-} from "assets/images/map";
+import _ from "lodash";
 import SyncIcon from "assets/icons/Vector.png";
 import STOP_SIGN_PNG from "assets/images/stop_sign.png";
-import { Radio, Segmented, Select, Space } from "antd";
-import mapboxgl, { LngLatLike, Marker } from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import { Select } from "antd";
+import mapboxgl, { Marker } from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import { shiftTimings } from "utils/common";
 import { buildGraticule } from "utils/mapUtils";
 import { Checkbox } from "antd";
@@ -43,6 +32,8 @@ import {
 import mapLocationImage from "assets/images/map/map-location.png";
 import { excavatorImages, truckImages } from "assets/images/equipment";
 import { useNavigate, useParams } from "react-router-dom";
+import { BenchSelector, FenceSelector, VehicleRouteSelector } from "selectors";
+import { Point } from "interfaces/GeoJson";
 
 const CheckboxGroup = Checkbox.Group;
 
@@ -62,36 +53,39 @@ const Map = ({ socket }) => {
 
   const dispatch: any = useDispatch();
 
-  const geoFenceState = (state) => state.GeoFence;
-  const benchesState = (state) => state.Benches;
-  const fleetState = (state) => state.Fleet;
-  const vehicleRoutesState = (state) => state.VehicleRoutes;
-  const eventsState = (state) => state.Events;
+  const { benches } = useSelector(BenchSelector);
+  const { vehicleRoutes } = useSelector(VehicleRouteSelector);
+  const { fences } = useSelector(FenceSelector);
 
-  const stateProperties = createSelector(
-    [geoFenceState, benchesState, fleetState, vehicleRoutesState, eventsState],
-    (
-      geofenceState,
-      benchesState,
-      fleetState,
-      vehicleRoutesState,
-      eventsState
-    ) => ({
-      geofences: geofenceState.data,
-      benches: benchesState.data,
-      fleet: _.groupBy(fleetState.data, "id"),
-      events: eventsState.data,
-      routes: vehicleRoutesState.data,
-    })
-  );
+  // const geoFenceState = (state) => state.GeoFence;
+  // const benchesState = (state) => state.Benches;
+  // const fleetState = (state) => state.Fleet;
+  // const vehicleRoutesState = (state) => state.VehicleRoutes;
+  // const eventsState = (state) => state.Events;
 
-  const {
-    events,
-    routes,
-    fleet,
-    benches,
-    geofences: geofenceFromDB,
-  } = useSelector(stateProperties);
+  // const stateProperties = createSelector(
+  //   [geoFenceState, benchesState, fleetState, vehicleRoutesState, eventsState],
+  //   (
+  //     geofenceState,
+  //     benchesState,
+  //     fleetState,
+  //     vehicleRoutesState,
+  //     eventsState
+  //   ) => ({
+  //     geofences: geofenceState.data,
+  //     benches: benchesState.data,
+  //     fleet: _.groupBy(fleetState.data, "id"),
+  //     events: eventsState.data,
+  //     routes: vehicleRoutesState.data,
+  //   })
+  // );
+
+  // const {
+  //   events,
+  //   routes,
+  //   fleet,
+  //   geofences: geofenceFromDB,
+  // } = useSelector(stateProperties);
 
   socket.on("TRACKER_LOCATION", (data) => {
     console.log(data);
@@ -177,8 +171,8 @@ const Map = ({ socket }) => {
     const isNotActive: boolean = eq.status.toLowerCase() != "ACTIVE";
     const standardIconTemplate = `<div id="map-location" style="${textStyle}">
             <img width="28px" style="object-fit: contain" src="${getEquipmentStatusIcon(
-              eq
-            )}" alt="equipment-image" />
+      eq
+    )}" alt="equipment-image" />
             ${eq.name}
             </div>
             <div id="imageContainer" style="position: absolute;bottom: 0px;transform: translateX(-40%); z-index:1;">
@@ -314,14 +308,6 @@ const Map = ({ socket }) => {
     dispatch(getAllEvents(shiftDate + ":" + shift));
   }, [dispatch]);
 
-  useEffect(() => {
-    geofences = [];
-    geofenceFromDB.forEach((json) => {
-      // console.log(json)
-      // drawFeature(json);
-    });
-  }, [geofenceFromDB]);
-
   const _layerOptions: DropdownType[] = [
     { label: "Current Haul Routes", value: "CURRENT_HAUL_ROUTES" },
     { label: "Future Road Designs", value: "FUTURE_ROAD_DESIGNS" },
@@ -334,7 +320,7 @@ const Map = ({ socket }) => {
 
   useEffect(() => {
     if (mapStylesLoaded) {
-      routes
+      vehicleRoutes
         .filter(
           (_route) =>
             _route.category != "STOP_SIGNS" && _route.status == "ACTIVE"
@@ -359,7 +345,7 @@ const Map = ({ socket }) => {
             });
           }
         });
-      routes
+      vehicleRoutes
         .filter(
           (_route) =>
             _route.category === "STOP_SIGNS" && _route.status == "ACTIVE"
@@ -374,7 +360,7 @@ const Map = ({ socket }) => {
             type: "Feature",
             geometry: {
               type: "Point",
-              coordinates: item.geoJson.geometry.coordinates[0],
+              coordinates: (item.geoJson.geometry as Point).coordinates[0],
             },
             properties: item.geoJson.properties,
           };
@@ -423,7 +409,7 @@ const Map = ({ socket }) => {
       const selectedCategories = _layerOptions
         .filter((option) => checkedList.includes(option.label)) // Get matching label from _layerOptions
         .map((option) => option.value); // Extract corresponding values (categories)
-      routes.map((item, key) => {
+      vehicleRoutes.map((item, key) => {
         if (selectedCategories.includes(item.category)) {
           mapRef.current.setLayoutProperty(item.id, "visibility", "visible");
         } else {
@@ -431,7 +417,7 @@ const Map = ({ socket }) => {
         }
       });
     }
-  }, [routes, mapStylesLoaded, checkedList]);
+  }, [vehicleRoutes, mapStylesLoaded, checkedList]);
 
   const clearMarkers = () => {
     markers.map((item) => {
@@ -594,7 +580,6 @@ const Map = ({ socket }) => {
     ) {
       layer = Leaflet.geoJson(geoFenceData.geoJson, {
         pointToLayer: function (feature, latlng) {
-          console.log("latlng", latlng);
           return Leaflet.circle(latlng, {
             radius: geoFenceData.geoJson.properties.radius,
           });
@@ -654,10 +639,6 @@ const Map = ({ socket }) => {
   const checkAll = layerOptions.length === checkedList.length;
   const indeterminate =
     checkedList.length > 0 && checkedList.length < layerOptions.length;
-
-  useEffect(() => {
-    if (!mapRef.current) return;
-  }, [checkedList, routes]);
 
   useEffect(() => {
     if (mapRef.current) return; // Initialize map only once

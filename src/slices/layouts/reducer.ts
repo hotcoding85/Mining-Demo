@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, Reducer } from "@reduxjs/toolkit";
 //constants
 import {
   LAYOUT_TYPES,
@@ -12,6 +12,7 @@ import {
 
 export interface LayoutState {
   sideMenuOpen: Boolean,
+  units: string,
   layoutTypes: LAYOUT_TYPES.VERTICAL | LAYOUT_TYPES.HORIZONTAL,
   layoutModeTypes: LAYOUT_MODE_TYPES.DARK | LAYOUT_MODE_TYPES.LIGHT,
   layoutWidthTypes: LAYOUT_WIDTH_TYPES.FLUID | LAYOUT_WIDTH_TYPES.BOXED | LAYOUT_WIDTH_TYPES.SCROLLABLE,
@@ -23,6 +24,7 @@ export interface LayoutState {
 
 export const initialState: LayoutState = {
   sideMenuOpen: true,
+  units: "t",
   layoutTypes: LAYOUT_TYPES.VERTICAL,
   layoutModeTypes: LAYOUT_MODE_TYPES.DARK,
   layoutWidthTypes: LAYOUT_WIDTH_TYPES.FLUID,
@@ -36,6 +38,9 @@ const LayoutSlice = createSlice({
   name: 'LayoutSlice',
   initialState,
   reducers: {
+    changeUnitsAction(state: any, action:any) {
+      state.units = action.payload
+    },
     sideMenuOpenAction(state: any, action:any) {
       state.sideMenuOpen = action.payload
     },
@@ -68,6 +73,7 @@ const LayoutSlice = createSlice({
 
 export const {
   sideMenuOpenAction,
+  changeUnitsAction,
   changeLayoutAction,
   changeLayoutModeAction,
   changeSidebarThemeAction,
@@ -77,4 +83,4 @@ export const {
   changeLayoutSidebarAction
 } = LayoutSlice.actions;
 
-export default LayoutSlice.reducer;
+export default LayoutSlice.reducer as Reducer<LayoutState>;

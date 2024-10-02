@@ -33,7 +33,7 @@ const FuelStatusDashboard: React.FC = () => {
 
   const { fleetList, loading } = useSelector(selectProperties);
 
-  const [displayType, setDisplayType] = useState<string>("TABLE");
+  const [displayType, setDisplayType] = useState<string>("GRID");
 
   useEffect(() => {
     dispatch(getAllFleet(1, 50, "name", "ASC")); // Dispatch action to fetch data on component mount
@@ -87,6 +87,7 @@ const FuelStatusDashboard: React.FC = () => {
   const fleetData = fleetList.map((item) => ({
     id: item.id,
     name: item.name,
+    model: item.model,
     status: MaintenanceStatus[getRandomIndex(0, 3)],
     gpsLocation: getRandomFloat(23000, 38000, 1),
     smu: getRandomFloat(23000, 38000, 1),
@@ -122,6 +123,7 @@ const FuelStatusDashboard: React.FC = () => {
                 <FuelCard
                   key={item.id}
                   id={item.name}
+                  model={item.model}
                   status={item.status}
                   gpsLocation={item.gpsLocation}
                   smu={item.smu}

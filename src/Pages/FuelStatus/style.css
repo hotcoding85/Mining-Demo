@@ -54,10 +54,10 @@
   padding-right: 0;
 }
 
-.vehicle-name {
+.fuel-vehicle-name {
   display: block;
-  font-size: 1.7em;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 500;
   unicode-bidi: isolate;
 }
 
@@ -69,6 +69,17 @@
   border-radius: 20px 0 0 20px;
   font-weight: bold;
   font-size: 12px;
+}
+
+.fuel-card-operator {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 8px;
+  padding-left: 20px;
+  font-size: 14px;
+  display: block;
+  color: #9ca3b1;
+  align-items: center;
 }
 
 .fuel-card-sync {

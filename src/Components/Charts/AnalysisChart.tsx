@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { createSelector } from "reselect";
+import { LayoutSelector } from "selectors";
 
 interface AnalysisChartProps {
   chartData: {
@@ -26,14 +26,7 @@ const AnalysisChart: React.FC<AnalysisChartProps> = ({
   width,
   height,
 }) => {
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 

@@ -20,7 +20,6 @@ import { Link } from "react-router-dom";
 import { BenchCategories, StatusOptions } from "common/options";
 import DeleteButton from "Components/Common/DeleteButton";
 import FormModal from "Components/Common/FormModal";
-import { createSelector } from "reselect";
 import { isBenchNameUnique } from "../../Helpers/api_benches_helper";
 import ImportFileModal from "Components/Common/ImportFileModal";
 import { Dropdown, Input, MenuProps, Segmented } from "antd";
@@ -28,6 +27,7 @@ import DigBlockLayoutMap from "./DigBlockLayoutMap";
 import { round2Two } from "utils/common";
 import Table from "Components/Common/Table";
 import "./style.scss";
+import { FenceSelector } from "selectors";
 
 const DigBlockLayout = (props: any) => {
   document.title = "Dig Block Layout | FMS Live";
@@ -44,15 +44,7 @@ const DigBlockLayout = (props: any) => {
 
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const selectProperties = createSelector(
-    (state: any) => state.GeoFence,
-    (GeoFence) => ({
-      data: GeoFence ? GeoFence.data : [],
-      total: GeoFence ? GeoFence.total : 0,
-    })
-  );
-
-  const { data: fences } = useSelector(selectProperties);
+  const { fences } = useSelector(FenceSelector);
 
   const data = fences.map((item) => ({
     ...item?.location,

@@ -1,9 +1,8 @@
 import "./index.css";
 import React, { useMemo } from "react";
-import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import { Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
@@ -12,18 +11,12 @@ import RadicalGraph from "Components/Common/RadicalGraph";
 import EfficiencyRatingBar from "./componenets/EfficiencyRatingBar";
 import TruckingSummary from "./componenets/TruckingSummary";
 import { Select, Space } from "antd";
+import { LayoutSelector } from "selectors";
 
 const TruckingDashboard = (props: any) => {
   document.title = "Trucking Plan vs Actual | FMS Live";
 
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = useMemo(
     () => layoutModeType === LAYOUT_MODE_TYPES.LIGHT,

@@ -1,0 +1,61 @@
+.draggable-tree {
+  width: 100%;
+  height: 100%;
+}
+
+.form-control {
+  margin-bottom: 0px !important;
+  width: 100% !important;
+}
+
+.menu-settings-page {
+  .ant-tree {
+    padding: 8px 16px;
+  }
+
+  .ant-tree-node-selected {
+    background-color: transparent !important;
+  }
+
+  .dragging {
+    border: none !important;
+  }
+}
+
+body[data-layout-mode="dark"] .menu-settings-page {
+  .ant-tree {
+    background: var(--bg-color) !important;
+  }
+
+  .anticon-holder svg {
+    fill: white !important;
+  }
+
+  .ant-tree-switcher-icon svg {
+    fill: white !important;
+  }
+
+  .ant-tree-title {
+    color: white !important;
+  }
+
+  .ant-tree-node-content-wrapper .anticon svg {
+    fill: white !important;
+  }
+
+  .ant-tree-drop-indicator {
+    background-color: white !important;
+  }
+
+  .ant-tree-drop-indicator::after {
+    background-color: white !important;
+  }
+
+  .ant-tree-node-selected {
+    background-color: transparent !important;
+  }
+
+  .dragging {
+    border: none !important;
+  }
+}

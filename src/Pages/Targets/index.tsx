@@ -1,41 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardBody, Col, Container, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Card, CardBody, Col, Container, Form, Input, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import TableContainer, { TableColumn } from '../../Components/Common/TableContainer';
-import { getTargetsByRoster, getTargetsByRosterAndCategory, updateTarget, getAllFleet, getAllUsers, addTargets } from 'slices/thunk';
+import { getTargetsByRosterAndCategory, getAllFleet, addTargets } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useSearchParams, createSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import type { DatePickerProps } from 'antd';
 import { DatePicker, Segmented, Space, Select, Button } from 'antd';
 import dayjs, { Dayjs } from "dayjs";
-import { round2One, round2Two, roundOff, shiftDuration, shifts, shiftsInFormat, shiftTimings } from "../../utils/common";
-import { createSelector } from 'reselect';
+import { round2Two, roundOff, shiftDuration, shifts, shiftsInFormat } from "../../utils/common";
 import _ from 'lodash';
 import { CloudUploadOutlined, DownOutlined, RightOutlined } from '@ant-design/icons';
 import './index.scss'
+import { FleetSelector, TargetSelector } from 'selectors';
 
 const Target = (props: any) => {
   document.title = "Targets";
 
   const dispatch: any = useDispatch();
 
-  const targetsProperties = createSelector(
-    (state: any) => state.Target,
-    (targets) => ({
-      targets: targets ? targets.data : []
-    })
-  );
-
-  const fleetProperties = createSelector(
-    (state: any) => state.Fleet,
-    (fleetState) => ({
-      fleet: fleetState ? fleetState.data : []
-    })
-  );
-
-  const { targets } = useSelector(targetsProperties);
-  const { fleet } = useSelector(fleetProperties);
+  const { targets } = useSelector(TargetSelector);
+  const { fleet } = useSelector(FleetSelector);
 
   const [startDate, setStartDate] = useState(new Date());
   const [shift, setShift] = useState<any>('DS');
@@ -685,8 +671,6 @@ const Target = (props: any) => {
 
   const submit = () => {
     const productionData = getProductionData();
-
-    console.log(productionData);
     dispatch(addTargets(productionData))
   }
 

@@ -148,6 +148,10 @@ import WasteDumpManagement from "Pages/WasteDumpManagement";
 // const BlendPlans = React.lazy(() => import("Pages/BlendPlans"));
 import BlendPlans from "Pages/BlendPlans";
 
+import MenuSettings from "Pages/MenuSettings";
+// const Materials = React.lazy(() => import("Pages/Materials"));
+import Materials from "Pages/Materials";
+
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
@@ -162,7 +166,7 @@ const Replay2D = React.lazy(() => import("Pages/2DReplay"));
 const LoginPage = React.lazy(() => import("Pages/Authentication/Login"));
 const Logout = React.lazy(() => import("Pages/Authentication/Logout"));
 const ForgotPassword = React.lazy(() => import("Pages/Authentication/ForgotPassword"));
-const Materials = React.lazy(() => import("Pages/Materials"));
+
 const Benches = React.lazy(() => import("Pages/Benches"));
 const AdminSettings = React.lazy(() => import("Pages/AdminSettings"))
 const Users = React.lazy(() => import("Pages/Users"));
@@ -180,11 +184,10 @@ socket.on("connect_error", (err) => {
 const authProtectedRoutes = [
   { path: "/", exact: true, component: <Navigate to="/fleet-status" /> },
   { path: "/fleet-status", component: <FMS /> },
-  { path: "/realtime-postioning", component: <Map socket={socket} /> },
-  { path: "/realtime-postioning/:equipmentId", component: <Map socket={socket} /> },
+  { path: "/realtime-postioning/:equipmentId?", component: <Map socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
-  {path: "/admin-settings", exact: true, component: <AdminSettings />},
+  { path: "/admin-settings", exact: true, component: <AdminSettings /> },
   { path: "/users", exact: true, component: <Users /> },
   { path: "/shift-planner", exact: true, component: <Dispatch /> },
   { path: "/rom-management", exact: true, component: <ROMManagement /> },
@@ -253,6 +256,8 @@ const authProtectedRoutes = [
   { path: "//3d-pit-view", exact: true, component: <ThreeJS /> },
   // Underground Map View
   { path: "/underground-map", exact: true, component: <Underground /> },
+
+  { path: "/menu-settings", exact: true, component: <MenuSettings /> },
 ];
 
 const publicRoutes = [

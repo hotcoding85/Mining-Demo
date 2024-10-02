@@ -1,8 +1,4 @@
-interface Material {
-  name: string;
-  grade: number; // grams of gold per tonne
-  tonnes: number; // available tonnes for blending
-}
+import { Material } from "slices/materials/reducer";
 
 interface DailyBlend {
   day: string;

@@ -3,12 +3,9 @@ import { Link } from "react-router-dom";
 import { Dropdown, DropdownToggle, DropdownMenu, Row, Col } from "reactstrap";
 import SimpleBar from "simplebar-react";
 
-//Import images
-import avatar3 from "../../assets/images/users/avatar-3.jpg"
-import avatar4 from "../../assets/images/users/avatar-4.jpg";
-
 //i18n
 import { withTranslation } from "react-i18next";
+import { Tooltip } from "antd";
 
 const NotificationDropdown = (props: any) => {
   // Declare a new state variable, which we'll call "menu"
@@ -17,6 +14,7 @@ const NotificationDropdown = (props: any) => {
 
   return (
     <React.Fragment>
+
       <Dropdown
         isOpen={menu}
         toggle={() => setMenu(!menu)}
@@ -29,7 +27,9 @@ const NotificationDropdown = (props: any) => {
           id="page-header-notifications-dropdown"
         >
           {/* if notificationCount > 0 add class bx-tada */}
-          <i className="bx bx-bell" />
+          <Tooltip title="Notifications">
+            <i className="bx bx-bell" />
+          </Tooltip>
           {notificationCount > 0 ? <span className="badge bg-danger rounded-pill">{notificationCount}</span> : <></>}
         </DropdownToggle>
 
@@ -49,7 +49,7 @@ const NotificationDropdown = (props: any) => {
           </div>
 
           <SimpleBar style={{ height: "230px" }}>
-            
+
           </SimpleBar>
           <div className="p-2 border-top d-grid">
             <Link

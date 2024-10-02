@@ -8,7 +8,8 @@ import {
     changeLayoutAction,
     changeLayoutSidebarAction,
     changeLayoutWidthAction,
-    sideMenuOpenAction
+    sideMenuOpenAction,
+    changeUnitsAction
 } from "./reducer";
 
 export const changeSideMenuState = (isOpen: any)  => async (dispatch: any) => {
@@ -168,3 +169,11 @@ export const changeSidebarImageType = (leftsidebarImagetype: any) => async (disp
         // console.log(error);
     }
 };
+
+export const changeUnits = (units: any) => async (dispatch: any) => {
+    try {
+        dispatch(changeUnitsAction(units))
+    } catch (error) {
+        console.log(error);
+    }
+}

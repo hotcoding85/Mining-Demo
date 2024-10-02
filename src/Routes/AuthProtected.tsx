@@ -1,19 +1,11 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { createSelector } from "reselect";
+import { ProfileSelector } from "selectors";
 
 const AuthProtected = (props) => {
 
-  const selectProperties = createSelector(
-    (state: any) => state.Auth,
-    (profile) => ({
-      user: profile.user,
-      token: profile.token,
-    })
-  );
-
-  const { user, token } = useSelector(selectProperties);
+  const { user, token } = useSelector(ProfileSelector);
 
   if (!token && !user) {
     return (

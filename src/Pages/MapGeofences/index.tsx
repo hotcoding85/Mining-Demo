@@ -5641,7 +5641,6 @@ const MapGeofence = () => {
     const drawFeature = (geojson: any) => {
         let layer;
         if (geojson.properties.radius) {
-            console.log(geojson.geometry.coordinates);
             layer = Leaflet.circle(geojson.geometry.coordinates, { radius: geojson.properties.radius, fillColor: geojson.properties.fillColor, color: geojson.properties.color, weight: 1 });
             layer.id = new Date();
             drawItems.addLayer(layer);
@@ -5660,7 +5659,6 @@ const MapGeofence = () => {
         geofences.push(geofence)
         setGeofences([...geofences]);
         setSelectedFence(geofence);
-        console.log(geofence.layer.toGeoJSON());
     }
 
     const addMarkers = () => {

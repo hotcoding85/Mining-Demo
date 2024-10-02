@@ -27,6 +27,7 @@ import Table from "Components/Common/Table";
 import { Dropdown, Input, MenuProps } from "antd";
 import { debounce } from "lodash";
 import './style.scss';
+import { MaterialSelector } from "selectors";
 
 const Materials = (props: any) => {
   document.title = "Materials | FMS Live";
@@ -46,15 +47,7 @@ const Materials = (props: any) => {
     setImportFileModal(!importCsvModal);
   }, [importCsvModal]);
 
-  const selectProperties = createSelector(
-    (state: any) => state.Materials,
-    (materials) => ({
-      data: materials.data,
-      total: materials.total,
-    })
-  );
-
-  const { data, total } = useSelector(selectProperties);
+  const { materials } = useSelector(MaterialSelector);
 
   useEffect(() => {
     dispatch(getAllMaterials(1, 100)); // Dispatch action to fetch data on component mount
@@ -355,13 +348,13 @@ const Materials = (props: any) => {
   };
 
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
-    return data.filter((item) =>
+    if (!searchTerm) return materials;
+    return materials.filter((item) =>
       columns.some((col) =>
         String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-  }, [data, searchTerm, columns]);
+  }, [materials, searchTerm, columns]);
 
   const onMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click');

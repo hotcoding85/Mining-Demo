@@ -1,9 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer, createTransform } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import rootReducer from './slices';
+import rootReducer, { RootReducer } from './slices';
 import { decryptData, encryptData } from "utils/cryptoUtils";
-
 
 // Define the encryption transform
 const encryptionTransform = createTransform(
@@ -25,7 +24,7 @@ const persistConfig = {
   transforms: [encryptionTransform],
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer<RootReducer>(persistConfig, rootReducer);
 
 export const Store = configureStore({
   reducer: persistedReducer,

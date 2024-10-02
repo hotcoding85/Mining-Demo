@@ -5,11 +5,11 @@ import { BarGraph } from "../../Components/Charts/BarChart";
 import { TextColor } from 'Components/Charts/interfaces/general';
 import { FLEET_TIME_STATE_COLOR, LAYOUT_MODE_TYPES } from 'Components/constants/layout';
 import { useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 import { ApexOptions } from "apexcharts";
 import Chart from "react-apexcharts";
 import { getRandomInt } from 'utils/random';
 import { divide12HoursRandomly, minutesToHhMm, round2One } from 'utils/common';
+import { LayoutSelector } from 'selectors';
 
 
 const MyPiechart = ({ bgColor, textColor, fillColor, value, width, height, maxValue, state, time, ...props }) => {
@@ -179,14 +179,7 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
     { text: "Actual", color: "#535E77" },
   ];
 
-  const { layoutModeType } = useSelector(
-    createSelector(
-      (state: any) => state.Layout,
-      (layout) => ({
-        layoutModeType: layout.layoutModeTypes,
-      })
-    )
-  );
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = useMemo(
     () => layoutModeType === LAYOUT_MODE_TYPES.LIGHT,

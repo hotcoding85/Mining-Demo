@@ -1,5 +1,6 @@
 export interface FuelData {
   id: string;
+  model:string;
   status: string;
   smu: number;
   fuelLevel: number;

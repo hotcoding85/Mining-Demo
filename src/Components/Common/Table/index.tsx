@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { ConfigProvider, Table as AntTable } from "antd";
-import { createSelector } from "reselect";
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import "./style.scss";
+import { LayoutSelector } from "selectors";
 
 interface TableProps {
   columns: any[];
@@ -64,13 +64,7 @@ const Table: React.FC<TableProps> = ({
 }) => {
   const [recordsPerPage, setRecordsPerPage] = useState(paginationPageSize);
 
-  const selectLeadData = createSelector(
-    (state: any) => state.Layout,
-    (layout) => ({
-      layoutModeType: layout.layoutModeTypes,
-    })
-  );
-  const { layoutModeType } = useSelector(selectLeadData);
+  const { layoutModeType } = useSelector(LayoutSelector);
 
   const theme = useMemo(() => {
     return layoutModeType === "dark" ? TableDarkTheme : TableLightTheme;

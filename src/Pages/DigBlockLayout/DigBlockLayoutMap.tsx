@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactDOMServer from "react-dom/server";
 import mapboxgl from "mapbox-gl";
 import BlockPopupContent from "./BlockPopupContent";
-import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { getAllMaterials } from "slices/thunk";
+import { MaterialSelector } from "selectors";
 
 const DigBlockLayoutMap = (data: any) => {
   const mapContainer = useRef(null);
@@ -16,14 +16,7 @@ const DigBlockLayoutMap = (data: any) => {
   const [lng] = useState(120.44477292688124);
   const [lat] = useState(-29.147190282051838);
 
-  const selectMaterialProperties = createSelector(
-    (state: any) => state.Materials,
-    (benches) => ({
-      materials: benches.data,
-    })
-  );
-
-  const { materials } = useSelector(selectMaterialProperties);
+  const { materials } = useSelector(MaterialSelector);
 
   useEffect(() => {
     dispatch(getAllMaterials(1, 100));

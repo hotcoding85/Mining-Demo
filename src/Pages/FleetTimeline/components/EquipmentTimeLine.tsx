@@ -4,12 +4,7 @@ import TimelineGraph from "Components/Common/TimelineGraph";
 import { generateTasks } from "Components/Common/TimelineGraph/sample";
 import { DataGroup, DataItem } from "vis-timeline/standalone";
 import { Slider } from 'antd'; 
-
-interface Vehicle {
-  id: number;
-  name: string;
-  status: string;
-}
+import { Vehicle } from "slices/fleet/reducer";
 
 interface EquipmentTimeLineProps {
   vehicles: Vehicle[];

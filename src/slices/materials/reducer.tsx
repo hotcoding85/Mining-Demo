@@ -22,10 +22,12 @@ export interface MaterialsState {
   errorMsg: string | null;
 }
 
-interface Material {
+export interface Material {
   id: string;
-  name: string | undefined;
+  name: string;
   category: string;
+  grade: number;
+  tonnes: number;
   color: string;
   status: string;
 }

@@ -2,8 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
-import {} from "../../Helpers/api_events_helper";
+import { } from "../../Helpers/api_events_helper";
 import {
   Button,
   Checkbox,
@@ -33,18 +32,7 @@ const TelemetryReport = (props: any) => {
 
   const dispatch: any = useDispatch();
 
-  const opReportProperties = createSelector(
-    (state: any) => state.TelemetryReport,
-    (telemetryReport) => ({
-      opReportData: telemetryReport ? telemetryReport.data : [],
-      total: telemetryReport ? telemetryReport.total : 0,
-      loading: telemetryReport ? telemetryReport.loading : true,
-    })
-  );
-
-  let { opReportData } = useSelector(opReportProperties);
-
-  opReportData = [
+  const opReportData = [
     {
       vehicleName: "EX201",
       vehicleType: "EXCAVATOR",
@@ -558,7 +546,6 @@ const TelemetryReport = (props: any) => {
   const [timeRange, setTimeRange] = useState("CURRENT_SHIFT");
   const [shiftInfo, setShiftInfo] = useState(shiftTimings());
   const [filter, setFilter] = useState<string>("All Equipment");
-  const [filteredData, setFilteredData] = useState<string>(opReportData);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [visibleColumns, setVisibleColumns] = useState({
     vehicleName: true,
@@ -628,18 +615,6 @@ const TelemetryReport = (props: any) => {
 
   const onEquipmentTypeSelect = (filterType) => {
     setFilter(filterType);
-
-    setFilteredData((prevState) => {
-      let data = _.cloneDeep(opReportData);
-
-      if (filterType != "All Equipment") {
-        data = _.filter(data, (elem) => {
-          return elem.vehicleType === filterType;
-        });
-      }
-
-      return data;
-    });
   };
 
   const filteredReportData = useMemo(() => {
@@ -793,7 +768,7 @@ const TelemetryReport = (props: any) => {
               <Dropdown menu={menuProps}>
                 <Button>
                   <Space>
-                  <FilterOutlined /> Filter
+                    <FilterOutlined /> Filter
                   </Space>
                 </Button>
               </Dropdown>

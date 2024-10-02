@@ -1,3 +1,5 @@
+import { Feature } from "interfaces/GeoJson"
+
 export type WayPointType = {
     coordinates: [lat: number, lng: number], 
     speedlimit: number,
@@ -12,14 +14,7 @@ export type RouteCoordinatesType = {
 }
 export type RouteDataType = {
     id: string | null,
-    geoJson: {
-        geometry: {
-            type: string,
-            coordinates: [number, number][] | null
-        },
-        type: string,
-        properties: Object
-    }
+    geoJson: Feature,
     distance: number,
     duration: number,
     speedLimits: number,
@@ -28,5 +23,5 @@ export type RouteDataType = {
     color: string,
     colors?: (string | null)[],
     category?: string | null,
-    speeds: number[]
+    speeds?: number[]
 }

@@ -39,7 +39,7 @@ export const getImage = (category: string) => {
 
 export const MaintenanceStatus = [
   "HEALTHY",
-  "SCHEDULE_REFUEL",
+  "SCHEDULED",
   "CRITICAL",
   "NO_TRUCKS",
 ];
@@ -49,7 +49,7 @@ export const MaintenanceStatusConfig = {
     name: "Healthy",
     color: "#389E0D",
   },
-  SCHEDULE_REFUEL: {
+  SCHEDULED: {
     name: "Schedule Refuel",
     color: "#FAAD14",
   },
