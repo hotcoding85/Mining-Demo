@@ -240,6 +240,10 @@ body[data-layout-mode="light"]  .form-control {
   display: none;
 }
 
+.form-control {
+  color: var(--dark-text-color) !important;
+}
+
 .form-control:disabled {
   background-color: white !important;
   cursor: not-allowed;
