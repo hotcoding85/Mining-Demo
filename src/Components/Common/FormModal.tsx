@@ -48,7 +48,7 @@ const FormModal = ({
               errors,
               touched,
             }) => (
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} autoComplete="off">
                 <Row>
                   <Col xs={12}>
                     {fields.map((field, key) => {
