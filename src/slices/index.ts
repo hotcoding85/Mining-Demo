@@ -16,6 +16,7 @@ import EventsReducer, { EventsState } from './events/reducer';
 import TargetReducer, { TargetState } from './target/reducer';
 import VehicleRoutesReducer, { VehicleRoutesState } from "./vehicleRoutes/reducer";
 import VehicleStateReasonReducer, { VehicleStateReasonState } from "./stateReasons/reducer";
+import MenuSettingReducer, { MenuSettingState } from "./menuSettings/reducer";
 
 export interface RootState {
   Layout: Reducer<LayoutState> | undefined;
@@ -32,6 +33,7 @@ export interface RootState {
   Target: Reducer<TargetState> | undefined;
   VehicleRoutes: Reducer<VehicleRoutesState> | undefined;
   VehicleStateReasons: Reducer<VehicleStateReasonState> | undefined;
+  MenuSettings: Reducer<MenuSettingState> | undefined;
   // Add other slices as needed
 }
 
@@ -49,7 +51,8 @@ const rootReducer = combineReducers<Partial<RootState>>({
   Events: EventsReducer,
   Target: TargetReducer,
   VehicleRoutes: VehicleRoutesReducer,
-  VehicleStateReasons: VehicleStateReasonReducer
+  VehicleStateReasons: VehicleStateReasonReducer,
+  MenuSettings: MenuSettingReducer
 });
 
 export default rootReducer;

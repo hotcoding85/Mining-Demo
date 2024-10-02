@@ -5,11 +5,22 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { useDispatch } from "react-redux";
 import { Tree } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
-import { DownOutlined, PlusCircleOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  PlusCircleOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import FormModal from "Components/Common/FormModal";
 import { UserRoleOptions } from "common/options";
 import * as Yup from "yup";
 import "./index.scss";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import {
+  addMenuSettings,
+  getMenuSettings,
+  removeMenuSetting,
+} from "slices/menuSettings/thunk";
 
 export type MenuItemType = {
   id?: string;
@@ -36,6 +47,25 @@ const MenuSettings = (props: any) => {
   const [selectedMenu, setSelectedMenu] = useState<TreeDataNode | null>(null);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
+  const { data: menuSettings } = useSelector(
+    createSelector(
+      (state: any) => state.MenuSettings,
+      (layout) => ({
+        data: layout.data,
+      })
+    )
+  );
+
+  useEffect(() => {
+    if (dispatch) {
+      dispatch(getMenuSettings());
+    }
+  }, []);
+
+  useEffect(() => {
+    setMenuData(menuSettings);
+  }, [menuSettings]);
+
   const isEdit = useMemo(
     () => selectedMenu?.key !== ADD_NEW_MENU,
     [selectedMenu?.key]
@@ -44,9 +74,9 @@ const MenuSettings = (props: any) => {
   const gData = useMemo(
     () =>
       menuData.map((item) => {
-        const mapChildrens = (childrens: MenuItemType[] | undefined) => {
-          if (!childrens) return [];
-          return childrens.map((child) => ({
+        const mapChildrens = (children: MenuItemType[] | undefined) => {
+          if (!children) return [];
+          return children.map((child) => ({
             key: child.title,
             title: child.title,
             children: mapChildrens(child.children),
@@ -67,66 +97,73 @@ const MenuSettings = (props: any) => {
     setSelectedMenu(null);
   }, []);
 
-  const onDrop: TreeProps["onDrop"] = (info) => {
-    if (info.dragNode.key === ADD_NEW_MENU) return;
-
+  const onDrop: TreeProps["onDrop"] = async (info) => {
     const dropKey = info.node.key;
     const dragKey = info.dragNode.key;
     const dropPos = info.node.pos.split("-");
     const dropPosition =
       info.dropPosition - Number(dropPos[dropPos.length - 1]);
 
-    const loop = (
+    // Deep clone the menuData to avoid modifying immutable objects
+    const data = structuredClone(menuData); // If structuredClone is not available, use JSON.parse(JSON.stringify(menuData));
+
+    const loop = async (
       data: MenuItemType[],
       key: React.Key,
       callback: (node: MenuItemType, i: number, data: MenuItemType[]) => void
     ) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i].title === key) {
-          return callback(data[i], i, data);
+          return await callback(data[i], i, data);
         }
         if (data[i].children) {
-          loop(data[i].children!, key, callback);
+          await loop(data[i].children!, key, callback); // Recursively search in children
         }
       }
     };
 
-    const data = [...menuData]; // Copy the current menu data
-
-    // Find dragObject
+    // Find the dragged object
     let dragObj: MenuItemType = {
       title: "",
       router: "",
       access: [],
     };
-    loop(data, dragKey, (item, index, arr) => {
-      arr.splice(index, 1); // Remove the dragged item from the original position
-      dragObj = item;
+
+    await loop(data, dragKey, async (item, index, arr) => {
+      arr.splice(index, 1); // Remove the dragged item
+      if (item.id) {
+        await dispatch(removeMenuSetting(item.id));
+      }
+      dragObj = {
+        title: item.title,
+        access: item.access,
+        router: item.router,
+        children: item.children,
+      }; // Create a shallow copy of the dragged object
     });
 
     if (!info.dropToGap) {
       // Drop inside the node (as a child)
-      loop(data, dropKey, (item) => {
-        item.children = item.children || [];
-        item.children.unshift(dragObj); // Insert the dragged item at the top of the children
+      await loop(data, dropKey, (item) => {
+        item.children = item.children ? [...item.children] : []; // Ensure children is an array
+        item.children.push(dragObj); // Add dragged object as a child
       });
     } else {
       let ar: MenuItemType[] = [];
       let i: number = 0;
-      loop(data, dropKey, (_item, index, arr) => {
+      await loop(data, dropKey, (_item, index, arr) => {
         ar = arr;
         i = index;
       });
       if (dropPosition === -1) {
-        // Drop at the top of the node
-        ar.splice(i, 0, dragObj);
+        ar.splice(i, 0, dragObj); // Drop at the top of the node
       } else {
-        // Drop at the bottom of the node
-        ar.splice(i + 1, 0, dragObj);
+        ar.splice(i + 1, 0, dragObj); // Drop at the bottom of the node
       }
     }
 
-    setMenuData(data); // Update the menuData with the new structure
+    // Update the state with the modified deep clone of menuData
+    setMenuData(data);
   };
 
   const handleDbClickMenu = (e, node) => {
@@ -135,7 +172,11 @@ const MenuSettings = (props: any) => {
   };
 
   const handleOnSubmit = (values, { resetForm }) => {
-    const updatedMenu = { ...values, childrens: [] };
+    const updatedMenu = {
+      ...values,
+      router: !!values.router ? values.router : undefined,
+      children: [],
+    };
 
     if (selectedMenu?.key === ADD_NEW_MENU) {
       setMenuData((prev) => [...prev, updatedMenu]);
@@ -145,7 +186,7 @@ const MenuSettings = (props: any) => {
         data.forEach((item) => {
           if (item.title === key) {
             item.title = updatedMenu.title;
-            item.router = updatedMenu.router;
+            item.router = !!updatedMenu.router ? updatedMenu.router : undefined;
             item.access = updatedMenu.access;
           }
           if (item.children) {
@@ -232,7 +273,7 @@ const MenuSettings = (props: any) => {
           return true;
         }
       ),
-    router: Yup.string().required("Please enter the router path"),
+    router: Yup.string(),
     access: Yup.array().required("Please select access permissions"),
   });
 
@@ -246,6 +287,23 @@ const MenuSettings = (props: any) => {
       },
     ];
   }, [gData]);
+
+  const getRequireMenuSetting = (menuData: any[]) => {
+    if (menuData?.length === 0) return [];
+    return menuData.map((item) => ({
+      id: item?.id || undefined,
+      title: item.title,
+      access: item.access,
+      router: item?.router || undefined,
+      children: getRequireMenuSetting(item?.children),
+    }));
+  };
+
+  const onSave = async () => {
+    if (menuData?.length > 0) {
+      await dispatch(addMenuSettings(getRequireMenuSetting(menuData)));
+    }
+  };
 
   return (
     <React.Fragment>
@@ -261,7 +319,9 @@ const MenuSettings = (props: any) => {
             padding: "0px 16px",
           }}
         >
-          <Button type="default" icon={<SaveOutlined />}>Save</Button>
+          <Button type="default" icon={<SaveOutlined />} onClick={onSave}>
+            Save
+          </Button>
         </Row>
         <Row
           style={{
