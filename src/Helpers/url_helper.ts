@@ -49,3 +49,6 @@ export const VEHICLE_ROUTES = "/routes"
 
 // TARGETS
 export const VEHICLE_STATE_REASONS = "/vehiclestatereasons";
+
+// MENU SETTINGS
+export const MENU_SETTINGS = "/menusettings";
