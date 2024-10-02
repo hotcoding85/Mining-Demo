@@ -92,9 +92,21 @@ const LoadHaulCycleTimeBreakdown = (props: any) => {
 
   const columns = [
     {
+      title: "Fleet",
+      dataIndex: "fleet",
+      key: "fleet",
+      dataType: "string",
+    },
+    {
       title: "Cycle Activities",
       dataIndex: "cycleActivities",
       key: "cycleActivities",
+      dataType: "string",
+    },
+    {
+      title: "Target",
+      dataIndex: "target",
+      key: "target",
       dataType: "string",
     },
     {
