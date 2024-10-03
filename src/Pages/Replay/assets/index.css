@@ -108,11 +108,11 @@ body[data-layout-mode='light'] .ant-tabs-tab-active > div {
 }
 body[data-layout-mode='light'] .fleet-tracking-datepicker {
     background-color: white;
-    color: #25324c;
+    color: var(--bg-color);
 }
 body[data-layout-mode='dark'] .fleet-tracking-datepicker {
     color: white;
-    background-color: #25324c;
+    background-color: var(--bg-color);
 }
 .switch-timeline {
     position: absolute;
@@ -125,15 +125,17 @@ body[data-layout-mode='dark'] .fleet-tracking-datepicker {
     justify-content: center;
     align-items: center;
     font-size: 24px;
-    border-radius: 8px;
+    /* border-radius: 8px; */
 }
 body[data-layout-mode='dark'] .switch-timeline {
     background: var(--bg-color);
     color: white;
+    opacity: 0.9;
 }
 body[data-layout-mode='light'] .switch-timeline {
     color: var(--bg-color);
     background: white;
+    opacity: 0.9;
 }
 .truck-badge {
     align-self: flex-start;
@@ -155,4 +157,7 @@ body[data-layout-mode='light'] .switch-timeline {
 }
 .truck-badge-sync-icon{
     display: flex;
+}
+.marker-tooltip{
+    width: 150px;
 }

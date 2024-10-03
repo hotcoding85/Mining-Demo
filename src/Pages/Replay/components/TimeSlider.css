@@ -3,12 +3,11 @@
     align-items: center;
     padding: 10px;
     border-radius: 8px;
-    width: calc(100% - 24px) !important;
-    margin-left: 12px;
+    width: calc(100%) !important;
     margin-right: 12px;
     margin-bottom: 12px;
     position: absolute;
-    bottom: 0px;
+    bottom: -66px;
 }
 body[data-layout-mode="dark"] .time-slider-container{
     background-color: #2A2A2A;

@@ -36,7 +36,8 @@ import { getMinutesDifference, getSyncText } from "./common";
 import mapLocationImage from "assets/images/map/map-location.png";
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { LineString } from "interfaces/GeoJson";
+import { LineString, Point } from 'interfaces/GeoJson';
+import { LayoutSelector, VehicleRouteSelector } from 'selectors';
 
 export type TripRoutesDataType = {
     id: string,
@@ -87,7 +88,8 @@ const Replay = () => {
         }
     };
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+    const forwardDirection = useRef<any>(null)
+    const NextCameraPoistion = useRef<any>(null)
     const [showTimeline, setShowTimeline] = useState<boolean>(true)
     const locationItems = [
         {
@@ -118,31 +120,16 @@ const Replay = () => {
 
     const dispatch: any = useDispatch();
 
-    const vehicleRoutesState = (state) => state.VehicleRoutes;
-    
-    const stateProperties = createSelector(
-        [vehicleRoutesState],
-        (vehicleRoutesState) => ({
-          routes: vehicleRoutesState.data
-        })
-    );
+    const { vehicleRoutes } = useSelector(VehicleRouteSelector);
 
-    const { routes } = useSelector(stateProperties);
-
-    const { layoutModeType } = useSelector(
-        createSelector(
-          (state: any) => state.Layout,
-          (layout) => ({
-            layoutModeType: layout.layoutModeTypes,
-          })
-        )
-    );
+    const { layoutModeType } = useSelector(LayoutSelector );
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
     
     const currentAnimationMarker = useRef<any>(null)
     const [isAnimation, setIsAnimation] = useState<boolean>(false)
     const currentAnimationStatus = useRef<boolean>(false)
     const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
+
     const updateMarkerTooltip = useCallback(() => {
         if (!mapContainer.current || !currentAnimationMarker.current) return
         const screenPosition = currentAnimationMarker.current.clone();
@@ -154,7 +141,7 @@ const Replay = () => {
         const annotationDiv = document.getElementById(`marker-tooltip`);
         if (annotationDiv) {
             annotationDiv.style.left = `${x - 60}px`;
-            annotationDiv.style.top = `${y - 180}px`;
+            annotationDiv.style.top = `${y - 150}px`;
         }
     }, [isAnimation])
 
@@ -391,7 +378,7 @@ const Replay = () => {
         scene.add(grid);
 
         // set routes to the map variable
-        map.setRoutes(routes)
+        map.setRoutes(vehicleRoutes)
         // set default categories
         map.setFilteredCategories([])
         // draw the routes only one time
@@ -416,7 +403,7 @@ const Replay = () => {
             renderer.render(scene, camera);
             controls.update();
             updateAnnotations();
-            // updateMarkerTooltip();
+            updateMarkerTooltip();
         };
         mainLoop(0);
         WindowResize(renderer, camera);
@@ -604,7 +591,7 @@ const Replay = () => {
     
     useEffect(() => {
         if (selectedEq) {
-            setRouteData([{id: selectedEq.name, routes: routes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}]);
+            setRouteData([{id: selectedEq.name, routes: vehicleRoutes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}]);
 
             clearAnimation()
             setTimeValue(0)
@@ -620,16 +607,47 @@ const Replay = () => {
                 setApexOptions(defaultApexOptions);
             }
         }
-    }, [routes, selectedEq])
-
+    }, [vehicleRoutes, selectedEq])
+    const lastCameraPosition = useRef<any>(null)
+    const lastCameraQuaternion = useRef<any>(null)
+    const cameraStopAnimationId = useRef<number>(0)
     const togglePlay = useCallback(() => {
-        setIsPlaying(!isPlaying);
         currentIsPlaying.current = !isPlaying
         if (isPlaying === false && timeValue === totalTime) {
             setTimeValue(0)
             currentTimeValue.current = 0
             clearAnimation()
+            if (cameraStopAnimationId.current !== 0) {
+                cancelAnimationFrame(cameraStopAnimationId.current)
+                lastCameraQuaternion.current = false
+            }
+            if (activeObjects.current && activeObjects.current.animationId) {
+                cancelAnimationFrame(activeObjects.current.animationId);
+                activeObjects.current.animationId = null;
+            }
         }
+        
+        if (cameraStopAnimationId.current !== 0) {
+            cancelAnimationFrame(cameraStopAnimationId.current)
+            lastCameraQuaternion.current = false
+        }
+        const animate = () => {
+            // Set camera offset behind the marker
+            const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
+            cameraOffset.y += 200;  // Adjust height for a better view
+            lastCameraQuaternion.current = true
+            // Set the camera position behind the marker (car)
+            const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+            window.camera.lookAt(NextCameraPoistion.current);
+            lastCameraPosition.current = window.camera.position.clone();
+            cameraStopAnimationId.current = requestAnimationFrame(animate)
+        }
+        if (isPlaying) {
+            // Make the camera look ahead (at the next point on the curve)
+            cameraStopAnimationId.current = requestAnimationFrame(animate)
+        }
+        setIsPlaying(!isPlaying);
     }, [timeValue, totalTime, isPlaying]);
 
     const handleSpeedChange = (value: number) => {
@@ -829,7 +847,7 @@ const Replay = () => {
         fetchZipFile()
         // Clean up on component unmount
         return () => {
-            map && map.clean()
+            window.map && window.map.clean()
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
             }
@@ -860,48 +878,6 @@ const Replay = () => {
         dispatch(getAllVehicleRoutes())
     }, [dispatch]);
 
-    useEffect(() => {
-        stopSignData.current.map((item: any, key) => {
-            const map = mapRef.current;
-            if (!map) return;
-        
-            // Convert LineString to Point assuming the first coordinate is the desired location
-            const pointFeature = {
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: item.geoJson.geometry.coordinates[0]
-                },
-                properties: item.geoJson.properties
-            };
-        
-            // Check if the source does not exist before adding it
-            if (!map.getSource(item.id)) {
-                map.addSource(item.id, {
-                    type: 'geojson',
-                    data: pointFeature
-                });
-            }
-        
-            // Remove existing layer if it exists
-            if (map.getLayer(item.id)) {
-                map.removeLayer(item.id);
-            }
-        
-            // Add a new circle layer for STOP_SIGNS
-            map.addLayer({
-                id: item.id,
-                type: 'circle',
-                source: item.id,
-                paint: {
-                    'circle-radius': 10,  // This sets the radius in pixels
-                    'circle-color': item.color,
-                    'circle-opacity': 1
-                }
-            });
-    
-          })
-    }, [stopSignData, mapRef.current])
     
     const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
     const pausedTimeValue = useRef<number>(0)
@@ -1083,6 +1059,9 @@ const Replay = () => {
             cancelAnimationFrame(animationRef.current.animationFrameId);
             animationRef.current.animationFrameId = null
         }
+
+        cameraStopAnimationId.current = 0
+        lastCameraQuaternion.current = false
     }
 
     // Function to create a tube with custom shader to control visibility
@@ -1218,7 +1197,7 @@ const Replay = () => {
         const totalDistance = distance;
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
         const animate = (timestamp) => {
-            updateMarkerTooltip()
+            // updateMarkerTooltip()
             const currentPlaybackSpeed = currentSpeed.current;
             if (!animationRef.current.startTime) {
                 animationRef.current.startTime = timestamp;
@@ -1310,32 +1289,29 @@ const Replay = () => {
                 const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward 
                 if (point) {
                     currentAnimationMarker.current = point
-                    marker.position.set(point.x - 10, point.y - 10, point.z);
+                    NextCameraPoistion.current = nextPoint
+                    marker.position.set(point.x, point.y, point.z);
                     activeObjects.current.tube.material.uniforms.progress.value = _progress;
                     // Calculate the forward direction (from point to nextPoint)
-                    const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
-                    // Create a new quaternion for rotation
-                    const quaternion = new THREE.Quaternion();
+                    forwardDirection.current = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
-                    // Set the quaternion to rotate the object to face the forward direction
-                    quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), forwardDirection);
 
-                    const angle = Math.atan2(forwardDirection.y, forwardDirection.x);
+                    const angle = Math.atan2(forwardDirection.current.y, forwardDirection.current.x);
                     // // Rotate the object around the Z-axis based on the calculated angle
                     marker.rotation.z = angle + Math.PI / 2;
 
                     // Set camera offset behind the marker
-                    const cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
+                    const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
                     cameraOffset.y += 200;  // Adjust height for a better view
 
                     // Set the camera position behind the marker (car)
                     const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
                     window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
-
                     // Make the camera look ahead (at the next point on the curve)
                     window.camera.lookAt(nextPoint);
+                    lastCameraPosition.current = window.camera.position.clone();
                     // set ToolTip content
-                    setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total Duration: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>StopSign Duration: </span>' + total_stopSignDuration + 's')
+                    setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>Stop_Sign: </span>' + total_stopSignDuration + 's')
 
                     TruckObject.current && (TruckObject.current.visible = true)
 
@@ -1483,103 +1459,105 @@ const Replay = () => {
                         <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={(key) => onChangeTap(key)} >
                             <TabPane tab="Map View" key="1">
                                 {/* Map View Placeholder */}
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px'}}>
-                                    <h4>GPS Fleet Tracking</h4>
-                                    <div style={{display: 'flex', alignItems: 'center'}}>
-                                        <DatePicker style={{height: '48px', marginRight: '10px'}} className={'fleet-tracking-datepicker'} allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
-                                        <Dropdown
-                                            label="Choose Location"
-                                            items={locationItems}
-                                            value={locations}
-                                            onChange={setLocaltions}
-                                            />
-                                    </div>
-                                </div>
-                                <Col lg="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                                {isLoading ? (
-                                        <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: selectedEq ? 'calc(80% - 20px)' : 'calc(100% - 20px)', height: '50%', left: '10px'}}>
-                                            <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
-                                                <Progress className='map-loading-progress-bar' percent={progress} status="active" />
-                                            </Spin>
-                                        </div>
-                                    ) : (
-                                    <></>
-                                )}
-                                <div ref={mapContainer} id="3d-map-view" className="map-container" style={{ height: 'calc(100vh - 240px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '40px',
-                                        left: '0px',
-                                        margin : '12px', 
-                                        width: 'calc(100% - 24px)',
-                                        zIndex: 1,
-                                        display: selectedEq ? 'block' : 'none'
-                                    }}>
-                                        <Card style={{marginBottom: '42px', opacity: '0.9', transition: 'opacity 1s ease, max-height 1s ease', display: showTimeline ? 'block' : 'none'}}>
-                                            <ReactApexChart options={apexOptions} series={series} type="area" height={200} />
-                                        </Card>
-                                        <div className="switch-timeline" onClick={() => setShowTimeline(!showTimeline)}>
-                                            {showTimeline ? <i className="fas fa-chevron-down"></i> : <i className="fas fa-chevron-up"></i>}
+                                <div id="3d-map-view">
+                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px'}}>
+                                        <h4>GPS Fleet Tracking</h4>
+                                        <div style={{display: 'flex', alignItems: 'center'}}>
+                                            <DatePicker style={{height: '48px', marginRight: '10px'}} className={'fleet-tracking-datepicker'} allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
+                                            <Dropdown
+                                                label="Choose Location"
+                                                items={locationItems}
+                                                value={locations}
+                                                onChange={setLocaltions}
+                                                />
                                         </div>
                                     </div>
-                                    <TimeSlider
-                                        style={{display: selectedEq ? 'flex' : 'none'}}
-                                        isPlaying={isPlaying}
-                                        speed={speed}
-                                        timeValue={timeValue}
-                                        totalTime={totalTime}
-                                        onTimeChange={handleTimeChange}
-                                        onSpeedChange={handleSpeedChange}
-                                        onPlayPauseToggle={togglePlay}
-                                        onNext={handleNext}
-                                        onPrev={handlePrev}
-                                    />
-                                    {equipments.map((annotation, index) => (
-                                        isLoading ? <></> : <RippleIcon key={index} annotation={annotation} />
-                                    ))}
-                                    <div className="marker-tooltip" id="marker-tooltip" style={{display: isAnimation && isPlaying ? 'block' : 'none'}}>
-                                        <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
-                                    </div>
-                                </div>
-                                <Card style={{ height: 'calc(100vh - 240px)', width: '20%', marginLeft: '16px', padding: '16px', display: selectedEq ? 'block' : 'none' }}>
-                                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
-                                        <h3>{selectedEq ? selectedEq.name : 'Routes'}</h3>
-                                        <span
-                                            className="truck-badge"
-                                            style={{ backgroundColor: 'green' }}
-                                            >
-                                            {'Healthy'}
-                                        </span>
-                                    </div>
-                                    {selectedEq && 
-                                        <div className="truck-sync-text">
-                                            <div
-                                            className="truck-badge-sync-icon"
-                                            onMouseEnter={handleSyncHover}
-                                            onMouseLeave={handleSyncHover}
-                                            >
-                                                <div className="img">{getSyncIcon(selectedEq.status, getMinutesDifference("2024-08-20T22:49:20.030Z"))}</div>
-                                                <div style={{paddingLeft:'6px'}}>
-                                                    <em>{getSyncText(selectedEq.status, getMinutesDifference("2024-08-20T22:49:20.030Z"))}</em>
+                                    <Col lg="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                                        {isLoading ? (
+                                                <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: selectedEq ? 'calc(80% - 20px)' : 'calc(100% - 20px)', height: '50%', left: '10px'}}>
+                                                    <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
+                                                        <Progress className='map-loading-progress-bar' percent={progress} status="active" />
+                                                    </Spin>
+                                                </div>
+                                            ) : (
+                                            <></>
+                                        )}
+                                        <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 292px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '-25px',
+                                                left: '0px',
+                                                margin : '12px', 
+                                                width: 'calc(100% - 24px)',
+                                                zIndex: 1,
+                                                display: selectedEq ? 'block' : 'none'
+                                            }}>
+                                                <Card style={{marginBottom: '42px', opacity: '0.9', transition: 'opacity 1s ease, max-height 1s ease', display: showTimeline ? 'block' : 'none'}}>
+                                                    <ReactApexChart options={apexOptions} series={series} type="area" height={200} />
+                                                </Card>
+                                                <div className="switch-timeline" onClick={() => setShowTimeline(!showTimeline)}>
+                                                    {showTimeline ? <i className="fas fa-chevron-down"></i> : <i className="fas fa-chevron-up"></i>}
                                                 </div>
                                             </div>
+                                            <TimeSlider
+                                                style={{display: selectedEq ? 'flex' : 'none'}}
+                                                isPlaying={isPlaying}
+                                                speed={speed}
+                                                timeValue={timeValue}
+                                                totalTime={totalTime}
+                                                onTimeChange={handleTimeChange}
+                                                onSpeedChange={handleSpeedChange}
+                                                onPlayPauseToggle={togglePlay}
+                                                onNext={handleNext}
+                                                onPrev={handlePrev}
+                                            />
+                                            {equipments.map((annotation, index) => (
+                                                isLoading ? <></> : <RippleIcon key={index} annotation={annotation} />
+                                            ))}
+                                            <div className="marker-tooltip" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
+                                                <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
+                                            </div>
                                         </div>
-                                    }
-                                    <div style={{overflowY: 'auto', height: 'calc(100% - 100px)'}}>
-                                        {routeData[0] && routeData[0].routes && _.map(routeData[0].routes, (route, index) => (
-                                            <Button
-                                                type="primary"
-                                                style={{margin: '5px'}}
-                                                onClick={() => selectTrip(route)}
-                                                key={`${route.id}-${index}`}
-                                                className={"replay-menu-item " + (selectedTrip?.id === route.id ? 'selected' : '')}
-                                            >
-                                                {route ? route.name : 'Test'}
-                                            </Button>
-                                        ))}
-                                    </div>
-                                </Card>
-                            </Col>
+                                        <Card style={{ height: 'calc(100vh - 240px)', width: '20%', marginLeft: '16px', padding: '16px', display: selectedEq ? 'block' : 'none' }}>
+                                            <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
+                                                <h3>{selectedEq ? selectedEq.name : 'Routes'}</h3>
+                                                <span
+                                                    className="truck-badge"
+                                                    style={{ backgroundColor: 'green' }}
+                                                    >
+                                                    {'Healthy'}
+                                                </span>
+                                            </div>
+                                            {selectedEq && 
+                                                <div className="truck-sync-text">
+                                                    <div
+                                                    className="truck-badge-sync-icon"
+                                                    onMouseEnter={handleSyncHover}
+                                                    onMouseLeave={handleSyncHover}
+                                                    >
+                                                        <div className="img">{getSyncIcon(selectedEq.status, getMinutesDifference("2024-08-20T22:49:20.030Z"))}</div>
+                                                        <div style={{paddingLeft:'6px'}}>
+                                                            <em>{getSyncText(selectedEq.status, getMinutesDifference("2024-08-20T22:49:20.030Z"))}</em>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            <div style={{overflowY: 'auto', height: 'calc(100% - 100px)'}}>
+                                                {routeData[0] && routeData[0].routes && _.map(routeData[0].routes, (route, index) => (
+                                                    <Button
+                                                        type="primary"
+                                                        style={{margin: '5px'}}
+                                                        onClick={() => selectTrip(route)}
+                                                        key={`${route.id}-${index}`}
+                                                        className={"replay-menu-item " + (selectedTrip?.id === route.id ? 'selected' : '')}
+                                                    >
+                                                        {route ? route.name : 'Test'}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                </div>
                             </TabPane>
                             <TabPane tab="List View" key="2">
                                 <ListView />

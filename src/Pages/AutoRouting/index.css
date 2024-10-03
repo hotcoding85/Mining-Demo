@@ -32,12 +32,81 @@
     position: absolute;
     z-index: 9;
     right: 10px;
-    top: 335px;
+    top: 198px;
 }
 
 .my-custom-ctrl-group {
     position: absolute;
     z-index: 9;
     right: 10px;
-    top: 378px !important;
+    top: 241px !important;
 }
+
+.my-custom-ctrl-group {
+    position: absolute;
+    z-index: 9;
+    right: 10px;
+    top: 198px;
+  }
+  
+  .my-bounding-box-group {
+    position: absolute;
+    z-index: 9;
+    right: 10px;
+    top: 20px;
+  }
+  
+  .my-custom-point-group {
+    position: absolute;
+    z-index: 9;
+    right: 10px;
+    top: 60px;
+  }
+  
+  .mapboxgl-ctrl>button {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* Tooltip container */
+.marker-tooltip {
+    position: absolute;
+    display: inline-block;
+    cursor: pointer;
+    color: #fff;
+    font-weight: bold;
+}
+  
+/* Tooltip text */
+.marker-tooltip .tooltiptext {
+    visibility: visible;
+    width: 120px;
+    background-color: #33333380;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 8px 0;
+    position: relative;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    
+    /* Add arrow */
+    pointer-events: none;
+}
+
+.marker-tooltip .tooltiptext span {
+    color: gold;
+}
+  
+.marker-tooltip .tooltiptext::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #33333380 transparent transparent transparent; /* Tooltip arrow */
+}
+
