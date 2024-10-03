@@ -32,6 +32,7 @@ export type MenuItemType = {
   title: string;
   router: string;
   order?: string;
+  icon?: string;
   access: string[];
   children?: MenuItemType[];
 };
@@ -146,36 +147,42 @@ const MenuSettings = (props: any) => {
             key: child.title,
             title: child.title,
             children: mapChildrens(child.children),
-            icon: ({ selected }) => (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeMenuByKey(child.title);
-                }}
-                onDoubleClick={(e) => e.stopPropagation()}
-                title="Delete this menu"
-              >
-                <MinusCircleOutlined />
-              </button>
-            ),
+            icon: ({ selected }) =>
+              selected || !child.icon ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeMenuByKey(child.title);
+                  }}
+                  onDoubleClick={(e) => e.stopPropagation()}
+                  title="Delete this menu"
+                >
+                  <MinusCircleOutlined />
+                </button>
+              ) : (
+                <i className={child.icon}></i>
+              ),
           }));
         };
 
         return {
           key: item.title,
           title: item.title,
-          icon: ({ selected }) => (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                removeMenuByKey(item.title);
-              }}
-              onDoubleClick={(e) => e.stopPropagation()}
-              title="Delete this menu"
-            >
-              <MinusCircleOutlined />
-            </button>
-          ),
+          icon: ({ selected }) =>
+            selected || !item.icon ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeMenuByKey(item.title);
+                }}
+                onDoubleClick={(e) => e.stopPropagation()}
+                title="Delete this menu"
+              >
+                <MinusCircleOutlined />
+              </button>
+            ) : (
+              <i className={item.icon}></i>
+            ),
           children: mapChildrens(item.children),
         };
       }),
@@ -268,6 +275,7 @@ const MenuSettings = (props: any) => {
     const updatedMenu = {
       ...values,
       router: !!values.router ? values.router : undefined,
+      icon: !!values.icon ? values.icon : undefined,
       children: [],
     };
 
@@ -280,6 +288,7 @@ const MenuSettings = (props: any) => {
           if (item.title === key) {
             item.title = updatedMenu.title;
             item.router = !!updatedMenu.router ? updatedMenu.router : undefined;
+            item.icon = !!updatedMenu.icon ? updatedMenu.icon : undefined;
             item.access = updatedMenu.access;
           }
           if (item.children) {
@@ -309,6 +318,14 @@ const MenuSettings = (props: any) => {
       id: "router",
       name: "router",
       label: "Router",
+      type: "input",
+      editable: true,
+      inputType: "text",
+    },
+    {
+      id: "icon",
+      name: "icon",
+      label: "Icon Classnames",
       type: "input",
       editable: true,
       inputType: "text",
@@ -368,6 +385,7 @@ const MenuSettings = (props: any) => {
         }
       ),
     router: Yup.string(),
+    icon: Yup.string(),
     access: Yup.array().required("Please select access permissions"),
   });
 
@@ -389,6 +407,7 @@ const MenuSettings = (props: any) => {
       title: item.title,
       access: item.access,
       router: item?.router || undefined,
+      icon: item?.icon || undefined,
       children: getRequireMenuSetting(item?.children),
     }));
   };

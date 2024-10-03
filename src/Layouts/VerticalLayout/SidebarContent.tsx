@@ -182,6 +182,7 @@ const SidebarContent = (props: any) => {
                   target={menu?.router?.includes("http") ? "_blank" : "_self"}
                   className={!!menu.children?.length ? "has-arrow" : ""}
                 >
+                  {menu.icon && <i className={menu.icon}></i>}
                   <span>{menu.title}</span>
                 </Link>
 
@@ -190,6 +191,7 @@ const SidebarContent = (props: any) => {
                     {menu.children?.map((subMenu) => (
                       <li key={subMenu.title}>
                         <Link to={subMenu?.router || "/#"}>
+                          {subMenu.icon && <i className={subMenu.icon}></i>}
                           {subMenu.title}
                         </Link>
                       </li>
