@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
 //Import Scrollbar
 import SimpleBar from "simplebar-react";
 
@@ -10,9 +10,30 @@ import { Link } from "react-router-dom";
 //i18n
 import { withTranslation } from "react-i18next";
 import withRouter from "../../Components/Common/withRouter";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import { useDispatch } from "react-redux";
+import { getMenuSettings } from "slices/menuSettings/thunk";
 
 const SidebarContent = (props: any) => {
   const ref = useRef<any>();
+  const dispatch: any = useDispatch();
+
+  const { data: menuSettings } = useSelector(
+    createSelector(
+      (state: any) => state.MenuSettings,
+      (layout) => ({
+        data: layout.data,
+      })
+    )
+  );
+
+  useEffect(() => {
+    if (dispatch) {
+      dispatch(getMenuSettings());
+    }
+  }, []);
+
   const activateParentDropdown = useCallback((item: any) => {
     item.classList.add("active");
     const parent = item.parentElement;
@@ -123,7 +144,7 @@ const SidebarContent = (props: any) => {
 
   useEffect(() => {
     ref.current.recalculate();
-  }, []);
+  }, [menuSettings]);
 
   useEffect(() => {
     new MetisMenu("#side-menu");
@@ -143,12 +164,41 @@ const SidebarContent = (props: any) => {
     }
   }
 
+  const sortedMenu = useMemo(() => {
+    const data = structuredClone(menuSettings);
+    data?.sort((a, b) => a.order - b.order);
+    return data || [];
+  }, [menuSettings]);
+
   return (
     <React.Fragment>
       <SimpleBar className="h-100" ref={ref}>
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
-            <li>
+            {sortedMenu.map((menu) => (
+              <li key={menu.title}>
+                <Link
+                  to={menu?.router || "/#"}
+                  target={menu?.router?.includes("http") ? "_blank" : "_self"}
+                  className={!!menu.children?.length ? "has-arrow" : ""}
+                >
+                  <span>{menu.title}</span>
+                </Link>
+
+                {!!menu?.children?.length && (
+                  <ul className="sub-menu">
+                    {menu.children?.map((subMenu) => (
+                      <li key={subMenu.title}>
+                        <Link to={subMenu?.router || "/#"}>
+                          {subMenu.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+            {/* <li>
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-home-circle"></i>
                 <span>{props.t("Dashboards")}</span>
@@ -183,9 +233,9 @@ const SidebarContent = (props: any) => {
                 <li>
                   <Link to="/fuel-dashboard">{props.t("Fuel Dashboard")}</Link>
                 </li>
-                {/* <li>
+                 <li>
                   <Link to="/telemetry-report">{props.t("Telemetry Report")}</Link>
-                </li> */}
+                </li> 
               </ul>
             </li>
 
@@ -460,7 +510,7 @@ const SidebarContent = (props: any) => {
                   </Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
           </ul>
         </div>
       </SimpleBar>

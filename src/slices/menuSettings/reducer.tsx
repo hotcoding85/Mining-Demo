@@ -13,7 +13,7 @@ interface MenuSetting {
   title: string;
   router: string;
   access: string[];
-  children?: MenuSetting
+  children?: MenuSetting;
 }
 
 interface UpsertResponse {
@@ -45,8 +45,9 @@ const menuSettingSlice = createSlice({
   initialState,
   reducers: {
     allSuccess(state, action) {
-      state.data = action.payload.results;
-      state.total = action.payload.totalResults;
+      const result = JSON.parse(action.payload);
+      state.data = result?.results || [];
+      state.total = result?.totalResults || 0;
       state.loading = false;
       state.error = false;
     },

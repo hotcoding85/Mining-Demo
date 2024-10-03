@@ -7,6 +7,8 @@ import { Tree } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
 import {
   DownOutlined,
+  MinusCircleOutlined,
+  MinusSquareOutlined,
   PlusCircleOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
@@ -21,11 +23,15 @@ import {
   getMenuSettings,
   removeMenuSetting,
 } from "slices/menuSettings/thunk";
+import { CiUndo } from "react-icons/ci";
+import { FaUndoAlt } from "react-icons/fa";
+import { MdUndo } from "react-icons/md";
 
 export type MenuItemType = {
   id?: string;
   title: string;
   router: string;
+  order?: string;
   access: string[];
   children?: MenuItemType[];
 };
@@ -43,9 +49,12 @@ const MenuSettings = (props: any) => {
   const dispatch: any = useDispatch();
 
   const [menuData, setMenuData] = useState<MenuItemType[]>([]);
+  const [deletedIds, setDeleteIds] = useState<string[]>([]);
 
   const [selectedMenu, setSelectedMenu] = useState<TreeDataNode | null>(null);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [initializeChanges, setInitializeChanges] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const { data: menuSettings } = useSelector(
     createSelector(
@@ -63,7 +72,9 @@ const MenuSettings = (props: any) => {
   }, []);
 
   useEffect(() => {
-    setMenuData(menuSettings);
+    const data = structuredClone(menuSettings);
+    data.sort((a, b) => a.order - b.order);
+    setMenuData(data);
   }, [menuSettings]);
 
   const isEdit = useMemo(
@@ -71,7 +82,62 @@ const MenuSettings = (props: any) => {
     [selectedMenu?.key]
   );
 
-  const gData = useMemo(
+  const removeMenuByKey = async (key: string) => {
+    // Deep clone the menuData to avoid modifying immutable objects directly
+    const data = structuredClone(menuData);
+
+    setInitializeChanges(true);
+
+    const loop = (
+      data: MenuItemType[],
+      key: string,
+      callback: (index: number, arr: MenuItemType[]) => void
+    ) => {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].title === key) {
+          callback(i, data); // Call callback to handle removal
+          return;
+        }
+        if (data[i].children) {
+          loop(data[i].children!, key, callback); // Recursively search in children
+        }
+      }
+    };
+
+    // Perform the removal
+    loop(data, key, async (index, arr) => {
+      const removedItem = arr.splice(index, 1)[0]; // Remove the item
+
+      // If the item has an id, remove it from the database
+      if (removedItem?.id) {
+        setDeleteIds((prev) => [...prev, removedItem.id || ""]);
+      }
+    });
+
+    // Update the menuData state after removal
+    setMenuData(data);
+  };
+
+  // Helper function to find the parent of a submenu
+  const findParentMenu = (
+    data: MenuItemType[],
+    submenuKey: string
+  ): MenuItemType | null => {
+    for (let item of data) {
+      if (item.children) {
+        if (item.children.some((child) => child.title === submenuKey)) {
+          return item; // Found the parent menu
+        }
+        const foundInChildren = findParentMenu(item.children, submenuKey);
+        if (foundInChildren) {
+          return foundInChildren; // Recursively search in children
+        }
+      }
+    }
+    return null;
+  };
+
+  const gData: any = useMemo(
     () =>
       menuData.map((item) => {
         const mapChildrens = (children: MenuItemType[] | undefined) => {
@@ -80,12 +146,36 @@ const MenuSettings = (props: any) => {
             key: child.title,
             title: child.title,
             children: mapChildrens(child.children),
+            icon: ({ selected }) => (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeMenuByKey(child.title);
+                }}
+                onDoubleClick={(e) => e.stopPropagation()}
+                title="Delete this menu"
+              >
+                <MinusCircleOutlined />
+              </button>
+            ),
           }));
         };
 
         return {
           key: item.title,
           title: item.title,
+          icon: ({ selected }) => (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                removeMenuByKey(item.title);
+              }}
+              onDoubleClick={(e) => e.stopPropagation()}
+              title="Delete this menu"
+            >
+              <MinusCircleOutlined />
+            </button>
+          ),
           children: mapChildrens(item.children),
         };
       }),
@@ -104,6 +194,7 @@ const MenuSettings = (props: any) => {
     const dropPosition =
       info.dropPosition - Number(dropPos[dropPos.length - 1]);
 
+    setInitializeChanges(true);
     // Deep clone the menuData to avoid modifying immutable objects
     const data = structuredClone(menuData); // If structuredClone is not available, use JSON.parse(JSON.stringify(menuData));
 
@@ -131,9 +222,11 @@ const MenuSettings = (props: any) => {
 
     await loop(data, dragKey, async (item, index, arr) => {
       arr.splice(index, 1); // Remove the dragged item
-      if (item.id) {
-        await dispatch(removeMenuSetting(item.id));
+
+      if (item?.id) {
+        setDeleteIds((prev) => [...prev, item.id || ""]);
       }
+
       dragObj = {
         title: item.title,
         access: item.access,
@@ -200,6 +293,7 @@ const MenuSettings = (props: any) => {
 
     resetForm();
     handleCloseModal();
+    setInitializeChanges(true);
   };
 
   const fields = [
@@ -301,8 +395,27 @@ const MenuSettings = (props: any) => {
 
   const onSave = async () => {
     if (menuData?.length > 0) {
-      await dispatch(addMenuSettings(getRequireMenuSetting(menuData)));
+      setIsSaving(true);
+      const normalizeMenuData = getRequireMenuSetting(menuData).map(
+        (item, index) => ({
+          ...item,
+          order: index,
+        })
+      );
+
+      await dispatch(addMenuSettings(normalizeMenuData, deletedIds));
+      setDeleteIds([]);
+      setInitializeChanges(false);
+      setIsSaving(false);
     }
+  };
+
+  const UndoChanges = () => {
+    const data = structuredClone(menuSettings);
+    data.sort((a, b) => a.order - b.order);
+    setMenuData(data);
+    setInitializeChanges(false);
+    setDeleteIds([]);
   };
 
   return (
@@ -317,9 +430,24 @@ const MenuSettings = (props: any) => {
             justifyContent: "end",
             alignItems: "center",
             padding: "0px 16px",
+            gap: "8px",
           }}
         >
-          <Button type="default" icon={<SaveOutlined />} onClick={onSave}>
+          <Button
+            type="default"
+            icon={<MdUndo />}
+            onClick={UndoChanges}
+            disabled={!initializeChanges}
+          >
+            Undo Changes
+          </Button>
+          <Button
+            type="default"
+            icon={<SaveOutlined />}
+            disabled={!initializeChanges}
+            loading={isSaving}
+            onClick={onSave}
+          >
             Save
           </Button>
         </Row>

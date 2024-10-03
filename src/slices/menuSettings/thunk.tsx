@@ -24,7 +24,7 @@ export const getMenuSettings =
         limit: limit.toString(),
         sortBy,
       });
-      dispatch(allSuccess(response));
+      dispatch(allSuccess(JSON.stringify(response)));
     } catch (error) {
       dispatch(apiError(error));
     }
@@ -40,17 +40,18 @@ export const addMenuSetting = (menuSetting: any) => async (dispatch: any) => {
   }
 };
 
-export const addMenuSettings = (menuSetting: any) => async (dispatch: any) => {
-  try {
-    let response: any = await postMenuSettings(menuSetting);
-    toast.success(`Menu structure saved successfully`, {
-      autoClose: 2000,
-    });
-    dispatch(upsertSuccess(response));
-  } catch (error) {
-    dispatch(apiError(error));
-  }
-};
+export const addMenuSettings =
+  (menuSetting: any, deletedIds?: string[]) => async (dispatch: any) => {
+    try {
+      let response: any = await postMenuSettings(menuSetting, deletedIds);
+      toast.success(`Menu structure saved successfully`, {
+        autoClose: 2000,
+      });
+      dispatch(upsertSuccess(response));
+    } catch (error) {
+      dispatch(apiError(error));
+    }
+  };
 
 export const updateMenuSetting =
   (id: string, menuSetting: any) => async (dispatch: any) => {
