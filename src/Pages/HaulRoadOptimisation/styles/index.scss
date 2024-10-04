@@ -53,4 +53,12 @@
     width: 100%;
     margin-top: 10px;
   }
+
+  .replay-road-dropdown > .custom-dropdown .dropdown-btn{
+    min-width: 300px !important;
+  }
+  .replay-road-dropdown > .custom-dropdown .dropdown-menu{
+    height: 600px;
+    overflow: auto;
+  }
 }

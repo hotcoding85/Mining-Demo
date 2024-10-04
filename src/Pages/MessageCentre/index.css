@@ -14,15 +14,6 @@
     align-items: center;
     margin-bottom: 15px;
 }
-.ant-tabs-tab-btn{
-    color: #535E77;
-}
-body[data-layout-mode='dark'] .ant-tabs-tab-active > div {
-    color: white !important;
-}
-body[data-layout-mode='light'] .ant-tabs-tab-active > div {
-    color: #535E77 !important;
-}
 .messages-panel .actions {
     display: flex;
     align-items: center;
@@ -333,14 +324,7 @@ body[data-layout-mode="light"] .btn-message-send>input::placeholder {
     border: none;
     color: white
 }
-body[data-layout-mode="dark"] .ant-dropdown-menu-title-content {
-    background-color: #293754;
-    color: white;
-}
-body[data-layout-mode="light"] .ant-dropdown-menu-title-content {
-    background-color: white;
-    color: black;
-}
+
 .marker-imageContainer::after {
     content: '';
     position: absolute;
