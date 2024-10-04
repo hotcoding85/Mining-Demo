@@ -34,7 +34,7 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
 
   const stepsContent = [
     {
-      title: stepOneTitle || "Upload Benches",
+      title: stepOneTitle || "Upload File",
       content: (
         <Dragger
           name="benchUpload"
@@ -46,8 +46,7 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
             <InboxOutlined />
           </p>
           <p className="ant-upload-text">
-            Click or drag file to this area to upload benches {accept || ".csv"}{" "}
-            file
+            Click to select or drag a {accept || ".csv"}{" "}file to this area to upload
           </p>
         </Dragger>
       ),
@@ -73,7 +72,7 @@ const ImportFileModal: React.FC<ImportFileModalProps> = ({
     <Modal isOpen={isOpen} className="import-file-modal">
       <ModalHeader
         tag="h4"
-        close={<span className="mdi mdi-close noti-icon" onClick={onClose} />}
+        close={<span className="mdi mdi-close noti-icon" onClick={onClose} />} className="d-flex justify-content-between" 
       >
         <h4 className="modal-title">{title}</h4>
       </ModalHeader>

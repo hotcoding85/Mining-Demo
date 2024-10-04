@@ -183,7 +183,7 @@ const Benches = (props: any) => {
     {
       id: "tonnes",
       name: "tonnes",
-      label: "Tonnes",
+      label: "Estimated Tonnes",
       type: "input",
       editable: true,
       inputType: "number",
@@ -191,7 +191,7 @@ const Benches = (props: any) => {
     {
       id: "volume",
       name: "volume",
-      label: "Volume",
+      label: "Estimated BCM",
       type: "input",
       editable: true,
       inputType: "number",
@@ -296,7 +296,7 @@ const Benches = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Tonnes",
+        title: "Estimated Tonnes",
         key: "tonnes",
         dataIndex: "tonnes",
         dataType: "number",
@@ -304,7 +304,7 @@ const Benches = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Volume",
+        title: "Estimated BCM",
         key: "volume",
         dataIndex: "volume",
         dataType: "number",
@@ -408,7 +408,7 @@ const Benches = (props: any) => {
   const items: MenuProps['items'] = [
     {
       key: '1',
-      label: <span><i className="mdi mdi-plus" />Import Benches</span>,
+      label: <span>Import from CSV</span>,
       onClick: handleOnImport,
     },
   ];
