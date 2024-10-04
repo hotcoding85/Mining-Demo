@@ -7,6 +7,7 @@ const api = new APIClient();
 // Get Target
 export const getTargetByRoster = (roster: any) =>
   api.get(`${url.TARGET}/${roster}`, {});
+
 export const getTargetByRosterAndCategory = (roster: any, category: any) =>
   api.get(`${url.TARGET}/${roster}/${category}`, {});
 

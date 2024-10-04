@@ -1,6 +1,5 @@
 @import "../../assets/scss/app.scss";
 
-
 body[data-layout-mode="dark"] {
   .itemActual {
     font-size: 28px;
@@ -51,7 +50,7 @@ body[data-layout-mode="light"] {
 .pre-shift {
   .card-body {
     color: #828282;
-    box-shadow: 0px 1px 4px 0px #0C0C0D1A;
+    box-shadow: 0px 1px 4px 0px #0c0c0d1a;
   }
 
   .card-body__header {
@@ -64,7 +63,7 @@ body[data-layout-mode="light"] {
   .shift-value {
     font-size: 12px;
     color: #828282;
-    background: #E0E0E0;
+    background: #e0e0e0;
     padding: 3px 8px;
     border-radius: 50px;
     text-align: center;
@@ -74,21 +73,25 @@ body[data-layout-mode="light"] {
       color: #ffffff;
     }
 
-     &.fill {
+    &.fill {
       background: var(--bg-color);
-      color: #FFFFFF !important;
+      color: #ffffff !important;
       font-weight: 700;
     }
   }
 
+  .shift-label {
+    font-size: 16px !important;
+  }
   .shift-time {
     color: #828282;
+    font-size: 16px !important;
   }
 
   .assign-box {
     font-size: 15px;
     background-color: #fff;
-    border: 2px dashed #C1C1C1;
+    border: 2px dashed #c1c1c1;
     border-radius: 8px;
     width: 31%;
     height: fit-content;
@@ -163,30 +166,30 @@ body[data-layout-mode="light"] {
 
   .shift-1 {
     &::before {
-    top: 67px;
-    height: calc(100% - 95px);
+      top: 67px;
+      height: calc(100% - 95px);
     }
   }
 
   .shift-2 {
     &::before {
-    top: 67px;
-    height: calc(100% - 134px);
+      top: 67px;
+      height: calc(100% - 134px);
     }
   }
 
   .shift-3 {
     &::before {
-    top: 29px;
-    height: calc(100% - 95px);
+      top: 29px;
+      height: calc(100% - 95px);
     }
   }
 }
 
 .shift-3 {
   &::before {
-  top: 29px;
-  height: calc(100% - 95px);
+    top: 29px;
+    height: calc(100% - 95px);
   }
 }
 
@@ -230,6 +233,14 @@ body[data-layout-mode="light"] {
       background-color: var(--bg-color) !important;
     }
   }
+
+  .customSegmentLabel {
+    height: 48px !important;
+  }
+
+  .customSegmentLabel .ant-segmented-item-label {
+    padding: 8px;
+  }
 }
 
 .data-section {
@@ -237,7 +248,7 @@ body[data-layout-mode="light"] {
   flex: 1 0;
 }
 .sidebar-section {
-  width: 324px;
+  width: 356px;
 }
 
 .side-scroll {
@@ -269,7 +280,7 @@ body[data-layout-mode="light"] {
     border-radius: 50px;
   }
   ::-webkit-scrollbar-track {
-    background: #E0E0E0;
+    background: #e0e0e0;
     border-radius: 50px;
   }
   ::-webkit-scrollbar-thumb {
@@ -281,21 +292,21 @@ body[data-layout-mode="light"] {
 [data-layout-mode="dark"] {
   .pre-shift {
     .card-body {
-      color: #9CA3B1;
+      color: #9ca3b1;
     }
 
     .card-body__header {
       h6 {
-        color: #9CA3B1;
+        color: #9ca3b1;
       }
     }
 
     .shift-value {
-      color: #6F788D;
-      background: #24314D;
+      color: #6f788d;
+      background: #24314d;
       &.fill {
-        background: #535E77;
-        color: #FFFFFF !important;
+        background: #535e77;
+        color: #ffffff !important;
         font-weight: 700;
       }
     }
@@ -306,13 +317,12 @@ body[data-layout-mode="light"] {
 
     .assign-box {
       color: #fff;
-      background-color: #24314D;
-      border: 2px dashed #EAEBEE;
+      background-color: #24314d;
+      border: 2px dashed #eaebee;
     }
 
     .pre-shift-lft,
     .assign-arrow {
-
       &::before {
         border: solid #fff;
         border-width: 0 2px 2px 0;
@@ -324,7 +334,6 @@ body[data-layout-mode="light"] {
     }
 
     .shift-line {
-
       &::before {
         border-left: 1px solid #fff;
       }
@@ -333,30 +342,30 @@ body[data-layout-mode="light"] {
   .schedule-filter {
     .ant-select-show-search,
     .ant-picker {
-      border-color: #BCC1CA;
-      color: #BCC1CA;
+      border-color: #bcc1ca;
+      color: #bcc1ca;
       .ant-select-selector {
-        border-color: #BCC1CA;
-        color: #BCC1CA;
+        border-color: #bcc1ca;
+        color: #bcc1ca;
         .ant-select-selection-placeholder {
-          color: #BCC1CA;
+          color: #bcc1ca;
         }
       }
       .ant-picker-input {
         input {
           &::placeholder {
-            color: #BCC1CA;
+            color: #bcc1ca;
           }
         }
         .ant-picker-suffix {
-          color: #BCC1CA;
+          color: #bcc1ca;
         }
       }
     }
     button {
       color: var(--bg-color);
-      background-color: #fff;equip-lists .task-chips 
-      &:hover {
+      background-color: #fff;
+      equip-lists .task-chips &:hover {
         color: var(--bg-color) !important;
         background-color: #fff !important;
       }
@@ -366,9 +375,9 @@ body[data-layout-mode="light"] {
     .ant-modal-content,
     .ant-modal-header {
       color: #fff;
-      background-color: #24314D;
-      .ant-modal-title ,
-      .ant-modal-close-x{
+      background-color: #24314d;
+      .ant-modal-title,
+      .ant-modal-close-x {
         color: #fff;
       }
       .ant-btn {
@@ -378,7 +387,7 @@ body[data-layout-mode="light"] {
         }
         &.ant-btn-primary {
           color: #fff;
-          background-color: #434F6B;
+          background-color: #434f6b;
         }
       }
     }
@@ -396,9 +405,9 @@ body[data-layout-mode="light"] {
   .ant-modal-content,
   .ant-modal-header {
     color: #fff;
-    background-color: #24314D;
-    .ant-modal-title ,
-    .ant-modal-close-x{
+    background-color: #24314d;
+    .ant-modal-title,
+    .ant-modal-close-x {
       color: #fff;
     }
     .ant-btn {
@@ -408,7 +417,7 @@ body[data-layout-mode="light"] {
       }
       &.ant-btn-primary {
         color: #fff;
-        background-color: #434F6B;
+        background-color: #434f6b;
       }
     }
   }
@@ -437,3 +446,30 @@ body[data-layout-mode="light"] {
 //     border-bottom: 1px solid #535E77;
 //   }
 // }
+
+.preshift-list {
+  .truck {
+    max-width: 80px;
+  }
+
+  .truck .truck-label {
+    font-size: 20px;
+    color: #389e0d;
+  }
+
+  .truck .truck-operator-label {
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: clip;
+  }
+
+  .truck .truck-operator-label i {
+    margin-right: 4px;
+  }
+}
+
+.pre-shift-main .truck-cancel-button {
+  color: #cf1322;
+  font-size: 20px;
+  opacity: 90%;
+}

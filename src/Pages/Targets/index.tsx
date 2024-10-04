@@ -723,6 +723,7 @@ const Target = (props: any) => {
         delete target.updatedAt;
         delete target._id;
         delete target.vehicle;
+        delete target.id;
         target.vehicleId = _.cloneDeep(targetData.truckId);
 
         productionData.push(target);
