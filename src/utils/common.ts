@@ -176,6 +176,7 @@ export const round2One = (value: number): number => {
 }
 
 export const round2Two = (value: number): string => {
+  if(!value) return ""
   let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let formattedNumber: string = formatter.format(value);
   return formattedNumber

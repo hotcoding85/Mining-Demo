@@ -244,7 +244,7 @@ const DigBlockLayout = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Tonnes",
+        title: "Estimated Tonnes",
         key: "tonnes",
         dataIndex: "tonnes",
         dataType: "number",
@@ -252,7 +252,7 @@ const DigBlockLayout = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Volume",
+        title: "Estimated BCM",
         key: "volume",
         dataIndex: "volume",
         dataType: "number",
@@ -354,7 +354,7 @@ const DigBlockLayout = (props: any) => {
   const items: MenuProps['items'] = [
     {
       key: '1',
-      label: <span><i className="mdi mdi-plus" />Import Dig</span>,
+      label: <span>Import from CSV</span>,
       onClick: handleOnImport,
     },
   ];

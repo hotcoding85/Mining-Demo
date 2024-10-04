@@ -5,14 +5,14 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  .ant-steps-item-title {
-    color: #828282 !important;
-    margin-top: 4px;
+  .ant-steps .ant-steps-item-content {
+    vertical-align: middle;
   }
 
-  .ant-steps-icon {
-    color: white !important;
+  .ant-steps-item-title {
+    color: var(--light-text-color) !important;
   }
+
 
   .ant-steps-item-wait .ant-steps-icon {
     color: #fff !important;
@@ -43,29 +43,25 @@
   .ant-steps-item-active .ant-steps-item-icon {
     background: white !important;
   }
+
   .ant-steps-item-active .ant-steps-icon {
     color: #343a40 !important;
   }
 
-  .ant-steps
-    .ant-steps-item-container
-    .ant-steps-item-content
-    .ant-steps-item-title::after {
-    top: 12px;
-  }
+
 }
 
 body[data-layout-mode="light"] .import-file-modal {
   .ant-steps-item-active .ant-steps-item-icon {
     background: white !important;
   }
+
   .ant-steps-item-active .ant-steps-icon {
     color: var(--dark-text-color) !important;
   }
 
   .ant-steps-item-title {
     color: var(--dark-text-color) !important;
-    margin-top: 4px;
   }
 
   .ant-steps-icon {

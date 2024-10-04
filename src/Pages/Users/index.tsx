@@ -492,7 +492,7 @@ const Users = (props: any) => {
   const items: MenuProps['items'] = [
     {
       key: '1',
-      label: <span><i className="mdi mdi-plus me-1" />Import Users</span>,
+      label: <span>Import from CSV</span>,
       onClick: handleOnImport,
     },
   ];

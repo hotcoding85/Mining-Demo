@@ -140,14 +140,6 @@ const Materials = (props: any) => {
       inputType: "number",
     },
     {
-      id: "tonnes",
-      name: "tonnes",
-      label: "Tonnes",
-      type: "input",
-      editable: true,
-      inputType: "number",
-    },
-    {
       id: "grade",
       name: "grade",
       label: "Grade",
@@ -232,14 +224,6 @@ const Materials = (props: any) => {
         dataType: "number",
         align: "center",
         render: (_, record) => round2Two(record.density),
-      },
-      {
-        title: "Tonnes",
-        dataIndex: "tonnes",
-        key: "tonnes",
-        dataType: "number",
-        align: "center",
-        render: (_, record) => round2Two(record.tonnes),
       },
       {
         title: "Color",
@@ -363,7 +347,7 @@ const Materials = (props: any) => {
   const items: MenuProps['items'] = [
     {
       key: '1',
-      label: <span><i className="mdi mdi-plus me-1" />Import Materials</span>,
+      label: <span>Import from CSV</span>,
       onClick: handleOnImport,
     },
   ];
