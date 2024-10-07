@@ -1,0 +1,81 @@
+.threejs-view-body{
+    height: calc(100vh - 210px);
+    min-width: 300px;
+    padding: 0px !important;
+    border-radius: 25px !important;
+}
+.threejs-view-body > div{
+    border-radius: 10px;
+}
+.threejs-view-card-header {
+    border-radius: 10px !important;
+}
+.threejs-view{
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px;
+}
+.map-loading-bar, .map-loading-bar .ant-spin-dot-holder{
+    color: gold;
+}
+.map-loading-bar, .map-loading-bar .ant-spin-text {
+    font-size: 18px;
+}
+.map-loading-progress-bar > div > .ant-progress-text{
+    color: gold;
+    font-weight: 800;
+    opacity: 1;
+    font-size: 18px;
+}
+.map-loading-progress-bar > .ant-progress-outer > .ant-progress-inner > div {
+    background-color: #4de900;
+    height: 10px !important;
+}
+.map-loading-progress-bar .ant-spin-container::after {
+    background-color: transparent !important;
+}
+.map-loading-progress-bar .ant-spin-blur::after {
+    opacity: 0 !important;
+}
+:where(.css-dev-only-do-not-override-pw1gpe).ant-spin-nested-loading .ant-spin-blur::after {
+    opacity: 0;
+}
+body[data-layout-mode='dark'] .ant-checkbox-wrapper {
+    color: white;
+}
+body[data-layout-mode='light'] .ant-checkbox-wrapper {
+    color: gray;
+}
+.cube-camera{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    backdrop-filter: blur(50px);
+}
+.geofence-tooltip{
+    position: absolute;
+    top: 0px;
+    width: 240px;
+    height: 250px;
+    right: inherit;
+    background-color: #00000085;
+}
+.geofence-property-value{
+    color: gold;
+    font-weight: 600;
+}
+.geofence-property-key{
+    color: white;
+    text-transform: capitalize;
+    font-weight: 600;
+}
+.geofence-tooltip table::after {
+    content: '';
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #33333380 transparent transparent transparent; /* Tooltip arrow */
+}
