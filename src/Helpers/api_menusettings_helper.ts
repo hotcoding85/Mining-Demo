@@ -12,16 +12,16 @@ export const getMenuSettings = (payload) =>
   api.get(`${url.MENU_SETTINGS}`, payload);
 
 // Create MenuSetting
-export const postMenuSetting = (reasons: any) =>
-  api.create(url.MENU_SETTINGS, reasons);
+export const postMenuSetting = (settings: any) =>
+  api.create(url.MENU_SETTINGS, settings);
 
 // Create MenuSetting
-export const postMenuSettings = (reasons: any) =>
-  api.create(`${url.MENU_SETTINGS}/upsert`, { data: reasons });
+export const postMenuSettings = (settings: any, deletedIds?: string[]) =>
+  api.create(`${url.MENU_SETTINGS}/upsert`, { data: settings, deletedIds });
 
 // Update MenuSetting
-export const putMenuSetting = (id: string, reason: any) => {
-  return api.put(`${url.MENU_SETTINGS}/${id}`, reason);
+export const putMenuSetting = (id: string, setting: any) => {
+  return api.put(`${url.MENU_SETTINGS}/${id}`, setting);
 };
 
 // Delete MenuSetting

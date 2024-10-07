@@ -20,6 +20,10 @@
   .dragging {
     border: none !important;
   }
+
+  .ant-tree-node-content-wrapper i {
+    color: inherit!important;
+  }
 }
 
 body[data-layout-mode="dark"] .menu-settings-page {
@@ -41,6 +45,10 @@ body[data-layout-mode="dark"] .menu-settings-page {
 
   .ant-tree-node-content-wrapper .anticon svg {
     fill: white !important;
+  }
+
+  .ant-tree-node-content-wrapper i {
+    color: white!important;
   }
 
   .ant-tree-drop-indicator {
