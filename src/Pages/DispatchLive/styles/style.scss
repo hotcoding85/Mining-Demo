@@ -1,14 +1,24 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
 
+.assign-truck-item-header {
+  width: 50%;
+  text-align: center;
+}
+
+.assign-location-item-header {
+  width: 33%;
+  text-align: center;
+}
+
 body[data-layout-mode="dark"] {
   .dispatch-live-content {
     display: flex;
     flex-direction: row;
-    height: calc(100vh - 178px);
+    height: calc(100vh - 150px);
   }
 
   .dispatch-live-left {
-    width: calc(100% - 376px);
+    width: calc(100% - 350px);
     margin-right: 20px;
     height: 100%;
     overflow-y: scroll;
@@ -44,7 +54,7 @@ body[data-layout-mode="dark"] {
   }
 
   .dispatch-live-right {
-    width: 376px;
+    width: 350px;
     flex: none;
     position: fixed;
     top: 0px;
@@ -72,8 +82,8 @@ body[data-layout-mode="dark"] {
     font-family: "Poppins";
     display: flex;
     align-items: center;
-    margin-top: 15px;
-    margin-bottom: 22px;
+    margin-top: 16px;
+    margin-bottom: 16px;
     padding-right: 0;
   }
 
@@ -133,7 +143,7 @@ body[data-layout-mode="dark"] {
   }
 
   .vehicle-card-progress {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   .vehicle-card-progress .ant-progress-inner {
@@ -172,7 +182,7 @@ body[data-layout-mode="dark"] {
   }
 
   .vehicle-card-details .location-item {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   .vehicle-card-details p {
@@ -230,7 +240,7 @@ body[data-layout-mode="dark"] {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    justify-content: space-between;
+    justify-content: center;
     .item {
       background-color: #535e77;
       border-radius: 99px;
@@ -387,10 +397,6 @@ body[data-layout-mode="dark"] {
     gap: 20px;
   }
 
-  .assign-truck-item-header {
-    width: 65%;
-  }
-
   .ant-tabs-tab .ant-tabs-tab-btn {
     color: #535e77 !important;
   }
@@ -404,11 +410,11 @@ body[data-layout-mode="light"] {
   .dispatch-live-content {
     display: flex;
     flex-direction: row;
-    height: calc(100vh - 178px);
+    height: calc(100vh - 150px);
   }
 
   .dispatch-live-left {
-    width: calc(100% - 376px);
+    width: calc(100% - 350px);
     margin-right: 20px;
     height: 100%;
     overflow-y: scroll;
@@ -447,7 +453,7 @@ body[data-layout-mode="light"] {
   }
 
   .dispatch-live-right {
-    width: 376px;
+    width: 350px;
     flex: none;
     position: fixed;
     top: 0px;
@@ -475,8 +481,8 @@ body[data-layout-mode="light"] {
     font-family: "Poppins";
     display: flex;
     align-items: center;
-    margin-top: 15px;
-    margin-bottom: 22px;
+    margin-top: 16px;
+    margin-bottom: 16px;
     padding-right: 0;
   }
 
@@ -527,7 +533,7 @@ body[data-layout-mode="light"] {
   }
 
   .vehicle-card-progress {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   .vehicle-card-progress .ant-progress-inner {
@@ -564,7 +570,7 @@ body[data-layout-mode="light"] {
   }
 
   .vehicle-card-details .location-item {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
   }
 
   .vehicle-card-details p {
@@ -624,7 +630,7 @@ body[data-layout-mode="light"] {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    justify-content: space-between;
+    justify-content: center;
     .item {
       background-color: #535e77;
       border-radius: 99px;
@@ -781,9 +787,7 @@ body[data-layout-mode="light"] {
     gap: 20px;
   }
 
-  .assign-truck-item-header {
-    width: 65%;
-  }
+
 
   .ant-tabs-tab .ant-tabs-tab-btn {
     color: #535e77 !important;

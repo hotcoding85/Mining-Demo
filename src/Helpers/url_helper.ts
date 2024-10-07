@@ -52,3 +52,6 @@ export const VEHICLE_STATE_REASONS = "/vehiclestatereasons";
 
 // MENU SETTINGS
 export const MENU_SETTINGS = "/menusettings";
+
+// PLANS
+export const PLANS = "/plans";

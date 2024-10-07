@@ -7,56 +7,59 @@ import WasteDumpLocations from "./WasteDumpLocations";
 import OreBodies from "./OreBodies";
 import ReadyTrucks from "./ReadyTrucks";
 import MessageBoard from "./MessageBoard";
-import { DumpLocation, Material, Truck } from "./interfaces/type";
+import { DumpLocation, HaulRoute, Material, Truck } from "./interfaces/type";
 import OreDumpLocations from "./OreDumpLocations";
 import { OreDumpsForAssign } from "./data/sampleData";
+import HaulRoutes from "./HaulRoutes";
 
 interface RightBoardProps {
-  readyTrucks: Truck[];
-  dumpLocationsForAssign: DumpLocation[];
-  targetMaterials?: Material[];
+    readyTrucks: Truck[];
+    dumpLocationsForAssign: DumpLocation[];
+    haulRoutesForAssign: HaulRoute[];
+    targetMaterials?: Material[];
 }
 
 const RightBoard: React.FC<RightBoardProps> = ({
-  readyTrucks,
-  dumpLocationsForAssign,
-  targetMaterials,
+    readyTrucks,
+    dumpLocationsForAssign,
+    haulRoutesForAssign,
+    targetMaterials,
 }) => {
-  const [isShowMore, setIsShowMore] = useState<boolean>(true);
+    const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
-  const onShowMoreOrLess = () => {
-    setIsShowMore(!isShowMore);
-  };
+    const onShowMoreOrLess = () => {
+        setIsShowMore(!isShowMore);
+    };
 
     return (
         <React.Fragment>
             <div className="dispatch-right-board">
                 <MessageBoard />
                 <div className="right-board-divider" />
-                <ReadyTrucks 
-                    readyTrucks = {readyTrucks}
+                <ReadyTrucks
+                    readyTrucks={readyTrucks}
                 />
                 <div className="right-board-divider" />
                 <StandbyTrucks />
                 <div className="right-board-divider" />
-                <WasteDumpLocations 
-                    dumpLocationsForAssign = {dumpLocationsForAssign}
+                <WasteDumpLocations
+                    dumpLocationsForAssign={dumpLocationsForAssign}
                 />
                 <div className="right-board-divider" />
-                <OreDumpLocations 
-                    dumpLocationsForAssign = {OreDumpsForAssign}
+                <OreDumpLocations
+                    dumpLocationsForAssign={OreDumpsForAssign}
                 />
                 <div className="right-board-divider" />
-                <UnavailableTrucks />
+                <HaulRoutes routesForAssign={haulRoutesForAssign} />
                 <div className="right-board-divider" />
-                <ActiveBenches 
+                <ActiveBenches
                     activeBenches={activeBenches}
                 />
                 {targetMaterials && (
-                <>
-                    <div className="right-board-divider" />
-                    <OreBodies targetMaterials={targetMaterials} />
-                </>
+                    <>
+                        <div className="right-board-divider" />
+                        <OreBodies targetMaterials={targetMaterials} />
+                    </>
                 )}
             </div>
         </React.Fragment>

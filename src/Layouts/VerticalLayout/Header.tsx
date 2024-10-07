@@ -111,7 +111,17 @@ const Header = () => {
           </div>
           <div className="d-flex">
 
-            <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
+            <div className="dropdown d-none d-lg-inline-block align-self-center" style={{marginRight:'128px'}}>
+              {/* <Tooltip title="Not available at the moment">
+                <span style={{ marginRight: '4px', fontSize: '18px', color: 'rgb(247, 179, 26)', display: 'block' }}>Dispatch A.I</span>
+              </Tooltip> */}
+              <span style={{color: 'rgb(247, 179, 26)', marginRight: '4px', fontWeight:'500', fontSize:'16px'}}>Dispatch A.I</span>
+              <Tooltip title="Not available at the moment">
+                <Switch defaultValue={false} checkedChildren="ON" unCheckedChildren="OFF" disabled />
+              </Tooltip>
+            </div>
+
+            <div className="dropdown d-none d-lg-inline-block align-self-center">
               <Tooltip title="Display Units">
                 {/* <span style={{ marginRight: '4px', color: 'white' }}>Display Units</span> */}
                 <Switch value={units == "t"} checkedChildren="Tonnes" unCheckedChildren="BCM" onChange={(checked: boolean) => {
@@ -126,7 +136,7 @@ const Header = () => {
 
             <LanguageDropdown />
 
-            <div className="dropdown d-none d-lg-inline-block ms-1 align-self-center">
+            <div className="dropdown d-none d-lg-inline-block align-self-center">
               <Tooltip title={layoutModeType == LAYOUT_MODE_TYPES.DARK ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                 <Switch checkedChildren={<MoonOutlined />} unCheckedChildren={<SunOutlined />} value={layoutModeType == LAYOUT_MODE_TYPES.DARK} onChange={(checked: boolean) => {
                   if (checked) {
@@ -138,10 +148,7 @@ const Header = () => {
               </Tooltip>
             </div>
 
-
-
-            <div className="dropdown d-none d-lg-inline-block ms-1">
-
+            <div className="dropdown d-none d-lg-inline-block mr-1">
               <button
                 type="button"
                 onClick={() => {

@@ -53,8 +53,8 @@ const targetSlice = createSlice({
   initialState,
   reducers: {
     allSuccess(state, action) {
-      state.data = action.payload.results;
-      state.total = action.payload.totalResults;
+      state.data = action.payload;
+      state.total = action.payload.length;
       state.loading = false;
       state.error = false;
     },

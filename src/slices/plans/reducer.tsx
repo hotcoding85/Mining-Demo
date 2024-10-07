@@ -6,18 +6,27 @@ interface CreateResponse {
   code: number;
   type: string;
   success: boolean;
-  data: Dispatch;
+  data: ShiftRoster;
 }
 
-interface Dispatch {
-  id: string;
+interface ShiftRoster {
+  id?: string;
+  _id?:string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  _type?: string;
   roster: string;
   operators: User[];
-  vehicle: Vehicle;
+  vehicle?: Vehicle;
+  vehicleId: string;
+  trainers: User[];
+  trucks: Vehicle[]
 }
 
-export interface DispatchState {
-  data: Dispatch[];
+export interface ShiftRosterState {
+  data: ShiftRoster[];
   page: number;
   limit: number;
   total: number;
@@ -26,7 +35,7 @@ export interface DispatchState {
   errorMsg: string | null;
 }
 
-export const initialState: DispatchState = {
+export const initialState: ShiftRosterState = {
   data: [],
   page: 1,
   limit: 10, // for error msg
@@ -36,8 +45,8 @@ export const initialState: DispatchState = {
   errorMsg: null,
 };
 
-const dispatchSlice = createSlice({
-  name: "dispatch",
+const shiftrosterSlice = createSlice({
+  name: "shiftroster",
   initialState,
   reducers: {
     allSuccess(state, action) {
@@ -47,13 +56,13 @@ const dispatchSlice = createSlice({
       state.error = false;
     },
     createSuccess(state, action: PayloadAction<CreateResponse>) {
-      var newBench = action.payload.data[0];
+      var newBench = action.payload.data;
       state.data = [...state.data, newBench];
       state.loading = false;
       state.error = false;
     },
     updateSuccess(state, action: PayloadAction<CreateResponse>) {
-      var newBench = action.payload.data[0];
+      var newBench = action.payload.data;
       var data = state.data.filter((item) => item.id !== newBench.id);
       state.data = [...data, newBench];
       state.loading = false;
@@ -77,5 +86,5 @@ export const {
   createSuccess,
   updateSuccess,
   deleteSuccess,
-} = dispatchSlice.actions;
-export default dispatchSlice.reducer as Reducer<DispatchState>;
+} = shiftrosterSlice.actions;
+export default shiftrosterSlice.reducer as Reducer<ShiftRosterState>;
