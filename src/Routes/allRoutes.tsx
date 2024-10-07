@@ -13,7 +13,7 @@ import FMS from "Pages/FleetStatus";
 import DispatchLive from "Pages/DispatchLive";
 // const DispatchLive = React.lazy(() => import("Pages/DispatchLive"));
 
-import Map from "Pages/Map";
+import {RealTimePositioning} from "Pages/Map";
 // const Map = React.lazy(() => import("Pages/Map"));
 
 import Geofences from "Pages/Geofences";
@@ -184,7 +184,7 @@ socket.on("connect_error", (err) => {
 const authProtectedRoutes = [
   { path: "/", exact: true, component: <Navigate to="/fleet-status" /> },
   { path: "/fleet-status", component: <FMS /> },
-  { path: "/realtime-postioning/:equipmentId?", component: <Map socket={socket} /> },
+  { path: "/realtime-postioning/:equipmentId?", component: <RealTimePositioning socket={socket} /> },
   { path: "/benches", exact: true, component: <Benches /> },
   { path: "/materials", exact: true, component: <Materials /> },
   { path: "/admin-settings", exact: true, component: <AdminSettings /> },
