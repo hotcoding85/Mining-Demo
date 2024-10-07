@@ -18,6 +18,7 @@ export interface Task {
   color: string;
   progress: number;
   rowIndex : number;
+  status: string;
 }
 
 export interface resourceHeight {

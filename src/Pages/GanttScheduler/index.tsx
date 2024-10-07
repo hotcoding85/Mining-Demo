@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { dummyTasks, resources, sampleTaskLists } from './data/sampleData';
+import { dummyTasks, resources, sampleTaskLists, sampleArchivedTaskLists } from './data/sampleData';
 import ShiftSelector from './ShiftSelector';
 import ZoomControl from './ZoomControl';
 import TableComponent from './TableComponent';
@@ -18,16 +18,22 @@ import '../../App.css'
 
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
+
+  const zoomSteps = [5, 15, 30, 60, 180, 360, 720];
+  const minZoom = zoomSteps[0];
+  const maxZoom = zoomSteps[zoomSteps.length - 1];
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [shiftType, setShiftType] = useState<ShiftType>('DAY_SHIFT');
   const [zoomSize, setZoomSize] = useState<number>(60);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskList, setTaskLists] = useState<Task[]>(sampleTaskLists);
+  const [archiveList, setArchiveLists] = useState<Task[]>(sampleArchivedTaskLists);
   const [heights, setHeights] = useState<resourceHeight[]>(resources.map(resource => ({ resourceId: resource.id, height: 50 })));
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalTask, setModalTask] = useState<Task | undefined>(undefined);
 
-  const calculateRowIndex = (resourceId: string, startTime: Date, endTime: Date, taskId: string, originalTasks? : Task[]) => {
+  const calculateRowIndex = (resourceId: string, startTime: Date, endTime: Date, taskId: string, status: String, originalTasks? : Task[]) => {
 
     const filteredTasks = originalTasks? originalTasks.filter(task => (task.resourceId == resourceId && task.id != taskId)) : tasks.filter(task => (task.resourceId == resourceId && task.id != taskId));
     
@@ -53,7 +59,7 @@ const GanttScheduler: React.FC = () => {
   const addSampleTask = () => {
     let sampleTasks : Task[]= [];
     for(let i = 0; i < dummyTasks.length; i++) {
-      const rowIndex = calculateRowIndex(dummyTasks[i].resourceId, dummyTasks[i].startTime, dummyTasks[i].endTime, dummyTasks[i].id, sampleTasks);
+      const rowIndex = calculateRowIndex(dummyTasks[i].resourceId, dummyTasks[i].startTime, dummyTasks[i].endTime, dummyTasks[i].id, dummyTasks[i].status, sampleTasks);
       const newTask: Task = {
         ...dummyTasks[i],
         rowIndex: rowIndex
@@ -67,7 +73,7 @@ const GanttScheduler: React.FC = () => {
 
     const endTime = taskEndTime? taskEndTime : new Date(startTime.getTime() + 60 * 60 * 1000);
     const newTaskId = Math.random().toString(36).substring(7);
-    const rowIndex = calculateRowIndex(resourceId, startTime, endTime, newTaskId);
+    const rowIndex = calculateRowIndex(resourceId, startTime, endTime, task?.status || 'ACTIVE', newTaskId);
     const newTask: Task = {
       id: newTaskId,
       name: task?.name || 'Task Name',
@@ -76,6 +82,7 @@ const GanttScheduler: React.FC = () => {
       endTime,
       resourceId,
       span: 1,
+      status: task?.status || 'ACTIVE',
       color: task?.color || "#ff6247",
       progress: task?.progress || Math.ceil(Math.random() * 100),
       rowIndex: rowIndex
@@ -85,7 +92,7 @@ const GanttScheduler: React.FC = () => {
   };
 
   const updateTask = (updatedTask: Task) => {
-    const rowIndex = calculateRowIndex(updatedTask.resourceId, updatedTask.startTime, updatedTask.endTime, updatedTask.id);
+    const rowIndex = calculateRowIndex(updatedTask.resourceId, updatedTask.startTime, updatedTask.endTime, updatedTask?.status || 'ACTIVE', updatedTask.id);
     const newTask = {
       ...updatedTask,
       rowIndex: rowIndex
@@ -137,6 +144,12 @@ const GanttScheduler: React.FC = () => {
     setHeights(heights);
   }, [tasks])
 
+  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newZoom = Number(event.target.value);
+    const nearestZoom = zoomSteps.reduce((prev, curr) => Math.abs(curr - newZoom) < Math.abs(prev - newZoom) ? curr : prev);
+    setZoomSize(nearestZoom);
+  };
+
   return (
     <React.Fragment>
       <div className="page-content">
@@ -146,7 +159,7 @@ const GanttScheduler: React.FC = () => {
             <Col className='d-flex justify-content-end fle'>
               <Space>
                 <div className='scheduler-tool'>
-                  <ZoomControl onZoomChange={setZoomSize} />
+                  <ZoomControl minZoom={minZoom} maxZoom={maxZoom} steps={zoomSteps} handleZoomChange={handleZoomChange} currentZoom={zoomSize} />
                 </div>
                 <DatePicker size='large' allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
                 <ShiftSelector shiftType={shiftType} setShiftType={setShiftType} />
@@ -175,7 +188,10 @@ const GanttScheduler: React.FC = () => {
 
               <Col xs={2}>
                 <Card>
-                  <TaskList tasks={taskList} />
+                  <TaskList tasks={taskList} title={'ACTIVE BENCHES'} />
+                </Card>
+                <Card>
+                  <TaskList tasks={archiveList} title={'ARCHIVED BENCHES (in last 7 days)'} />
                 </Card>
               </Col>
             </Row>

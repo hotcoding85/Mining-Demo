@@ -165,12 +165,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
           }}>
             <div className='task-item-inner'>
               <Space>
-                <div>
+                {/* <div>
                   <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
-                </div>
+                </div> */}
                 <div style={{ textAlign: 'center' }}>
-                  <p className='list-item-span bold'>{task.label}</p>
-                  <span className='list-item-span'>{task.name}</span>
+                  <p className='list-item-span bold'>{task.label} ({task.name})</p>
+                  <span className='list-item-span'> Est. Remainder <span style={{fontWeight:'bold'}}>2,456.23</span></span>
                 </div>
               </Space>
               <div className='task-item-progress-bar' style={{ width: progressbarWidth }}></div>

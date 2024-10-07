@@ -55,13 +55,13 @@ const TableComponent: React.FC<TableComponentProps> = ({
     <div className='gantt-container'>
       <div className='gantt-resource'>
         <div className='timeline-row header'>
-          <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Label</div>
-          <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div>
+          <div style={{width : 100, height: 50, color:'white'}} className='timeline-grid-row-cell'>Equipment</div>
+          {/* <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div> */}
         </div>
         {data.map((resource, index) => (
           <div className='timeline-row header'  key={index} style={{height: heights[index].height}}>
-            <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.label}</div>
-            <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.progress}</div>
+            <div style={{width : 100, fontSize:'24px', color:'white', paddingLeft:'4px', textAlign:'left', alignItems:'start'}} className='timeline-grid-row-cell'>{resource.label}</div>
+            {/* <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.progress}</div> */}
           </div>
         ))}
       </div>

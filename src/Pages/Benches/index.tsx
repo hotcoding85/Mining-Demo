@@ -111,18 +111,18 @@ const Benches = (props: any) => {
     name: isEdit
       ? Yup.string()
       : Yup.string()
-          .min(2, "Bench name must be at least 2 characters")
-          .required("Please enter bench name")
-          .test(
-            "unique",
-            "Bench with this name already exists",
-            async function (value) {
-              if (value && value.length >= 2) {
-                return await checkBenchNameUnique(value);
-              }
-              return true;
+        .min(2, "Bench name must be at least 2 characters")
+        .required("Please enter bench name")
+        .test(
+          "unique",
+          "Bench with this name already exists",
+          async function (value) {
+            if (value && value.length >= 2) {
+              return await checkBenchNameUnique(value);
             }
-          ),
+            return true;
+          }
+        ),
     blockId: Yup.string().required("Please select the material"),
     category: Yup.string().required("Please select the category"),
     elevation: Yup.number().required("Please enter the elevation"),
@@ -296,7 +296,7 @@ const Benches = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Estimated Tonnes",
+        title: "Est. Tonnes",
         key: "tonnes",
         dataIndex: "tonnes",
         dataType: "number",
@@ -304,12 +304,32 @@ const Benches = (props: any) => {
         render: (text) => round2Two(text),
       },
       {
-        title: "Estimated BCM",
+        title: "Est. Volume",
         key: "volume",
         dataIndex: "volume",
         dataType: "number",
         align: "center",
         render: (text) => round2Two(text),
+      },
+      {
+        title: "Extracted",
+        key: "tonnes",
+        dataIndex: "tonnes",
+        dataType: "number",
+        align: "center",
+        render: (text) => (
+          <div style={{color:'red'}}>{round2Two(text)}</div>
+        ),
+      },
+      {
+        title: "Est. Remainder",
+        key: "tonnes",
+        dataIndex: "tonnes",
+        dataType: "number",
+        align: "center",
+        render: (text) => (
+          <div style={{color:'red'}}>{round2Two(text)}</div>
+        ),
       },
       {
         title: "Status",
