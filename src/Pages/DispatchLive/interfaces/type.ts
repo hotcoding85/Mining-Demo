@@ -44,6 +44,14 @@ export interface DumpLocation {
   diggerId?: string;
 }
 
+export interface HaulRoute {
+  id: number;
+  assignId: number;
+  locationImg: string;
+  locationName: string;
+  diggerId?: string;
+}
+
 export interface Material {
   id: number;
   assignId: number;

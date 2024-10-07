@@ -180,6 +180,7 @@ const OreSpotter: React.FC = () => {
                   targetMaterials={targetMaterials.filter(
                     (item) => !item.diggerId
                   )}
+                  haulRoutesForAssign={[]}
                   dumpLocationsForAssign={dumpLocationsForAssign}
                 />
               </div>

@@ -23,7 +23,7 @@ const ReadyTrucks: React.FC<ReadyTrucksProps> = ({ readyTrucks }) => {
         <React.Fragment>
             <div>
                 <div className="d-flex flex-row justify-content-between">
-                    <p className="right-board-topic">Ready for dispatch on Go-Line</p>
+                    <p className="right-board-topic">Ready for dispatch</p>
                     <div className="show-more-btn" onClick={!showedAll?handleShowMore : handleShowLess}>{!showedAll ? "View more" : "View Less"}</div>
                 </div>
                 <div

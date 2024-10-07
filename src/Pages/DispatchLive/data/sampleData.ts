@@ -1,5 +1,5 @@
-import { ActiveBenchData, Truck, DumpLocation, MessageData, DiggerData, Material } from "../interfaces/type"
-import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
+import { ActiveBenchData, Truck, DumpLocation, MessageData, DiggerData, Material, HaulRoute } from "../interfaces/type"
+import { centralRampToDump, dumpCentral, dumpNorth, dumpSouth, wasteToCentral } from "assets/images/locations";
 
 export const activeBenches : ActiveBenchData[] = [
     {id : 1, name : "440_BLK1_HG02", assignId : 0},
@@ -51,6 +51,11 @@ export const dumpLocationsForAssign: DumpLocation[] = [
     { id: 5, assignId: 0, locationImg: dumpSouth, locationName : "Waste Dump - South"},
 ];
 
+export const haulRoutesForAssign: HaulRoute[] = [
+    { id: 1, assignId: 0, locationImg: centralRampToDump, locationName : "Central Ramp - Dump"},
+    { id: 2, assignId: 0, locationImg: wasteToCentral, locationName : "Waste - Central"}
+];
+
 export const OreDumpsForAssign: DumpLocation[] = [
     { id: 1, assignId: 0, locationImg: dumpNorth, locationName : "Ore Dump - North"},
     { id: 2, assignId: 0, locationImg: dumpCentral, locationName : "Ore Dump - Central"},
@@ -60,9 +65,9 @@ export const OreDumpsForAssign: DumpLocation[] = [
 ];
 
 export const diggers : DiggerData[] = [
-    {no:1, diggerId : "Digger1", headerName:"Digger Fleet1"},
-    {no:2, diggerId : "Digger2", headerName:"Digger Fleet2"},
-    {no:3, diggerId : "Digger3", headerName:"Digger Fleet3"}
+    {no:1, diggerId : "Digger1", headerName:"Digger Fleet 1"},
+    {no:2, diggerId : "Digger2", headerName:"Digger Fleet 2"},
+    {no:3, diggerId : "Digger3", headerName:"Digger Fleet 3"}
 ]
 
 export const sampleTargetMaterials: Material[] = [

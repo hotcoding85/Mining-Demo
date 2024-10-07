@@ -1,3 +1,11 @@
+.assign-truck-item {
+  width: 50%;
+}
+
+.assign-location-item {
+  width: 33%;
+}
+
 body[data-layout-mode="dark"] {
   .assign-location-item,
   .assign-material-item,
@@ -18,10 +26,6 @@ body[data-layout-mode="dark"] {
     &.filled {
       border: 1px solid #535e77;
     }
-  }
-
-  .assign-truck-item {
-    width: 65%;
   }
 
   .assign-location-item {
@@ -278,10 +282,6 @@ body[data-layout-mode="light"] {
     &.filled {
       border: 1px solid #e0e0e0;
     }
-  }
-
-  .assign-truck-item {
-    width: 65%;
   }
 
   .assign-location-item {

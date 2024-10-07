@@ -154,12 +154,13 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
               <div className="assigned-truck-name">
                 <div className="assigned-truck-id-status">
                   <p className="assigned-truck-id">
-                    {truckForAssign.truckId + "(HD785-2)"}
+                    {truckForAssign.truckId}
                   </p>
                   {directionDispalyName === "inline" && (
                     <p className="assigned-truck-status">Active</p>
                   )}
                 </div>
+                <div>HD785-7</div>
                 <div className="vehicle-driver">{truckForAssign.operator}</div>
               </div>
             </div>{" "}

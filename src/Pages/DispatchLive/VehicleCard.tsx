@@ -1,35 +1,37 @@
 import { useState, FC } from "react";
 import { pc2000 } from "assets/images/equipment";
-import { Progress} from "antd";
+import { Progress } from "antd";
 import { ActiveBenchData } from "./interfaces/type";
 import { useDrop } from "react-dnd";
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case "Schedule Refuel":
+    case "STANDBY":
       return "#f4b400"; // Yellow
-    case "Critical":
+    case "DOWN":
       return "#db4437"; // Red
-    case "Healthy":
+    case "ACTIVE":
       return "#0f9d58"; // Green
+    case "DELAY":
+      return "purple";
     default:
       return "#4285f4"; // Blue
   }
 };
 
 interface VehicleCardProps {
-    index : number;
-    id: string;
-    status: string;
-    smu: number;
-    fuelLevel: number;
-    fuelRate: number;
-    imageUrl: string;
-    lastUpdated: string;
-    sync: "manual" | "inactive" | "active";
-    assignedBenches : ActiveBenchData[];
-    addBenches : (newBenches: ActiveBenchData) => void;
-    collapse : boolean;
+  index: number;
+  id: string;
+  status: string;
+  smu: number;
+  fuelLevel: number;
+  fuelRate: number;
+  imageUrl: string;
+  lastUpdated: string;
+  sync: "manual" | "inactive" | "active";
+  assignedBenches: ActiveBenchData[];
+  addBenches: (newBenches: ActiveBenchData) => void;
+  collapse: boolean;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   index,
@@ -50,7 +52,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
   const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
   const onShowMoreOrLess = () => {
-      setIsShowMore(!isShowMore);
+    setIsShowMore(!isShowMore);
   };
 
   const handleSyncHover = () => {
@@ -89,23 +91,23 @@ const VehicleCard: FC<VehicleCardProps> = ({
   );
 
   const [{ isOver, canDrop }, drop] = useDrop({
-      accept: 'BENCHITEM',
-      drop: (draggedBenches: ActiveBenchData) => {
-          const newBenches = {
-          ...draggedBenches,
-          assignId : index
-          };
-          addBenches(newBenches);
-      },
-      collect: (monitor) => ({
-          isOver: !!monitor.isOver(),
-          canDrop: !!monitor.canDrop(),
-      }),
+    accept: 'BENCHITEM',
+    drop: (draggedBenches: ActiveBenchData) => {
+      const newBenches = {
+        ...draggedBenches,
+        assignId: index
+      };
+      addBenches(newBenches);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
+    }),
   });
 
   return (
     <div
-      ref={drop} 
+      ref={drop}
       className="vehicle-card"
     >
       <div className="vehicle-card-header">
@@ -127,7 +129,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
       <div className="vehicle-card-details">
         <div className="location-item">
           <select name="current-work-location" id="currentWorkLocation">
-              <option value="440_BLK1_HG01" selected>440_BLK1_HG01</option>
+            <option value="440_BLK1_HG01" selected>440_BLK1_HG01</option>
           </select>
         </div>
         <div className="vehicle-card-progress">
@@ -154,43 +156,51 @@ const VehicleCard: FC<VehicleCardProps> = ({
         </div>
         <div className="vehicle-card-props">
           <div className="vehicle-medium-label">
-            Total Tonnes Loaded in Shift
+            Total Tonnes
           </div>
-          <div className="vehicle-chips-value">548.2</div>
+          <div className="vehicle-chips-value">5,548.2</div>
         </div>
-        <p className="vehicle-card-props">
-          <span className="vehicle-label">Waiting Events</span>
-          <span className="vehicle-value">08:53</span>
-        </p>
-        <p className="vehicle-card-props">
-          <span className="vehicle-label">AVG Load Time</span>
-          <span className="vehicle-value">04:21</span>
-        </p>
-        <p className="vehicle-card-props">
-          <span className="vehicle-label">Hang Time</span>
-          <span className="vehicle-value">22.56</span>
-        </p>
-        <p className="vehicle-card-props">
-          <span className="vehicle-label">Avg Load per Bucket</span>
-          <span className="vehicle-value">10.2t</span>
-        </p>
-        <p className="vehicle-card-props">
-          <span className="vehicle-label">TPH</span>
-          <span className="vehicle-value">329.5t</span>
-        </p>
+
+        <div>
+          <p className="vehicle-card-props">
+            <span className="vehicle-progress-label">Next Work Locations</span>
+          </p>
+          <div className="next-location-container">
+            {nextLocations.map((location) => (
+              <div className="item">
+                <p className="label">{location.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="d-flex flex-row-reverse mt-3 mb-3">
+          <div className="show-more-btn" onClick={onShowMoreOrLess}>{isShowMore ? 'View More' : 'View Less'}</div>
+        </div>
+
+
+
         {!isShowMore && (
           <div>
             <p className="vehicle-card-props">
-              <span className="vehicle-label">Next Work Locations</span>
+              <span className="vehicle-label">Waiting Events</span>
+              <span className="vehicle-value">08:53</span>
             </p>
-            <div className="next-location-container">
-              {nextLocations.map((location) => (
-                <div className="item">
-                  <p className="label">{location.name}</p>
-              </div>
-              ))}
-            </div>
-            <div className="divider"></div>
+            <p className="vehicle-card-props">
+              <span className="vehicle-label">AVG Load Time</span>
+              <span className="vehicle-value">04:21</span>
+            </p>
+            <p className="vehicle-card-props">
+              <span className="vehicle-label">Hang Time</span>
+              <span className="vehicle-value">22.56</span>
+            </p>
+            <p className="vehicle-card-props">
+              <span className="vehicle-label">Avg Load per Bucket</span>
+              <span className="vehicle-value">10.2t</span>
+            </p>
+            <p className="vehicle-card-props">
+              <span className="vehicle-label">TPH</span>
+              <span className="vehicle-value">329.5t</span>
+            </p>
             <div className="vehicle-card-props">
               <div className="vehicle-medium-label">Last 5 Loads</div>
             </div>
@@ -221,9 +231,6 @@ const VehicleCard: FC<VehicleCardProps> = ({
             </p>
           </div>
         )}
-      </div>
-      <div className="d-flex flex-row-reverse">
-            <div className="show-more-btn" onClick={onShowMoreOrLess}>{isShowMore ? 'View More' : 'View Less'}</div>
       </div>
     </div>
   );

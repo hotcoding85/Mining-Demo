@@ -64,7 +64,7 @@ const RosterFilter: React.FC<RosterFilterProps> = ({
         </div>
       </Col>
       <Col xxl={3} lg={3}>
-        <Button className="schedule-btn w-100">Schedule Shift</Button>
+        <Button className="schedule-btn w-100" style={{backgroundColor:'blue', color:'white'}}>Publish to Production</Button>
       </Col>
     </Row>
   );

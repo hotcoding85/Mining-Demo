@@ -1,7 +1,7 @@
 import React from "react";
 import VehicleCard from "./VehicleCard";
 import { pc2000 } from "assets/images/equipment";
-import { ActiveBenchData, DiggerData, DumpLocation, Truck } from './interfaces/type';
+import { ActiveBenchData, DiggerData, DumpLocation, HaulRoute, Truck } from './interfaces/type';
 import AssignBoard from "./AssignBoard";
 
 interface MainCardProps {
@@ -11,7 +11,9 @@ interface MainCardProps {
     removeTruckFromAssigned : (removedTruck: Truck) => void;
     assignTruckToFleet : (truck : Truck, diggerId : string) => void;
     dumpLocations : DumpLocation[];
+    haulRoutes: HaulRoute[];
     addDumpLocation : (newDumpLocation: DumpLocation) => void;
+    addHaulRoute: (newHaulRoute: HaulRoute) => void;
     assignedBenches : ActiveBenchData[];
     addBenches : (newBenches: ActiveBenchData) => void;
     diggerHeader : string;
@@ -24,7 +26,9 @@ const MainCard : React.FC<MainCardProps> = ({
     removeTruckFromAssigned,
     assignTruckToFleet,
     dumpLocations,
+    haulRoutes,
     addDumpLocation,
+    addHaulRoute,
     assignedBenches,
     addBenches,
     diggerHeader
@@ -48,7 +52,7 @@ const MainCard : React.FC<MainCardProps> = ({
                         <VehicleCard
                             index={digger.no}
                             id={'EX201'}
-                            status={'Healthy'}
+                            status={'ACTIVE'}
                             smu={getRandomFloat(23000, 38000, 1)}
                             fuelLevel={getRandomInt(20, 100)}
                             fuelRate={getRandomFloat(40, 80, 1)}
@@ -68,7 +72,9 @@ const MainCard : React.FC<MainCardProps> = ({
                         removeTruckFromAssigned={removeTruckFromAssigned}
                         assignTruckToFleet={assignTruckToFleet}
                         dumpLocations={dumpLocations}
+                        haulRoutes={haulRoutes}
                         addDumpLocation={addDumpLocation}
+                        addHaulRoute={addHaulRoute}
                     />
                 </div>
                  
