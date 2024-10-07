@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Card,
@@ -13,20 +13,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllMaterials } from "slices/thunk";
 import { round2Two } from "utils/common";
 import Table from "Components/Common/Table";
-import { Input } from "antd";
-import { generateBlendPlan } from "utils/generateBlendPlan";
+import { Input, Select } from "antd";
+import { generateBlendPlan, generateBlendPlan2 } from "utils/generateBlendPlan";
 import { max } from "lodash";
 import { MaterialSelector } from "selectors";
+
+const { Option } = Select;
 
 const BlendPlans = () => {
   document.title = "Blend Plans | FMS Live";
 
   const dispatch: any = useDispatch();
   const [targetTonnes, setTargetTonnes] = useState<number>(0);
+  const [targetGold, setTargetGold] = useState<number>(0);
   const [blendPlans, setBlendPlans] = useState<any[]>();
-
+  const [currentPlan, setCurrentPlan] = useState<string>('plan1')
   const { materials } = useSelector(MaterialSelector);
 
+  const PLANS = [
+    {
+      name: 'Plan1',
+      value: 'plan1'
+    },
+    {
+      name: 'Plan2',
+      value: 'plan2'
+    }
+  ]
   useEffect(() => {
     dispatch(getAllMaterials(1, 100)); // Dispatch action to fetch data on component mount
   }, [dispatch]);
@@ -60,9 +73,11 @@ const BlendPlans = () => {
     []
   );
 
-  const generateBlendData = () => {
-    setBlendPlans(generateBlendPlan(targetTonnes, materials));
-  };
+  const generateBlendData = useCallback(() => {
+    console.log(currentPlan)
+    const plans = currentPlan === 'plan1' ? generateBlendPlan(targetTonnes, targetGold, materials) : generateBlendPlan2(targetTonnes, targetGold, materials)
+    setBlendPlans(plans);
+  }, [currentPlan, targetTonnes, targetGold, materials]);
 
   const maxMaterialcounts = useMemo(
     () =>
@@ -99,7 +114,7 @@ const BlendPlans = () => {
       dataIndex: `M${i}`,
       key: `M${i}`,
       render: (material: { name: string; tonnes: number; grade: number }) =>
-        material ? (
+        material && Math.abs(material?.tonnes) !== 0 ? (
           <div>
             {material?.name} ({round2Two(material?.tonnes)}/(
             {round2Two(material?.grade)}))
@@ -109,6 +124,11 @@ const BlendPlans = () => {
         ),
     })),
   ];
+
+  const onPlanChange = useCallback((option) => {
+    console.log(option)
+    setCurrentPlan(option)
+  }, [currentPlan])
 
   return (
     <React.Fragment>
@@ -139,6 +159,37 @@ const BlendPlans = () => {
                     onChange={(e) => setTargetTonnes(Number(e.target.value))}
                   />
                 </div>
+                <div>
+                  <label>Target Gold a day(kg)</label>
+                  <Input
+                    style={{ height: "40px" }}
+                    type="number"
+                    value={targetGold}
+                    onChange={(e) => setTargetGold(Number(e.target.value))}
+                  />
+                </div>
+                <Select
+                  style={{ height: "40px" }}
+                  placeholder="Select a bench"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.name?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  filterSort={(optionA, optionB) =>
+                    optionA?.name
+                      ?.toLowerCase()
+                      .localeCompare(optionB?.name?.toLowerCase())
+                  }
+                  value={currentPlan}
+                  onChange={(option) => {
+                    onPlanChange(option);
+                  }}>
+                  {
+                    PLANS.map(plan => {
+                      return <Option value={plan.value} name={plan.name}>{plan.name}</Option>
+                    })
+                  }
+                </Select>
                 <Button style={{ height: "40px" }} onClick={generateBlendData}>
                   Generated Blend Plan
                 </Button>
