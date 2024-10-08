@@ -11,7 +11,7 @@ interface CreateResponse {
 
 interface ShiftRoster {
   id?: string;
-  _id?:string;
+  _id?: string;
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
@@ -22,7 +22,7 @@ interface ShiftRoster {
   vehicle?: Vehicle;
   vehicleId: string;
   trainers: User[];
-  trucks: Vehicle[]
+  trucks: Vehicle[];
 }
 
 export interface ShiftRosterState {
@@ -61,6 +61,14 @@ const shiftrosterSlice = createSlice({
       state.loading = false;
       state.error = false;
     },
+    upsertSuccess(state, action: PayloadAction<CreateResponse>) {
+      var newBenches: any = action.payload.data;
+      var newBenchesIds = newBenches?.map((item) => item.id);
+      var data = state.data.filter((item) => !newBenchesIds.includes(item.id));
+      state.data = [...data, ...newBenches];
+      state.loading = false;
+      state.error = false;
+    },
     updateSuccess(state, action: PayloadAction<CreateResponse>) {
       var newBench = action.payload.data;
       var data = state.data.filter((item) => item.id !== newBench.id);
@@ -85,6 +93,7 @@ export const {
   apiError,
   createSuccess,
   updateSuccess,
+  upsertSuccess,
   deleteSuccess,
 } = shiftrosterSlice.actions;
 export default shiftrosterSlice.reducer as Reducer<ShiftRosterState>;

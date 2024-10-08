@@ -52,6 +52,14 @@ const dispatchSlice = createSlice({
       state.loading = false;
       state.error = false;
     },
+    upsertSuccess(state, action: PayloadAction<CreateResponse>) {
+      var newBenches: any = action.payload.data;
+      var newBenchesIds = newBenches?.map((item) => item.id);
+      var data = state.data.filter((item) => !newBenchesIds.includes(item.id));
+      state.data = [...data, ...newBenches];
+      state.loading = false;
+      state.error = false;
+    },
     updateSuccess(state, action: PayloadAction<CreateResponse>) {
       var newBench = action.payload.data[0];
       var data = state.data.filter((item) => item.id !== newBench.id);
@@ -76,6 +84,7 @@ export const {
   apiError,
   createSuccess,
   updateSuccess,
+  upsertSuccess,
   deleteSuccess,
 } = dispatchSlice.actions;
 export default dispatchSlice.reducer as Reducer<DispatchState>;

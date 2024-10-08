@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { useDrop } from "react-dnd";
 import { Excavator, ShiftInfoData, Truck } from "./interfaces/type";
 import { capitalize } from "lodash";
+import { format } from "date-fns";
 
 interface ListProps {
   data: ShiftInfoData[];
@@ -128,7 +129,7 @@ const List = ({
         });
         setIsModalVisible(true);
       } else {
-        assignTruckToPlan(targetData, value.id, undefined);
+        assignTruckToPlan(targetData, value, undefined);
       }
     }
   };
@@ -289,10 +290,10 @@ const List = ({
           const plan = dispatchs?.find(
             (dispatch) => dispatch.vehicleId === excavator?.id
           ) || {
-            roster: roster?.roster || `${startDate}:${shift}`,
+            roster: roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`,
             tonnes: target?.data?.tonnes,
             vehicleId: excavator?.id,
-            planId: `${roster?.roster || `${startDate}:${shift}`}:${
+            planId: `${roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`}:${
               excavator?.name
             }:PLAN`,
             ...getShiftTimes(shift, startDate),
@@ -575,7 +576,7 @@ const List = ({
               } else if (targetEquipment === "truck") {
                 assignTruckToPlan(
                   selectedData.planData,
-                  selectedData.truckIds?.new.id,
+                  selectedData.truckIds?.new,
                   selectedData.truckIds?.old
                 );
               }

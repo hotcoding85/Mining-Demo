@@ -10,7 +10,9 @@ import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import {
   addDispatch,
+  addDispatchs,
   addShiftRoster,
+  addShiftRosters,
   getAllBenches,
   getAllFleet,
   getAllUsers,
@@ -28,6 +30,8 @@ import RosterFilter from "./Filter";
 import { uniq, uniqBy } from "lodash";
 import { getFleet } from "Helpers/api_vehicle_helper";
 import { getTargetByRoster } from "Helpers/api_target_helper";
+import { usePlans } from "Hooks/usePlans";
+import { useRosters } from "Hooks/useRosters";
 
 const PreShiftInfo = () => {
   document.title = "Pre Shift Info | FMS Live";
@@ -53,8 +57,16 @@ const PreShiftInfo = () => {
 
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
-  const [selectedCrew, setSelectedCrew] = useState<string>("");
-  const [selectedPlan, setSelectedPlan] = useState<string>("");
+
+  const {
+    savedPlans,
+    addNewPlan,
+    revokeTruckFromPlan,
+    addNewLocation,
+    clearSavedPlans,
+  } = usePlans(dispatchs);
+
+  const { savedRosters, addNewRoster, clearSavedRoster } = useRosters();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -115,24 +127,27 @@ const PreShiftInfo = () => {
     return fleets.filter((fleet) => excuvatorFilter(fleet));
   }, [fleets, excuvatorFilter]);
 
-  const excRoster = useMemo(() => {
-    return shiftRosters.filter(({ vehicle }) => excuvatorFilter(vehicle));
-  }, [shiftRosters, excuvatorFilter]);
+  const findVehicle = useCallback(
+    (id) => {
+      return fleets.find((fleet) => fleet.id === id);
+    },
+    [fleets]
+  );
 
   const assignRosterToOperator = async (roster, operator) => {
     if (!roster?.id) {
-      await dispatch(
-        addShiftRoster({
+      addNewRoster(
+        {
           roster: format(startDate, "yyyy-MM-dd") + ":" + shift,
           vehicleId: roster?.vehicle.id,
-          operators: [operator],
-        })
+          vehicle: findVehicle(roster?.vehicle.id),
+        },
+        operator
       );
     } else {
-      await dispatch(
-        updateShiftRoster(roster.id, {
-          operators: [operator],
-        })
+      addNewRoster(
+        { ...roster, vehicle: findVehicle(roster?.vehicleId) },
+        operator
       );
     }
   };
@@ -146,67 +161,82 @@ const PreShiftInfo = () => {
     [benches]
   );
 
+  const findSource = useCallback(
+    (id) => {
+      return benches.find(
+        (bench) => bench.id === id && bench.category === "SOURCE"
+      );
+    },
+    [benches]
+  );
+
   const assignLocationToPlan = async (plan, location) => {
-    if (plan.id) {
-      await dispatch(
-        updateDispatch(plan.id, {
-          sourceId: location.id,
-          materialId: location.materialId || undefined,
-          destinationId: location.blockId
-            ? findDestination(location.blockId)?.id || undefined
-            : undefined,
-        })
-      );
-    } else {
-      const newPlan = {
-        ...plan,
-        sourceId: location.id,
-        materialId: location.materialId || undefined,
-        destinationId: location.materialId
-          ? findDestination(location.blockId)?.id || undefined
-          : undefined,
-        supporting: plan.supporting || [],
-      };
-      await dispatch(addDispatch(newPlan));
-    }
+    addNewLocation(
+      plan,
+      { ...location, source: findSource(location.id) },
+      findDestination(location.blockId)?.id
+    );
   };
 
-  const assignTruckToPlan = async (plan, truckId, oldTruckId) => {
-    if (truckId === oldTruckId) return;
-    if (plan.id) {
-      let supporting = Array.from(plan.supporting);
-      if (!!oldTruckId) {
-        const oldIdx = plan?.supporting?.findIndex(
-          (support) => support === oldTruckId
-        );
-        supporting[oldIdx] = truckId;
-      } else {
-        supporting = [...supporting, truckId];
-      }
-
-      await dispatch(
-        updateDispatch(plan.id, {
-          supporting: uniq(supporting),
-        })
-      );
-    } else {
-      const newPlan = {
-        ...plan,
-        supporting: [truckId],
-      };
-      await dispatch(addDispatch(newPlan));
-    }
+  const assignTruckToPlan = async (plan, truck, oldTruckId) => {
+    if (truck.id && oldTruckId && truck.id === oldTruckId) return;
+    addNewPlan(plan, truck, oldTruckId);
   };
 
-  const revokeTruckFromPlan = async (plan, truckId) => {
-    if (plan.id) {
+  const normalizedDispatch = useMemo(() => {
+    const planVehicleIds = savedPlans?.map((item) => item.vehicleId) || [];
+    const filteredDispaths: any[] = dispatchs?.filter(
+      (item) => !planVehicleIds?.includes(item.vehicleId)
+    );
+    return [...filteredDispaths, ...(savedPlans || [])];
+  }, [dispatchs, savedPlans]);
+
+  const normalizedRoster = useMemo(() => {
+    const rosterVehicleId = savedRosters?.map((item) => item.vehicleId) || [];
+    const filteredRosters: any[] = shiftRosters?.filter(
+      (item) => !rosterVehicleId?.includes(item.vehicleId)
+    );
+    return [...filteredRosters, ...(savedRosters || [])];
+  }, [shiftRosters, savedRosters]);
+
+  const excRoster = useMemo(() => {
+    return normalizedRoster.filter(({ vehicle }) => excuvatorFilter(vehicle));
+  }, [normalizedRoster, excuvatorFilter]);
+
+  const handlePublish = async () => {
+    if (!!savedPlans.length) {
       await dispatch(
-        updateDispatch(plan.id, {
-          supporting: uniq(
-            plan.supporting.filter((fleetId) => fleetId !== truckId)
-          ),
-        })
+        addDispatchs(
+          savedPlans.map((item) => ({
+            id: item?.id || undefined,
+            destinationId: item?.destinationId || undefined,
+            endTime: item?.endTime || undefined,
+            materialId: item?.materialId || undefined,
+            planId: item?.planId || undefined,
+            roster: item?.roster || undefined,
+            sourceId: item?.sourceId || undefined,
+            startTime: item?.startTime || undefined,
+            supporting: item?.supporting || undefined,
+            tonnes: item?.tonnes || undefined,
+            vehicleId: item?.vehicleId,
+          }))
+        )
       );
+      clearSavedPlans();
+    }
+
+    if (!!savedRosters.length) {
+      await dispatch(
+        addShiftRosters(
+          savedRosters.map((item) => ({
+            id: item?.id || undefined,
+            operators: item?.operators || undefined,
+            roster: item?.roster || undefined,
+            vehicleId: item?.vehicleId || undefined,
+          }))
+        )
+      );
+      clearSavedRoster();
     }
   };
 
@@ -224,16 +254,17 @@ const PreShiftInfo = () => {
                   onChangeShift={onChangeShift}
                   startDate={dayjs(startDate)}
                   onChangeDate={onChangeDate}
+                  handlePublish={handlePublish}
                 />
                 <List
                   data={shiftInfoData}
                   excuvators={excuvators}
                   excRoster={excRoster}
                   targets={targets}
-                  dispatchs={dispatchs}
+                  dispatchs={normalizedDispatch}
                   shift={shift}
                   startDate={startDate}
-                  shiftRosters={shiftRosters}
+                  shiftRosters={normalizedRoster}
                   assignRosterToOperator={assignRosterToOperator}
                   assignLocationToPlan={assignLocationToPlan}
                   assignTruckToPlan={assignTruckToPlan}
@@ -242,11 +273,11 @@ const PreShiftInfo = () => {
               </div>
               <div className="sidebar-section p-0">
                 <SideBar
-                  shiftRosters={shiftRosters}
+                  shiftRosters={normalizedRoster}
                   fleets={fleets}
                   users={users}
                   benches={benches}
-                  dispatchs={dispatchs}
+                  dispatchs={normalizedDispatch}
                 />
               </div>
             </div>
