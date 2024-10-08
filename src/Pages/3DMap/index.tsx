@@ -1,5 +1,5 @@
 import { Source, Map, MapPicker } from './modules/Source'
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,7 +29,8 @@ declare global {
     interface Window {
         map: any;
         mapPicker: any;
-        controls: any
+        controls: any;
+        renderer: any;
     }
 }
 type Propertytype = {
@@ -47,13 +48,28 @@ interface Geofence {
     name: string;
     layer: Leaflet.Layer | null;  // Make layer nullable
 }
-type THREEJSMapProps = {
-    defaultLayers?: string[] | ['']
+
+interface MapRef {
+    getMapContainer: () => HTMLDivElement | null; // Custom ref type with the method
 }
-export const THREEJSMap = (props: THREEJSMapProps) => {
+interface THREEJSMapProps {
+    defaultLayers: string[];
+    drawMarkers?: () => void;
+    updateAnnotations?: () => void;
+    isLoading: boolean;
+    setIsLoading: (isLoading) => void;
+    children?: React.ReactNode; // Children prop is optional
+}
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
+    const localMapContainerRef = useRef<HTMLDivElement | null>(null);
+
+    // This exposes the localMapContainerRef to the parent component using localMapContainerRef
+    useImperativeHandle(ref, () => ({
+        getMapContainer: () => localMapContainerRef.current,
+    }));
 
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
 
@@ -73,18 +89,17 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
     ];
     const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
 
-    const mapContainer = useRef<HTMLDivElement | null>(null);
+    // const localMapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapBoxContainer = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any>(null);
     const TruckObject = useRef<any>(null)
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
     const [lng, setLng] = useState(120.44871814239025);
     const [lat, setLat] = useState(-29.1506602184213);
-    const [checkedList, setCheckedList] = useState<string[]>(props.defaultLayers || [''])
+    const [checkedList, setCheckedList] = useState<string[]>(defaultLayers || [''])
     const geojsonData = useRef<any>();
 
     // state for Map loading status
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [progress, setProgress] = useState(0); // Progress state
     let animationFrameId: number;
     let map: any;
@@ -95,6 +110,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
     }, [dispatch]);
 
     useEffect(() => {
+        if (map) return
         setIsLoading(true);
         fetchGeofences()
         fetchZipFile()
@@ -121,14 +137,14 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
                 window.controls.dispose();
             }
             // Clean up Three.js objects
-            if (mapContainer.current && mapContainer.current.firstChild) {
-                mapContainer.current.removeChild(mapContainer.current.firstChild);
+            if (localMapContainerRef.current && localMapContainerRef.current.firstChild) {
+                localMapContainerRef.current.removeChild(localMapContainerRef.current.firstChild);
             }
         };
     }, []); // Added dependencies to reinitialize map if lat/lng changes
     
     const fetchGeofences = async () => {
-        const fences = await fetch('./SWK_S01_422.geojson')
+        const fences = await fetch('/SWK_S01_422.geojson')
             .then(response => response.json())  // Parse it as JSON
             .then(data => {
                 return data;  // Return the parsed GeoJSON data
@@ -150,7 +166,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
     }
 
     const fetchZipFile = async () => {
-        const zipBuffer = await fetch('./240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
+        const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
         JSZip.loadAsync(zipBuffer).then(data => {
             return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
         }).then((text) => {
@@ -161,7 +177,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
 
     const processZipFile = async (geojsonData) => {
         // Fetch the ZIP file and get its ArrayBuffer
-        const zipBuffer = await fetch('./images.zip').then(response => response.arrayBuffer());
+        const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
         
         // Initialize an object to hold image data
         const image_data = {};
@@ -199,7 +215,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
             const mtlLoader = new MTLLoader();
             const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
                 mtlLoader.load(
-                    './Truck/3D_Truck.mtl',
+                    '/Truck/3D_Truck.mtl',
                     (materials) => resolve(materials),
                     undefined,
                     (error) => reject(error)
@@ -208,7 +224,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
 
             materials.preload();
 
-            const response = await fetch('./Truck/3D_Truck.zip');
+            const response = await fetch('/Truck/3D_Truck.zip');
             const arrayBuffer = await response.arrayBuffer();
             const zip = await JSZip.loadAsync(arrayBuffer);
 
@@ -282,9 +298,9 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
             // logarithmicDepthBuffer: false,
         });
 
-        if (mapContainer.current) {
+        if (localMapContainerRef.current) {
             renderer.domElement.className = "threejs-view";
-            mapContainer.current.appendChild(renderer.domElement);
+            localMapContainerRef.current.appendChild(renderer.domElement);
             // renderer.domElement.addEventListener('click', onDocumentMouseClick, false);
             renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
             // renderer.domElement.addEventListener('keydown', onDocumentKeyDown , false);
@@ -293,7 +309,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight);
-
+        window.renderer = renderer
         const controls = new MapControls(camera, renderer.domElement);
         controls.autoRotate = false;
         controls.maxPolarAngle = Math.PI * 0.3;
@@ -332,7 +348,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
         let zoom = 18
         const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
         window.map = map;
-        const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
+        const mapPicker = new MapPicker(camera, map, localMapContainerRef.current, controls);
         window.mapPicker = mapPicker;
 
         const grid: any = new InfiniteGridHelper(16, 256);
@@ -355,6 +371,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
                 if (drawed) {
                     setIsLoading(false);
                     drawGeofences()
+                    drawMarkers && drawMarkers()
                     window.map.drawRoutes()
                     drawed = false
                 }
@@ -364,7 +381,7 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
             }
             renderer.render(scene, camera);
             controls.update();
-            // updateAnnotations();
+            updateAnnotations && updateAnnotations();
             // updateMarkerTooltip();
         };
         mainLoop(0);
@@ -392,18 +409,18 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
     const [showToolTip, setShowToolTip] = useState<boolean>(false)
     const [properties, setProperties] = useState<Propertytype | null>(null)
     const onDocumentMouseMove = useCallback((event) => {
-        if (!mapContainer.current) return
+        if (!localMapContainerRef.current) return
         // Normalize mouse position to -1 to 1 range
-        const rect = mapContainer.current.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
+        const rect = localMapContainerRef.current.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / localMapContainerRef.current.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / localMapContainerRef.current.clientHeight) * 2 + 1;
         // Update raycaster with the mouse position and the camera
         window.map.camera.updateProjectionMatrix();
         window.map.camera.updateMatrixWorld();
         raycaster.setFromCamera(mouse, window.map.camera);
         
-        const x = (mouse.x * 0.5 + 0.5) * mapContainer.current.clientWidth;
-        const y = -(mouse.y * 0.5 - 0.5) * mapContainer.current.clientHeight;
+        const x = (mouse.x * 0.5 + 0.5) * localMapContainerRef.current.clientWidth;
+        const y = -(mouse.y * 0.5 - 0.5) * localMapContainerRef.current.clientHeight;
         // Check for intersections with clickable sprites
         const intersects = raycaster.intersectObjects(window.map.scene.children, true);
         // Change cursor style based on intersection
@@ -431,12 +448,12 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
     }, [showToolTip])
 
     useEffect(() => {
-        if (!props.defaultLayers || props.defaultLayers.length === 0) return
+        if (!defaultLayers || defaultLayers.length === 0) return
         const selectedCategories = _layerOptions
-            .filter((option: any) => props.defaultLayers && props.defaultLayers.includes(option?.label)) // Get matching label from _layerOptions
+            .filter((option: any) => defaultLayers && defaultLayers.includes(option?.label)) // Get matching label from _layerOptions
             .map(option => option.value); // Extract corresponding values (categories)
         window.map && window.map.setFilteredCategories(selectedCategories)
-    }, [vehicleRoutes, props.defaultLayers])
+    }, [vehicleRoutes, defaultLayers])
 
 
     const drawGeofences = useCallback(() => {
@@ -504,7 +521,9 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
                         ) : (
                             <></>
                         )}
-                    <div ref={mapContainer} style={{ width: '100%', height: "calc(100%)", opacity: isLoading ? '0.05' : '1'}} />
+                    <div ref={localMapContainerRef} style={{ width: '100%', height: "calc(100%)", opacity: isLoading ? '0.05' : '1'}}>
+                        {children}
+                    </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table
                             style={{
@@ -533,4 +552,4 @@ export const THREEJSMap = (props: THREEJSMapProps) => {
             </Card>
         </>
     )
-}
+})
