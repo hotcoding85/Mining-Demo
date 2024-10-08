@@ -31,6 +31,7 @@ declare global {
         mapPicker: any;
         controls: any;
         renderer: any;
+        TruckObject: any;
     }
 }
 type Propertytype = {
@@ -58,9 +59,12 @@ interface THREEJSMapProps {
     updateAnnotations?: () => void;
     isLoading: boolean;
     setIsLoading: (isLoading) => void;
+    updateMarkerTooltip?: () => void;
+    height?: string;
+    width?: string;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -72,8 +76,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     }));
 
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
-
-    document.title = "3D Pit View | FMS Live";
 
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
@@ -89,10 +91,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     ];
     const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
 
-    // const localMapContainerRef = useRef<HTMLDivElement | null>(null);
-    const mapBoxContainer = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<any>(null);
-    const TruckObject = useRef<any>(null)
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
     const [lng, setLng] = useState(120.44871814239025);
     const [lat, setLat] = useState(-29.1506602184213);
@@ -263,7 +261,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             group.add(object)
             group.visible = false
             group.renderOrder = 9999; // Ensure the whole group renders on top
-            TruckObject.current = group
+            window.TruckObject = group
             window.map.scene.add(group);
         } catch (error) {
             console.error('An error happened:', error);
@@ -288,7 +286,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
 
         camera.up = new THREE.Vector3(0, 0, 1);
-        camera.position.set(0, -1000, 700);
+        camera.position.set(3000, 800, 1000);
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
         window.camera = camera;
@@ -301,16 +299,14 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         if (localMapContainerRef.current) {
             renderer.domElement.className = "threejs-view";
             localMapContainerRef.current.appendChild(renderer.domElement);
-            // renderer.domElement.addEventListener('click', onDocumentMouseClick, false);
             renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
-            // renderer.domElement.addEventListener('keydown', onDocumentKeyDown , false);
         }
 
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight);
         window.renderer = renderer
-        const controls = new MapControls(camera, renderer.domElement);
+        const controls = new MapControls(window.camera, renderer.domElement);
         controls.autoRotate = false;
         controls.maxPolarAngle = Math.PI * 0.3;
         window.controls = controls;
@@ -346,9 +342,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const source = new Source('mapbox', mapboxgl.accessToken);
         let nTiles = 24;
         let zoom = 18
-        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
+        const map = new Map(scene, window.camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
         window.map = map;
-        const mapPicker = new MapPicker(camera, map, localMapContainerRef.current, controls);
+        const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
         window.mapPicker = mapPicker;
 
         const grid: any = new InfiniteGridHelper(16, 256);
@@ -379,13 +375,13 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
                 setProgress(_progress);
             }
-            renderer.render(scene, camera);
+            renderer.render(scene, window.camera);
             controls.update();
             updateAnnotations && updateAnnotations();
-            // updateMarkerTooltip();
+            updateMarkerTooltip && updateMarkerTooltip();
         };
         mainLoop(0);
-        WindowResize(renderer, camera);
+        WindowResize(renderer, window.camera);
     }, [setProgress])
 
     useEffect(() => {
@@ -409,7 +405,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     const [showToolTip, setShowToolTip] = useState<boolean>(false)
     const [properties, setProperties] = useState<Propertytype | null>(null)
     const onDocumentMouseMove = useCallback((event) => {
-        if (!localMapContainerRef.current) return
+        if (!localMapContainerRef.current || !window.map) return
         // Normalize mouse position to -1 to 1 range
         const rect = localMapContainerRef.current.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / localMapContainerRef.current.clientWidth) * 2 - 1;
@@ -508,7 +504,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     return (
         <>
-            <Card className='threejs-view-card-header'>
+            <Card className='threejs-view-card-header' style={{marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%'}}>
                 <CardBody className='threejs-view-body'>
                     {isLoading ? (
                         <>
@@ -521,7 +517,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         ) : (
                             <></>
                         )}
-                    <div ref={localMapContainerRef} style={{ width: '100%', height: "calc(100%)", opacity: isLoading ? '0.05' : '1'}}>
+                    <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
