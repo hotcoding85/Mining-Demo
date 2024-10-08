@@ -196,6 +196,14 @@ const SidebarContent = (props: any) => {
                         </Link>
                       </li>
                     ))}
+                    {
+                      menu.title == 'Mine Control' && 
+                      <li>
+                        <Link to="/roster-scheduler">
+                          {props.t("Roster Scheduler")}
+                        </Link>
+                      </li>
+                    }
                   </ul>
                 )}
               </li>
