@@ -17,7 +17,7 @@ body[data-layout-mode="dark"] {
       background-color: var(--bg-color);
       border-width: 1px;
     }
-    
+
     &.empty {
       background-color: #24314d;
       border-width: 0;
@@ -36,7 +36,7 @@ body[data-layout-mode="dark"] {
   }
 
   .truck-item .truck-active {
-    color: #71BB31;
+    color: #71bb31;
     text-align: right;
     font-size: 20px;
     font-style: normal;
@@ -50,11 +50,8 @@ body[data-layout-mode="dark"] {
   }
 
   .truck-item .operator {
-    display: flex;
     padding: 2px 8px;
-    align-items: center;
     gap: 10px;
-    align-self: stretch;
     border-radius: 99px;
     background: #535e77;
     font-size: 12px;
@@ -62,6 +59,8 @@ body[data-layout-mode="dark"] {
     font-weight: 400;
     line-height: 16px;
     margin: 0px;
+    text-align: center;
+    width: 100%;
   }
 
   .show-more-button {
@@ -75,6 +74,17 @@ body[data-layout-mode="dark"] {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+  }
+
+  .vehicle-operator-unassigned {
+    font-size: 12px;
+    color: #828282;
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 50px;
+    text-align: center;
+    color: #6f788d;
+    background: #24314d;
   }
 }
 
@@ -119,11 +129,8 @@ body[data-layout-mode="light"] {
   }
 
   .truck-item .operator {
-    display: flex;
     padding: 2px 8px;
-    align-items: center;
     gap: 10px;
-    align-self: stretch;
     border-radius: 99px;
     background: var(--dark-bg-color);
     font-size: 12px;
@@ -132,6 +139,8 @@ body[data-layout-mode="light"] {
     line-height: 16px;
     margin: 0px;
     color: white;
+    text-align: center;
+    width: 100%;
   }
 
   .show-more-button {
@@ -145,5 +154,16 @@ body[data-layout-mode="light"] {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+  }
+
+  .vehicle-operator-unassigned {
+    font-size: 12px;
+    color: #828282;
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 50px;
+    text-align: center;
+    color: #6f788d;
+    background: #24314d;
   }
 }

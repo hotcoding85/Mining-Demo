@@ -1,7 +1,14 @@
 import { getAll, postRoute, putRoute, deleteRoute } from "Helpers/api_auto_routing";
 import { allSuccess, apiError, createSuccess, deleteSuccess, loading, updateSuccess } from "./reducer";
 
-export const getAllVehicleRoutes = () => async (dispatch: any) => {
+export const getAllVehicleRoutes = (
+    page = 1,
+    limit = 10,
+    sortBy = "name",
+    sortOrder = "ASC",
+    name?,
+    category?
+) => async (dispatch: any) => {
     try {
         let response: any;
         dispatch(loading)

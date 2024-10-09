@@ -1,4 +1,4 @@
-import { useState, FC } from "react";
+import { useState, FC, useMemo } from "react";
 import { pc2000 } from "assets/images/equipment";
 import { Progress } from "antd";
 import { ActiveBenchData } from "./interfaces/type";
@@ -20,23 +20,23 @@ const getStatusColor = (status: string) => {
 };
 
 interface VehicleCardProps {
-  index: number;
-  id: string;
-  status: string;
+  vehicle?: any;
+  source?: any;
+  shiftRoster?: any[];
   smu: number;
   fuelLevel: number;
   fuelRate: number;
   imageUrl: string;
   lastUpdated: string;
   sync: "manual" | "inactive" | "active";
-  assignedBenches: ActiveBenchData[];
-  addBenches: (newBenches: ActiveBenchData) => void;
+  assignedBenches: any[];
+  addBenches: (newBenches: any, diggerId: string) => void;
   collapse: boolean;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
-  index,
-  id,
-  status,
+  vehicle,
+  source,
+  shiftRoster,
   smu,
   fuelLevel,
   fuelRate,
@@ -45,9 +45,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
   sync,
   assignedBenches,
   addBenches,
-  collapse
+  collapse,
 }) => {
-  const statusColor = getStatusColor(status);
+  const statusColor = getStatusColor(vehicle.status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
   const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
@@ -85,19 +85,18 @@ const VehicleCard: FC<VehicleCardProps> = ({
     }
   };
 
-  const nextLocations = assignedBenches.filter(
-    (location) =>
-      location.assignId === index
-  );
+  const currentRoster = useMemo(() => {
+    return shiftRoster?.find((item) => item.vehicleId === vehicle.id) || null;
+  }, [shiftRoster, vehicle]);
+
+  const nextLocations =
+    assignedBenches.find((location) => location.vehicleId === vehicle.id)
+      ?.benches || [];
 
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: 'BENCHITEM',
+    accept: "BENCHITEM",
     drop: (draggedBenches: ActiveBenchData) => {
-      const newBenches = {
-        ...draggedBenches,
-        assignId: index
-      };
-      addBenches(newBenches);
+      addBenches(draggedBenches, vehicle.id);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -106,31 +105,38 @@ const VehicleCard: FC<VehicleCardProps> = ({
   });
 
   return (
-    <div
-      ref={drop}
-      className="vehicle-card"
-    >
+    <div ref={drop} className="vehicle-card">
       <div className="vehicle-card-header">
         <div className="vehicle-header-image">
           <img src={pc2000} alt="pc2000" style={{ width: 40, height: 40 }} />
         </div>
         <div className="vehicle-name">
-          <div className="vehicle-id">{id}</div>
-          <div className="vehicle-category">PC1250-8</div>
-          <div className="vehicle-driver">James Taylor</div>
+          <div className="vehicle-id">{vehicle.name}</div>
+          <div className="vehicle-category">{vehicle.model}</div>
+          {!!currentRoster?.operators?.length ? (
+            <div className="vehicle-driver">
+              {currentRoster?.operators?.[0]?.firstName}
+            </div>
+          ) : (
+            <div className="vehicle-operator-unassigned">Unassigned</div>
+          )}
         </div>
         <span
           className="vehicle-card-status"
           style={{ backgroundColor: statusColor }}
         >
-          {status}
+          {vehicle.status}
         </span>
       </div>
       <div className="vehicle-card-details">
         <div className="location-item">
-          <select name="current-work-location" id="currentWorkLocation">
-            <option value="440_BLK1_HG01" selected>440_BLK1_HG01</option>
-          </select>
+          {source?.name && (
+            <select name="current-work-location" id="currentWorkLocation">
+              <option value="440_BLK1_HG01" selected>
+                {source?.name}
+              </option>
+            </select>
+          )}
         </div>
         <div className="vehicle-card-progress">
           <p className="vehicle-progress-text">
@@ -155,9 +161,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
           />
         </div>
         <div className="vehicle-card-props">
-          <div className="vehicle-medium-label">
-            Total Tonnes
-          </div>
+          <div className="vehicle-medium-label">Total Tonnes</div>
           <div className="vehicle-chips-value">5,548.2</div>
         </div>
 
@@ -174,10 +178,10 @@ const VehicleCard: FC<VehicleCardProps> = ({
           </div>
         </div>
         <div className="d-flex flex-row-reverse mt-3 mb-3">
-          <div className="show-more-btn" onClick={onShowMoreOrLess}>{isShowMore ? 'View More' : 'View Less'}</div>
+          <div className="show-more-btn" onClick={onShowMoreOrLess}>
+            {isShowMore ? "View More" : "View Less"}
+          </div>
         </div>
-
-
 
         {!isShowMore && (
           <div>

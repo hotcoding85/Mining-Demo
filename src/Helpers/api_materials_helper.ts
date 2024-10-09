@@ -14,10 +14,10 @@ export const getMaterials = (
   category?
 ) => {
   var options = {
-    page: page,
-    limit: limit,
-    sortBy: sortBy,
-    sortOrder: sortOrder,
+    page,
+    limit,
+    sortBy,
+    sortOrder,
   };
 
   if (name) {

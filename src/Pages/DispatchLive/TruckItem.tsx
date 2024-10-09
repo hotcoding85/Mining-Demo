@@ -1,18 +1,20 @@
 import React from "react";
 
 interface TruckItemProps {
-    truckId: string;
-    fontColor: string;    
+  title: string;
+  fontColor: string;
 }
-const TruckItem : React.FC<TruckItemProps> = ({
-    truckId,
-    fontColor
-}) => {
-    return (
-        <div className={"truck-item " + (truckId ? "filled" : "empty")}>
-            <p className="truck" style={{color:fontColor}}>{truckId}</p>
-        </div>
-    )
-}
+const TruckItem: React.FC<TruckItemProps> = ({ title, fontColor }) => {
+  return (
+    <div
+      className={"truck-item " + (title ? "filled" : "empty")}
+      style={{ height: 64 }}
+    >
+      <p className="truck" style={{ color: fontColor }}>
+        {title}
+      </p>
+    </div>
+  );
+};
 
 export default TruckItem;

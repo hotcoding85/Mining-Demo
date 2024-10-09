@@ -22,10 +22,10 @@ interface MainCardProps {
   updateTargetMaterials: (updatedTask: Material) => void;
   dumpLocations: DumpLocation[];
   addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  removeTruckFromAssigned : (removedTruck: Truck) => void;
-  assignTruckToFleet : (truck : Truck, diggerId : string) => void;
-  assignedBenches : ActiveBenchData[];
-  addBenches : (newBenches: ActiveBenchData) => void;
+  removeTruckFromAssigned: (removedTruck: Truck) => void;
+  assignTruckToFleet: (truck: Truck, diggerId: string) => void;
+  assignedBenches: ActiveBenchData[];
+  addBenches: (newBenches: ActiveBenchData) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
@@ -95,9 +95,10 @@ const MainCard: React.FC<MainCardProps> = ({
             <p className="vehicle-card-name">Digger Fleet</p>
             <VehicleCard
               key={1}
-              index={1}
-              id={digger.name || "Unknown"}
-              status={"Healthy"}
+              vehicle={{
+                name: digger.name || "Unknown",
+                status: "Healthy",
+              }}
               smu={getRandomFloat(23000, 38000, 1)}
               fuelLevel={getRandomInt(20, 100)}
               fuelRate={getRandomFloat(40, 80, 1)}
