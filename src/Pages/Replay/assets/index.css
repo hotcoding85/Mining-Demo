@@ -158,6 +158,3 @@ body[data-layout-mode='light'] .switch-timeline {
 .truck-badge-sync-icon{
     display: flex;
 }
-.marker-tooltip{
-    width: 150px;
-}
