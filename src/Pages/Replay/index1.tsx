@@ -95,6 +95,16 @@ const Replay = (props: any) => {
         selectTrip(routeData[0].routes[prevIndex]);
     }, [routeData, selectedTrip]);
 
+    // Handler for the PrevRoute button
+    const onPrevRoute = useCallback(() => {
+
+    }, [])
+
+    // Handler for the NextRoute button
+    const onNextRoute = useCallback(() => {
+
+    }, [])
+
     // Use useRef to store the interval ID
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -980,6 +990,8 @@ const Replay = (props: any) => {
                             onPlayPauseToggle={togglePlay}
                             onNext={handleNext}
                             onPrev={handlePrev}
+                            onNextRoute={onNextRoute}
+                            onPrevRoute={onPrevRoute}
                         />
                     </Row>
                 </Container>

@@ -18,6 +18,8 @@ interface TimeSliderProps {
     onPlayPauseToggle: () => void;
     onNext: () => void;
     onPrev: () => void;
+    onPrevRoute: () => void;
+    onNextRoute: () => void;
 }
 
 const TimeSlider: React.FC<TimeSliderProps> = (
@@ -32,6 +34,8 @@ const TimeSlider: React.FC<TimeSliderProps> = (
       onPlayPauseToggle,
       onNext,
       onPrev,
+      onPrevRoute,
+      onNextRoute
   }) => {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
@@ -123,10 +127,10 @@ const TimeSlider: React.FC<TimeSliderProps> = (
       <Button
         style={{marginRight: '10px'}}
         type="text"
-        icon={isPlaying ? <PauseCircleFilled style={{color: isLight ? 'black' : 'white', fontSize: '32px'}}  /> : <PlayCircleFilled style={{color: isLight ? 'black' : 'white', fontSize: '32px'}}  />}
+        icon={isPlaying ? <PauseCircleFilled style={{fontSize: '32px', color: 'white'}}  /> : <PlayCircleFilled style={{fontSize: '32px', color: 'white'}}  />}
         onClick={onPlayPauseToggle}
       />
-      
+
       <Button
         type="text"
         icon={<img  src={BACK} />}
@@ -142,12 +146,28 @@ const TimeSlider: React.FC<TimeSliderProps> = (
         onClick={onNext}
         style={{marginRight: '10px'}}
       />
+      
+      <Button
+        type="text"
+        icon={<LeftOutlined style={{color: 'white'}} />}
+        onClick={onPrevRoute}
+        style={{marginRight: '10px'}}
+      />
+
+
+      {/* Next Button */}
+      <Button
+        type="text"
+        icon={<RightOutlined style={{color: 'white'}} />}
+        onClick={onNextRoute}
+        style={{marginRight: '10px'}}
+      />
 
       {/* Speed Selector (1X, 2X, 3X, 4X) */}
       <Select
         className={'speed-indicator'}
         value={speed}
-        style={{color: isLight ? 'black' : 'white'}} 
+        style={{color: 'white'}}
         onChange={onSpeedChange}
       >
         <Option value={1}>1X</Option>
@@ -171,11 +191,11 @@ const TimeSlider: React.FC<TimeSliderProps> = (
       {/* Display formatted time near the slider handle */}
       <span className="time-value">{formatTime(totalTime)}</span>
 
-      <Button className='btn-setting-timeslider'>
+      <Button className='btn-setting-timeslider' style={{color: 'white'}}>
         <i className="fas fa-cog"></i>
       </Button>
 
-      <Button className='btn-full-screen-timeslider' onClick={toggleFullscreen}>
+      <Button className='btn-full-screen-timeslider' onClick={toggleFullscreen} style={{color: 'white'}}>
         {!isFullscreen ? <i className="bx bx-fullscreen"></i> : <i className="bx bx-exit-fullscreen"></i>}
       </Button>
     </div>

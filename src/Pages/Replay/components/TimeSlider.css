@@ -13,7 +13,7 @@ body[data-layout-mode="dark"] .time-slider-container{
     background-color: #2A2A2A;
 }
 body[data-layout-mode="light"] .time-slider-container{
-    background-color: #ffffff40;
+    background-color: #2A2A2A;
 }
 
 .speed-indicator {
