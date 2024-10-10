@@ -324,7 +324,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
 
         camera.up = new THREE.Vector3(0, 0, 1);
-        camera.position.set(3000, 800, 1000);
+        camera.position.set(0, 0, 5000);
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
         window.camera = camera;
