@@ -57,16 +57,17 @@ const MainCard: React.FC<MainCardProps> = ({
   const excuvatorVehicle = dispatch.vehicle;
 
   const normalizeDestination = useMemo(
-    () => ({
-      ...dispatch.destination,
-      locationImg: dumpLocations.find(
-        (item) => dispatch.destination.id === item.id
-      )?.locationImg,
-    }),
+    () =>
+      dispatch?.destination
+        ? {
+            ...dispatch?.destination,
+            locationImg: dumpLocations.find(
+              (item) => dispatch?.destination?.id === item.id
+            )?.locationImg,
+          }
+        : undefined,
     [dispatch.destination, dumpLocations]
   );
-
-  console.log(normalizeDestination)
 
   return (
     <React.Fragment>

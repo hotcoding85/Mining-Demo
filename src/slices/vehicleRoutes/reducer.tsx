@@ -78,7 +78,6 @@ const vehicleRoutesSlice = createSlice({
     apiError(state, action) {
       state.loading = true;
       state.error = true;
-      state.errorMsg = action.payload.reason;
     },
   },
 });
