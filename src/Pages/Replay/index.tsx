@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Card, Container, Row, TabPane } from "reactstrap";
-import { Button, Tabs } from "antd";
+import { Button, Segmented, Space, Tabs } from "antd";
 import _ from "lodash";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
@@ -10,7 +10,7 @@ import RBush from 'rbush';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import TimeSlider from "./components/TimeSlider";
 import './assets/index.css';
-import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import { excavatorImages, truckImages } from "assets/images/equipment";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,7 +47,7 @@ const Replay = () => {
     const [routeData, setRouteData] = useState<TripRoutesDataType[]>([]);
     const stopSignData = useRef<RouteDataType[]>([]);
     const [selectedTrip, setSelectedTrip] = useState<RouteDataType | null>(null);
-
+    const [filter, setFilter] = useState<string>("All Equipment");
     // TimeSlider
     const [isPlaying, setIsPlaying] = useState(false);
     const currentIsPlaying = useRef<boolean>(false)
@@ -172,63 +172,68 @@ const Replay = () => {
 
     const eqMarkers: any = []
     const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
-        if (eq.vehicleType == 'EXCAVATOR') {
+        if (eq.vehicleType == "EXCAVATOR") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeExcavator;
-                case 'STANDBY':
-                    return standbyExcavator;
-                case 'DOWN':
-                    return downExcavator;
-                case 'DELAY':
-                    return delayExcavator;
+                case "ACTIVE":
+                    return excavatorImages.pc1250;
+                case "STANDBY":
+                    return excavatorImages.pc1250;
+                case "DOWN":
+                    return excavatorImages.pc1250;
+                case "DELAY":
+                    return excavatorImages.pc1250;
             }
-    
-        } else if (eq.vehicleType == 'DUMP_TRUCK') {
+        } else if (eq.vehicleType == "DUMP_TRUCK") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeTruck;
-                case 'STANDBY':
-                    return standbyTruck;
-                case 'DOWN':
-                    return downTruck;
-                case 'DELAY':
-                    return delayTruck;
+                case "ACTIVE":
+                    return truckImages.hd785;
+                case "STANDBY":
+                    return truckImages.hd785;
+                case "DOWN":
+                    return truckImages.hd785;
+                case "DELAY":
+                    return truckImages.hd785;
             }
         }
-    }
+    };
 
     // Array to hold all clickable sprites
     const clickableSprites = useRef<any>([]);
     const RippleIcon = ({ annotation, isLoading }) => {    
         const textStyle: any = {
             position: 'absolute',
-            top: '-65px',
+            top: '-57px',
             left: '-50px',
-            border: '1px dashed',
             background: annotation.color,
             borderRadius: '20px',
             fontSize: '1rem',
             color: 'white',
             fontWeight: 600,
             padding: '6px 16px',
-            width: '108px',
+            width: '120px',
             textAlign: 'center',
             display: isLoading ? 'none' : 'block'
         };
-    
+        let clickedMarker: any = null
+        _.map(clickableSprites.current, _marker => {
+            if (_marker.userData.data.id === annotation.id) {
+                clickedMarker = _marker
+            }
+        })
+
         return (
-            <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute', }} onClick={() => setSelectedEq(annotation)}>
-                <div style={textStyle}>
+            <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
+                <div id={`annotation-image-${annotation.id}`} style={textStyle}>
                     <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
                     {annotation.name}
                 </div>
-                <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
+                <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
                     <img src={mapLocationImage} alt="Description of the image" />
                 </div>
             </div>
         );
     };
+    
 
     const drawMarkers = useCallback(() => {
         if (!mapContainer.current) return;
@@ -1249,6 +1254,23 @@ const Replay = () => {
         }
     }
 
+    useEffect(() => {
+        _.map(clickableSprites.current, marker => {
+            const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+            const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+            imageDiv && (imageDiv.style.display = 'none')
+            markerDiv && (markerDiv.style.display = 'none')
+        })
+        _.map(clickableSprites.current, marker => {
+            if (marker.userData.data.vehicleType === filter || filter === 'All Equipment') {
+                const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+                const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+                imageDiv && (imageDiv.style.display = 'block')
+                markerDiv && (markerDiv.style.display = 'block')
+            }
+        })
+    }, [filter])
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -1261,6 +1283,9 @@ const Replay = () => {
                                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px'}}>
                                         <h4>GPS Fleet Tracking</h4>
                                         <div style={{display: 'flex', alignItems: 'center'}}>
+                                            <Space style={{marginRight: '10px'}}>
+                                                <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]}  />
+                                            </Space>
                                             <DatePicker style={{height: '48px', marginRight: '10px'}} className={'fleet-tracking-datepicker'} allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
                                             <Dropdown
                                                 label="Choose Location"
