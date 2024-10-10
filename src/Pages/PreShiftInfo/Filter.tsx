@@ -8,6 +8,7 @@ interface RosterFilterProps {
   onChangeDate: (date: dayjs.Dayjs, dateString: string | string[]) => void;
   shift: string;
   onChangeShift: (shift: string) => void;
+  handlePublish: () => void;
 }
 
 const RosterFilter: React.FC<RosterFilterProps> = ({
@@ -15,6 +16,7 @@ const RosterFilter: React.FC<RosterFilterProps> = ({
   onChangeDate,
   shift,
   onChangeShift,
+  handlePublish,
 }) => {
   return (
     <Row className="schedule-filter pe-2">
@@ -64,7 +66,13 @@ const RosterFilter: React.FC<RosterFilterProps> = ({
         </div>
       </Col>
       <Col xxl={3} lg={3}>
-        <Button className="schedule-btn w-100" style={{backgroundColor:'blue', color:'white'}}>Publish to Production</Button>
+        <Button
+          className="schedule-btn w-100"
+          style={{ backgroundColor: "blue", color: "white" }}
+          onClick={handlePublish}
+        >
+          Publish to Production
+        </Button>
       </Col>
     </Row>
   );

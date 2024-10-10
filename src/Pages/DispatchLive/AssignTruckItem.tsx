@@ -1,124 +1,72 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useDrop } from "react-dnd";
 import "./styles/assignItem.scss";
 import { Truck } from "./interfaces/type";
-import {
-  hd785,
-} from "assets/images/equipment";
+import { hd785 } from "assets/images/equipment";
 import { Progress, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 
 interface AssignTruckItemProps {
-    diggerId : string;
-    sourceId: number;
-    assignedTrucks: Truck[];
-    updateReadyTrucks: (updatedTask: Truck) => void;
-    removeTruckFromAssigned : (removedTruck: Truck) => void;
-    assignTruckToFleet : (truck : Truck, diggerId : string) => void;
-    directionDispalyName : "inline" | "wrap";
+  dispatchs: any[];
+  diggerId: string;
+  assignedTruck: any;
+  assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
+  removeTruckFromAssigned: (removedTruck, diggerId) => void;
+  reAssignTruckToFleet: (truck, fromId, toId) => void;
+  directionDispalyName: "inline" | "wrap";
 }
 
-const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
-    diggerId,
-    sourceId,
-    assignedTrucks,
-    updateReadyTrucks,
-    removeTruckFromAssigned,
-    assignTruckToFleet,
-    directionDispalyName
+const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
+  dispatchs,
+  diggerId,
+  assignedTruck,
+  assignReadyTrucks,
+  reAssignTruckToFleet,
+  removeTruckFromAssigned,
+  directionDispalyName,
 }) => {
-    const [isShowMore, setIsShowMore] = useState<boolean>(true);
+  const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
-    const onShowMoreOrLess = () => {
-        setIsShowMore(!isShowMore);
-    };
-    let items : MenuProps['items'] = [];
-    switch(diggerId) {
-        case 'Digger1' : {
-            items = [
-                {
-                    key: 'Return',
-                    label : 'Return to GO-Line'
-                },
-                {
-                    key: 'Digger2',
-                    label : 'Re-assign to Fleet 2'
-                },
-                {
-                    key: 'Digger3',
-                    label : 'Re-assign to Fleet 3'
-                }
-            ];
-            break;
-        }
-        case 'Digger2' : {
-            items = [
-                {
-                    key: 'Return',
-                    label : 'Return to GO-Line'
-                },
-                {
-                    key: 'Digger1',
-                    label : 'Re-assign to Fleet 1'
-                },
-                {
-                    key: 'Digger3',
-                    label : 'Re-assign to Fleet 3'
-                }
-            ];
-            break;
-        }
-        case 'Digger3' : {
-            items = [
-                {
-                    key: 'Return',
-                    label : 'Return to GO-Line'
-                },
-                {
-                    key: 'Digger1',
-                    label : 'Re-assign to Fleet 1'
-                },
-                {
-                    key: 'Digger2',
-                    label : 'Re-assign to Fleet 2'
-                }
-            ];
-            break;
-        }
-    }
-    
-    const handleMenuClick: MenuProps['onClick'] = (e) => {
-        if(truckForAssign) {
-            if(e.key == 'Return') {
-                removeTruckFromAssigned(truckForAssign);
-            }
-            else {
-                assignTruckToFleet(truckForAssign, e.key);
-            }
-        }
-    };
-    
-    const menu = {
-        items,
-        onClick: handleMenuClick,
-    };
+  const onShowMoreOrLess = () => {
+    setIsShowMore(!isShowMore);
+  };
 
-    const truckForAssign = assignedTrucks.find(
-        (truck) =>
-          truck.assignId === sourceId && truck.diggerId === diggerId
+  const items: MenuProps["items"] = useMemo(() => {
+    const filteredDispatchs = dispatchs.filter(
+      (item) => item.vehicleId !== diggerId
     );
+
+    return [
+      {
+        key: "Return",
+        label: "Return to GO-Line",
+      },
+      ...filteredDispatchs.map((item) => ({
+        key: item?.vehicleId,
+        label: `Re-assign to ${item?.vehicle?.name}`,
+      })),
+    ];
+  }, [dispatchs, diggerId]);
+
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    if (assignedTruck) {
+      if (e.key == "Return") {
+        removeTruckFromAssigned(assignedTruck, diggerId);
+      } else {
+        reAssignTruckToFleet(assignedTruck, diggerId, e.key);
+      }
+    }
+  };
+
+  const menu = {
+    items,
+    onClick: handleMenuClick,
+  };
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "READYTRUCK",
     drop: (draggedTruck: Truck) => {
-      if (!truckForAssign) {
-        const updatedTruck = {
-          ...draggedTruck,
-          assignId: sourceId,
-          diggerId,
-        };
-        updateReadyTrucks(updatedTruck);
-      }
+      assignReadyTrucks(assignedTruck, draggedTruck, diggerId);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -132,10 +80,10 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
       className={
         "assign-truck-item " +
         (isOver && canDrop ? "can-drop " : "") +
-        (truckForAssign ? "filled" : "")
+        (assignedTruck ? "filled" : "")
       }
     >
-      {truckForAssign ? (
+      {assignedTruck ? (
         <div className="assigned-truck-item-container">
           <div className="assigned-truck-header">
             <div className={directionDispalyName}>
@@ -153,15 +101,13 @@ const AssignTruckItem : React.FC<AssignTruckItemProps> = ({
               </div>
               <div className="assigned-truck-name">
                 <div className="assigned-truck-id-status">
-                  <p className="assigned-truck-id">
-                    {truckForAssign.truckId}
-                  </p>
+                  <p className="assigned-truck-id">{assignedTruck.name}</p>
                   {directionDispalyName === "inline" && (
                     <p className="assigned-truck-status">Active</p>
                   )}
                 </div>
                 <div>HD785-7</div>
-                <div className="vehicle-driver">{truckForAssign.operator}</div>
+                <div className="vehicle-driver">{assignedTruck.operator}</div>
               </div>
             </div>{" "}
             <Dropdown menu={menu} placement="bottomLeft" arrow>

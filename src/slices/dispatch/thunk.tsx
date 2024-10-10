@@ -9,6 +9,7 @@ import {
     allSuccess,
     apiError,
     createSuccess,
+    upsertSuccess,
     updateSuccess,
     deleteSuccess,
 } from "./reducer";
@@ -42,7 +43,7 @@ export const addDispatchs = (dispatchs: any) => async (dispatch: any) => {
         toast.success(`${response.data.length} dispatchs added successfully`, {
             autoClose: 2000,
         });
-        dispatch(createSuccess(response));
+        dispatch(upsertSuccess(response));
     } catch (error) {
         dispatch(apiError(error));
     }

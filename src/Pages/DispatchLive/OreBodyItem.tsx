@@ -5,7 +5,7 @@ import { Material } from "./interfaces/type";
 interface OreBodyItemProps {
   oreBodyId: string;
   fontColor: string;
-  oreBody: Material;
+  oreBody: any;
 }
 const OreBodyItem: React.FC<OreBodyItemProps> = ({
   oreBodyId,
@@ -23,10 +23,10 @@ const OreBodyItem: React.FC<OreBodyItemProps> = ({
   return (
     <div
       ref={drag}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      className={"ore-body-item " + (oreBodyId ? "filled" : "empty")}
+      style={{ opacity: isDragging ? 0.5 : 1, height: "64px" }}
+      className={"ore-body-item " + (oreBody ? "filled" : "empty")}
     >
-      <p className="ore-body-label">{oreBodyId}</p>
+      <p className="ore-body-label">{oreBody.name}</p>
     </div>
   );
 };

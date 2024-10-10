@@ -12,8 +12,8 @@ const OreBodies: React.FC<OreBodiesProps> = ({ targetMaterials }) => {
       <div>
         <p className="right-board-topic">Ore Bodies Material Grades</p>
         <div
-          className="d-flex flex-row justify-content-between"
-          style={{ height: 64 }}
+          className="d-flex flex-row justify-content-start flex-wrap"
+          style={{ columnGap: "32px" }}
         >
           {targetMaterials?.map((material: any) => (
             <OreBodyItem

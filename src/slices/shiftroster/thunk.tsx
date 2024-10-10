@@ -10,6 +10,7 @@ import {
     apiError,
     createSuccess,
     updateSuccess,
+    upsertSuccess,
     deleteSuccess,
 } from "./reducer";
 import { toast } from "react-toastify";
@@ -42,7 +43,7 @@ export const addShiftRosters = (ShiftRoster: any) => async (dispatch: any) => {
         toast.success(`${response.data?.length} shiftRosters added successfully`, {
             autoClose: 2000,
         });
-        dispatch(createSuccess(response));
+        dispatch(upsertSuccess(response));
     } catch (error) {
         dispatch(apiError(error));
     }
