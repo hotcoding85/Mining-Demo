@@ -37,8 +37,8 @@
 .map-loading-progress-bar .ant-spin-blur::after {
     opacity: 0 !important;
 }
-:where(.css-dev-only-do-not-override-pw1gpe).ant-spin-nested-loading .ant-spin-blur::after {
-    opacity: 0;
+.ant-spin-nested-loading .ant-spin-blur::after {
+    opacity: 0 !important;
 }
 body[data-layout-mode='dark'] .ant-checkbox-wrapper {
     color: white;

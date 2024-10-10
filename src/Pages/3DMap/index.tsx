@@ -24,7 +24,11 @@ import RBush from 'rbush';
 import bbox from '@turf/bbox';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import CubeSwitcher from './components/CubeSwitcher';
+import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
+
 const index = new RBush();
+
 declare global {
     interface Window {
         map: any;
@@ -32,6 +36,7 @@ declare global {
         controls: any;
         renderer: any;
         TruckObject: any;
+        viewType: any;
     }
 }
 type Propertytype = {
@@ -79,7 +84,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
-
+    const views = ["Top", "Front", "Left", "Right", "Back"]
+    const [currentView, setCurrentView] = useState<any>('')
     const _layerOptions: DropdownType[] = [
         { label: 'Current Haul Routes', value: 'CURRENT_HAUL_ROUTES' },
         { label: 'Future Road Designs', value: 'FUTURE_ROAD_DESIGNS' },
@@ -142,69 +148,101 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     }, []); // Added dependencies to reinitialize map if lat/lng changes
     
     const fetchGeofences = async () => {
-        const fences = await fetch('/SWK_S01_422.geojson')
-            .then(response => response.json())  // Parse it as JSON
-            .then(data => {
-                return data;  // Return the parsed GeoJSON data
-            })
-            .catch(error => {
-                console.error('Error fetching GeoJSON:', error);
-            });
-
-        if (fences) {
-            const features = fences.features;
-            
-            // Iterate over the features to access polygons or other geometry types
-            const _fences: any = []
-            _.map(features, feature => {
-                _fences.push(feature)
-            });
-            geoFences.current = _fences
+        const _fetchGeofences = async () => {
+            const retrievedData = await getDataByKey('geoFences');
+            if (retrievedData && retrievedData.length > 0) {
+                geoFences.current = retrievedData
+            }
+            else{
+                const fences = await fetch('/SWK_S01_422.geojson')
+                    .then(response => response.json())  // Parse it as JSON
+                    .then(data => {
+                        return data;  // Return the parsed GeoJSON data
+                    })
+                    .catch(error => {
+                        console.error('Error fetching GeoJSON:', error);
+                    });
+        
+                if (fences) {
+                    const features = fences.features;
+                    
+                    // Iterate over the features to access polygons or other geometry types
+                    const _fences: any = []
+                    _.map(features, feature => {
+                        _fences.push(feature)
+                    });
+                    geoFences.current = _fences
+                    await addOrUpdateData('geoFences', _fences);
+                }
+            }
         }
+        await _fetchGeofences()
     }
 
     const fetchZipFile = async () => {
-        const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
-        JSZip.loadAsync(zipBuffer).then(data => {
-            return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
-        }).then((text) => {
-            var geojsonData = JSON.parse(text as string)
-            processZipFile(geojsonData)
-        })
+        const _fetchZipFile = async () => {
+            const retrievedData = await getDataByKey('mainGeojson');
+            if (retrievedData) {
+                processZipFile(retrievedData)
+            }
+            else{
+                const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
+                JSZip.loadAsync(zipBuffer).then(data => {
+                    return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
+                }).then(async (text) => {
+                    var geojsonData = JSON.parse(text as string)
+                    processZipFile(geojsonData)
+                    await addOrUpdateData('mainGeojson', geojsonData);
+                })
+            }
+        };
+      
+        await _fetchZipFile(); 
     }
 
     const processZipFile = async (geojsonData) => {
-        // Fetch the ZIP file and get its ArrayBuffer
-        const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
-        
-        // Initialize an object to hold image data
-        const image_data = {};
-        
-        // Load the ZIP file using JSZip
-        const zip = await JSZip.loadAsync(zipBuffer);
-    
-        // Create an array to hold promises
-        const promises: any = [];
-    
-        // Iterate through each file in the ZIP
-        zip.forEach((relativePath, file) => {
-            // Check if the file is a WebP image
-            if (file.name.endsWith('.webp')) {
-                // Create a promise for each image processing
-                const promise = file.async('arraybuffer').then(data => {
-                    // Extract the filename without extension
-                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-                    // Store the image data in the object
-                    image_data[fileNameWithoutExtension] = data;
-                });
-                promises.push(promise);
+        const _processZipFile = async () => {
+            const retrievedData = await getDataByKey('imageData');
+            if (retrievedData) {
+                loadMapView(geojsonData, retrievedData);
             }
-        });
-    
-        // Wait for all promises to resolve
-        await Promise.all(promises);
-    
-        loadMapView(geojsonData, image_data);
+            else{
+                // Fetch the ZIP file and get its ArrayBuffer
+                const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
+                
+                // Initialize an object to hold image data
+                const image_data = {};
+                
+                // Load the ZIP file using JSZip
+                const zip = await JSZip.loadAsync(zipBuffer);
+            
+                // Create an array to hold promises
+                const promises: any = [];
+            
+                // Iterate through each file in the ZIP
+                zip.forEach((relativePath, file) => {
+                    // Check if the file is a WebP image
+                    if (file.name.endsWith('.webp')) {
+                        // Create a promise for each image processing
+                        const promise = file.async('arraybuffer').then(data => {
+                            // Extract the filename without extension
+                            const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+                            // Store the image data in the object
+                            image_data[fileNameWithoutExtension] = data;
+                        });
+                        promises.push(promise);
+                    }
+                });
+            
+                // Wait for all promises to resolve
+                await Promise.all(promises);
+            
+                loadMapView(geojsonData, image_data);
+                await addOrUpdateData('imageData', image_data);
+            }
+        }
+
+        await _processZipFile();
     }
 
     const fetch3DTruck = async () => {
@@ -411,9 +449,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         mouse.x = ((event.clientX - rect.left) / localMapContainerRef.current.clientWidth) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / localMapContainerRef.current.clientHeight) * 2 + 1;
         // Update raycaster with the mouse position and the camera
-        window.map.camera.updateProjectionMatrix();
-        window.map.camera.updateMatrixWorld();
-        raycaster.setFromCamera(mouse, window.map.camera);
+        window.camera.updateProjectionMatrix();
+        window.camera.updateMatrixWorld();
+        raycaster.setFromCamera(mouse, window.camera);
         
         const x = (mouse.x * 0.5 + 0.5) * localMapContainerRef.current.clientWidth;
         const y = -(mouse.y * 0.5 - 0.5) * localMapContainerRef.current.clientHeight;
@@ -502,6 +540,124 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         })
     }, [geoFences])
 
+    const onSwitchView = (viewType) => {
+        const truckPosition = new THREE.Vector3(0, 0, 0)
+        setCurrentView(viewType)
+        window.viewType = viewType
+        switch (viewType) {
+          case 'Top':
+            updateCameraView(truckPosition, 'Top');
+            break;
+          case 'Front':
+            updateCameraView(truckPosition, 'Front');
+            break;
+          case 'Left':
+            updateCameraView(truckPosition, 'Left');
+            break;
+          case 'Right':
+            updateCameraView(truckPosition, 'Right');
+            break;
+          case 'Back':
+            updateCameraView(truckPosition, 'Back');
+            break;
+          default:
+            return;
+        }
+    };
+
+    const updateCameraView = (truckPosition, viewType) => {
+        const offsetDistance = 3000; // Adjust distance as per requirement
+        let cameraPosition;
+        window.controls.enabled = false; // Disable controls if necessary for a locked view
+      
+        switch(viewType) {
+          case 'Top':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y, truckPosition.z + offsetDistance);
+            break;
+          case 'Front':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y - offsetDistance, truckPosition.z);
+            break;
+          case 'Left':
+            cameraPosition = new THREE.Vector3(truckPosition.x - offsetDistance, truckPosition.y, truckPosition.z);
+            break;
+          case 'Right':
+            cameraPosition = new THREE.Vector3(truckPosition.x + offsetDistance, truckPosition.y, truckPosition.z);
+            break;
+          case 'Back':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y + offsetDistance, truckPosition.z);
+            break;
+          default:
+            return;
+        }
+
+        const markerTooltips = document.querySelectorAll('.marker-tooltip');
+
+        _.map(markerTooltips, (marker: HTMLDivElement) => {
+            if (marker) {
+                // Hide the marker itself
+                marker.style.display = 'none';
+        
+                // Hide all child elements of the marker
+                const children = marker.querySelectorAll('div');
+                _.map(children, (child: HTMLElement) => {
+                    child.style.display = 'none';
+                });
+            }
+        });
+        let animationCameraId = 0;
+        const startPosition = window.camera.position.clone();
+        const targetPosition = cameraPosition.clone(); // The new camera position (copied from your logic)
+
+        // Truck position to look at
+        const targetLookAt = truckPosition.clone();
+
+        const animationDuration = 300;
+        let startTime: number | null = null;
+        const animateCameraMove = (time: number) => {
+            if (startTime === null) startTime = time;
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / animationDuration, 1); // Clamp progress to [0, 1]
+          
+            // Interpolate camera position
+            window.camera.position.lerpVectors(startPosition, targetPosition, progress);
+          
+            // Interpolate the lookAt position for smooth transition
+            const currentLookAt = new THREE.Vector3();
+            currentLookAt.lerpVectors(startPosition, targetLookAt, progress);
+            window.camera.lookAt(currentLookAt);
+          
+            window.camera.updateProjectionMatrix();
+            window.camera.updateMatrixWorld();
+            window.renderer.render(window.map.scene, window.camera); // Render updated frame
+          
+            // Continue animating if progress is not yet complete
+            if (progress < 1) {
+                animationCameraId = requestAnimationFrame(animateCameraMove);
+            } else {
+                // Once animation is complete, re-enable controls after a small delay
+                window.controls.enabled = true;
+                _.map(markerTooltips, (marker: HTMLDivElement) => {
+                    if (marker) {
+                        // Hide the marker itself
+                        marker.style.display = 'block';
+                
+                        // Hide all child elements of the marker
+                        const children = marker.querySelectorAll('div');
+                        _.map(children, (child: HTMLElement) => {
+                            child.style.display = 'block';
+                        });
+                    }
+                });
+            }
+        };
+          
+        // // Start the animation
+        animationCameraId = requestAnimationFrame(animateCameraMove);
+        // window.camera.position.copy(cameraPosition);
+        // window.camera.lookAt(truckPosition);
+        // window.camera.updateMatrixWorld();
+        // window.controls.enabled = true;
+    };
     return (
         <>
             <Card className='threejs-view-card-header' style={{marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%'}}>
@@ -509,8 +665,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     {isLoading ? (
                         <>
                             <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: 'calc(100% - 20px)', height: '50%', left: '10px'}}>
-                                <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
-                                    <Progress className='map-loading-progress-bar' percent={progress} status="active" />
+                                <Spin className='map-loading-bar' style={{color: 'gold', background: 'transparent'}} tip="Loading...">
+                                    <Progress className='map-loading-progress-bar' percent={progress} status="active" style={{background: 'transparent'}} />
                                 </Spin>
                             </div>
                         </>
@@ -519,6 +675,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         )}
                     <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
+                        <CubeSwitcher onSwitchView={onSwitchView} currentView={currentView} />
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table
