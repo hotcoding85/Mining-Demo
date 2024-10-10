@@ -7,10 +7,11 @@ import { useSelector } from "react-redux";
 import { LayoutSelector } from 'selectors';
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import mapLocationImage from "assets/images/map/map-location.png";
-import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import { excavatorImages, truckImages } from "assets/images/equipment";
 import { THREEJSMap } from "Pages/3DMap";
 import * as turf from '@turf/turf';
 import { getRandomInt } from "utils/random";
+import { Segmented, Space } from "antd";
 
 type ActiveObjectType = {
   tube: any
@@ -24,6 +25,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const [lat, setLat] = useState(-29.1506602184213);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const statusOptions = ["Active", "Standby", "Delayed", "Down"];
+  const [filter, setFilter] = useState<string>("All Equipment");
   const tableData = useMemo(
     () => [
       {
@@ -602,63 +604,68 @@ const HaulRoadOptimisationMapView = (props: any) => {
   }, [currentRoad])
 
   const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
-      if (eq.vehicleType == 'EXCAVATOR') {
-          switch (eq.status) {
-              case 'ACTIVE':
-                  return activeExcavator;
-              case 'STANDBY':
-                  return standbyExcavator;
-              case 'DOWN':
-                  return downExcavator;
-              case 'DELAY':
-                  return delayExcavator;
-          }
-  
-      } else if (eq.vehicleType == 'DUMP_TRUCK') {
-          switch (eq.status) {
-              case 'ACTIVE':
-                  return activeTruck;
-              case 'STANDBY':
-                  return standbyTruck;
-              case 'DOWN':
-                  return downTruck;
-              case 'DELAY':
-                  return delayTruck;
-          }
-      }
-  }
+    if (eq.vehicleType == "EXCAVATOR") {
+        switch (eq.status) {
+            case "ACTIVE":
+                return excavatorImages.pc1250;
+            case "STANDBY":
+                return excavatorImages.pc1250;
+            case "DOWN":
+                return excavatorImages.pc1250;
+            case "DELAY":
+                return excavatorImages.pc1250;
+        }
+    } else if (eq.vehicleType == "DUMP_TRUCK") {
+        switch (eq.status) {
+            case "ACTIVE":
+                return truckImages.hd785;
+            case "STANDBY":
+                return truckImages.hd785;
+            case "DOWN":
+                return truckImages.hd785;
+            case "DELAY":
+                return truckImages.hd785;
+        }
+    }
+  };
   const { layoutModeType } = useSelector(LayoutSelector );
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
   const eqMarkers: any = []
   // Array to hold all clickable sprites
   const clickableSprites = useRef<any>([]);
   const RippleIcon = ({ annotation, isLoading }) => {    
-      const textStyle: any = {
-          position: 'absolute',
-          top: '-65px',
-          left: '-50px',
-          background: annotation.color,
-          borderRadius: '20px',
-          fontSize: '1rem',
-          color: 'white',
-          fontWeight: 600,
-          padding: '6px 16px',
-          width: '112px',
-          textAlign: 'center',
-          display: isLoading ? 'none' : 'block'
-      };
-  
-      return (
-          <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => setSelectedEq(annotation)}>
-              <div style={textStyle}>
-                  <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
-                  {annotation.name}
-              </div>
-              <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
-                  <img src={mapLocationImage} alt="Description of the image" />
-              </div>
-          </div>
-      );
+    const textStyle: any = {
+        position: 'absolute',
+        top: '-57px',
+        left: '-50px',
+        background: annotation.color,
+        borderRadius: '20px',
+        fontSize: '1rem',
+        color: 'white',
+        fontWeight: 600,
+        padding: '6px 16px',
+        width: '120px',
+        textAlign: 'center',
+        display: isLoading ? 'none' : 'block'
+    };
+    let clickedMarker: any = null
+    _.map(clickableSprites.current, _marker => {
+        if (_marker.userData.data.id === annotation.id) {
+            clickedMarker = _marker
+        }
+    })
+
+    return (
+        <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
+            <div id={`annotation-image-${annotation.id}`} style={textStyle}>
+                <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
+                {annotation.name}
+            </div>
+            <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
+                <img src={mapLocationImage} alt="Description of the image" />
+            </div>
+        </div>
+    );
   };
 
   const setSelectedEq = useCallback((annotation) => {
@@ -746,8 +753,32 @@ const HaulRoadOptimisationMapView = (props: any) => {
     });
   }, [equipments]);
 
+  useEffect(() => {
+    _.map(clickableSprites.current, marker => {
+        const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+        const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+        imageDiv && (imageDiv.style.display = 'none')
+        markerDiv && (markerDiv.style.display = 'none')
+    })
+    _.map(clickableSprites.current, marker => {
+        if (marker.userData.data.vehicleType === filter || filter === 'All Equipment') {
+            const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+            const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+            imageDiv && (imageDiv.style.display = 'block')
+            markerDiv && (markerDiv.style.display = 'block')
+        }
+    })
+  }, [filter])
+  
   return (
     <React.Fragment>
+      <Row>
+          <Col md="12" className='mb-4 d-flex flex-row-reverse'>
+              <Space>
+                  <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+              </Space>
+          </Col>
+      </Row>
       <Row>
         <Col>
           <THREEJSMap 
