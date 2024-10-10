@@ -1,3 +1,4 @@
+import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import * as THREE from 'three'
 import RBush from 'rbush';
 import bbox from '@turf/bbox';
@@ -73,7 +74,7 @@ export class Source {
 }
 const index = new RBush();
 class Tile {
-  constructor(map, z, x, y, size = baseTileSize, geojsonData) {
+  constructor(map, z, x, y, size = baseTileSize) {
     this.map = map
     this.z = z
     this.x = x
@@ -84,11 +85,6 @@ class Tile {
     this.elevation = null
     this.seamX = false
     this.seamY = false
-    this.geojsonData = geojsonData
-    
-    if (!this.geojsonData) return
-    
-
   }
 
   calculateCentroid(coordinates) {
@@ -238,10 +234,10 @@ class Tile {
 
   childrens() {
     return [
-      new Tile(this.map, this.z + 1, this.x * 2, this.y * 2, baseTileSize, this.geojsonData),
-      new Tile(this.map, this.z + 1, this.x * 2, this.y * 2 + 1, baseTileSize, this.geojsonData),
-      new Tile(this.map, this.z + 1, this.x * 2 + 1, this.y * 2, baseTileSize, this.geojsonData),
-      new Tile(this.map, this.z + 1, this.x * 2 + 1, this.y * 2 + 1, baseTileSize, this.geojsonData),
+      new Tile(this.map, this.z + 1, this.x * 2, this.y * 2, baseTileSize),
+      new Tile(this.map, this.z + 1, this.x * 2, this.y * 2 + 1, baseTileSize),
+      new Tile(this.map, this.z + 1, this.x * 2 + 1, this.y * 2, baseTileSize),
+      new Tile(this.map, this.z + 1, this.x * 2 + 1, this.y * 2 + 1, baseTileSize),
     ]
   }
 
@@ -253,6 +249,19 @@ class Tile {
   async buildMaterial() {
     const urls = await Promise.all(this.childrens().map(tile => tile.mapUrl()));
     return QuadTextureMaterial(urls)
+  }
+
+  setElevation(elevation) {
+    this.elevation = elevation
+  }
+
+  setGeometry(geometry) {
+    this.geometry = geometry
+  }
+
+  setConstants(size, shape) {
+    this.size = size
+    this.shape = shape
   }
 
   buildmesh() {
@@ -276,7 +285,20 @@ class Tile {
         this.buildGeometry();
         this.buildmesh();
         resolve(this); // Resolving the promise after delay
-      }, 1); // 1ms delay for bulk action
+      }, 0.1); // 1ms delay for bulk action
+    })
+  }
+
+  cachedFetch(elevation) {
+    return new Promise((resolve, reject) => {
+      // Simulating the delay with setTimeout
+      setTimeout(() => {
+        this.map.progress++;
+        this.elevation = elevation
+        this.buildGeometry();
+        this.buildmesh();
+        resolve(this); // Resolving the promise after delay
+      }, 0.1); // 1ms delay for bulk action
     })
   }
 
@@ -698,31 +720,87 @@ export class Map {
     }
   }
 
-  init() {
+  async init() {
     this.center = Utils.geo2tile(this.geoLocation, this.zoom)
     const tileOffset = Math.floor(this.nTiles / 2)
 
-    for (let i = 0; i < this.nTiles; i++) {
-      for (let j = 0; j < this.nTiles; j++) {
-        const tile = new Tile(this, this.zoom, this.center.x + i - tileOffset, this.center.y + j - tileOffset, baseTileSize, this.geojson)
-        this.tileCache[tile.key()] = tile
+    const _init = async () => {
+      const retrievedData = await getDataByKey('tileCaches');
+      if (retrievedData) {
+        const promises = _.map(retrievedData, async tile => {
+          const _tile = new Tile(this, tile.z, tile.x, tile.y, baseTileSize)
+          this.tileCache[_tile.key()] = _tile
+          _tile.setElevation(tile.elevation)
+          _tile.setConstants(tile.size, tile.shape)
+          // _tile.setMesh(tile.material)
+          _tile.buildGeometry()
+          await _tile.buildmesh()
+          return _tile
+        })
+
+        // const promises = retrievedData.map(tile =>
+        //   {
+        //     const _tile = new Tile(this, tile.z, tile.x, tile.y, baseTileSize)
+        //     _tile.cachedFetch(tile.elevation).then(t => {
+        //       t.setPosition(this.center)
+        //       this.scene.add(tile.mesh)
+        //       return t
+        //     })
+        //   }
+        // )
+        
+        Promise.all(promises).then(tiles => {
+          tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
+            tile.setPosition(this.center)
+            this.scene.add(tile.mesh)
+            tile.resolveSeams(this.tileCache)
+          })
+        })
+
+        this.progress = this.nTiles * this.nTiles
+      }
+      else{
+        for (let i = 0; i < this.nTiles; i++) {
+          for (let j = 0; j < this.nTiles; j++) {
+            const tile = new Tile(this, this.zoom, this.center.x + i - tileOffset, this.center.y + j - tileOffset, baseTileSize)
+            this.tileCache[tile.key()] = tile
+          }
+        }
+    
+        const promises = Object.values(this.tileCache).map(tile =>
+          tile.fetch().then(tile => {
+            tile.setPosition(this.center)
+            this.scene.add(tile.mesh)
+            return tile
+          })
+        )
+    
+        Promise.all(promises).then(async tiles => {
+          tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
+            tile.resolveSeams(this.tileCache)
+          })
+          const storedData = {}
+          _.map(this.tileCache, tile => {
+            const _tile = tile;
+            
+            // Clone the rotation to a plain array
+            const rotationArray = _tile.mesh.rotation.toArray();
+            
+            // Store the tile data without modifying the original mesh
+            storedData[tile.key()] = {
+              elevation: _tile.elevation,
+              shape: _tile.shape,
+              size: _tile.size,
+              x: _tile.x,
+              y: _tile.y,
+              z: _tile.z,
+            };
+          });
+          await addOrUpdateData('tileCaches', storedData);
+        })
       }
     }
-
-    const promises = Object.values(this.tileCache).map(tile =>
-      tile.fetch().then(tile => {
-        tile.setPosition(this.center)
-        this.scene.add(tile.mesh)
-        return tile
-      })
-    )
-
-    Promise.all(promises).then(tiles => {
-      tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
-        tile.resolveSeams(this.tileCache)
-      })
-    })
-
+    await _init()
   }
 
   addFromPosition(posX, posY) {
