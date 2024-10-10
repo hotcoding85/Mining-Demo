@@ -1,27 +1,31 @@
 import React from "react";
-import "./styles/truckItem.scss"
+import "./styles/truckItem.scss";
 import { ActiveBenchData } from "./interfaces/type";
-import { useDrag } from 'react-dnd';
+import { useDrag } from "react-dnd";
 
 interface ActiveBenchItemProps {
-    benchItem : ActiveBenchData;
+  benchItem: any;
 }
-const ActiveBenchItem : React.FC<ActiveBenchItemProps> = ({
-    benchItem
-}) => {
-    const [{ isDragging }, drag] = useDrag({
-        type: 'BENCHITEM',
-        item: { ...benchItem },
-        collect: (monitor) => ({
-          isDragging: monitor.isDragging(),
-        }),
-    });
+const ActiveBenchItem: React.FC<ActiveBenchItemProps> = ({ benchItem }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: "BENCHITEM",
+    item: { ...benchItem },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
 
-    return (
-        <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="benches-item">
-            <p className="benches-item-label">{benchItem.name}</p>
-        </div>
-    )
-}
+  return (
+    <div
+      ref={drag}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className="benches-item"
+    >
+      <p className="benches-item-label">
+        {benchItem.name} - {benchItem.blockId}
+      </p>
+    </div>
+  );
+};
 
-export default ActiveBenchItem
+export default ActiveBenchItem;

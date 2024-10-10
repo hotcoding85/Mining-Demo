@@ -18,15 +18,15 @@ const UnavailableTrucks : React.FC = () => {
                 {isShowMore && (
                     <div className="d-flex flex-row justify-content-between" style={{height : 64}}>
                         <TruckItem
-                            truckId="DT110"
+                            title="DT110"
                             fontColor="#FF4D4F"
                         />
                         <TruckItem
-                            truckId="DT111"
+                            title="DT111"
                             fontColor="#FF4D4F"
                         />
                         <TruckItem
-                            truckId=""
+                            title=""
                             fontColor="#FF4D4F"
                         />
                     </div>

@@ -4,7 +4,7 @@ import { Truck } from "./interfaces/type";
 import { useDrag } from 'react-dnd';
 
 interface TruckItemForReadyProps {
-    truck : Truck;
+    truck : any;
 }
 const TruckItemForReady : React.FC<TruckItemForReadyProps> = ({
     truck
@@ -19,8 +19,8 @@ const TruckItemForReady : React.FC<TruckItemForReadyProps> = ({
 
     return (
         <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="truck-item">
-            <p className="truck-active">{truck.truckId}</p>
-            <p className="operator">{truck.operator}</p>
+            <p className="truck-active">{truck?.vehicle?.name}</p>
+            <p className="operator">{truck?.operators?.[0]?.firstName}</p>
         </div>
     )
 }

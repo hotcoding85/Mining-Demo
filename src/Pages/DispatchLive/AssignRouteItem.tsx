@@ -5,7 +5,7 @@ import { useDrop } from "react-dnd";
 interface AssignRouteItemProps {
   diggerId : string;
   sourceId: number;
-  haulRoutes: HaulRoute[];
+  haulRoutes: any[];
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
 }
 
@@ -20,7 +20,6 @@ const AssignRouteItem: React.FC<AssignRouteItemProps> = ({
       location.assignId === sourceId && location.diggerId === diggerId
   );
 
-  console.log(haulRoutes)
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "ROUTE",
     drop: (draggedLocation: DumpLocation) => {
@@ -50,7 +49,7 @@ const AssignRouteItem: React.FC<AssignRouteItemProps> = ({
         <div className="assigned-dump-item">
           <img src={locationForAssign.locationImg} alt="north" />
           <p className="assigned-dump-chips">
-            {locationForAssign.locationName}
+            {locationForAssign.name}
           </p>
         </div>
       ) : (
