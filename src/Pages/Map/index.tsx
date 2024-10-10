@@ -10,7 +10,7 @@ import { InfiniteGridHelper } from 'Pages/ThreeJS/modules/InfiniteGridHelper'
 import * as THREE from "three";
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
 import _ from 'lodash';
-import { Checkbox, CheckboxProps, Progress, Select, Spin } from 'antd';
+import { Checkbox, CheckboxProps, Progress, Segmented, Select, Space, Spin } from 'antd';
 import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
 import * as Leaflet from 'leaflet';
@@ -21,7 +21,7 @@ import BACKGROUND_LIGHT from 'assets/images/3DPit/daysky.png'
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { FenceSelector, LayoutSelector, VehicleRouteSelector } from 'selectors';
 import mapLocationImage from "assets/images/map/map-location.png";
-import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import { excavatorImages, truckImages } from "assets/images/equipment";
 import { getRandomInt } from "utils/random";
 import SyncIcon from "assets/icons/Vector.png";
 import { CloseOutlined } from "@ant-design/icons";
@@ -147,20 +147,26 @@ export const RealTimePositioning = ({ socket }) => {
     const dumpinglingLine = useRef<any>([])
     const animatedDashes = (() => {
         const dashArraySequence = [
-            [10, 10],   // Initial dash and gap size
-            [12, 8],    // Larger dash, smaller gap
-            [8, 12],    // Smaller dash, larger gap
-            [10, 10],   // Back to original size
-            [14, 6],    // Larger dash, even smaller gap
-            [6, 14],    // Smaller dash, larger gap
+            [50, 20],   // Initial dash and gap size
+            [45, 25],    // Larger dash, smaller gap
+            [40, 30],    // Smaller dash, larger gap
+            [35, 35],   // Back to original size
+            [30, 40],    // Larger dash, even smaller gap
+            [25, 45],
+            [20, 50],
+            [25, 45],
+            [30, 40],
+            [35, 35],    // Smaller dash, larger gap
+            [40, 30],
+            [45, 25],
         ];
         if (window.map) {
-            function flattenPositions(positions) {
+            function flattenPositions(positions, offset = 0) {
                 
                 // Case 1: positions is an array of THREE.Vector3
                 if (Array.isArray(positions) && positions[0] instanceof THREE.Vector3) {
                     return positions.reduce((acc, vector) => {
-                        acc.push(vector.x, vector.y, vector.z);
+                        acc.push(vector.x + offset, vector.y + offset, vector.z);
                         return acc;
                     }, []);
                 }
@@ -175,17 +181,17 @@ export const RealTimePositioning = ({ socket }) => {
                     throw new Error("Unsupported format for positions");
                 }
             }
-            function createLine(positions, color) {
+            function createLine(positions, color, offset = 0) {
                 const geometry = new THREE.BufferGeometry();
-                const vertices = new Float32Array(flattenPositions(positions));
+                const vertices = new Float32Array(flattenPositions(positions, offset));
                 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
               
                 const material = new THREE.LineDashedMaterial({
                   color: color,
                   linewidth: 4, // Only works in WebGL1
-                  scale: 10, // Scale of the dashes
-                  dashSize: 10, // Length of the dashes
-                  gapSize: 10, // Length of the gaps
+                  scale: 1, // Scale of the dashes
+                  dashSize: 50, // Length of the dashes
+                  gapSize: 20, // Length of the gaps
                   depthTest: false,
                   depthWrite: false,
                   transparent: true
@@ -197,6 +203,22 @@ export const RealTimePositioning = ({ socket }) => {
                 window.map.scene.add(line);
               
                 return line;
+            }
+
+            // Create multiple lines with offsets to simulate thickness
+            function createThickLine(points, color, type = 'travellingLine') {
+                const offsetStep = 0.1; // Distance between parallel lines (adjust as needed)
+                const lineCount = 20;  // Number of parallel lines (more lines = thicker effect)
+
+                // Draw the main line
+                type === 'travellingLine' ? travellingLine.current.push(createLine(points, color)) : dumpinglingLine.current.push(createLine(points, color))
+
+                // Draw parallel lines with offsets
+                for (let i = 1; i <= lineCount; i++) {
+                    // Positive and negative offsets for x and y
+                    type === 'travellingLine' ? travellingLine.current.push(createLine(points, color, i * offsetStep)) :  dumpinglingLine.current.push(createLine(points, color, i * offsetStep)) // Offset to positive direction
+                    type === 'travellingLine' ? travellingLine.current.push(createLine(points, color, -i * offsetStep)) :  dumpinglingLine.current.push(createLine(points, color, -i * offsetStep)) // Offset to negative direction
+                }
             }
             
             // Create lines for travellingPaths and dumpingPaths
@@ -222,9 +244,8 @@ export const RealTimePositioning = ({ socket }) => {
                 });
             
                 // Push the created line to the travellingLine array
-                travellingLine.current.push(createLine(points, 0xffff00)); // Yellow
+                createThickLine(points, 0xffff00);
             });
-            
             const dumpingFeatures = dumpingPaths.features
             // Create dumping line once (outside the loop)
             dumpingFeatures.forEach((feature) => {
@@ -248,7 +269,7 @@ export const RealTimePositioning = ({ socket }) => {
                 });
             
                 // Push the created line to the dumpinglingLine array
-                dumpinglingLine.current.push(createLine(points, 0xffff00)); // Yellow
+                createThickLine(points, 0xffff00, 'dumpinglingLine'); // Yellow
             });
 
             let dashStep = 0;
@@ -321,36 +342,37 @@ export const RealTimePositioning = ({ socket }) => {
             if (equipmentId) {
                 const equipment = _.find(equipments, _eq => _eq.id === equipmentId)
                 equipment && setSelectedEq(equipment)
+
             }
+            window.map && animatedDashes()
         }
     }, [isLoading])
     const eqMarkers: any = []
     const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
-        if (eq.vehicleType == 'EXCAVATOR') {
+        if (eq.vehicleType == "EXCAVATOR") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeExcavator;
-                case 'STANDBY':
-                    return standbyExcavator;
-                case 'DOWN':
-                    return downExcavator;
-                case 'DELAY':
-                    return delayExcavator;
+                case "ACTIVE":
+                    return excavatorImages.pc1250;
+                case "STANDBY":
+                    return excavatorImages.pc1250;
+                case "DOWN":
+                    return excavatorImages.pc1250;
+                case "DELAY":
+                    return excavatorImages.pc1250;
             }
-    
-        } else if (eq.vehicleType == 'DUMP_TRUCK') {
+        } else if (eq.vehicleType == "DUMP_TRUCK") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeTruck;
-                case 'STANDBY':
-                    return standbyTruck;
-                case 'DOWN':
-                    return downTruck;
-                case 'DELAY':
-                    return delayTruck;
+                case "ACTIVE":
+                    return truckImages.hd785;
+                case "STANDBY":
+                    return truckImages.hd785;
+                case "DOWN":
+                    return truckImages.hd785;
+                case "DELAY":
+                    return truckImages.hd785;
             }
         }
-    }
+    };
 
     const getStateColor = (state) => {
         switch (state) {
@@ -433,7 +455,7 @@ export const RealTimePositioning = ({ socket }) => {
     const RippleIcon = ({ annotation, isLoading }) => {    
         const textStyle: any = {
             position: 'absolute',
-            top: '-65px',
+            top: '-57px',
             left: '-50px',
             background: annotation.color,
             borderRadius: '20px',
@@ -455,11 +477,11 @@ export const RealTimePositioning = ({ socket }) => {
         const relocation = equipmentId ? './../' + annotation.id : annotation.id
         return (
             <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation); navigate(`${relocation}`); clickedMarker && animateCameraToMarker(clickedMarker);}}>
-                <div style={textStyle}>
+                <div id={`annotation-image-${annotation.id}`} style={textStyle}>
                     <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
                     {annotation.name}
                 </div>
-                <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
+                <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
                     <img src={mapLocationImage} alt="Description of the image" />
                 </div>
             </div>
@@ -519,12 +541,36 @@ export const RealTimePositioning = ({ socket }) => {
     const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
     const CheckboxGroup = Checkbox.Group;
 
+    useEffect(() => {
+        _.map(clickableSprites.current, marker => {
+            const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+            const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+            imageDiv && (imageDiv.style.display = 'none')
+            markerDiv && (markerDiv.style.display = 'none')
+        })
+        _.map(clickableSprites.current, marker => {
+            if (marker.userData.data.vehicleType === filter || filter === 'All Equipment') {
+                const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+                const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+                imageDiv && (imageDiv.style.display = 'block')
+                markerDiv && (markerDiv.style.display = 'block')
+            }
+        })
+    }, [filter])
+
     return (
         <>
             <React.Fragment>
                 <div className="page-content" style={{paddingBottom: '0px'}}>
                     <Container fluid>
                     <Breadcrumb title="Home" breadcrumbItem="Realtime Positioning" />
+                    <Row>
+                        <Col md="12" className='mb-4 d-flex flex-row-reverse'>
+                            <Space>
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+                            </Space>
+                        </Col>
+                    </Row>
                     <Row>
                         <Col lg="12">
                         <div className="d-flex" style={{marginBottom: '20px' }}>
@@ -534,7 +580,7 @@ export const RealTimePositioning = ({ socket }) => {
                                 </Checkbox>
                                 <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                             </div>
-                            <div style={{ alignContent: "center", justifyContent: "end" }}>
+                            {/* <div style={{ alignContent: "center", justifyContent: "end" }}>
                                 <Select
                                 placeholder="Filter By Category"
                                 showSearch
@@ -548,7 +594,7 @@ export const RealTimePositioning = ({ socket }) => {
                                 ]}
                                 style={{ width: "150px" }}
                                 />
-                            </div>
+                            </div> */}
                         </div>
                         <THREEJSMap 
                             ref={mapContainer} 
