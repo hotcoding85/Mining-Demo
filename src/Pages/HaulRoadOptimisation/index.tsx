@@ -65,7 +65,7 @@ const HaulRoadOptimization = (props: any) => {
                   <HaulRoadOptimisationTableView />
                 </TabPane>
 
-                <TabPane tab="Table View" key="2">
+                <TabPane tab="Map View" key="2">
                   <HaulRoadOptimisationMapView
                     geojsonData={geojsonData}
                     currentRoad={currentRoad}
