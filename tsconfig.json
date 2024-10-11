@@ -30,7 +30,7 @@
     "**/*.tsx",
     "src/Pages/Allcharts/knob/knob.tsx",
     "webpack.config.js"
-  ],
+, "src/Components/Common/CubeCamera/OrbitControlsGizmo.js", "src/Components/Common/CubeCamera/OrbitControls.js"  ],
   "exclude": [
     "node_modules"
   ]
