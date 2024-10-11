@@ -24,9 +24,8 @@ import RBush from 'rbush';
 import bbox from '@turf/bbox';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import CubeSwitcher from './components/CubeSwitcher';
 import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
-
+import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
 const index = new RBush();
 
 declare global {
@@ -348,6 +347,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         controls.autoRotate = false;
         controls.maxPolarAngle = Math.PI * 0.3;
         window.controls = controls;
+
+        let controlsGizmo = new OrbitControlsGizmo(controls, { size: 100, padding: 8 });
+        console.log(controlsGizmo.domElement)
+        // Add the Gizmo to the document
+        localMapContainerRef.current && localMapContainerRef.current.appendChild(controlsGizmo.domElement);
         
         // Load the background image using THREE.TextureLoader
         if (isLight) {
@@ -675,7 +679,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         )}
                     <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
-                        <CubeSwitcher onSwitchView={onSwitchView} currentView={currentView} />
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table
