@@ -294,7 +294,7 @@ const DispatchLive: React.FC = () => {
     [dispatchs]
   );
 
-  const excuvatorFilter = useCallback(
+  const excavatorFilter = useCallback(
     (vehicle) =>
       vehicle?.category === "EXCAVATOR" &&
       (vehicle?.state === "ACTIVE" || vehicle?.state === "STANDBY"),
@@ -302,8 +302,8 @@ const DispatchLive: React.FC = () => {
   );
 
   const excuvatorRoster = useMemo(() => {
-    return shiftRosters.filter((roster) => excuvatorFilter(roster.vehicle));
-  }, [shiftRosters, excuvatorFilter]);
+    return shiftRosters.filter((roster) => excavatorFilter(roster.vehicle));
+  }, [shiftRosters, excavatorFilter]);
 
   const normalizedDispatchs = useMemo(() => {
     const updatedDispatchIds = updatedDispatchs.map((item) => item.vehicleId);
