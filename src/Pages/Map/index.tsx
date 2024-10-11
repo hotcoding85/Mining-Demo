@@ -465,7 +465,8 @@ export const RealTimePositioning = ({ socket }) => {
             padding: '6px 16px',
             width: '120px',
             textAlign: 'center',
-            display: isLoading ? 'none' : 'block'
+            display: isLoading ? 'none' : 'block',
+            opacity: 0.8
         };
         let clickedMarker: any = null
         _.map(clickableSprites.current, _marker => {
