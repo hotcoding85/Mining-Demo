@@ -24,11 +24,11 @@ const RosterScheduler = () => {
         views: [
             { viewName: 'Week', viewType: ViewType.Week, showAgenda: false, isEventPerspective: false },
             { viewName: 'Month', viewType: ViewType.Month, showAgenda: false, isEventPerspective: false },
-            { viewName: 'Quarter', viewType: ViewType.Quarter, showAgenda: false, isEventPerspective: false },
+            // { viewName: 'Quarter', viewType: ViewType.Quarter, showAgenda: false, isEventPerspective: false },
         ],
         dayMaxEvents: 2,
         resourceName: 'Employee',
-        eventItemPopoverEnabled: true
+        eventItemPopoverEnabled: true,
     })
     const [schedulerData, setSchedulerData] = useState<any>(initialSchedulerData);
     
@@ -63,6 +63,7 @@ const RosterScheduler = () => {
     useEffect(() => {
         schedulerData.setResources(resources);
         schedulerData.setEvents(events);
+        schedulerData.setBesidesWidth(360)
     }, [])
 
     // Define custom popover template using eventItemPopoverTemplateResolver
@@ -143,11 +144,11 @@ const RosterScheduler = () => {
     const onViewChange = useCallback((_schedulerData, view) => {
         if (!_schedulerData) return
         // Copy the previous schedulerData and update only what's needed
-        const updatedSchedulerData = new SchedulerData(moment().format('YYYY-MM-DD'), view.viewType, false, false, {
+        const updatedSchedulerData: any = new SchedulerData(moment().format('YYYY-MM-DD'), view.viewType, false, false, {
             views: [
               { viewName: 'Week', viewType: ViewType.Week, showAgenda: false, isEventPerspective: false },
               { viewName: 'Month', viewType: ViewType.Month, showAgenda: false, isEventPerspective: false },
-              { viewName: 'Quarter', viewType: ViewType.Quarter, showAgenda: false, isEventPerspective: false },
+            //   { viewName: 'Quarter', viewType: ViewType.Quarter, showAgenda: false, isEventPerspective: false },
             ],
             dayMaxEvents: 2,
             resourceName: 'Employee',
@@ -156,7 +157,7 @@ const RosterScheduler = () => {
 
         updatedSchedulerData.setResources(schedulerData.resources);
         updatedSchedulerData.setEvents(events);
-
+        updatedSchedulerData.setBesidesWidth(360)
         setSchedulerData(updatedSchedulerData);
 
     }, [schedulerData, events])
@@ -237,57 +238,66 @@ const RosterScheduler = () => {
             const endDate = moment(resource.endDate);
     
             let currentStartDate = startDate.clone();
+            let cycleIndex = 0;  // Tracks the alternating cycle
+    
+            const shifts = ['DS', 'R&R', 'NS', 'R&R'];  // Cycle: DS -> R&R -> NS -> R&R
     
             // Loop through the range between start and end dates
             while (currentStartDate.isBefore(endDate)) {
-                // WORK CYCLE
-                // If the roster type is 'Day', use workon days; if 'Week', use workon weeks (multiplied by 7 days)
-                const workonPeriod = currentRosterType === 'Day' ? workon : workon * 7;
+                const currentShift = shifts[cycleIndex % shifts.length];  // Determine current cycle phase
     
-                // Generate workon period events
-                for (let i = 0; i < workonPeriod; i++) {
-                    if (currentStartDate.isAfter(endDate)) break;
+                // If it's a DS or NS shift, calculate workon period
+                if (currentShift === 'DS' || currentShift === 'NS') {
+                    const workonPeriod = currentRosterType === 'Day' ? workon : workon * 7;
     
-                    const shiftStart = shift === 'DS' ? '09:00' : '21:00';  // Day shift or night shift start time
-                    const shiftEnd = shift === 'DS' ? '17:00' : '05:00';  // End time for the shift
+                    // Generate workon (shift) events
+                    for (let i = 0; i < workonPeriod; i++) {
+                        if (currentStartDate.isAfter(endDate)) break;
     
-                    let event = {
-                        id: eventId++,
-                        start: currentStartDate.format(`YYYY-MM-DD ${shiftStart}`),
-                        end: currentStartDate.format(`YYYY-MM-DD ${shiftEnd}`),
-                        resourceId: resource.id,
-                        bgColor: bgColors[shift],
-                        type: 'base',
-                        title: shift,  // DS or NS
-                    };
+                        const shiftStart = currentShift === 'DS' ? '09:00' : '21:00';  // Day shift or night shift start time
+                        const shiftEnd = currentShift === 'DS' ? '17:00' : '05:00';  // End time for the shift
     
-                    eventList.push(event);
-                    employeeEvents.push(event);
-                    currentStartDate.add(1, 'days'); // Move to the next day
+                        let event = {
+                            id: eventId++,
+                            start: currentStartDate.format(`YYYY-MM-DD ${shiftStart}`),
+                            end: currentStartDate.format(`YYYY-MM-DD ${shiftEnd}`),
+                            resourceId: resource.id,
+                            bgColor: bgColors[currentShift],
+                            type: 'base',
+                            title: currentShift,  // DS or NS
+                        };
+    
+                        eventList.push(event);
+                        employeeEvents.push(event);
+                        currentStartDate.add(1, 'days');  // Move to the next day
+                    }
+                }
+                
+                // If it's R&R, calculate workoff period
+                if (currentShift === 'R&R') {
+                    const workoffPeriod = currentRosterType === 'Day' ? workoff : workoff * 7;
+    
+                    // Generate workoff (R&R) events
+                    for (let j = 0; j < workoffPeriod; j++) {
+                        if (currentStartDate.isAfter(endDate)) break;
+    
+                        let rrEvent = {
+                            id: eventId++,
+                            start: currentStartDate.format('YYYY-MM-DD 00:00'),  // Full day R&R event
+                            end: currentStartDate.format('YYYY-MM-DD 23:59'),
+                            resourceId: resource.id,
+                            bgColor: bgColors['R&R'],
+                            type: 'base',
+                            title: 'R&R',  // Rest & Recreation
+                        };
+    
+                        eventList.push(rrEvent);
+                        employeeEvents.push(rrEvent);
+                        currentStartDate.add(1, 'days');  // Move to the next day
+                    }
                 }
     
-                // R&R PERIOD
-                // If the roster type is 'Day', use workoff days; if 'Week', use workoff weeks (multiplied by 7 days)
-                const workoffPeriod = currentRosterType === 'Day' ? workoff : workoff * 7;
-    
-                // Generate workoff (R&R) events
-                for (let j = 0; j < workoffPeriod; j++) {
-                    if (currentStartDate.isAfter(endDate)) break;
-    
-                    let rrEvent = {
-                        id: eventId++,
-                        start: currentStartDate.format('YYYY-MM-DD 00:00'),  // Full day R&R event
-                        end: currentStartDate.format('YYYY-MM-DD 23:59'),
-                        resourceId: resource.id,
-                        bgColor: bgColors['R&R'],
-                        type: 'base',
-                        title: 'R&R',  // Rest & Recreation
-                    };
-    
-                    eventList.push(rrEvent);
-                    employeeEvents.push(rrEvent);
-                    currentStartDate.add(1, 'days'); // Move to the next day
-                }
+                cycleIndex++;  // Move to the next phase in the cycle (DS -> R&R -> NS -> R&R)
             }
     
             resource.shifts = employeeEvents;
@@ -297,7 +307,8 @@ const RosterScheduler = () => {
         setEvents(eventList);
         schedulerData.setEvents(eventList);
         setSchedulerData(schedulerData);
-    }, [schedulerData, workon, workoff, shift, currentRosterType]);
+    }, [schedulerData, workon, workoff, currentRosterType, bgColors, resources]);
+    
     
     
 
@@ -366,7 +377,7 @@ const RosterScheduler = () => {
                     <Row>
                         <Col md={8} xs={12}>
                             <div className='roster-shift-body'>
-                                    <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} style={{marginRight: '5px'}} />
+                                    {/* <Segmented hidden={hideShiftSelect} className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} style={{marginRight: '5px'}} /> */}
                                     <Select
                                         className="basic-single"
                                         id="roster-type"

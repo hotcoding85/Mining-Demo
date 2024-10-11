@@ -17,8 +17,8 @@ export interface Shift {
 }
 
 export const bgColors = {
-    'DS': '#2e2e2e',
-    'NS': '#007bff',
+    'DS': '#007bff',
+    'NS': '#2e2e2e',
     'R&R': '#9b7800',
     'FI': '#009b11',
     'FO': '#ff5733'
