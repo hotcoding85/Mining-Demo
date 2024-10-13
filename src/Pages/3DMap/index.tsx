@@ -35,7 +35,9 @@ declare global {
         controls: any;
         renderer: any;
         TruckObject: any;
-        viewType: any;
+        savedCameraPosition: any;
+        savedCameraQuaternion: any;
+        isAnimation: any;
     }
 }
 type Propertytype = {
@@ -66,9 +68,10 @@ interface THREEJSMapProps {
     updateMarkerTooltip?: () => void;
     height?: string;
     width?: string;
+    isAnimation?: boolean;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -200,12 +203,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     }
 
     const processZipFile = async (geojsonData) => {
-        const _processZipFile = async () => {
-            const retrievedData = await getDataByKey('imageData');
-            if (retrievedData) {
-                loadMapView(geojsonData, retrievedData);
-            }
-            else{
+        // const _processZipFile = async () => {
+        //     // const retrievedData = await getDataByKey('imageData');
+        //     // // if (retrievedData) {
+        //     // //     loadMapView(geojsonData, retrievedData);
+        //     // // }
+        //     // // else{
                 // Fetch the ZIP file and get its ArrayBuffer
                 const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
                 
@@ -237,11 +240,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 await Promise.all(promises);
             
                 loadMapView(geojsonData, image_data);
-                await addOrUpdateData('imageData', image_data);
-            }
-        }
+        //         await addOrUpdateData('imageData', image_data);
+        //     }
+        // }
 
-        await _processZipFile();
+        // await _processZipFile();
     }
 
     const fetch3DTruck = async () => {
@@ -272,8 +275,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 color: 0xffff00, // Gold color in hex
                 metalness: 1,  // Fully metallic
                 roughness: 0.6,  // Adjust roughness for shiny effect
-                depthTest: false,
-                depthWrite: false
+                depthTest: true,
+                depthWrite: true,
+                side: THREE.FrontSide,
+
             });
             const object = new OBJLoader()
                 .setMaterials(materials)
@@ -287,7 +292,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 }
             });
             
-            object.scale.set(0.4, 0.3 , 0.4);
+            object.scale.set(0.4, 0.4 , 0.4);
             // newObject.position.set(0, 0, -5)
             object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
             object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
@@ -304,6 +309,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             console.error('An error happened:', error);
         }
     }
+
+    const isAnimationRef = useRef(isAnimation);
+    useEffect(() => {
+        isAnimationRef.current = isAnimation;
+    }, [isAnimation]);
 
     const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
         geojsonData.current = _geojsonData;
@@ -349,7 +359,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         window.controls = controls;
 
         let controlsGizmo = new OrbitControlsGizmo(controls, { size: 100, padding: 8 });
-        console.log(controlsGizmo.domElement)
         // Add the Gizmo to the document
         localMapContainerRef.current && localMapContainerRef.current.appendChild(controlsGizmo.domElement);
         
@@ -417,8 +426,21 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
                 setProgress(_progress);
             }
-            renderer.render(scene, window.camera);
-            controls.update();
+            if (window.isAnimation) {
+                renderer.render(scene, window.camera);
+            } else {
+                // Lock the camera to the last position during pause
+                window.savedCameraPosition && window.camera.position.copy(window.savedCameraPosition);
+                window.savedCameraQuaternion && window.camera.quaternion.copy(window.savedCameraQuaternion);
+                window.savedCameraPosition = null
+                window.savedCameraQuaternion = null
+                renderer.render(scene, window.camera);
+            }
+        
+            // Conditionally update controls
+            if (window.isAnimation) {
+                window.controls.update();
+            }
             updateAnnotations && updateAnnotations();
             updateMarkerTooltip && updateMarkerTooltip();
         };
@@ -526,7 +548,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             const extrudeSettings = {
                 steps: 1,                    // Number of points along the path
                 depth:  (_fence.properties.altitude - 400) * 2,                   // Extrude along the Z axis (depth)
-                bevelEnabled: true,          // No bevel for the shape
+                // bevelEnabled: true,          // No bevel for the shape
             };
             shape.autoClose = true;
             // Create the geometry and material
@@ -538,36 +560,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             
             // Create the mesh and add it to the scene
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.renderOrder = 0
+            mesh.renderOrder = 1
             mesh.userData = { isGeoFence: true, properties: properties }
             window.map.scene.add(mesh);
         })
     }, [geoFences])
-
-    const onSwitchView = (viewType) => {
-        const truckPosition = new THREE.Vector3(0, 0, 0)
-        setCurrentView(viewType)
-        window.viewType = viewType
-        switch (viewType) {
-          case 'Top':
-            updateCameraView(truckPosition, 'Top');
-            break;
-          case 'Front':
-            updateCameraView(truckPosition, 'Front');
-            break;
-          case 'Left':
-            updateCameraView(truckPosition, 'Left');
-            break;
-          case 'Right':
-            updateCameraView(truckPosition, 'Right');
-            break;
-          case 'Back':
-            updateCameraView(truckPosition, 'Back');
-            break;
-          default:
-            return;
-        }
-    };
 
     const updateCameraView = (truckPosition, viewType) => {
         const offsetDistance = 3000; // Adjust distance as per requirement
