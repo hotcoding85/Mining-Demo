@@ -1,0 +1,41 @@
+.fab-button {
+    transition: background-color 0.3s ease;
+    width: 50px;
+    height: 50px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: transparent;
+  }
+  
+  .fab-button.active {
+    background-color: #1890ff; /* Highlight color */
+    border-color: #1890ff;
+  }
+  
+  .fab-main {
+    background-color: #52c41a;
+  }
+  
+  .fab-container .fab-buttons.open .fab-button {
+    display: inline-block;
+    transform: scale(1);
+  }
+  
+  .fab-buttons .fab-button {
+    display: none;
+    transform: scale(0);
+    transition: transform 0.3s;
+  }
+  
+  .fab-container .fab-buttons .fab-button img {
+    width: 100%; /* Adjust image size inside the button */
+    height: auto;
+  }
+.fab-container{
+    top: 10px;
+    position: absolute;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}  
