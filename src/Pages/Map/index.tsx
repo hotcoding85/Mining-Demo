@@ -342,7 +342,13 @@ export const RealTimePositioning = ({ socket }) => {
             if (equipmentId) {
                 const equipment = _.find(equipments, _eq => _eq.id === equipmentId)
                 equipment && setSelectedEq(equipment)
-
+                let clickedMarker: any = null
+                _.map(clickableSprites.current, _marker => {
+                    if (_marker.userData.data.id === equipmentId) {
+                        clickedMarker = _marker
+                    }
+                })
+                animateCameraToMarker(clickedMarker)
             }
             window.map && animatedDashes()
         }
@@ -394,10 +400,10 @@ export const RealTimePositioning = ({ socket }) => {
         const startPosition = window.map.camera.position.clone();
         const point = marker.position.clone(); // Zoom offset
         const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
-        window.controls.enabled = false;
         // Animate the camera movement
         const zoomDuration = 1000; // 1 second
         let startTime: number | null = null;
+        window.isAnimation = true
         // Initial rotation of the camera
         const animateZoom = (time: number) => {
             if (startTime === null) startTime = time;
@@ -409,44 +415,18 @@ export const RealTimePositioning = ({ socket }) => {
             window.controls.target.lerpVectors(startPosition, point, progress);
             window.camera.updateProjectionMatrix();
             window.camera.updateMatrixWorld();
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
             window.renderer.render(window.map.scene, window.camera)
             if (progress < 1) {
                 animationCameraId = requestAnimationFrame(animateZoom);
             } 
             else{
-                setTimeout(() => {
-                    window.controls.enabled = true;
-                    const axis = new THREE.Vector3(1, 0, 0); // Rotate along the X-axis
-                    const angle = THREE.MathUtils.degToRad(60); // 60 degrees in radians
-                    const quaternion = new THREE.Quaternion();
-                    quaternion.setFromAxisAngle(axis, angle);
-                    window.camera.quaternion.multiplyQuaternions(quaternion, window.camera.quaternion);
-        
-                    // Ensure the camera matrices are updated after modifying rotation
-                    window.camera.updateProjectionMatrix();
-                    window.camera.updateMatrixWorld();
-                }, 200);
+                window.isAnimation = false
             }
         };
 
         animationCameraId = requestAnimationFrame(animateZoom);
-        // const point = marker.position.clone()
-        // const nextPoint = new THREE.Vector3(point.x - 100, point.y - 100, point.z)
-        // const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
-        // const cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
-        // cameraOffset.y += 30;  // Adjust height for a better view
-        // // Set the camera position behind the marker (car)
-        // const cameraPosition = new THREE.Vector3().copy(forwardDirection).add(cameraOffset);
-
-        // window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-        // window.camera.lookAt(point);
-        // // Optionally, update the camera matrix to ensure it reflects the new position
-        // window.camera.updateProjectionMatrix();
-        // window.camera.updateMatrixWorld();
-        // window.renderer.render(window.map.scene, window.camera)
-        // // Re-enable controls if needed
-         // Set a delay for when you want to re-enable controls
-
     };
 
     // Array to hold all clickable sprites
