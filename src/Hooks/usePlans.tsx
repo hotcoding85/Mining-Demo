@@ -5,82 +5,54 @@ export const usePlans = (dispatchs: any[]) => {
   const [savedPlans, setSavedPlans] = useState<any[]>([]);
 
   const isExistPlanOnSave = (plan) =>
-    savedPlans.find((item) => item.vehicleId === plan?.vehicleId);
-
-  const addSupportTruck = (plan, truck, oldTruckId) => {
-    if (oldTruckId) {
-      const filteredSupporting =
-        plan?.supporting?.filter((fleetId) => fleetId !== oldTruckId) || [];
-      const filteredSupportTrucks =
-        plan?.supportTrucks?.filter((truck) => truck.id !== oldTruckId) || [];
-
-      return {
-        ...plan,
-        supporting: [...filteredSupporting, truck.id],
-        supportTrucks: [...filteredSupportTrucks, truck],
-      };
-    } else {
-      return {
-        ...plan,
-        supporting: [...(plan?.supporting || []), truck.id],
-        supportTrucks: [...(plan?.supportTrucks || []), truck],
-      };
-    }
-  };
-
-  const revokeSupportTruck = (plan, truckId) => {
-    return {
-      ...plan,
-      supporting: plan.supporting?.filter((fleetId) => fleetId !== truckId),
-      supportTrucks: plan.supportTrucks?.filter((item) => item.id !== truckId),
-    };
-  };
+    savedPlans.find((item) => item.excavatorId === plan?.excavatorId);
 
   const handleSavePlan = (plan) => {
-    const filteredPlan = savedPlans?.filter(
-      (item) => item.vehicleId !== plan.vehicleId
-    );
-    setSavedPlans([...(filteredPlan || []), plan]);
+    setSavedPlans([...(savedPlans || []), plan]);
   };
 
-  const addNewPlan = (plan, truck, oldTruckId) => {
+  const addNewPlan = (plan) => {
     let selectedPlan = isExistPlanOnSave(plan);
 
     if (!!selectedPlan) {
-      handleSavePlan(addSupportTruck(selectedPlan, truck, oldTruckId));
+      return;
     } else {
-      handleSavePlan(addSupportTruck(plan, truck, oldTruckId));
+      handleSavePlan(plan);
     }
   };
 
-  const revokeTruckFromPlan = (plan, truckId) => {
-    let selectedPlan = isExistPlanOnSave(plan);
-    if (!!selectedPlan) {
-      handleSavePlan(revokeSupportTruck(selectedPlan, truckId));
-    } else {
-      handleSavePlan(revokeSupportTruck(plan, truckId));
-    }
-  };
-
-  const addLocationToPlan = (plan, location, destinationId) => {
+  const addLocationToPlan = (plan, location) => {
     return {
       ...plan,
       sourceId: location.id,
-      source: location.source,
-      materialId: location.materialId || undefined,
-      destinationId: location.materialId
-        ? destinationId || undefined
-        : undefined,
-      supporting: plan.supporting || [],
+      source: location,
     };
   };
 
-  const addNewLocation = (plan, location, destinationId) => {
-    let selectedPlan = isExistPlanOnSave(plan);
-    if (!!selectedPlan) {
-      handleSavePlan(addLocationToPlan(selectedPlan, location, destinationId));
+  const updateLocationToPlan = (plan, location) => {
+    const updatedPlans = savedPlans.map((l) => {
+      // Check if the current plan's sourceId matches
+      if (l.sourceId === plan.sourceId) {
+        // If it matches, update the source
+        return { ...l, source: location, sourceId: location.id }; // Create a new object with updated source
+      }
+      // If it doesn't match, return the original object
+      return l;
+    });
+    setSavedPlans(updatedPlans);
+  };
+
+  const addNewLocation = (plan, location) => {
+    let selectedPlan = isExistPlanOnSave(plan); 
+    if (plan.sourceId) {
+      updateLocationToPlan(plan, location);
     } else {
-      handleSavePlan(addLocationToPlan(plan, location, destinationId));
+      if (!!selectedPlan) {
+        handleSavePlan(addLocationToPlan(selectedPlan, location));
+      } else {
+        console.log("plan && location", plan, location)
+        handleSavePlan(addLocationToPlan(plan, location));
+      }
     }
   };
 
@@ -89,8 +61,7 @@ export const usePlans = (dispatchs: any[]) => {
   return {
     savedPlans,
     addNewPlan,
-    revokeTruckFromPlan,
     addNewLocation,
-    clearSavedPlans
+    clearSavedPlans,
   };
 };

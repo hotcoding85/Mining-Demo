@@ -1,7 +1,7 @@
 import { DatePicker, Segmented, Select } from "antd";
 import dayjs from "dayjs";
-import React from "react";
-import { Button, Col, Row } from "reactstrap";
+import React, { useState } from "react";
+import { Button, Col, Row, Spinner } from "reactstrap";
 
 interface RosterFilterProps {
   startDate: dayjs.Dayjs;
@@ -9,6 +9,7 @@ interface RosterFilterProps {
   shift: string;
   onChangeShift: (shift: string) => void;
   handlePublish: () => void;
+  isLoading: boolean;
 }
 
 const RosterFilter: React.FC<RosterFilterProps> = ({
@@ -17,6 +18,7 @@ const RosterFilter: React.FC<RosterFilterProps> = ({
   shift,
   onChangeShift,
   handlePublish,
+  isLoading,
 }) => {
   return (
     <Row className="schedule-filter pe-2">
@@ -71,7 +73,8 @@ const RosterFilter: React.FC<RosterFilterProps> = ({
           style={{ backgroundColor: "blue", color: "white" }}
           onClick={handlePublish}
         >
-          Publish to Production
+          {isLoading ? <Spinner size="sm"></Spinner> : <></>}
+          {'  '}Publish to Production
         </Button>
       </Col>
     </Row>

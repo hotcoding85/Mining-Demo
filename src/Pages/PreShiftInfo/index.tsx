@@ -19,18 +19,17 @@ import {
   getDispatchs,
   getShiftRosters,
   getTargetsByRoster,
-  updateDispatch,
-  updateShiftRoster,
+  getTruckAllocations,
+  removeTruckAllocation,
+  addTruckAllocations,
 } from "slices/thunk";
 import { format } from "date-fns";
 import { DatePicker, DatePickerProps, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import RosterFilter from "./Filter";
-import { uniq, uniqBy } from "lodash";
-import { getFleet } from "Helpers/api_vehicle_helper";
-import { getTargetByRoster } from "Helpers/api_target_helper";
 import { usePlans } from "Hooks/usePlans";
+import { useTruckAllocations } from "Hooks/useTruckAllocations";
 import { useRosters } from "Hooks/useRosters";
 
 const PreShiftInfo = () => {
@@ -54,18 +53,14 @@ const PreShiftInfo = () => {
         }
       )
     );
-
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
+  const { savedPlans, addNewLocation, clearSavedPlans } = usePlans(dispatchs);
 
-  const {
-    savedPlans,
-    addNewPlan,
-    revokeTruckFromPlan,
-    addNewLocation,
-    clearSavedPlans,
-  } = usePlans(dispatchs);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const { savedTruckAllocations, assignTruckToPlan, revokeTruckFromPlan } =
+    useTruckAllocations();
   const { savedRosters, addNewRoster, clearSavedRoster } = useRosters();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,6 +82,9 @@ const PreShiftInfo = () => {
         getTargetsByRoster(format(startDate, "yyyy-MM-dd") + ":" + shift)
       );
       dispatch(getDispatchs(format(startDate, "yyyy-MM-dd") + ":" + shift));
+      dispatch(
+        getTruckAllocations(format(startDate, "yyyy-MM-dd") + ":" + shift)
+      );
     }
   }, [startDate, shift]);
 
@@ -116,17 +114,17 @@ const PreShiftInfo = () => {
     setSearchParams(params);
   };
 
-  const excuvatorFilter = useCallback(
+  // Excavator
+  const excavatorFilter = useCallback(
     (vehicle) =>
       vehicle?.category === "EXCAVATOR" &&
       (vehicle?.state === "ACTIVE" || vehicle?.state === "STANDBY"),
     []
   );
 
-  const excuvators = useMemo(() => {
-    return fleets.filter((fleet) => excuvatorFilter(fleet));
-  }, [fleets, excuvatorFilter]);
-
+  const excavators = useMemo(() => {
+    return fleets.filter((fleet) => excavatorFilter(fleet));
+  }, [fleets, excavatorFilter]);
   const findVehicle = useCallback(
     (id) => {
       return fleets.find((fleet) => fleet.id === id);
@@ -152,73 +150,45 @@ const PreShiftInfo = () => {
     }
   };
 
-  const findDestination = useCallback(
-    (blockId) => {
-      return benches.find(
-        (bench) => bench.blockId === blockId && bench.category === "DESTINATION"
-      );
-    },
-    [benches]
-  );
-
-  const findSource = useCallback(
-    (id) => {
-      return benches.find(
-        (bench) => bench.id === id && bench.category === "SOURCE"
-      );
-    },
-    [benches]
-  );
-
   const assignLocationToPlan = async (plan, location) => {
-    addNewLocation(
-      plan,
-      { ...location, source: findSource(location.id) },
-      findDestination(location.blockId)?.id
-    );
-  };
-
-  const assignTruckToPlan = async (plan, truck, oldTruckId) => {
-    if (truck.id && oldTruckId && truck.id === oldTruckId) return;
-    addNewPlan(plan, truck, oldTruckId);
+    addNewLocation(plan, location);
   };
 
   const normalizedDispatch = useMemo(() => {
-    const planVehicleIds = savedPlans?.map((item) => item.vehicleId) || [];
+    const planSourceIds = savedPlans?.map((item) => item.sourceId) || [];
     const filteredDispaths: any[] = dispatchs?.filter(
-      (item) => !planVehicleIds?.includes(item.vehicleId)
+      (item) => !planSourceIds?.includes(item.sourceId)
     );
     return [...filteredDispaths, ...(savedPlans || [])];
   }, [dispatchs, savedPlans]);
 
   const normalizedRoster = useMemo(() => {
-    const rosterVehicleId = savedRosters?.map((item) => item.vehicleId) || [];
+    const rosterVehicleIds = savedRosters?.map((item) => item.vehicleId) || [];
     const filteredRosters: any[] = shiftRosters?.filter(
-      (item) => !rosterVehicleId?.includes(item.vehicleId)
+      (item) => !rosterVehicleIds?.includes(item.vehicleId)
     );
     return [...filteredRosters, ...(savedRosters || [])];
   }, [shiftRosters, savedRosters]);
 
   const excRoster = useMemo(() => {
-    return normalizedRoster.filter(({ vehicle }) => excuvatorFilter(vehicle));
-  }, [normalizedRoster, excuvatorFilter]);
+    return normalizedRoster.filter(({ vehicle }) => excavatorFilter(vehicle));
+  }, [normalizedRoster, excavatorFilter]);
 
   const handlePublish = async () => {
+    setIsLoading(true);
+    
     if (!!savedPlans.length) {
       await dispatch(
         addDispatchs(
           savedPlans.map((item) => ({
             id: item?.id || undefined,
+            excavatorId: item?.excavatorId || undefined,
             destinationId: item?.destinationId || undefined,
             endTime: item?.endTime || undefined,
-            materialId: item?.materialId || undefined,
-            planId: item?.planId || undefined,
             roster: item?.roster || undefined,
             sourceId: item?.sourceId || undefined,
             startTime: item?.startTime || undefined,
-            supporting: item?.supporting || undefined,
-            tonnes: item?.tonnes || undefined,
-            vehicleId: item?.vehicleId,
+            status: 'PLANNED'
           }))
         )
       );
@@ -238,6 +208,38 @@ const PreShiftInfo = () => {
       );
       clearSavedRoster();
     }
+
+    if (!!savedTruckAllocations.length) {
+      const result = savedTruckAllocations.filter(
+        (item) => item.deletedId !== undefined && !item.deletedId
+      );
+      if (!!result.length) {
+        await dispatch(
+          addTruckAllocations(
+            result.map((item) => ({
+              id: item?.id || undefined,
+              roster: item?.roster || undefined,
+              excavatorId: item?.excavatorId || undefined,
+              truckId: item?.truckId || undefined,
+              destinationId: item?.destinationId || undefined,
+            }))
+          )
+        );
+      }
+    }
+
+    if (!!savedTruckAllocations.length) {
+      const deletedIds = savedTruckAllocations.filter(
+        (item) => item.deletedId && item?.id
+      );
+      if (!!deletedIds.length) {
+        await dispatch(
+          removeTruckAllocation(deletedIds.map((item) => item?.id))
+        );
+      }
+    }
+
+    setIsLoading(false);
   };
 
   if (startDate === null || shift === null) return null;
@@ -255,10 +257,11 @@ const PreShiftInfo = () => {
                   startDate={dayjs(startDate)}
                   onChangeDate={onChangeDate}
                   handlePublish={handlePublish}
+                  isLoading={isLoading}
                 />
                 <List
                   data={shiftInfoData}
-                  excuvators={excuvators}
+                  excavators={excavators}
                   excRoster={excRoster}
                   targets={targets}
                   dispatchs={normalizedDispatch}
@@ -269,6 +272,7 @@ const PreShiftInfo = () => {
                   assignLocationToPlan={assignLocationToPlan}
                   assignTruckToPlan={assignTruckToPlan}
                   revokeTruckFromPlan={revokeTruckFromPlan}
+                  savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
               <div className="sidebar-section p-0">
@@ -278,6 +282,7 @@ const PreShiftInfo = () => {
                   users={users}
                   benches={benches}
                   dispatchs={normalizedDispatch}
+                  savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
             </div>

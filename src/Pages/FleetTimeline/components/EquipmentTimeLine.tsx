@@ -63,7 +63,7 @@ const EquipmentTimeLine: React.FC<EquipmentTimeLineProps> = ({ vehicles }) => {
         {vehicles.map((vehicle) => (
           <Col xs={12} key={vehicle.id}>
             <div>
-              <strong>{vehicle.name}</strong>: {vehicle.status}
+              <strong>{vehicle.name}</strong>: {vehicle?.status}
             </div>
           </Col>
         ))}

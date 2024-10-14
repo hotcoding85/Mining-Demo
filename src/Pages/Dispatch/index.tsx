@@ -617,7 +617,7 @@ const Dispatch = () => {
     const equiments = JSON.parse(JSON.stringify(equipmentList));
     equiments[key].state = value;
     let vehicle = equiments[key];
-    let id = vehicle.id;
+    let id = vehicle?.id;
 
     let updatedvehicle = {
       capacity: vehicle.capacity,
@@ -626,7 +626,7 @@ const Dispatch = () => {
       name: vehicle.name,
       serial: vehicle.serial,
       state: vehicle.state,
-      status: vehicle.status,
+      status: vehicle?.status,
     };
     dispatch(updateVehicle(id, updatedvehicle));
   };

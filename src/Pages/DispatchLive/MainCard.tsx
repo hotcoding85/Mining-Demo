@@ -54,7 +54,7 @@ const MainCard: React.FC<MainCardProps> = ({
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
 
-  const excuvatorVehicle = dispatch.vehicle;
+  const excavatorVehicle = dispatch?.excavator;
 
   const normalizeDestination = useMemo(
     () =>
@@ -76,7 +76,7 @@ const MainCard: React.FC<MainCardProps> = ({
           <div className="vehicle-card-container">
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
-              vehicle={excuvatorVehicle}
+              vehicle={excavatorVehicle}
               source={dispatch.source}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
@@ -93,7 +93,7 @@ const MainCard: React.FC<MainCardProps> = ({
           <AssignBoard
             dispatchs={dispatchs}
             dispatch={dispatch}
-            assignedTrucks={dispatch.supportTrucks}
+            assignedTrucks={[]}
             assignReadyTrucks={assignReadyTrucks}
             removeTruckFromAssigned={removeTruckFromAssigned}
             reAssignTruckToFleet={reAssignTruckToFleet}

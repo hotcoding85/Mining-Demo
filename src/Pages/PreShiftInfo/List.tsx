@@ -18,7 +18,7 @@ import { format } from "date-fns";
 
 interface ListProps {
   data: ShiftInfoData[];
-  excuvators: any[];
+  excavators: any[];
   excRoster: any[];
   targets: any[];
   dispatchs: any[];
@@ -29,11 +29,12 @@ interface ListProps {
   assignLocationToPlan: (plan: any, location: any) => void;
   assignTruckToPlan: (plan: any, truckId: string, oldTruckId?: string) => void;
   revokeTruckFromPlan: (plan: any, truckId: string) => void;
+  savedTruckAllocations;
 }
 
 const List = ({
   data,
-  excuvators,
+  excavators,
   excRoster,
   targets,
   dispatchs,
@@ -44,6 +45,7 @@ const List = ({
   assignLocationToPlan,
   assignTruckToPlan,
   revokeTruckFromPlan,
+  savedTruckAllocations,
 }: ListProps) => {
   const [shiftInfo, setShiftInfo] = useState<ShiftInfoData[]>(data);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -118,18 +120,18 @@ const List = ({
     targetData: any
   ) => {
     if (id === dropId) {
-      if (targetData?.supporting?.includes(shiftIndex)) {
+      if (targetData?.truckId) {
         setTargetEquipment("truck");
         setSelectedData({
           planData: targetData,
           truckIds: {
-            old: shiftIndex.toString(),
+            old: targetData.truckId,
             new: value,
           },
         });
         setIsModalVisible(true);
       } else {
-        assignTruckToPlan(targetData, value, undefined);
+        assignTruckToPlan(targetData, value);
       }
     }
   };
@@ -178,7 +180,7 @@ const List = ({
           assignRosterToOperator(targetData, value);
         }
       } else if (dropId === "location") {
-        if (!!targetData?.id) {
+        if (!!targetData?.sourceId) {
           setTargetEquipment("location");
           setSelectedData({
             planData: targetData,
@@ -278,7 +280,7 @@ const List = ({
   return (
     <React.Fragment>
       <div className="data-assign-area">
-        {excuvators?.map((excavator, key: number) => {
+        {excavators?.map((excavator, key: number) => {
           const roster = excRoster.find(
             ({ vehicle }) => vehicle.id === excavator?.id
           );
@@ -287,23 +289,25 @@ const List = ({
             (target) => target.vehicleId === excavator?.id
           );
 
-          const plan = dispatchs?.find(
-            (dispatch) => dispatch.vehicleId === excavator?.id
-          ) || {
-            roster: roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`,
-            tonnes: target?.data?.tonnes,
-            vehicleId: excavator?.id,
-            planId: `${roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`}:${
-              excavator?.name
-            }:PLAN`,
+          const plan = {
+            roster:
+              roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`,
+            excavatorId: excavator?.id,
             ...getShiftTimes(shift, startDate),
           };
 
-          const supportTrucks = Array.from(plan?.supportTrucks || []);
-
+          const supportTrucks =
+            savedTruckAllocations?.filter((t: any) => {
+              return t?.excavatorId === excavator.id && t?.deletedId !== true;
+            }) || [];
           supportTrucks.sort((a: any, b: any) =>
             b?.name?.localeCompare(a?.name)
           );
+
+          const plans = dispatchs.filter((l) => {
+            return l?.excavatorId === excavator.id;
+          });
+          plans.sort((a, b) => a?.source?.name?.localeCompare(b?.source?.name));
 
           return (
             <Row className="row d-flex pre-shift mb-4">
@@ -365,8 +369,32 @@ const List = ({
                             </div>
                           </DropTarget>
                         </p>
+                        {plans?.map((item: any, index: number) => {
+                          return (
+                            <p className="d-flex gap-3 justify-content-between mb-0">
+                              <span className="shift-label">
+                                {index == 0 ? "Location" : ""}
+                              </span>
+                              <DropTarget
+                                targetData={item}
+                                dropId="location"
+                                shiftIndex={key}
+                                field={"location"}
+                                updateShiftInfo={updateExcavator}
+                              >
+                                <div className="d-flex flex-column gap-2">
+                                  <span className="shift-value fill">
+                                    {item?.source?.name}
+                                  </span>
+                                </div>
+                              </DropTarget>
+                            </p>
+                          );
+                        })}
                         <p className="d-flex gap-3 justify-content-between mb-0">
-                          <span className="shift-label">Location</span>
+                          <span className="shift-label">
+                            {plans?.length == 0 ? "Location" : ""}
+                          </span>
                           <DropTarget
                             targetData={plan}
                             dropId="location"
@@ -375,18 +403,13 @@ const List = ({
                             updateShiftInfo={updateExcavator}
                           >
                             <div className="d-flex flex-column gap-2">
-                              {!!plan?.source ? (
-                                <span className="shift-value fill">
-                                  {plan?.source?.name}
-                                </span>
-                              ) : (
-                                <span className="shift-value empty">
-                                  Unassigned
-                                </span>
-                              )}
+                              <span className="shift-value empty">
+                                +New location
+                              </span>
                             </div>
                           </DropTarget>
                         </p>
+
                         <p className="d-flex gap-3 justify-content-between mb-0">
                           <span className="shift-label">Total Loads</span>
                           <span className="shift-time">
@@ -416,28 +439,28 @@ const List = ({
                   </Card>
                 </Col>
                 <Col className="col-lg-9 col-md-6">
-                  <div
-                    className={`position-relative d-flex align-items-center flex-wrap justify-content-start gap-4 ps-4 w-60 h-100 align-content-between shift-line`}
-                  >
+                  <div className="position-relative d-flex align-items-center flex-wrap justify-content-start gap-4 ps-4 w-60 h-100 align-content-between shift-line">
                     {(supportTrucks
                       ? [
                           ...supportTrucks,
-                          ...new Array(6 - supportTrucks.length),
+                          ...new Array(6 - supportTrucks?.length),
                         ]
                       : [...new Array(6)]
-                    )?.map((truck: any, index: number) => {
-                      const truckRoster = getShiftRoster(truck?.id);
-                      const truckTarget = getTargets(truck?.id);
+                    )?.map((truckAllocation: any, index: number) => {
+                      const truckRoster = getShiftRoster(
+                        truckAllocation?.truckId
+                      );
+                      const truckTarget = getTargets(truckAllocation?.truckId);
                       return (
                         <>
-                          {!!truck?.id ? (
+                          {truckAllocation?.excavatorId == excavator?.id ? (
                             <div className="assign-box assign-arrow p-3 pre-shift-data">
                               <DropTarget
                                 dropId={"truck"}
-                                shiftIndex={truck?.id}
+                                shiftIndex={truckAllocation?.truckId}
                                 index={index}
                                 field={"id"}
-                                targetData={plan}
+                                targetData={truckAllocation}
                                 updateShiftInfo={updateTruck}
                               >
                                 <Card className="rounded-3 mb-0 h-100">
@@ -453,9 +476,12 @@ const List = ({
                                         </div>
                                         <div className="flex-grow-1 card-body__header">
                                           <h4 className="fs-3">
-                                            {truck?.name} <br />
+                                            {truckAllocation?.truck?.name ||
+                                              "Unknown"}
+                                            <br />
                                             <div style={{ fontSize: "12px" }}>
-                                              {truck?.model || "HD785-7"}
+                                              {truckAllocation?.truck.model ||
+                                                "-"}
                                             </div>
                                           </h4>
                                         </div>
@@ -464,7 +490,10 @@ const List = ({
                                         className="truck-cancel-button"
                                         title="Return to Go-Line"
                                         onClick={() => {
-                                          revokeTruckFromPlan(plan, truck.id);
+                                          revokeTruckFromPlan(
+                                            plan,
+                                            truckAllocation.truckId
+                                          );
                                         }}
                                       >
                                         <i className="bx bx-trash"></i>
@@ -481,7 +510,8 @@ const List = ({
                                               truckRoster
                                                 ? truckRoster
                                                 : {
-                                                    vehicle: truck,
+                                                    vehicle:
+                                                      truckAllocation.truck,
                                                   }
                                             }
                                             shiftIndex={key}
@@ -576,8 +606,7 @@ const List = ({
               } else if (targetEquipment === "truck") {
                 assignTruckToPlan(
                   selectedData.planData,
-                  selectedData.truckIds?.new,
-                  selectedData.truckIds?.old
+                  selectedData.truckIds?.new
                 );
               }
               setIsModalVisible(false);
