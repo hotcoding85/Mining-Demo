@@ -12,6 +12,7 @@ import { THREEJSMap } from "Pages/3DMap";
 import * as turf from '@turf/turf';
 import { getRandomInt } from "utils/random";
 import { Segmented, Space } from "antd";
+import FloatingActionButton from "Pages/Replay/components/FloatingActionButton";
 
 type ActiveObjectType = {
   tube: any
@@ -26,6 +27,9 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const statusOptions = ["Active", "Standby", "Delayed", "Down"];
   const [filter, setFilter] = useState<string>("All Equipment");
+  const [duringAnimation, setDuringAnimation] = useState<boolean>(false)
+  const [viewType, setViewType] = useState<string>("TOP")
+  const currentViewType = useRef<string>(viewType)
   const tableData = useMemo(
     () => [
       {
@@ -272,11 +276,17 @@ const HaulRoadOptimisationMapView = (props: any) => {
   }
 
   useEffect(() => {
+    currentViewType.current = viewType
+  }, [viewType])
+
+  useEffect(() => {
     if (currentRoad && window.map) {
       let road = replayRoads.find(_road => _road.id === currentRoad.value)
       if (road) {
         clearAnimation()
         setIsAnimation(true)
+        setDuringAnimation(true)
+        window.isAnimation = true
         let passedSegment = 0;
         let tubes: any = []; // Array to store all tubes and their associated data
         // remove existing tubes
@@ -458,7 +468,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                     if (point) {
                         window.TruckObject && (window.TruckObject.visible = true)
                         currentAnimationMarker.current = point
-                        marker.position.set(point.x, point.y, point.z + 20);
+                        marker.position.set(point.x, point.y, point.z);
                         tube.material.uniforms.progress.value = _progress;
                         // Calculate the forward direction (from point to nextPoint)
                         const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
@@ -473,40 +483,47 @@ const HaulRoadOptimisationMapView = (props: any) => {
                         // // Rotate the object around the Z-axis based on the calculated angle
                         marker.rotation.z = angle + Math.PI / 2;
 
-                        const viewType = window.viewType;  // Assuming this holds the current view type (Top, Front, Left, Right, Back)
                         let cameraOffset = new THREE.Vector3();
+                        const forwardDirectionNormalized = forwardDirection.clone().normalize();
+                        const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
                         // Adjust the camera based on viewType
-                        switch (viewType) {
-                          case 'Top':
-                              cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
-                              break;
-                          case 'Front':
-                              cameraOffset = forwardDirection.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
-                              cameraOffset.z += 100;  // Adjust the height for a better view
-                              break;
-                          case 'Left':
-                              cameraOffset = new THREE.Vector3(-300, 300, 100);  // Camera from the left side
-                              break;
-                          case 'Right':
-                              cameraOffset = new THREE.Vector3(300, 300, 100);  // Camera from the right side
-                              break;
-                          case 'Back':
-                              cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Camera from behind the marker
-                              cameraOffset.z += 100;  // Adjust the height
-                              break;
-                          default:
-                              // Default camera behavior if viewType is not defined (use 'Top' view)
-                              cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
-                      }
+                        switch (currentViewType.current) {
+                            case 'TOP':
+                                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                                break;
+                            case 'FRONT':
+                                cameraOffset = forwardDirection.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                                // cameraOffset.z += 50;  // Adjust the height for a better view
+                                break;
+                            case 'LEFT':
+                                // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                                cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                                cameraOffset.z += 10;  // Optionally adjust height
+                                break;
+                            case 'RIGHT':
+                                // Move the camera to the right of the truck using the rightDirection vector
+                                cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                                cameraOffset.z += 10;  // Optionally adjust height
+                                break;
+                            case 'BACK':
+                                cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Camera from behind the marker
+                                // cameraOffset.z += 50;  // Adjust the height
+                                break;
+                            default:
+                                // Default camera behavior if viewType is not defined (use 'Top' view)
+                                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                        }
 
-                      // Set the camera position behind the marker (car)
-                      const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
-                      window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
-                      // Make the camera look ahead (at the next point on the curve)
-                      window.camera.lookAt(nextPoint);
-                      window.camera.updateProjectionMatrix();
-                      window.camera.updateMatrixWorld();
-                      window.renderer.render(window.map.scene, window.camera); // Render updated frame
+                        // Set the camera position behind the marker (car)
+                        const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
+                        window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+                        // Make the camera look ahead (at the next point on the curve)
+                        window.camera.lookAt(nextPoint);
+                        window.camera.updateProjectionMatrix();
+                        window.camera.updateMatrixWorld();
+                        window.savedCameraPosition = window.camera.position.clone();
+                        window.savedCameraQuaternion = window.camera.quaternion.clone();
+                        window.renderer.render(window.map.scene, window.camera); // Render updated frame
                         // set ToolTip content
 
                         setMarkerToolTipContent('<span>Vehicle: </span>' + vehicleName + '<br/><span>Operator: </span>' + operatorName + '<br/><span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + speedLimit + 'km/h' + '<br/><span>Total: </span>' + (100) + 's<br/><span>Tonnes: </span>' + currentLoad + 't')
@@ -574,6 +591,8 @@ const HaulRoadOptimisationMapView = (props: any) => {
             }
             else{
                 window.TruckObject && (window.TruckObject.visible = false)
+                setDuringAnimation(false)
+                window.isAnimation = false
                 const zoomDuration = 1000; // 1 second
                 let startTime: number | null = null;
                 const startPosition = segments[0][0];
@@ -790,6 +809,9 @@ const HaulRoadOptimisationMapView = (props: any) => {
             updateAnnotations={updateAnnotations} 
             drawMarkers={drawMarkers} 
           >
+            {
+                duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
+            }
             {equipments.map((annotation, index) => (
                 isAnimation ? <></> : <RippleIcon key={index} annotation={annotation} isLoading={isLoading} />
             ))}
