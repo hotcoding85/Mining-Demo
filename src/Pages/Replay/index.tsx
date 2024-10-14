@@ -26,7 +26,12 @@ import mapLocationImage from "assets/images/map/map-location.png";
 import { LineString } from 'interfaces/GeoJson';
 import { VehicleRouteSelector } from 'selectors';
 import { THREEJSMap } from "Pages/3DMap";
-
+import TOPTruck from '../../assets/images/Truck/TOP.png'
+import LEFTTruck from '../../assets/images/Truck/LEFT.png'
+import RIGHTTruck from '../../assets/images/Truck/RIGHT.png'
+import FRONTTruck from '../../assets/images/Truck/FRONT.png'
+import BACKTruck from '../../assets/images/Truck/BACK.png'
+import FloatingActionButton from "./components/FloatingActionButton";
 export type TripRoutesDataType = {
     id: string,
     routes: RouteDataType[]
@@ -38,6 +43,10 @@ type ActiveObjectType = {
     animationId: any
     arrow: any
 }
+
+const VIEWTYPE = [
+    'TOP', 'LEFT', 'RIGHT', 'FRONT', 'BACK'
+]
 const index = new RBush();
 const Replay = () => {
     document.title = "3D GPS Fleet Tracking | FMS Live";
@@ -88,6 +97,7 @@ const Replay = () => {
         label: "ALL",
     });
 
+    const [viewType, setViewType] = useState<string>("TOP")
     let animationFrameId: number;
     let map: any;
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
@@ -199,7 +209,8 @@ const Replay = () => {
 
     // Array to hold all clickable sprites
     const clickableSprites = useRef<any>([]);
-    const RippleIcon = ({ annotation, isLoading }) => {    
+    const [duringAnimation, setDuringAnimation] = useState<boolean>(false)
+    const RippleIcon = ({ annotation, isLoading, duringAnimation }) => {    
         const textStyle: any = {
             position: 'absolute',
             top: '-57px',
@@ -212,23 +223,16 @@ const Replay = () => {
             padding: '6px 16px',
             width: '120px',
             textAlign: 'center',
-            display: isLoading ? 'none' : 'block',
+            display: isLoading || duringAnimation ? 'none' : 'block',
             opacity: 0.8
         };
-        let clickedMarker: any = null
-        _.map(clickableSprites.current, _marker => {
-            if (_marker.userData.data.id === annotation.id) {
-                clickedMarker = _marker
-            }
-        })
-
         return (
             <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
                 <div id={`annotation-image-${annotation.id}`} style={textStyle}>
                     <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
                     {annotation.name}
                 </div>
-                <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
+                <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading|| duringAnimation ? 'none' : 'block' }}>
                     <img src={mapLocationImage} alt="Description of the image" />
                 </div>
             </div>
@@ -329,10 +333,11 @@ const Replay = () => {
     const lastCameraQuaternion = useRef<any>(null)
     const cameraStopAnimationId = useRef<number>(0)
     const animationCameraFrameId = useRef<number>(0);
+    const currentViewType = useRef<string>(viewType)
 
     const togglePlay = useCallback(() => {
         setIsPlaying(!isPlaying);
-
+        window.isAnimation = false
         currentIsPlaying.current = !isPlaying
         if (isPlaying === false && timeValue === totalTime) {
             setTimeValue(0)
@@ -341,7 +346,6 @@ const Replay = () => {
             if (cameraStopAnimationId.current !== 0) {
                 cancelAnimationFrame(cameraStopAnimationId.current)
                 lastCameraQuaternion.current = false
-                window.controls.enabled = true
             }
             if (activeObjects.current && activeObjects.current.animationId) {
                 cancelAnimationFrame(activeObjects.current.animationId);
@@ -352,53 +356,99 @@ const Replay = () => {
         if (cameraStopAnimationId.current !== 0) {
             cancelAnimationFrame(cameraStopAnimationId.current)
             lastCameraQuaternion.current = false
-            window.controls.enabled = true
         }
         if (!currentIsPlaying.current) {
-            window.controls.enabled = false
-            const animate = () => {
-                const viewType = window.viewType;  // Assuming this holds the current view type (Top, Front, Left, Right, Back)
-                let cameraOffset = new THREE.Vector3();
-
-                // Adjust the camera based on viewType
-                switch (viewType) {
-                    case 'Top':
-                        cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
-                        break;
-                    case 'Front':
-                        cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
-                        cameraOffset.z += 100;  // Adjust the height for a better view
-                        break;
-                    case 'Left':
-                        cameraOffset = new THREE.Vector3(-300, 300, 100);  // Camera from the left side
-                        break;
-                    case 'Right':
-                        cameraOffset = new THREE.Vector3(300, 300, 100);  // Camera from the right side
-                        break;
-                    case 'Back':
-                        cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
-                        cameraOffset.z += 100;  // Adjust the height
-                        break;
-                    default:
-                        // Default camera behavior if viewType is not defined (use 'Top' view)
-                        cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
-                }
-
-                // Set the camera position behind the marker (car)
-                const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
-                window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
-                // Interpolate the lookAt position for smooth transition
-                window.camera.lookAt(NextCameraPoistion.current);
-
-                window.camera.updateProjectionMatrix();
-                window.camera.updateMatrixWorld();
-                window.renderer.render(window.map.scene, window.camera); // Render updated frame
-
-                cameraStopAnimationId.current = requestAnimationFrame(animate)
+            let cameraOffset = new THREE.Vector3();
+            forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+            const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+            const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+            // Adjust the camera based on viewType
+            switch (currentViewType.current) {
+                case 'TOP':
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                    break;
+                case 'FRONT':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                    // cameraOffset.z += 50;  // Adjust the height for a better view
+                    break;
+                case 'LEFT':
+                    // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                    cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'RIGHT':
+                    // Move the camera to the right of the truck using the rightDirection vector
+                    cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'BACK':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                    // cameraOffset.z += 50;  // Adjust the height
+                    break;
+                default:
+                    // Default camera behavior if viewType is not defined (use 'Top' view)
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
             }
-            cameraStopAnimationId.current = requestAnimationFrame(animate)
+            // Set the camera position behind the marker (car)
+            const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+            // Interpolate the lookAt position for smooth transition
+            window.camera.lookAt(NextCameraPoistion.current);
+            window.controls.update()
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
         }
-    }, [timeValue, totalTime, isPlaying, forwardDirection, currentAnimationMarker, NextCameraPoistion]);
+        else {
+            // Save the camera's last position and orientation at the moment the animation is paused
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
+            window.controls.update()
+        }
+    }, [timeValue, totalTime, isPlaying, forwardDirection, currentAnimationMarker, NextCameraPoistion, currentViewType]);
+
+    useEffect(() => {
+        currentViewType.current = viewType
+        if (duringAnimation && !currentIsPlaying.current) {
+            let cameraOffset = new THREE.Vector3();
+            forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+            const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+            const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+            // Adjust the camera based on viewType
+            switch (currentViewType.current) {
+                case 'TOP':
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                    break;
+                case 'FRONT':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                    // cameraOffset.z += 50;  // Adjust the height for a better view
+                    break;
+                case 'LEFT':
+                    // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                    cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'RIGHT':
+                    // Move the camera to the right of the truck using the rightDirection vector
+                    cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'BACK':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                    // cameraOffset.z += 50;  // Adjust the height
+                    break;
+                default:
+                    // Default camera behavior if viewType is not defined (use 'Top' view)
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+            }
+            // Set the camera position behind the marker (car)
+            const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+            // Interpolate the lookAt position for smooth transition
+            window.camera.lookAt(NextCameraPoistion.current);
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
+        }
+    }, [viewType, duringAnimation])
 
     const handleSpeedChange = (value: number) => {
         setSpeed(value);
@@ -830,6 +880,7 @@ const Replay = () => {
     const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
     const clearAnimation = () => {
         setIsAnimation(false)
+        window.isAnimation = false
         if (!window.map) return
         // Remove previous route
         if (activeObjects.current && activeObjects.current.tube) {
@@ -898,8 +949,8 @@ const Replay = () => {
                 }
             `,
             transparent: true,
-            depthWrite: false,
-            depthTest: false,
+            depthWrite: true,
+            depthTest: true,
         });
     
         const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
@@ -922,6 +973,8 @@ const Replay = () => {
     const drawRoute = useCallback((saving_data, totalTime, distance, animation = true, stopSignDuration = 0) => {
         clearAnimation()
         setIsAnimation(true)
+        window.isAnimation = true
+        setDuringAnimation(true)
         const coordinates = saving_data.geoJson.geometry.coordinates;
         const center = {
             tileX: window.map.center.x,
@@ -993,7 +1046,6 @@ const Replay = () => {
         const totalDistance = distance;
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
         const animate = (timestamp) => {
-            window.controls.enabled = false
             const currentPlaybackSpeed = currentSpeed.current;
             if (!animationRef.current.startTime) {
                 animationRef.current.startTime = timestamp;
@@ -1094,40 +1146,46 @@ const Replay = () => {
                     const angle = Math.atan2(forwardDirection.current.y, forwardDirection.current.x);
                     // // Rotate the object around the Z-axis based on the calculated angle
                     marker.rotation.z = angle + Math.PI / 2;
-                    const viewType = window.viewType;  // Assuming this holds the current view type (Top, Front, Left, Right, Back)
                     let cameraOffset = new THREE.Vector3();
-        
+                    const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+                    const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
                     // Adjust the camera based on viewType
-                    switch (viewType) {
-                        case 'Top':
-                            cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
+                    switch (currentViewType.current) {
+                        case 'TOP':
+                            cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
                             break;
-                        case 'Front':
+                        case 'FRONT':
                             cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
-                            cameraOffset.z += 100;  // Adjust the height for a better view
+                            // cameraOffset.z += 50;  // Adjust the height for a better view
                             break;
-                        case 'Left':
-                            cameraOffset = new THREE.Vector3(-300, 300, 100);  // Camera from the left side
+                        case 'LEFT':
+                            // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                            cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                            cameraOffset.z += 10;  // Optionally adjust height
                             break;
-                        case 'Right':
-                            cameraOffset = new THREE.Vector3(300, 300, 100);  // Camera from the right side
+                        case 'RIGHT':
+                            // Move the camera to the right of the truck using the rightDirection vector
+                            cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                            cameraOffset.z += 10;  // Optionally adjust height
                             break;
-                        case 'Back':
+                        case 'BACK':
                             cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
-                            cameraOffset.z += 100;  // Adjust the height
+                            // cameraOffset.z += 50;  // Adjust the height
                             break;
                         default:
                             // Default camera behavior if viewType is not defined (use 'Top' view)
-                            cameraOffset = new THREE.Vector3(0, 0, 300);  // Camera from above (Top view)
+                            cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
                     }
 
                     // Set the camera position behind the marker (car)
                     const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
-                    window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+                    window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
                     // Make the camera look ahead (at the next point on the curve)
                     window.camera.lookAt(nextPoint);
                     window.camera.updateProjectionMatrix();
                     window.camera.updateMatrixWorld();
+                    window.savedCameraPosition = window.camera.position.clone();
+                    window.savedCameraQuaternion = window.camera.quaternion.clone();
                     window.renderer.render(window.map.scene, window.camera); // Render updated frame
                     lastCameraPosition.current = window.camera.position.clone()
                     // set ToolTip content
@@ -1152,22 +1210,15 @@ const Replay = () => {
             } else {
                 window.TruckObject.visible = false
                 activeObjects.current.tube.material.uniforms.progress.value = 1
-                const point = curve.getPointAt(1); 
-                const startPosition = window.camera.position.clone();
-                const targetPosition = point.clone().add(point); // Zoom offset
-
-                // Animate the camera movement
-                const zoomDuration = 1000; // 1 second
-                let startTime: number | null = null;
-
-                window.controls.enabled = true
                 // Clean up marker
                 // window.map.scene.remove(marker);
                 setIsAnimation(false)
                 setTimeValue(totalTime)
+                setDuringAnimation(false)
                 // Segment animation complete, proceed to next
                 animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
                 animationRef.current.startTime = null;
+                window.isAnimation = false
             }
         };
 
@@ -1175,7 +1226,7 @@ const Replay = () => {
         animationRef.current.startTime = null;
         animationRef.current.animationFrameId = requestAnimationFrame(animate);
     
-    }, [totalTime, speed, timeValue, isPlaying, apexOptions, currentSpeed, currentTimeValue]);
+    }, [totalTime, speed, timeValue, isPlaying, apexOptions, currentSpeed, currentTimeValue, currentViewType]);
 
     function findNearestSmallerValue(array, target) {
         let nearest = null;
@@ -1307,7 +1358,11 @@ const Replay = () => {
                                             drawMarkers={drawMarkers} 
                                             updateAnnotations={updateAnnotations} 
                                             updateMarkerTooltip={updateMarkerTooltip}
+                                            isAnimation={!isAnimation}
                                         >
+                                            {
+                                                duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
+                                            }
                                             <div style={{
                                                 position: 'absolute',
                                                 bottom: '-25px',
@@ -1339,7 +1394,7 @@ const Replay = () => {
                                                 onPrevRoute={onPrevRoute}
                                             />
                                             {equipments.map((annotation, index) => (
-                                                <RippleIcon key={index} annotation={annotation} isLoading={isLoading} />
+                                                <RippleIcon key={index} annotation={annotation} isLoading={isLoading} duringAnimation={duringAnimation} />
                                             ))}
                                             <div className="truck-tooltip" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
                                                 <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
