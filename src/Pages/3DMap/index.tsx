@@ -24,6 +24,7 @@ import RBush from 'rbush';
 import bbox from '@turf/bbox';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'; // ES6 import
 import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
 const index = new RBush();
@@ -38,6 +39,8 @@ declare global {
         savedCameraPosition: any;
         savedCameraQuaternion: any;
         isAnimation: any;
+        mixer: any;
+        animationZoom: any;
     }
 }
 type Propertytype = {
@@ -109,7 +112,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     const [progress, setProgress] = useState(0); // Progress state
     let animationFrameId: number;
     let map: any;
-
+    const wheels = useRef<any>([])
     useEffect(() => {
         dispatch(getAllVehicleRoutes())
         dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
@@ -247,67 +250,137 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         // await _processZipFile();
     }
 
+    // const fetch3DTruck = async () => {
+    //     if (!window.map) return
+    //     try {
+    //         const mtlLoader = new MTLLoader();
+    //         const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
+    //             mtlLoader.load(
+    //                 '/Truck/3D_Truck.mtl',
+    //                 (materials) => resolve(materials),
+    //                 undefined,
+    //                 (error) => reject(error)
+    //             );
+    //         });
+
+    //         materials.preload();
+
+    //         const response = await fetch('/Truck/3D_Truck.zip');
+    //         const arrayBuffer = await response.arrayBuffer();
+    //         const zip = await JSZip.loadAsync(arrayBuffer);
+
+    //         const objFile = await zip.file('3D_Truck.fbx')?.async("string");
+
+    //         if (!objFile) {
+    //             throw new Error("OBJ file not found in the zip archive");
+    //         }
+    //         const goldMaterial = new THREE.MeshStandardMaterial({
+    //             color: 0xffff00, // Gold color in hex
+    //             metalness: 1,  // Fully metallic
+    //             roughness: 0.6,  // Adjust roughness for shiny effect
+    //             depthTest: true,
+    //             depthWrite: true,
+    //             side: THREE.FrontSide,
+
+    //         });
+    //         const object = new OBJLoader()
+    //             .setMaterials(materials)
+    //             .parse(objFile);
+            
+    //         wheels.current = [];
+
+    //         const _wheels: any = {
+    //             frontLeft: null,
+    //             frontRight: null,
+    //             backLeft: null,
+    //             backRight: null
+    //         };
+    //         object.traverse((child: any) => {
+    //             if (child.isMesh) {
+    //                 console.log(child)
+    //                 child.material = goldMaterial;  // Apply gold material to all mesh parts
+    //                 child.material.needsUpdate = true;  // Ensure material is updated
+    //                 child.renderOrder = 9999; // Render this object on top
+    //                 if (child.name === '3D_Truck_Front' || child.name === "3D_Truck_Back" ) {
+    //                     const pivot = new THREE.Object3D();
+
+    //                     // Add the wheel as a child of the pivot
+    //                     pivot.add(child);
+
+    //                     // Add the pivot to the parent object (or scene)
+    //                     object.add(pivot);
+
+    //                     // Store the original position of the wheel
+    //                     const originalPosition = child.position.clone();
+
+    //                     // Update pivot position to match the wheel's original position
+    //                     pivot.position.copy(originalPosition);
+
+    //                     // Move the wheel to the origin of the pivot
+    //                     child.position.set(0, 0, 0); 
+
+    //                     // Push the pivot (not the wheel) to the wheels array for animation
+    //                     wheels.current.push(pivot);
+    //                 }
+    //             }
+    //         });
+
+    //         object.scale.set(30, 30 , 30);
+    //         // newObject.position.set(0, 0, -5)
+    //         object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
+    //         object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
+    //         object.rotation.z = 0;           // Z-axis correction if needed
+    //         object.position.z += 20
+
+    //         // object.rotation.z += 0.5
+    //         const group = new THREE.Group();
+    //         group.add(object)
+    //         group.visible = false
+    //         group.renderOrder = 9999; // Ensure the whole group renders on top
+    //         window.TruckObject = group
+    //         window.map.scene.add(group);
+    //     } catch (error) {
+    //         console.error('An error happened:', error);
+    //     }
+    // }
+
     const fetch3DTruck = async () => {
-        if (!window.map) return
-        try {
-            const mtlLoader = new MTLLoader();
-            const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
-                mtlLoader.load(
-                    '/Truck/3D_Truck.mtl',
-                    (materials) => resolve(materials),
-                    undefined,
-                    (error) => reject(error)
-                );
+        const loader = new FBXLoader();
+        loader.load('/Truck/3D_Truck.fbx', (object) => {
+            // Set up the AnimationMixer
+            window.mixer = new THREE.AnimationMixer(object);
+            // Traverse the loaded object to find and play animations
+            object.animations.forEach((clip, index) => {
+                if (index === 1 || index === 3) return
+                const action = window.mixer.clipAction(clip);
+                action.play();
             });
-
-            materials.preload();
-
-            const response = await fetch('/Truck/3D_Truck.zip');
-            const arrayBuffer = await response.arrayBuffer();
-            const zip = await JSZip.loadAsync(arrayBuffer);
-
-            const objFile = await zip.file('3D_Truck.obj')?.async("string");
-
-            if (!objFile) {
-                throw new Error("OBJ file not found in the zip archive");
-            }
-            const goldMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffff00, // Gold color in hex
-                metalness: 1,  // Fully metallic
-                roughness: 0.6,  // Adjust roughness for shiny effect
-                depthTest: true,
-                depthWrite: true,
-                side: THREE.FrontSide,
-
-            });
-            const object = new OBJLoader()
-                .setMaterials(materials)
-                .parse(objFile);
 
             object.traverse((child: any) => {
                 if (child.isMesh) {
-                    child.material = goldMaterial;  // Apply gold material to all mesh parts
+                    // Set depthTest to false
                     child.material.needsUpdate = true;  // Ensure material is updated
-                    child.renderOrder = 9999; // Render this object on top
                 }
             });
-            
-            object.scale.set(0.4, 0.4 , 0.4);
-            // newObject.position.set(0, 0, -5)
+            object.scale.set(0.25, 0.25 , 0.25);
             object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
             object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
             object.rotation.z = 0;           // Z-axis correction if needed
+            object.position.z += 20
 
-            // object.rotation.z += 0.5
             const group = new THREE.Group();
             group.add(object)
-            group.visible = false
             group.renderOrder = 9999; // Ensure the whole group renders on top
+            group.visible = false
+
             window.TruckObject = group
             window.map.scene.add(group);
-        } catch (error) {
-            console.error('An error happened:', error);
-        }
+        }, (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, (error) => {
+            console.error('An error occurred:', error);
+        });
+        
     }
 
     const isAnimationRef = useRef(isAnimation);
@@ -334,6 +407,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
         camera.up = new THREE.Vector3(0, 0, 1);
         camera.position.set(0, 0, 5000);
+        window.animationZoom = 5000
+
         camera.updateMatrixWorld();
         camera.updateProjectionMatrix();
         window.camera = camera;
@@ -375,7 +450,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 window.map.scene.background = texture;  // Set the loaded texture as the background
             });
         }
-
         var axesHelper = new THREE.AxesHelper(2000)
         // scene.add(axesHelper)
 
@@ -397,7 +471,15 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         window.map = map;
         const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
         window.mapPicker = mapPicker;
-
+        controls.addEventListener('change', () => {
+            if (window.isAnimation) {
+                // console.log(window.savedCameraPosition)
+                // const zoomAmount = window.camera.position.z - window.animationZoom > 0 ? 10 : -10; // Zoom out or in
+                // window.camera.fov = Math.max(20, Math.min(75, window.camera.fov + zoomAmount)); // Limit the FOV between 20 and 75
+                // window.camera.updateProjectionMatrix(); // Update projection matrix after changing FOV
+                // window.animationZoom = window.camera.position.z
+            }
+        });
         const grid: any = new InfiniteGridHelper(16, 256);
         scene.add(grid);
 
@@ -439,7 +521,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         
             // Conditionally update controls
             if (window.isAnimation) {
-                window.controls.update();
+                // window.controls.update();
+                animateWheels()          
             }
             updateAnnotations && updateAnnotations();
             updateMarkerTooltip && updateMarkerTooltip();
@@ -447,6 +530,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         mainLoop(0);
         WindowResize(renderer, window.camera);
     }, [setProgress])
+
+    const animateWheels = () => {
+        window.mixer && window.mixer.update(100)
+    }
 
     useEffect(() => {
         if (!window.map) return
@@ -547,20 +634,22 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             // Extrude geometry based on the shape and elevation
             const extrudeSettings = {
                 steps: 1,                    // Number of points along the path
-                depth:  (_fence.properties.altitude - 400) * 2,                   // Extrude along the Z axis (depth)
-                // bevelEnabled: true,          // No bevel for the shape
+                depth:  (_fence.properties.altitude - 400) * 2 - 7,                   // Extrude along the Z axis (depth)
+                bevelEnabled: true,          // No bevel for the shape
             };
             shape.autoClose = true;
             // Create the geometry and material
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
             const material = new THREE.MeshBasicMaterial({ 
                 color: properties.fillColor, 
+                depthTest: true,
+                depthWrite: true,
                 opacity: 1 // Adjust opacity if needed
             });
             
             // Create the mesh and add it to the scene
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.renderOrder = 1
+            mesh.renderOrder = -9999
             mesh.userData = { isGeoFence: true, properties: properties }
             window.map.scene.add(mesh);
         })
