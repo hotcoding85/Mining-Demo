@@ -301,21 +301,21 @@ const DispatchLive: React.FC = () => {
     []
   );
 
-  const excuvatorRoster = useMemo(() => {
+  const excavatorRoster = useMemo(() => {
     return shiftRosters.filter((roster) => excavatorFilter(roster.vehicle));
   }, [shiftRosters, excavatorFilter]);
 
   const normalizedDispatchs = useMemo(() => {
-    const updatedDispatchIds = updatedDispatchs.map((item) => item.vehicleId);
+    const updatedDispatchIds = updatedDispatchs.map((item) => item.excavatorId);
 
     const data = [
       ...dispatchs.filter(
-        (item) => !updatedDispatchIds.includes(item.vehicleId)
+        (item) => !updatedDispatchIds.includes(item.excavatorId)
       ),
       ...updatedDispatchs,
     ];
-
-    data.sort((a, b) => a.vehicle.name.localeCompare(b.vehicle.name));
+    console.log("data", data);
+    data.sort((a, b) => a?.excavator?.name.localeCompare(b?.excavator?.name));
 
     return data;
   }, [dispatchs, updatedDispatchs]);
@@ -434,8 +434,8 @@ const DispatchLive: React.FC = () => {
                     key={dispatch.id}
                     dispatchs={dispatchs}
                     dispatch={dispatch}
-                    shiftRoster={excuvatorRoster}
-                    diggerHeader={dispatch.vehicle.name}
+                    shiftRoster={excavatorRoster}
+                    diggerHeader={dispatch?.excavator?.name}
                     assignReadyTrucks={assignReadyTrucks}
                     removeTruckFromAssigned={removeTruckFromAssigned}
                     reAssignTruckToFleet={reAssignTruckToFleet}

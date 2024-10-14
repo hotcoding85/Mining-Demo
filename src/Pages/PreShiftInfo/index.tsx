@@ -188,6 +188,7 @@ const PreShiftInfo = () => {
             roster: item?.roster || undefined,
             sourceId: item?.sourceId || undefined,
             startTime: item?.startTime || undefined,
+            status: 'PLANNED'
           }))
         )
       );
