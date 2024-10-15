@@ -47,7 +47,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
   addBenches,
   collapse,
 }) => {
-  const statusColor = getStatusColor(vehicle.status);
+  const statusColor = getStatusColor(vehicle?.status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
   const [isShowMore, setIsShowMore] = useState<boolean>(true);
 
@@ -86,17 +86,17 @@ const VehicleCard: FC<VehicleCardProps> = ({
   };
 
   const currentRoster = useMemo(() => {
-    return shiftRoster?.find((item) => item.vehicleId === vehicle.id) || null;
+    return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
   const nextLocations =
-    assignedBenches.find((location) => location.vehicleId === vehicle.id)
+    assignedBenches.find((location) => location.vehicleId === vehicle?.id)
       ?.benches || [];
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "BENCHITEM",
     drop: (draggedBenches: ActiveBenchData) => {
-      addBenches(draggedBenches, vehicle.id);
+      addBenches(draggedBenches, vehicle?.id);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -111,8 +111,8 @@ const VehicleCard: FC<VehicleCardProps> = ({
           <img src={pc2000} alt="pc2000" style={{ width: 40, height: 40 }} />
         </div>
         <div className="vehicle-name">
-          <div className="vehicle-id">{vehicle.name}</div>
-          <div className="vehicle-category">{vehicle.model}</div>
+          <div className="vehicle-id">{vehicle?.name}</div>
+          <div className="vehicle-category">{vehicle?.model}</div>
           {!!currentRoster?.operators?.length ? (
             <div className="vehicle-driver">
               {currentRoster?.operators?.[0]?.firstName}
@@ -125,7 +125,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
           className="vehicle-card-status"
           style={{ backgroundColor: statusColor }}
         >
-          {vehicle.status}
+          {vehicle?.status}
         </span>
       </div>
       <div className="vehicle-card-details">

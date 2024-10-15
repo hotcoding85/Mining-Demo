@@ -44,7 +44,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <div className="assign-item-pair">
           <AssignTruckItem
             dispatchs={dispatchs}
-            diggerId={dispatch.vehicleId}
+            diggerId={dispatch?.excavatorId}
             assignedTruck={assignedTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
@@ -52,12 +52,12 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
             directionDispalyName="inline"
           />
           <AssignLocationItem
-            diggerId={dispatch.vehicleId}
+            diggerId={dispatch?.excavatorId}
             dumpLocation={dumpLocation}
             addDumpLocation={addDumpLocation}
           />
           <AssignRouteItem
-            diggerId={dispatch.vehicleId}
+            diggerId={dispatch?.excavatorId}
             sourceId={index}
             haulRoutes={haulRoutes}
             addHaulRoute={addHaulRoute}

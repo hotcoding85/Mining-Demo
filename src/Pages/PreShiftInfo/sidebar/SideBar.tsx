@@ -12,6 +12,7 @@ interface Equipments {
   users: any[];
   benches: any[];
   dispatchs: any[];
+  savedTruckAllocations: any[];
 }
 
 const SideBar: React.FC<Equipments> = ({
@@ -20,6 +21,7 @@ const SideBar: React.FC<Equipments> = ({
   users,
   benches,
   dispatchs,
+  savedTruckAllocations,
 }) => {
   function DragTarget({ id, value, disabled, onDragStart, style, children }) {
     const [{ isDragging }, drag] = useDrag(() => ({
@@ -55,26 +57,52 @@ const SideBar: React.FC<Equipments> = ({
   );
 
   const rosterReadyForDispatch = useMemo(() => {
-    return shiftRosters.filter(
+    const result = shiftRosters.filter(
       ({ vehicle, operators }) =>
         dumpTruckFilter(vehicle) &&
         operators?.length > 0 &&
         !mergedSupportingTrucks.includes(vehicle.id)
     );
-  }, [shiftRosters, dumpTruckFilter, dispatchs, mergedSupportingTrucks]);
+    const filteredArray = savedTruckAllocations.filter(
+      (item) => !item?.deletedId || item?.deletedId === undefined
+    );
+    const assignedRoster = filteredArray.map((roster) => roster?.truckId);
+    return result.filter((item) => !assignedRoster.includes(item?.vehicleId));
+  }, [
+    shiftRosters,
+    dumpTruckFilter,
+    dispatchs,
+    mergedSupportingTrucks,
+    savedTruckAllocations,
+  ]);
 
   const fleetsStandByNoOperator = useMemo(() => {
     const assignedVehicles = rosterReadyForDispatch.map(
-      (item) => item.vehicle.id
+      (item) => item?.vehicle.id
     );
 
-    return fleets.filter(
+    const assignfleets = fleets.filter(
       (fleet) =>
         !assignedVehicles.includes(fleet.id) &&
         !mergedSupportingTrucks.includes(fleet.id) &&
         dumpTruckFilter(fleet)
     );
-  }, [fleets, rosterReadyForDispatch, dumpTruckFilter, mergedSupportingTrucks]);
+
+    const filteredArray = savedTruckAllocations.filter(
+      (item) => item?.deletedId !== true || item?.deletedId === undefined
+    );
+    const savedTruckIds = filteredArray.map(
+      (allocation) => allocation?.truckId
+    );
+
+    return assignfleets.filter((item) => !savedTruckIds.includes(item?.id));
+  }, [
+    fleets,
+    rosterReadyForDispatch,
+    dumpTruckFilter,
+    mergedSupportingTrucks,
+    savedTruckAllocations,
+  ]);
 
   const fleetsDownForRepair = useMemo(() => {
     return fleets.filter(
@@ -85,7 +113,7 @@ const SideBar: React.FC<Equipments> = ({
   const operators = useMemo(() => {
     const assignedOperators: any[] = [];
     shiftRosters.forEach((item) =>
-      item.operators?.forEach((operator: any) =>
+      item?.operators?.forEach((operator: any) =>
         assignedOperators.push(operator.id)
       )
     );
@@ -93,7 +121,7 @@ const SideBar: React.FC<Equipments> = ({
   }, [users, shiftRosters]);
 
   const locations = useMemo(() => {
-    const assignedSourceIds = dispatchs.map((item) => item.sourceId);
+    const assignedSourceIds = dispatchs.map((item) => item?.sourceId);
 
     return benches.filter(
       (bench) =>
@@ -119,11 +147,11 @@ const SideBar: React.FC<Equipments> = ({
                     roster !== "" ? "btn show-btn" : "btn show-btn empty-btn"
                   }
                   disabled={roster !== "" ? false : true}
-                  value={roster.vehicle}
+                  value={roster?.vehicle}
                   onDragStart={() => {}}
                 >
                   <div className="truck">
-                    <div className="truck-label">{roster.vehicle.name}</div>
+                    <div className="truck-label">{roster?.vehicle.name}</div>
                     <div className="truck-operator-label">
                       {<i className="bx bx-user" />}
                       {roster?.operators[0]?.firstName}

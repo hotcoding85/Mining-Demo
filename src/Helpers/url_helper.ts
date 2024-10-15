@@ -23,6 +23,9 @@ export const SHIFT_ROSTER = "/shiftrosters";
 // DISPATCH
 export const DISPATCH = "/dispatchs";
 
+// TRUCK_ALLOCATION
+export const TRUCK_ALLOCATION = "/truckallocations";
+
 // GEO FENCE
 export const GEO_FENCE = "/fences";
 

@@ -36,3 +36,6 @@ export * from "./target/thunk";
 
 // Vehicle Routes
 export * from "./vehicleRoutes/thunk";
+
+// Truck allocations
+export * from "./truckAllocation/thunk";
