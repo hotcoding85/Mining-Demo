@@ -86,11 +86,11 @@ export class OrbitControlsGizmo {
         secondary: options.bubbleSizeSecondary,
       }
       return [
-        { axis: "x", direction: new THREE.Vector3(1, 0, 0), size: size.primary, color: colors.x, line, label: "F", position: new THREE.Vector3(0, 0, 0)  },
-        { axis: "y", direction: new THREE.Vector3(0, 1, 0), size: size.primary, color: colors.y, line, label: "R", position: new THREE.Vector3(0, 0, 0)  },
-        { axis: "z", direction: new THREE.Vector3(0, 0, 1), size: size.primary, color: colors.z, line, label: "T", position: new THREE.Vector3(0, 0, 0)  },
-        { axis: "-x", direction: new THREE.Vector3(-1, 0, 0), size: size.primary, color: colors.x, label: "B", position: new THREE.Vector3(0, 0, 0) },
-        { axis: "-y", direction: new THREE.Vector3(0, -1, 0), size: size.primary, color: colors.y, label: 'L', position: new THREE.Vector3(0, 0, 0) },
+        { axis: "x", direction: new THREE.Vector3(1, 0, 0), size: size.primary, color: colors.x, line, label: "X", position: new THREE.Vector3(0, 0, 0)  },
+        { axis: "y", direction: new THREE.Vector3(0, 1, 0), size: size.primary, color: colors.y, line, label: "Y", position: new THREE.Vector3(0, 0, 0)  },
+        { axis: "z", direction: new THREE.Vector3(0, 0, 1), size: size.primary, color: colors.z, line, label: "Z", position: new THREE.Vector3(0, 0, 0)  },
+        { axis: "-x", direction: new THREE.Vector3(-1, 0, 0), size: size.secondary, color: colors.x, label: "", position: new THREE.Vector3(0, 0, 0) },
+        { axis: "-y", direction: new THREE.Vector3(0, -1, 0), size: size.secondary, color: colors.y, label: '', position: new THREE.Vector3(0, 0, 0) },
         { axis: "-z", direction: new THREE.Vector3(0, 0, -1), size: size.secondary, color: colors.z, position: new THREE.Vector3(0, 0, 0) },
       ];
     }
@@ -100,7 +100,7 @@ export class OrbitControlsGizmo {
       canvas.width = options.size;
       canvas.height = options.size;
       canvas.classList.add(options.className);
-
+      canvas.id = 'obit-controls-gizmo'
       canvas.addEventListener('pointerdown', onPointerDown, false);
       canvas.addEventListener('pointerenter', onPointerEnter, false);
       canvas.addEventListener('pointermove', onPointerMove, false);
@@ -167,12 +167,11 @@ export class OrbitControlsGizmo {
       rotateEnd.set( e.clientX, e.clientY );
   
       rotateDelta.subVectors( rotateEnd, rotateStart ).multiplyScalar( 0.5 );
-  
       if(!scoped.lockX) 
-        // orbit.rotateLeft( 2 * Math.PI * rotateDelta.x / scoped.domElement.height );
+        orbit.rotateLeft( 2 * Math.PI * rotateDelta.x / scoped.domElement.height );
   
       if(!scoped.lockY) 
-        // orbit.rotateUp( 2 * Math.PI * rotateDelta.y / scoped.domElement.height );
+        orbit.rotateUp( 2 * Math.PI * rotateDelta.y / scoped.domElement.height );
   
       rotateStart.copy( rotateEnd );
   
