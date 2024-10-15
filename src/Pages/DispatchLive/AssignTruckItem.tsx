@@ -10,6 +10,7 @@ interface AssignTruckItemProps {
   dispatchs: any[];
   diggerId: string;
   assignedTruck: any;
+  operator:any;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   removeTruckFromAssigned: (removedTruck, diggerId) => void;
   reAssignTruckToFleet: (truck, fromId, toId) => void;
@@ -20,6 +21,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   dispatchs,
   diggerId,
   assignedTruck,
+  operator,
   assignReadyTrucks,
   reAssignTruckToFleet,
   removeTruckFromAssigned,
@@ -33,7 +35,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
 
   const items: MenuProps["items"] = useMemo(() => {
     const filteredDispatchs = dispatchs.filter(
-      (item) => item.vehicleId !== diggerId
+      (item) => item.excavatorId !== diggerId
     );
 
     return [
@@ -42,8 +44,8 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
         label: "Return to GO-Line",
       },
       ...filteredDispatchs.map((item) => ({
-        key: item?.vehicleId,
-        label: `Re-assign to ${item?.vehicle?.name}`,
+        key: item?.excavatorId,
+        label: `Re-assign to ${item?.excavator?.name}`,
       })),
     ];
   }, [dispatchs, diggerId]);
@@ -101,13 +103,13 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
               </div>
               <div className="assigned-truck-name">
                 <div className="assigned-truck-id-status">
-                  <p className="assigned-truck-id">{assignedTruck.name}</p>
+                  <p className="assigned-truck-id">{assignedTruck?.truck?.name}</p>
                   {directionDispalyName === "inline" && (
                     <p className="assigned-truck-status">Active</p>
                   )}
                 </div>
                 <div>HD785-7</div>
-                <div className="vehicle-driver">{assignedTruck.operator}</div>
+                <div className="vehicle-driver">{operator?.firstName}</div>
               </div>
             </div>{" "}
             <Dropdown menu={menu} placement="bottomLeft" arrow>

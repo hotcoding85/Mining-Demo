@@ -102,7 +102,10 @@ const RightBoard: React.FC<RightBoardProps> = ({
   }, [fleets]);
 
   const activeBenches = useMemo(() => {
-    const assignedSourceIds = dispatchs?.map((item) => item.sourceId) || [];
+    const allSources = dispatchs?.flatMap(item => item.sources);
+    const assignedSourceIds = allSources?.map((item) => {
+      return item.source.id;
+    }) || []
 
     return (
       benches
@@ -117,7 +120,7 @@ const RightBoard: React.FC<RightBoardProps> = ({
           locationImg: LocationImages[index % 3],
         })) || []
     );
-  }, [benches]);
+  }, [benches, dispatchs]);
 
   const normalizedVehicleRoutes = useMemo(() => {
     return (

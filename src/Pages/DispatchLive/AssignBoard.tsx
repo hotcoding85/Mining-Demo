@@ -7,9 +7,11 @@ import AssignRouteItem from "./AssignRouteItem";
 interface AssignBoardProps {
   dispatch: any;
   dispatchs: any[];
-  assignedTrucks: Truck[];
+  assignedTrucks: any[];
   haulRoutes: HaulRoute[];
   dumpLocation: DumpLocation[];
+  locations: any[];
+  shiftRoster: any;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
   addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
@@ -23,14 +25,23 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   haulRoutes,
   dumpLocation,
   assignedTrucks,
+  locations,
+  shiftRoster,
   addHaulRoute,
   addDumpLocation,
   assignReadyTrucks,
   reAssignTruckToFleet,
   removeTruckFromAssigned,
 }) => {
-  const itemLength = assignedTrucks.length >= 5 ? assignedTrucks.length + 1 : 5;
+  const filteredTrucks = assignedTrucks.
+    filter(item => item.excavatorId === dispatch.excavatorId)
+    .sort((a: any, b: any) =>
+      a?.truck.name?.localeCompare(b?.truck.name)
+    );
+  const truckIds = filteredTrucks.map(item => item.truckId);
+  const itemLength = filteredTrucks.length >= 5 ? filteredTrucks.length + 1 : 5;
   const assignArr = Array.from({ length: itemLength });
+  const operators = shiftRoster.filter((item) => truckIds.includes(item.vehicleId))
 
   return (
     <div className="assign-item-container">
@@ -45,16 +56,20 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           <AssignTruckItem
             dispatchs={dispatchs}
             diggerId={dispatch?.excavatorId}
-            assignedTruck={assignedTrucks[index]}
+            assignedTruck={filteredTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
             removeTruckFromAssigned={removeTruckFromAssigned}
             directionDispalyName="inline"
+            operator={operators[index]?.operators[0]}
           />
           <AssignLocationItem
             diggerId={dispatch?.excavatorId}
             dumpLocation={dumpLocation}
             addDumpLocation={addDumpLocation}
+            destinationId={filteredTrucks[index]?.destinationId}
+            locations={locations}
+            truckId={filteredTrucks[index]?.truckId}
           />
           <AssignRouteItem
             diggerId={dispatch?.excavatorId}

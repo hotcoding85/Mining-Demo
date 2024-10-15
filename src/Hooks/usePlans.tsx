@@ -1,8 +1,24 @@
 import { filter, uniq, uniqBy, update } from "lodash";
-import { useState } from "react";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import { useEffect, useState } from "react";
 
 export const usePlans = (dispatchs: any[]) => {
-  const [savedPlans, setSavedPlans] = useState<any[]>([]);
+  const { plans } = useSelector(
+    createSelector(
+      (state: any) => state,
+      (state) => {
+        return {
+          plans: state.Dispatch.data,
+        };
+      }
+    )
+  );
+  const [savedPlans, setSavedPlans] = useState<any[]>(plans || []);
+
+  useEffect(() => {
+    setSavedPlans(plans);
+  }, [plans]);
 
   const isExistPlanOnSave = (plan) =>
     savedPlans.find((item) => item.excavatorId === plan?.excavatorId);
@@ -29,30 +45,21 @@ export const usePlans = (dispatchs: any[]) => {
     };
   };
 
-  const updateLocationToPlan = (plan, location) => {
+  const updateLocationToPlan = (oldLocation, newLocation) => {
     const updatedPlans = savedPlans.map((l) => {
-      // Check if the current plan's sourceId matches
-      if (l.sourceId === plan.sourceId) {
-        // If it matches, update the source
-        return { ...l, source: location, sourceId: location.id }; // Create a new object with updated source
+      if (l.sourceId === oldLocation.sourceId) {
+        return { ...l, source: newLocation, sourceId: newLocation.id };
       }
-      // If it doesn't match, return the original object
       return l;
     });
     setSavedPlans(updatedPlans);
   };
 
-  const addNewLocation = (plan, location) => {
-    let selectedPlan = isExistPlanOnSave(plan); 
-    if (plan.sourceId) {
-      updateLocationToPlan(plan, location);
+  const addNewLocation = (oldLocation, newLocation) => {
+    if (oldLocation.sourceId) {
+      updateLocationToPlan(oldLocation, newLocation);
     } else {
-      if (!!selectedPlan) {
-        handleSavePlan(addLocationToPlan(selectedPlan, location));
-      } else {
-        console.log("plan && location", plan, location)
-        handleSavePlan(addLocationToPlan(plan, location));
-      }
+      handleSavePlan(addLocationToPlan(oldLocation, newLocation));
     }
   };
 

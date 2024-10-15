@@ -154,14 +154,6 @@ const PreShiftInfo = () => {
     addNewLocation(plan, location);
   };
 
-  const normalizedDispatch = useMemo(() => {
-    const planSourceIds = savedPlans?.map((item) => item.sourceId) || [];
-    const filteredDispaths: any[] = dispatchs?.filter(
-      (item) => !planSourceIds?.includes(item.sourceId)
-    );
-    return [...filteredDispaths, ...(savedPlans || [])];
-  }, [dispatchs, savedPlans]);
-
   const normalizedRoster = useMemo(() => {
     const rosterVehicleIds = savedRosters?.map((item) => item.vehicleId) || [];
     const filteredRosters: any[] = shiftRosters?.filter(
@@ -183,7 +175,6 @@ const PreShiftInfo = () => {
           savedPlans.map((item) => ({
             id: item?.id || undefined,
             excavatorId: item?.excavatorId || undefined,
-            destinationId: item?.destinationId || undefined,
             endTime: item?.endTime || undefined,
             roster: item?.roster || undefined,
             sourceId: item?.sourceId || undefined,
@@ -192,7 +183,6 @@ const PreShiftInfo = () => {
           }))
         )
       );
-      clearSavedPlans();
     }
 
     if (!!savedRosters.length) {
@@ -264,7 +254,7 @@ const PreShiftInfo = () => {
                   excavators={excavators}
                   excRoster={excRoster}
                   targets={targets}
-                  dispatchs={normalizedDispatch}
+                  dispatchs={savedPlans}
                   shift={shift}
                   startDate={startDate}
                   shiftRosters={normalizedRoster}
@@ -281,7 +271,7 @@ const PreShiftInfo = () => {
                   fleets={fleets}
                   users={users}
                   benches={benches}
-                  dispatchs={normalizedDispatch}
+                  dispatchs={savedPlans}
                   savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
