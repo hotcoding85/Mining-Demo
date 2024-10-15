@@ -93,7 +93,7 @@ const MainCard: React.FC<MainCardProps> = ({
         <div className="content-container">
           <div className="vehicle-card-container">
             <p className="vehicle-card-name">Digger Fleet</p>
-            {/* <VehicleCard
+            <VehicleCard
               key={1}
               vehicle={{
                 name: digger.name || "Unknown",
@@ -108,7 +108,9 @@ const MainCard: React.FC<MainCardProps> = ({
               collapse={collapseView}
               assignedBenches={assignedBenches}
               addBenches={addBenches}
-            /> */}
+              addLocation={() => {}}
+              changePlanState={() => {}}
+            />
           </div>
           <AssignBoard
             digger={digger}

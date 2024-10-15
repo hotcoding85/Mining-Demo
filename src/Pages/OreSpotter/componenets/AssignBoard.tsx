@@ -49,7 +49,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           removeTruckFromAssigned={removeTruckFromAssigned}
           reAssignTruckToFleet={assignTruckToFleet}
           directionDispalyName="wrap"
-          operator={''}
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -57,12 +57,14 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
-        {/* <AssignLocationItem
+        <AssignLocationItem
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
-          truckId={''}
-        /> */}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
+        />
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
@@ -73,7 +75,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           reAssignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           directionDispalyName="wrap"
-          operator={''}
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -81,12 +83,14 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
-        {/* <AssignLocationItem
+        <AssignLocationItem
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
-          truckId={''}
-        /> */}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
+        />
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
@@ -97,7 +101,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           reAssignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           directionDispalyName="wrap"
-          operator={''}
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -105,12 +109,14 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
-        {/* <AssignLocationItem
+        <AssignLocationItem
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
-          truckId={''}
-        /> */}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
+        />
       </div>
       <div className="assign-item-pair">
         <AssignTruckItem
@@ -121,7 +127,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           removeTruckFromAssigned={removeTruckFromAssigned}
           reAssignTruckToFleet={assignTruckToFleet}
           directionDispalyName="wrap"
-          operator={''}
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -129,13 +135,14 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           targetMaterials={targetMaterials}
           updateTargetMaterials={updateTargetMaterials}
         />
-        {/* <AssignLocationItem
+        <AssignLocationItem
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
-          truckId={''}
-          location={}
-        /> */}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
+        />
       </div>
     </div>
   );
