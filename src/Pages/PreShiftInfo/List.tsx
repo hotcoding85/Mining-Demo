@@ -303,7 +303,7 @@ const List = ({
           supportTrucks.sort((a: any, b: any) =>
             a?.truck.name?.localeCompare(b?.truck.name)
           );
-          
+
           const plans = dispatchs.filter((l) => {
             return l?.excavatorId === excavator.id;
           });
@@ -370,7 +370,10 @@ const List = ({
                         </p>
                         {plans?.map((item: any, index: number) => {
                           return (
-                            <p key={`${item.name}-${index}`} className="d-flex gap-3 justify-content-between mb-0">
+                            <p
+                              key={`${item.name}-${index}`}
+                              className="d-flex gap-3 justify-content-between mb-0"
+                            >
                               <span className="shift-label">
                                 {index == 0 ? "Location" : ""}
                               </span>
@@ -442,7 +445,7 @@ const List = ({
                     {(supportTrucks
                       ? [
                           ...supportTrucks,
-                          ...new Array(6 - supportTrucks?.length),
+                          ...new Array(Math.abs(6 - supportTrucks?.length)),
                         ]
                       : [...new Array(6)]
                     )?.map((truckAllocation: any, index: number) => {
@@ -490,7 +493,7 @@ const List = ({
                                         title="Return to Go-Line"
                                         onClick={() => {
                                           revokeTruckFromPlan(
-                                            plan,
+                                            truckAllocation,
                                             truckAllocation.truckId
                                           );
                                         }}

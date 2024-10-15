@@ -144,10 +144,6 @@ const DispatchLive: React.FC = () => {
         ...assignedTrucks,
         { ...newAssignTruck, updated: true },
       ]);
-      if (!!newTruck.id) {
-        const result = deletedIds.filter((item) => item !== newTruck.id);
-        setDeletedIds(result);
-      }
     }
   };
 
@@ -347,47 +343,6 @@ const DispatchLive: React.FC = () => {
     }
   };
 
-  const handlePublishDispatch = async () => {
-    setIsLoading(true);
-    const dispatchresults = savedDispatchs.filter((item) => item.updated);
-    if (!!dispatchresults.length) {
-      await dispatch(
-        addDispatchs(
-          dispatchresults.map((item) => ({
-            id: item?.id || undefined,
-            endTime: item?.endTime || undefined,
-            roster: item?.roster || undefined,
-            sourceId: item?.sourceId || undefined,
-            startTime: item?.startTime || undefined,
-            excavatorId: item?.excavatorId,
-            status: item?.status || "PLANNED",
-          }))
-        )
-      );
-    }
-
-    const truckResult = assignedTrucks.filter((item) => item.updated);
-    if (!!truckResult.length) {
-      await dispatch(
-        addTruckAllocations(
-          truckResult.map((item) => ({
-            id: item?.id || undefined,
-            roster: item?.roster || undefined,
-            excavatorId: item?.excavatorId || undefined,
-            truckId: item?.truckId || undefined,
-            destinationId: item?.destinationId || undefined,
-          }))
-        )
-      );
-    }
-
-    if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
-      setDeletedIds([]);
-    }
-    setIsLoading(false);
-  };
-
   const getLocations = useCallback(
     (category?: string) => {
       const assignedSourceIds =
@@ -443,6 +398,47 @@ const DispatchLive: React.FC = () => {
     return `${yesterday.getDate().toString().padStart(2, "0")} ${yesterday
       .toLocaleString("en-US", { month: "short" })
       .toUpperCase()} ${yesterday.getFullYear()}`;
+  };
+
+  const handlePublishDispatch = async () => {
+    setIsLoading(true);
+    const dispatchresults = savedDispatchs.filter((item) => item.updated);
+    if (!!dispatchresults.length) {
+      await dispatch(
+        addDispatchs(
+          dispatchresults.map((item) => ({
+            id: item?.id || undefined,
+            endTime: item?.endTime || undefined,
+            roster: item?.roster || undefined,
+            sourceId: item?.sourceId || undefined,
+            startTime: item?.startTime || undefined,
+            excavatorId: item?.excavatorId,
+            status: item?.status || "PLANNED",
+          }))
+        )
+      );
+    }
+
+    if (!!deletedIds.length) {
+      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      setDeletedIds([]);
+    }
+
+    const truckResult = assignedTrucks.filter((item) => item.updated);
+    if (!!truckResult.length) {
+      await dispatch(
+        addTruckAllocations(
+          truckResult.map((item) => ({
+            id: item?.id || undefined,
+            roster: item?.roster || undefined,
+            excavatorId: item?.excavatorId || undefined,
+            truckId: item?.truckId || undefined,
+            destinationId: item?.destinationId || undefined,
+          }))
+        )
+      );
+    }
+    setIsLoading(false);
   };
 
   return (

@@ -93,16 +93,18 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const filteredsources = sources
-    ?.filter(
-      (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
-    )
-    ?.map((item) => {
-      if (item.status === "INPROGRESS") {
-        item.value = 0;
-      }
-      return item;
-    });
+  const filteredsources = useMemo(() => {
+    return (
+      sources
+        ?.filter(
+          (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
+        ) || []
+    );
+  }, [sources]);
+
+  const inprogressSource = useMemo(() => {
+    return filteredsources.find((item) => item.status === "INPROGRESS");
+  }, [filteredsources]);
 
   const nextLocations = sources
     ?.filter((item) => item.status === "PLANNED")
@@ -187,7 +189,20 @@ const VehicleCard: FC<VehicleCardProps> = ({
                 changePlanState(selectedOptionId, vehicle.id);
               }}
             >
-              <option hidden></option>
+              {inprogressSource ? (
+                <option
+                  key={inprogressSource.id}
+                  value={inprogressSource.value}
+                  id={inprogressSource.source.id}
+                  selected
+                  hidden
+                >
+                  {inprogressSource?.source?.name}
+                  {/* - {item?.source.blockId} */}
+                </option>
+              ) : (
+                <option hidden></option>
+              )}
               {filteredsources.map((item) => {
                 return (
                   <option key={item.id} value={item.value} id={item.source.id}>
