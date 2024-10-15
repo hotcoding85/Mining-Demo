@@ -1,0 +1,48 @@
+.cube-wrapper {
+    perspective: 500px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+.cube {
+    position: relative;
+    width: 80px;  /* Reduce cube width */
+    height: 80px; /* Reduce cube height */
+    transform-style: preserve-3d;
+    transform: rotateX(-30deg) rotateY(-30deg);
+    animation: rotate-cube 10s infinite linear;
+}
+  
+.cube-face {
+    position: absolute;
+    text-transform: uppercase;
+    width: 80px;  /* Set the face width to match the cube */
+    height: 80px; /* Set the face height to match the cube */
+    background: #00000021;
+    border: 1px solid #fff;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+  
+.cube-face.active {
+    background-color: #1890ff;
+    color: white;
+}
+
+.cube-face.front { transform: translateZ(40px); }  /* Z-translation is half the size of the cube */
+.cube-face.back { transform: rotateY(180deg) translateZ(40px); }
+.cube-face.left { transform: rotateY(-90deg) translateZ(40px); }
+.cube-face.right { transform: rotateY(90deg) translateZ(40px); }
+.cube-face.top { transform: rotateX(90deg) translateZ(40px); }
+  
+@keyframes rotate-cube {
+    0% { transform: rotateX(0deg) rotateY(0deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+  

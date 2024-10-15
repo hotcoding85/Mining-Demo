@@ -1,32 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Card, Col, Container, Row, TabPane } from "reactstrap";
-import { Button, Progress, Spin, Tabs } from "antd";
+import { Card, Container, Row, TabPane } from "reactstrap";
+import { Button, Segmented, Space, Tabs } from "antd";
 import _ from "lodash";
 import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import RBush from 'rbush';
-import bbox from '@turf/bbox';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import TimeSlider from "./components/TimeSlider";
 import './assets/index.css';
-import { standbyTruck, delayTruck, downTruck, activeTruck, standbyExcavator, delayExcavator, downExcavator, activeExcavator } from 'assets/images/map';
+import { excavatorImages, truckImages } from "assets/images/equipment";
 import { RouteDataType } from "Pages/AutoRouting/type";
 import ReactApexChart from "react-apexcharts";
-import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
 import { getAllVehicleRoutes } from "slices/thunk";
-import JSZip from "@turbowarp/jszip";
-import { WindowResize } from "Pages/ThreeJS/modules/WindowResize";
 import * as THREE from "three";
-import { MapControls } from "three/examples/jsm/controls/OrbitControls";
-import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
-import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
-import { MapPicker, Source, Map } from "Pages/ThreeJS/modules/Source";
-import InfiniteGridHelper from "Pages/ThreeJS/modules/InfiniteGridHelper";
-import MARKER from 'assets/images/Truck.png'
 import { ListView } from "./components/ListView";
 import { DropdownType, Dropdown } from "Components/Common/Dropdown";
 import { DatePicker, DatePickerProps } from 'antd';
@@ -34,42 +23,40 @@ import dayjs from 'dayjs';
 import { EquipmentLocation, equipments} from '../Map/sample';
 import { getMinutesDifference, getSyncText } from "./common";
 import mapLocationImage from "assets/images/map/map-location.png";
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { LineString, Point } from 'interfaces/GeoJson';
-import { LayoutSelector, VehicleRouteSelector } from 'selectors';
-
+import { LineString } from 'interfaces/GeoJson';
+import { VehicleRouteSelector } from 'selectors';
+import { THREEJSMap } from "Pages/3DMap";
+import TOPTruck from '../../assets/images/Truck/TOP.png'
+import LEFTTruck from '../../assets/images/Truck/LEFT.png'
+import RIGHTTruck from '../../assets/images/Truck/RIGHT.png'
+import FRONTTruck from '../../assets/images/Truck/FRONT.png'
+import BACKTruck from '../../assets/images/Truck/BACK.png'
+import FloatingActionButton from "./components/FloatingActionButton";
 export type TripRoutesDataType = {
     id: string,
     routes: RouteDataType[]
 }
-declare global {
-    interface Window {
-        map: any;
-        mapPicker: any;
-        controls: any;
-        camera: any;
-    }
-}
+
 type ActiveObjectType = {
     tube: any
     marker: any
     animationId: any
     arrow: any
 }
+
+const VIEWTYPE = [
+    'TOP', 'LEFT', 'RIGHT', 'FRONT', 'BACK'
+]
 const index = new RBush();
 const Replay = () => {
     document.title = "3D GPS Fleet Tracking | FMS Live";
 
-    const mapContainer = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<any>(null);
-    const [lng, setLng] = useState(120.44871814239025);
-    const [lat, setLat] = useState(-29.1506602184213);
+    const mapContainer = useRef<any>(null);
     const geojsonData = useRef<any>();
     const [routeData, setRouteData] = useState<TripRoutesDataType[]>([]);
     const stopSignData = useRef<RouteDataType[]>([]);
     const [selectedTrip, setSelectedTrip] = useState<RouteDataType | null>(null);
-
+    const [filter, setFilter] = useState<string>("All Equipment");
     // TimeSlider
     const [isPlaying, setIsPlaying] = useState(false);
     const currentIsPlaying = useRef<boolean>(false)
@@ -106,46 +93,44 @@ const Replay = () => {
         },
     ]
 
-    const TruckObject = useRef<any>(null)
     const [locations, setLocaltions] = useState<DropdownType>({
         label: "ALL",
     });
 
+    const [viewType, setViewType] = useState<string>("TOP")
     let animationFrameId: number;
     let map: any;
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
     // state for Map loading status
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [progress, setProgress] = useState(0); // Progress state
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const dispatch: any = useDispatch();
 
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
 
-    const { layoutModeType } = useSelector(LayoutSelector );
-    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
-    
     const currentAnimationMarker = useRef<any>(null)
     const [isAnimation, setIsAnimation] = useState<boolean>(false)
     const currentAnimationStatus = useRef<boolean>(false)
     const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
 
     const updateMarkerTooltip = useCallback(() => {
-        if (!mapContainer.current || !currentAnimationMarker.current) return
+        if (!mapContainer.current || !currentAnimationMarker.current || !window.map) return
         const screenPosition = currentAnimationMarker.current.clone();
-        screenPosition.project(window.map.camera); // Project to screen space
+        screenPosition.project(window.camera); // Project to screen space
         
         const x = mapContainer.current.clientWidth / 2;
         const y = mapContainer.current.clientHeight / 2;
         
         const annotationDiv = document.getElementById(`marker-tooltip`);
         if (annotationDiv) {
-            annotationDiv.style.left = `${x - 60}px`;
-            annotationDiv.style.top = `${y - 150}px`;
+            annotationDiv.style.right = `0px`;
+            annotationDiv.style.top = `0px`;
         }
     }, [isAnimation])
 
     const updateAnnotations = useCallback(() => {
+        if (!mapContainer.current || !window.map) return
+        const mapContainerElement = mapContainer.current.getMapContainer();
         const center = {
             tileX: window.map.center.x,
             tileY: window.map.center.y
@@ -164,8 +149,8 @@ const Replay = () => {
             const screenPosition = annotation.position.clone();
             screenPosition.project(window.camera); // Project to screen space
             
-            const x = (screenPosition.x * 0.5 + 0.5) * (mapContainer.current.clientWidth);
-            const y = -(screenPosition.y * 0.5 - 0.5) * (mapContainer.current.clientHeight);
+            const x = (screenPosition.x * 0.5 + 0.5) * (mapContainerElement.clientWidth);
+            const y = -(screenPosition.y * 0.5 - 0.5) * (mapContainerElement.clientHeight);
             
             const annotationDiv = document.getElementById(`annotation-${annotation.userData.data.id}`);
 
@@ -173,316 +158,87 @@ const Replay = () => {
                 annotationDiv.style.left = `${x}px`;
                 annotationDiv.style.top = `${y}px`;
                 const isInViewport = (
-                    x >= 50 && x <= (mapContainer.current.clientWidth - 50) &&
-                    y >= 50 && y <= (mapContainer.current.clientHeight - 25)
+                    x >= 50 && x <= (mapContainerElement.clientWidth - 50) &&
+                    y >= 50 && y <= (mapContainerElement.clientHeight - 25)
                 );
                 
-                annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) && !isLoading ? 'block' : 'none';
+                annotationDiv.style.display = isInViewport && (!currentAnimationStatus.current || !currentIsPlaying.current) ? 'block' : 'none';
             }
         });
-    }, [isAnimation, isLoading])
+    }, [isAnimation])
 
+    useEffect(() => {
+        if (!isLoading && window.renderer) {
+            window.renderer.domElement.addEventListener('mouseclick', onDocumentMouseClick , false);
+        }
+    }, [isLoading])
 
     useEffect(() => {
         currentAnimationStatus.current = isAnimation
     }, [isAnimation])
-    const fetchZipFile = async () => {
-        const zipBuffer = await fetch('./240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
-        JSZip.loadAsync(zipBuffer).then(data => {
-            return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
-        }).then((text) => {
-            var geojsonData = JSON.parse(text as string)
-            processZipFile(geojsonData)
-        })
-    }
-
-    const processZipFile = async (geojsonData) => {
-        // Fetch the ZIP file and get its ArrayBuffer
-        const zipBuffer = await fetch('./images.zip').then(response => response.arrayBuffer());
-        
-        // Initialize an object to hold image data
-        const image_data = {};
-        
-        // Load the ZIP file using JSZip
-        const zip = await JSZip.loadAsync(zipBuffer);
-    
-        // Create an array to hold promises
-        const promises: any = [];
-    
-        // Iterate through each file in the ZIP
-        zip.forEach((relativePath, file) => {
-            // Check if the file is a WebP image
-            if (file.name.endsWith('.webp')) {
-                // Create a promise for each image processing
-                const promise = file.async('arraybuffer').then(data => {
-                    // Extract the filename without extension
-                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-                    // Store the image data in the object
-                    image_data[fileNameWithoutExtension] = data;
-                });
-                promises.push(promise);
-            }
-        });
-    
-        // Wait for all promises to resolve
-        await Promise.all(promises);
-    
-        loadMapView(geojsonData, image_data);
-    }
-
-    const fetch3DTruck = async () => {
-        if (!window.map) return
-        try {
-            const mtlLoader = new MTLLoader();
-            const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
-                mtlLoader.load(
-                    './Truck/3D_Truck.mtl',
-                    (materials) => resolve(materials),
-                    undefined,
-                    (error) => reject(error)
-                );
-            });
-
-            materials.preload();
-
-            const response = await fetch('./Truck/3D_Truck.zip');
-            const arrayBuffer = await response.arrayBuffer();
-            const zip = await JSZip.loadAsync(arrayBuffer);
-
-            const objFile = await zip.file('3D_Truck.obj')?.async("string");
-
-            if (!objFile) {
-                throw new Error("OBJ file not found in the zip archive");
-            }
-            const goldMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffff00, // Gold color in hex
-                metalness: 1,  // Fully metallic
-                roughness: 0.6,  // Adjust roughness for shiny effect
-                depthTest: false,
-                depthWrite: false
-            });
-            const object = new OBJLoader()
-                .setMaterials(materials)
-                .parse(objFile);
-
-            object.traverse((child: any) => {
-                if (child.isMesh) {
-                    child.material = goldMaterial;  // Apply gold material to all mesh parts
-                    child.material.needsUpdate = true;  // Ensure material is updated
-                }
-            });
-            
-            object.scale.set(0.4, 0.3 , 0.4);
-            // newObject.position.set(0, 0, -5)
-            object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
-            object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
-            object.rotation.z = 0;           // Z-axis correction if needed
-
-            // object.rotation.z += 0.5
-            const group = new THREE.Group();
-            group.add(object)
-            group.visible = false
-
-            TruckObject.current = group
-            window.map.scene.add(group);
-        } catch (error) {
-            console.error('An error happened:', error);
-        }
-    }
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
-        geojsonData.current = _geojsonData;
-    
-        _.map(geojsonData.current.features, (feature) => {
-            const bounds = bbox(feature);
-            const item = {
-                minX: bounds[0],
-                minY: bounds[1],
-                maxX: bounds[2],
-                maxY: bounds[3],
-                feature: feature
-            };
-            index.insert(item);
-        });
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
-
-        camera.up = new THREE.Vector3(0, 0, 1);
-        camera.position.set(0, -1000, 700);
-        camera.updateMatrixWorld();
-        camera.updateProjectionMatrix();
-        window.camera = camera;
-        const renderer = new THREE.WebGLRenderer({
-            antialias: false,
-            alpha: true,
-            // logarithmicDepthBuffer: false,
-        });
-
-        if (mapContainer.current) {
-            renderer.domElement.className = "threejs-view";
-            mapContainer.current.appendChild(renderer.domElement);
-            renderer.domElement.addEventListener('click', onDocumentMouseClick, false);
-            renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
-            renderer.domElement.addEventListener('keydown', onDocumentKeyDown , false);
-        }
-
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        const controls = new MapControls(camera, renderer.domElement);
-        controls.autoRotate = false;
-        controls.maxPolarAngle = Math.PI * 0.3;
-        window.controls = controls;
-        
-        // Load the background image using THREE.TextureLoader
-        if (isLight) {
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND_LIGHT, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-        else{
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-
-        var axesHelper = new THREE.AxesHelper(2000)
-        // scene.add(axesHelper)
-
-        // scene.background = new THREE.Color(0x91abb5);
-        scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
-
-        const ambientLight = new THREE.AmbientLight(0x404040, 2);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        dirLight.castShadow = true;
-        dirLight.position.set(10000, 10000, 10000);
-        scene.add(ambientLight);
-        scene.add(dirLight);
-
-        const position = [lat, lng];
-        const source = new Source('mapbox', mapboxgl.accessToken);
-        let nTiles = 24;
-        let zoom = 18
-        const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
-        window.map = map;
-        const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
-        window.mapPicker = mapPicker;
-
-        const grid: any = new InfiniteGridHelper(16, 256);
-        scene.add(grid);
-
-        // set routes to the map variable
-        map.setRoutes(vehicleRoutes)
-        // set default categories
-        map.setFilteredCategories([])
-        // draw the routes only one time
-        let drawed = true
-
-        await fetch3DTruck()
-
-        // Main render loop
-        const mainLoop = (timestamp: number) => {
-            animationFrameId = requestAnimationFrame(mainLoop);
-            
-            if (map.progress >= nTiles * nTiles) {
-                if (drawed) {
-                    setIsLoading(false);
-                    drawMarkers()
-                    drawed = false
-                }
-            } else {
-                let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
-                setProgress(_progress);
-            }
-            renderer.render(scene, camera);
-            controls.update();
-            updateAnnotations();
-            updateMarkerTooltip();
-        };
-        mainLoop(0);
-        WindowResize(renderer, camera);
-    }, [setProgress])
-
-    useEffect(() => {
-        if (!window.map) return
-        if (isLight) {
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND_LIGHT, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-        else{
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-    }, [isLight])
-
     const eqMarkers: any = []
     const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
-        if (eq.vehicleType == 'EXCAVATOR') {
+        if (eq.vehicleType == "EXCAVATOR") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeExcavator;
-                case 'STANDBY':
-                    return standbyExcavator;
-                case 'DOWN':
-                    return downExcavator;
-                case 'DELAY':
-                    return delayExcavator;
+                case "ACTIVE":
+                    return excavatorImages.pc1250;
+                case "STANDBY":
+                    return excavatorImages.pc1250;
+                case "DOWN":
+                    return excavatorImages.pc1250;
+                case "DELAY":
+                    return excavatorImages.pc1250;
             }
-    
-        } else if (eq.vehicleType == 'DUMP_TRUCK') {
+        } else if (eq.vehicleType == "DUMP_TRUCK") {
             switch (eq.status) {
-                case 'ACTIVE':
-                    return activeTruck;
-                case 'STANDBY':
-                    return standbyTruck;
-                case 'DOWN':
-                    return downTruck;
-                case 'DELAY':
-                    return delayTruck;
+                case "ACTIVE":
+                    return truckImages.hd785;
+                case "STANDBY":
+                    return truckImages.hd785;
+                case "DOWN":
+                    return truckImages.hd785;
+                case "DELAY":
+                    return truckImages.hd785;
             }
         }
-    }
+    };
 
     // Array to hold all clickable sprites
     const clickableSprites = useRef<any>([]);
-    const RippleIcon = ({ annotation }) => {    
+    const [duringAnimation, setDuringAnimation] = useState<boolean>(false)
+    const RippleIcon = ({ annotation, isLoading, duringAnimation }) => {    
         const textStyle: any = {
             position: 'absolute',
-            top: '-65px',
+            top: '-57px',
             left: '-50px',
-            border: '1px dashed',
             background: annotation.color,
             borderRadius: '20px',
             fontSize: '1rem',
             color: 'white',
             fontWeight: 600,
             padding: '6px 16px',
-            width: '108px',
+            width: '120px',
             textAlign: 'center',
+            display: isLoading || duringAnimation ? 'none' : 'block',
+            opacity: 0.8
         };
-    
         return (
-            <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => setSelectedEq(annotation)}>
-                <div style={textStyle}>
+            <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
+                <div id={`annotation-image-${annotation.id}`} style={textStyle}>
                     <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
                     {annotation.name}
                 </div>
-                <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)' }}>
+                <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading|| duringAnimation ? 'none' : 'block' }}>
                     <img src={mapLocationImage} alt="Description of the image" />
                 </div>
             </div>
         );
     };
+    
 
     const drawMarkers = useCallback(() => {
         if (!mapContainer.current) return;
@@ -523,41 +279,6 @@ const Replay = () => {
         });
     }, [equipments]);
 
-    const onDocumentKeyDown = (event) => {
-        if (event.key === 'Escape') {
-            // The 'Esc' key was pressed
-            setSelectedEq(null)
-        }
-    }
-    const onDocumentMouseMove  = (event) => {
-        if (!mapContainer.current || !window.map) return
-        // Normalize mouse position to -1 to 1 range
-        const rect = mapContainer.current.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / mapContainer.current.clientWidth) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
-        // Update raycaster with the mouse position and the camera
-        window.map.camera.updateProjectionMatrix();
-        window.map.camera.updateMatrixWorld();
-        raycaster.setFromCamera(mouse, window.map.camera);
-        
-        // Check for intersections with clickable sprites
-        const intersects = raycaster.intersectObjects(window.map.scene.children, true);
-        
-        // Change cursor style based on intersection
-        if (intersects.length > 0) {
-            const intersectedObject = intersects[0].object;
-            if (intersectedObject.userData && intersectedObject.userData.isAnnotation) {
-                const position = intersectedObject.position.clone();
-                document.body.style.cursor = 'pointer'; // Change to desired cursor style
-            }
-            else{
-                document.body.style.cursor = 'auto'; // Default cursor style
-            }
-        } else {
-            document.body.style.cursor = 'auto'; // Default cursor style
-        }
-    }
-    
     let selectedPoints: any = [];
     const onDocumentMouseClick = (event) => {
         if (!mapContainer.current) return;
@@ -567,7 +288,7 @@ const Replay = () => {
         mouse.y = -((event.clientY - rect.top) / mapContainer.current.clientHeight) * 2 + 1;
 
         // Update the raycaster with the camera and mouse position
-        raycaster.setFromCamera(mouse, window.map.camera);
+        raycaster.setFromCamera(mouse, window.camera);
 
         // Intersect the objects in the scene (you can also specify specific objects)
         const intersects = raycaster.intersectObjects(window.map.scene.children, true);
@@ -611,7 +332,12 @@ const Replay = () => {
     const lastCameraPosition = useRef<any>(null)
     const lastCameraQuaternion = useRef<any>(null)
     const cameraStopAnimationId = useRef<number>(0)
+    const animationCameraFrameId = useRef<number>(0);
+    const currentViewType = useRef<string>(viewType)
+
     const togglePlay = useCallback(() => {
+        setIsPlaying(!isPlaying);
+        window.isAnimation = false
         currentIsPlaying.current = !isPlaying
         if (isPlaying === false && timeValue === totalTime) {
             setTimeValue(0)
@@ -631,24 +357,98 @@ const Replay = () => {
             cancelAnimationFrame(cameraStopAnimationId.current)
             lastCameraQuaternion.current = false
         }
-        const animate = () => {
-            // Set camera offset behind the marker
-            const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
-            cameraOffset.y += 200;  // Adjust height for a better view
-            lastCameraQuaternion.current = true
+        if (!currentIsPlaying.current) {
+            let cameraOffset = new THREE.Vector3();
+            forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+            const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+            const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+            // Adjust the camera based on viewType
+            switch (currentViewType.current) {
+                case 'TOP':
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                    break;
+                case 'FRONT':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                    // cameraOffset.z += 50;  // Adjust the height for a better view
+                    break;
+                case 'LEFT':
+                    // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                    cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'RIGHT':
+                    // Move the camera to the right of the truck using the rightDirection vector
+                    cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'BACK':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                    // cameraOffset.z += 50;  // Adjust the height
+                    break;
+                default:
+                    // Default camera behavior if viewType is not defined (use 'Top' view)
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+            }
             // Set the camera position behind the marker (car)
             const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
-            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+            // Interpolate the lookAt position for smooth transition
             window.camera.lookAt(NextCameraPoistion.current);
-            lastCameraPosition.current = window.camera.position.clone();
-            cameraStopAnimationId.current = requestAnimationFrame(animate)
+            window.controls.update()
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
         }
-        if (isPlaying) {
-            // Make the camera look ahead (at the next point on the curve)
-            cameraStopAnimationId.current = requestAnimationFrame(animate)
+        else {
+            // Save the camera's last position and orientation at the moment the animation is paused
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
+            window.controls.update()
         }
-        setIsPlaying(!isPlaying);
-    }, [timeValue, totalTime, isPlaying]);
+    }, [timeValue, totalTime, isPlaying, forwardDirection, currentAnimationMarker, NextCameraPoistion, currentViewType]);
+
+    useEffect(() => {
+        currentViewType.current = viewType
+        if (duringAnimation && !currentIsPlaying.current) {
+            let cameraOffset = new THREE.Vector3();
+            forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+            const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+            const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+            // Adjust the camera based on viewType
+            switch (currentViewType.current) {
+                case 'TOP':
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                    break;
+                case 'FRONT':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                    // cameraOffset.z += 50;  // Adjust the height for a better view
+                    break;
+                case 'LEFT':
+                    // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                    cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'RIGHT':
+                    // Move the camera to the right of the truck using the rightDirection vector
+                    cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                    cameraOffset.z += 10;  // Optionally adjust height
+                    break;
+                case 'BACK':
+                    cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                    // cameraOffset.z += 50;  // Adjust the height
+                    break;
+                default:
+                    // Default camera behavior if viewType is not defined (use 'Top' view)
+                    cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+            }
+            // Set the camera position behind the marker (car)
+            const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+            window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+            // Interpolate the lookAt position for smooth transition
+            window.camera.lookAt(NextCameraPoistion.current);
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
+        }
+    }, [viewType, duringAnimation])
 
     const handleSpeedChange = (value: number) => {
         setSpeed(value);
@@ -676,6 +476,44 @@ const Replay = () => {
         currentTimeValue.current = newTime; // Update the ref
     }, [setTimeValue, currentTimeValue, timeValue]);
 
+    // Handler for the PrevRoute button
+    const onPrevRoute = useCallback(() => {
+        if (routeData && routeData[0] && routeData[0].routes && routeData[0].routes.length > 0) {
+            if (selectedTrip == null) {
+                // If no trip is selected, select the first one
+                selectTrip(routeData[0].routes[0]);
+            } else {
+                // Find the index of the currently selected trip
+                const currentIndex = _.findIndex(routeData[0].routes, _route => _route === selectedTrip);
+    
+                // Determine the next index
+                const prevIndex = (currentIndex - 1 + routeData[0].routes.length) % routeData[0].routes.length;
+    
+                // Set the next trip in the sequence
+                selectTrip(routeData[0].routes[prevIndex]);
+            }
+        }
+    }, [selectedTrip, routeData]);
+
+    // Handler for the NextRoute button
+    const onNextRoute = useCallback(() => {
+        if (routeData && routeData[0] && routeData[0].routes && routeData[0].routes.length > 0) {
+            if (selectedTrip == null) {
+                // If no trip is selected, select the first one
+                selectTrip(routeData[0].routes[0]);
+            } else {
+                // Find the index of the currently selected trip
+                const currentIndex = _.findIndex(routeData[0].routes, _route => _route === selectedTrip);
+    
+                // Determine the next index
+                const nextIndex = (currentIndex + 1) % routeData[0].routes.length;
+    
+                // Set the next trip in the sequence
+                selectTrip(routeData[0].routes[nextIndex]);
+            }
+        }
+    }, [selectedTrip, routeData]);
+
     // Use useRef to store the interval ID
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -693,6 +531,11 @@ const Replay = () => {
                 //     }
                 //     return newValue;
                 // });
+                if (timeValue >= totalTime) {
+                    setIsPlaying(false); // Stop when reaching the end
+                    currentIsPlaying.current = false
+                    return totalTime;
+                }
             }, intervalTime);
         } else if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -843,8 +686,6 @@ const Replay = () => {
     );
 
     useEffect(() => {
-        setIsLoading(true);
-        fetchZipFile()
         // Clean up on component unmount
         return () => {
             window.map && window.map.clean()
@@ -852,6 +693,10 @@ const Replay = () => {
                 cancelAnimationFrame(animationFrameId);
             }
     
+            if (animationCameraFrameId.current) {
+                cancelAnimationFrame(animationCameraFrameId.current)
+            }
+
             // Dispose Three.js objects
             if (geojsonData.current) {
                 geojsonData.current = null;
@@ -1035,6 +880,8 @@ const Replay = () => {
     const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
     const clearAnimation = () => {
         setIsAnimation(false)
+        window.isAnimation = false
+        if (!window.map) return
         // Remove previous route
         if (activeObjects.current && activeObjects.current.tube) {
             window.map.scene.remove(activeObjects.current.tube);
@@ -1043,7 +890,7 @@ const Replay = () => {
             activeObjects.current.tube = null;
         }
         if ( activeObjects.current && activeObjects.current.marker) {
-            TruckObject.current.visible = false
+            window.TruckObject.visible = false
         }
         if ( activeObjects.current && activeObjects.current.arrow) {
             window.map.scene.remove(activeObjects.current.arrow);
@@ -1102,8 +949,8 @@ const Replay = () => {
                 }
             `,
             transparent: true,
-            depthWrite: false,
-            depthTest: false,
+            depthWrite: true,
+            depthTest: true,
         });
     
         const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
@@ -1126,6 +973,8 @@ const Replay = () => {
     const drawRoute = useCallback((saving_data, totalTime, distance, animation = true, stopSignDuration = 0) => {
         clearAnimation()
         setIsAnimation(true)
+        window.isAnimation = true
+        setDuringAnimation(true)
         const coordinates = saving_data.geoJson.geometry.coordinates;
         const center = {
             tileX: window.map.center.x,
@@ -1179,11 +1028,11 @@ const Replay = () => {
         // Set up marker (a sphere)
 
         // Store the marker reference
-        TruckObject.current.renderOrder = activeObjects.current.tube.renderOrder + 1
+        window.TruckObject.renderOrder = activeObjects.current.tube.renderOrder + 1
         activeObjects.current.tube.layers.set(0);
-        TruckObject.current.layers.set(1);
-        activeObjects.current.marker = TruckObject.current;
-        const marker = TruckObject.current
+        window.TruckObject.layers.set(1);
+        activeObjects.current.marker = window.TruckObject;
+        const marker = window.TruckObject
         // Calculate the total distance and time if not provided
         if (!distance || distance === 0) {
             distance = Math.floor(turf.length(turf.lineString(coordinates), { units: 'meters' }));
@@ -1197,7 +1046,6 @@ const Replay = () => {
         const totalDistance = distance;
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
         const animate = (timestamp) => {
-            // updateMarkerTooltip()
             const currentPlaybackSpeed = currentSpeed.current;
             if (!animationRef.current.startTime) {
                 animationRef.current.startTime = timestamp;
@@ -1284,6 +1132,7 @@ const Replay = () => {
 
             // Calculate the point along the curve based on progress
             if (_progress < 1) {
+                if (!window.map) return
                 setTimeValue(Math.floor(_progress / 1 * totalTime))
                 const point = curve.getPointAt(_progress);  // Get the point along the tube curve
                 const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward 
@@ -1295,26 +1144,55 @@ const Replay = () => {
                     // Calculate the forward direction (from point to nextPoint)
                     forwardDirection.current = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
-
                     const angle = Math.atan2(forwardDirection.current.y, forwardDirection.current.x);
                     // // Rotate the object around the Z-axis based on the calculated angle
                     marker.rotation.z = angle + Math.PI / 2;
-
-                    // Set camera offset behind the marker
-                    const cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Adjust scalar value to control how far the camera is behind
-                    cameraOffset.y += 200;  // Adjust height for a better view
+                    let cameraOffset = new THREE.Vector3();
+                    const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+                    const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+                    // Adjust the camera based on viewType
+                    switch (currentViewType.current) {
+                        case 'TOP':
+                            cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                            break;
+                        case 'FRONT':
+                            cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                            // cameraOffset.z += 50;  // Adjust the height for a better view
+                            break;
+                        case 'LEFT':
+                            // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                            cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                            cameraOffset.z += 10;  // Optionally adjust height
+                            break;
+                        case 'RIGHT':
+                            // Move the camera to the right of the truck using the rightDirection vector
+                            cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                            cameraOffset.z += 10;  // Optionally adjust height
+                            break;
+                        case 'BACK':
+                            cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                            // cameraOffset.z += 50;  // Adjust the height
+                            break;
+                        default:
+                            // Default camera behavior if viewType is not defined (use 'Top' view)
+                            cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                    }
 
                     // Set the camera position behind the marker (car)
                     const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
-                    window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 200);
+                    window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
                     // Make the camera look ahead (at the next point on the curve)
                     window.camera.lookAt(nextPoint);
-                    lastCameraPosition.current = window.camera.position.clone();
+                    window.camera.updateProjectionMatrix();
+                    window.camera.updateMatrixWorld();
+                    window.savedCameraPosition = window.camera.position.clone();
+                    window.savedCameraQuaternion = window.camera.quaternion.clone();
+                    window.map && window.renderer.render(window.map.scene, window.camera); // Render updated frame
+                    lastCameraPosition.current = window.camera.position.clone()
                     // set ToolTip content
                     setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>Stop_Sign: </span>' + total_stopSignDuration + 's')
 
-                    TruckObject.current && (TruckObject.current.visible = true)
-
+                    window.TruckObject && (window.TruckObject.visible = true)
                 }
             }
             if (_progress < 1) {
@@ -1331,39 +1209,17 @@ const Replay = () => {
                 }
 
             } else {
-                TruckObject.current.visible = false
+                window.TruckObject.visible = false
                 activeObjects.current.tube.material.uniforms.progress.value = 1
-                const point = curve.getPointAt(1); 
-                const startPosition = window.camera.position.clone();
-                const targetPosition = point.clone().add(point); // Zoom offset
-
-                // Animate the camera movement
-                const zoomDuration = 1000; // 1 second
-                let startTime: number | null = null;
-
-                const animateZoom = (time: number) => {
-                    if (startTime === null) startTime = time;
-                    const _elapsed = time - startTime;
-                    const progress = Math.min(_elapsed / zoomDuration, 1);
-
-                    window.camera.position.lerpVectors(startPosition, targetPosition, progress);
-                    window.controls.target.lerpVectors(startPosition, point, progress);
-                    window.controls.update();
-
-                    if (progress < 1) {
-                        animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
-                    } 
-                };
-
-                animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
-
                 // Clean up marker
                 // window.map.scene.remove(marker);
                 setIsAnimation(false)
                 setTimeValue(totalTime)
+                setDuringAnimation(false)
                 // Segment animation complete, proceed to next
                 animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
                 animationRef.current.startTime = null;
+                window.isAnimation = false
             }
         };
 
@@ -1371,7 +1227,7 @@ const Replay = () => {
         animationRef.current.startTime = null;
         animationRef.current.animationFrameId = requestAnimationFrame(animate);
     
-    }, [totalTime, speed, timeValue, isPlaying, apexOptions, currentSpeed, currentTimeValue]);
+    }, [totalTime, speed, timeValue, isPlaying, apexOptions, currentSpeed, currentTimeValue, currentViewType]);
 
     function findNearestSmallerValue(array, target) {
         let nearest = null;
@@ -1451,6 +1307,23 @@ const Replay = () => {
         }
     }
 
+    useEffect(() => {
+        _.map(clickableSprites.current, marker => {
+            const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+            const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+            imageDiv && (imageDiv.style.display = 'none')
+            markerDiv && (markerDiv.style.display = 'none')
+        })
+        _.map(clickableSprites.current, marker => {
+            if (marker.userData.data.vehicleType === filter || filter === 'All Equipment') {
+                const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+                const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+                imageDiv && (imageDiv.style.display = 'block')
+                markerDiv && (markerDiv.style.display = 'block')
+            }
+        })
+    }, [filter])
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -1463,6 +1336,9 @@ const Replay = () => {
                                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px'}}>
                                         <h4>GPS Fleet Tracking</h4>
                                         <div style={{display: 'flex', alignItems: 'center'}}>
+                                            <Space style={{marginRight: '10px'}}>
+                                                <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]}  />
+                                            </Space>
                                             <DatePicker style={{height: '48px', marginRight: '10px'}} className={'fleet-tracking-datepicker'} allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
                                             <Dropdown
                                                 label="Choose Location"
@@ -1472,17 +1348,22 @@ const Replay = () => {
                                                 />
                                         </div>
                                     </div>
-                                    <Col lg="12" style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                                        {isLoading ? (
-                                                <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: selectedEq ? 'calc(80% - 20px)' : 'calc(100% - 20px)', height: '50%', left: '10px'}}>
-                                                    <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
-                                                        <Progress className='map-loading-progress-bar' percent={progress} status="active" />
-                                                    </Spin>
-                                                </div>
-                                            ) : (
-                                            <></>
-                                        )}
-                                        <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 292px)', width: selectedEq ? '80%' : '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
+                                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: '0px', marginRight: '0px', width: '100%'}}>
+                                        <THREEJSMap 
+                                            ref={mapContainer}
+                                            height={'calc(100vh - 292px)'} 
+                                            width={'100%'} 
+                                            defaultLayers={[]} 
+                                            isLoading={isLoading} 
+                                            setIsLoading={setIsLoading} 
+                                            drawMarkers={drawMarkers} 
+                                            updateAnnotations={updateAnnotations} 
+                                            updateMarkerTooltip={updateMarkerTooltip}
+                                            isAnimation={!isAnimation}
+                                        >
+                                            {
+                                                duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
+                                            }
                                             <div style={{
                                                 position: 'absolute',
                                                 bottom: '-25px',
@@ -1510,15 +1391,17 @@ const Replay = () => {
                                                 onPlayPauseToggle={togglePlay}
                                                 onNext={handleNext}
                                                 onPrev={handlePrev}
+                                                onNextRoute={onNextRoute}
+                                                onPrevRoute={onPrevRoute}
                                             />
                                             {equipments.map((annotation, index) => (
-                                                isLoading ? <></> : <RippleIcon key={index} annotation={annotation} />
+                                                <RippleIcon key={index} annotation={annotation} isLoading={isLoading} duringAnimation={duringAnimation} />
                                             ))}
-                                            <div className="marker-tooltip" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
+                                            <div className="truck-tooltip" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
                                                 <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
                                             </div>
-                                        </div>
-                                        <Card style={{ height: 'calc(100vh - 240px)', width: '20%', marginLeft: '16px', padding: '16px', display: selectedEq ? 'block' : 'none' }}>
+                                        </THREEJSMap>
+                                        <Card style={{ height: 'calc(100vh - 240px)', width: '20%', marginLeft: '16px', padding: '16px', display: selectedEq ? 'block' : 'none', marginBottom: '0px' }}>
                                             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px', }}>
                                                 <h3>{selectedEq ? selectedEq.name : 'Routes'}</h3>
                                                 <span
@@ -1556,7 +1439,7 @@ const Replay = () => {
                                                 ))}
                                             </div>
                                         </Card>
-                                    </Col>
+                                    </div>
                                 </div>
                             </TabPane>
                             <TabPane tab="List View" key="2">

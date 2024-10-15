@@ -1,143 +1,165 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Col, Row } from "reactstrap";
-import mapboxgl, { Marker } from "mapbox-gl";
-import { buildGraticule } from "utils/mapUtils";
 import { EquipmentLocation, equipments } from "Pages/Map/sample";
-import { Progress, Spin } from "antd";
-import { excavatorImages, truckImages } from "assets/images/equipment";
 import _ from "lodash";
-import JSZip from "@turbowarp/jszip";
-import { WindowResize } from "Pages/ThreeJS/modules/WindowResize";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader";
 import * as THREE from "three";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
-import { bbox } from "@turf/turf";
-import RBush from 'rbush';
-import { MapControls } from "three/examples/jsm/controls/OrbitControls";
 import { useSelector } from "react-redux";
-import { LayoutSelector, VehicleRouteSelector } from 'selectors';
+import { LayoutSelector } from 'selectors';
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
-import BACKGROUND from 'assets/images/3DPit/galaxy.jpg'
-import BACKGROUND_LIGHT from 'assets/images/3DPit/daysky.png'
 import mapLocationImage from "assets/images/map/map-location.png";
-import { MapPicker, Source, Map } from "Pages/ThreeJS/modules/Source";
-import InfiniteGridHelper from "Pages/ThreeJS/modules/InfiniteGridHelper";
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { excavatorImages, truckImages } from "assets/images/equipment";
+import { THREEJSMap } from "Pages/3DMap";
+import * as turf from '@turf/turf';
+import { getRandomInt } from "utils/random";
+import { Segmented, Space } from "antd";
+import FloatingActionButton from "Pages/Replay/components/FloatingActionButton";
 
-const index = new RBush();
-interface MarkerData {
-  id: string;
-  marker: Marker;
+type ActiveObjectType = {
+  tube: any
+  marker: any
+  animationId: any
+  arrow: any
 }
-declare global {
-  interface Window {
-      map: any;
-      mapPicker: any;
-      controls: any;
-      camera: any;
-  }
-}
-const groupByAltitudeChange = (data) => {
-  let result: any = [];
-  let currentGroup: any = [];
-  let isSeparateSegment = false;
-
-  const calculatePercentageDiff = (startAltitude, endAltitude) => {
-    const diff = endAltitude - startAltitude;
-    return (diff / startAltitude) * 100;
-  };
-
-  const createSegment = (color, coordinates) => {
-    return {
-      type: "Feature",
-      properties: {
-        color: color,
-      },
-      geometry: {
-        type: "LineString",
-        coordinates: coordinates,
-      },
-    };
-  };
-
-  for (let i = 0; i < data.length; i++) {
-    const currentPoint = data[i];
-    const currentAltitude = currentPoint.z;
-
-    if (currentGroup.length === 0) {
-      currentGroup.push(currentPoint);
-      continue;
-    }
-
-    const prevAltitude = currentGroup[currentGroup.length - 1].z;
-    if (currentAltitude >= prevAltitude) {
-      currentGroup.push(currentPoint);
-    } else {
-      const firstAltitude = currentGroup[0].z;
-      const lastAltitude = currentGroup[currentGroup.length - 1].z;
-      const percentageDiff = calculatePercentageDiff(
-        firstAltitude,
-        lastAltitude
-      );
-      
-      if (percentageDiff > 10) {
-        result.push(createSegment("red", currentGroup));
-        isSeparateSegment = true;
-      } else {
-        if (isSeparateSegment) {
-          result.push(createSegment("green", currentGroup));
-          isSeparateSegment = false;
-        } else {
-          if (result.length > 0) {
-            const resultLast = result[result.length - 1];
-            const segment = createSegment("green", [
-              ...resultLast.geometry.coordinates,
-              ...currentGroup,
-            ]);
-            result[result.length - 1] = segment;
-          } else {
-            result.push(createSegment("green", currentGroup));
-          }
-        }
-      }
-
-      currentGroup = [currentPoint];
-    }
-  }
-
-  if (currentGroup.length > 0) {
-    if (isSeparateSegment) {
-      result.push(createSegment("green", currentGroup));
-      isSeparateSegment = false;
-    } else {
-      if (result.length > 0) {
-        const resultLast = result[result.length - 1];
-
-        const segment = createSegment("green", [
-          ...resultLast.geometry.coordinates,
-          ...currentGroup,
-        ]);
-
-        result[result.length - 1] = segment;
-      } else {
-        result.push(createSegment("green", currentGroup));
-      }
-    }
-  }
-
-  return result;
-};
-
 const HaulRoadOptimisationMapView = (props: any) => {
-  const mapRef = useRef<any>(null);
   const mapContainer = useRef<any>(null);
   const [lng, setLng] = useState(120.44871814239025);
   const [lat, setLat] = useState(-29.1506602184213);
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const statusOptions = ["Active", "Standby", "Delayed", "Down"];
   const [filter, setFilter] = useState<string>("All Equipment");
-  const TruckObject = useRef<any>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [progress, setProgress] = useState(0); // Progress state
+  const [duringAnimation, setDuringAnimation] = useState<boolean>(false)
+  const [viewType, setViewType] = useState<string>("TOP")
+  const currentViewType = useRef<string>(viewType)
+  const tableData = useMemo(
+    () => [
+      {
+        vehicleName: "DT101",
+        operatorName: "James Taylor",
+        status: statusOptions[getRandomInt(0, statusOptions.length - 1)],
+        dumpLocation: 2650,
+        activeHours: "12:30",
+        targetHours: "13:00",
+        emptyRun: "00:15",
+        waitingLoadTime: "00:05",
+        loadingTime: "00:10",
+        haulingTime: "00:25",
+        avgCycleTime: "00:55",
+        payload: 65,
+        materialType: "Ore",
+        currentLoad: 70,
+        maximumLoad: 80,
+        speed: "22.3 km/h",
+        engineRPM: 1500,
+        travelTime: "00:45",
+        pitch: "5",
+        alcometerDegrees: 1,
+        distance: 8,
+        altitudeChange: 10,
+        fuelRate: 20,
+      },
+      {
+        vehicleName: "DT102",
+        operatorName: "Maria Thompson",
+        status: statusOptions[getRandomInt(0, statusOptions.length - 1)],
+        dumpLocation: 2900,
+        activeHours: "09:15",
+        targetHours: "10:00",
+        emptyRun: "00:10",
+        waitingLoadTime: "00:20",
+        loadingTime: "00:12",
+        haulingTime: "00:30",
+        avgCycleTime: "01:02",
+        payload: 72,
+        materialType: "Rock",
+        currentLoad: 75,
+        maximumLoad: 90,
+        speed: "18.6 km/h",
+        engineRPM: 1200,
+        travelTime: "01:10",
+        pitch: "3",
+        alcometerDegrees: 0,
+        distance: 10,
+        altitudeChange: 15,
+        fuelRate: 18,
+      },
+      {
+        vehicleName: "DT103",
+        operatorName: "William Johnson",
+        status: statusOptions[getRandomInt(0, statusOptions.length - 1)],
+        dumpLocation: 2750,
+        activeHours: "11:00",
+        targetHours: "11:30",
+        emptyRun: "00:20",
+        waitingLoadTime: "00:10",
+        loadingTime: "00:08",
+        haulingTime: "00:22",
+        avgCycleTime: "01:00",
+        payload: 68,
+        materialType: "Coal",
+        currentLoad: 64,
+        maximumLoad: 85,
+        speed: "21.1 km/h",
+        engineRPM: 1300,
+        travelTime: "00:52",
+        pitch: "7",
+        alcometerDegrees: 2,
+        distance: 7,
+        altitudeChange: 12,
+        fuelRate: 22,
+      },
+      {
+        vehicleName: "DT104",
+        operatorName: "Sarah Parker",
+        status: statusOptions[getRandomInt(0, statusOptions.length - 1)],
+        dumpLocation: 2800,
+        activeHours: "10:45",
+        targetHours: "11:20",
+        emptyRun: "00:18",
+        waitingLoadTime: "00:08",
+        loadingTime: "00:11",
+        haulingTime: "00:29",
+        avgCycleTime: "00:59",
+        payload: 70,
+        materialType: "Gravel",
+        currentLoad: 76,
+        maximumLoad: 92,
+        speed: "20.8 km/h",
+        engineRPM: 1400,
+        travelTime: "01:05",
+        pitch: "4",
+        alcometerDegrees: 0,
+        distance: 9,
+        altitudeChange: 8,
+        fuelRate: 19,
+      },
+      {
+        vehicleName: "DT105",
+        operatorName: "David Lee",
+        status: statusOptions[getRandomInt(0, statusOptions.length - 1)],
+        dumpLocation: 3000,
+        activeHours: "08:50",
+        targetHours: "09:15",
+        emptyRun: "00:12",
+        waitingLoadTime: "00:15",
+        loadingTime: "00:14",
+        haulingTime: "00:32",
+        avgCycleTime: "01:03",
+        payload: 74,
+        materialType: "Sand",
+        currentLoad: 79,
+        maximumLoad: 95,
+        speed: "19.5 km/h",
+        engineRPM: 1600,
+        travelTime: "00:58",
+        pitch: "6",
+        alcometerDegrees: 1,
+        distance: 6,
+        altitudeChange: 5,
+        fuelRate: 17,
+      },
+    ],
+    []
+  );
 
   const currentRoad = useMemo(() => {
     return props.currentRoad;
@@ -147,40 +169,39 @@ const HaulRoadOptimisationMapView = (props: any) => {
     return props.replayRoads
   }, [props.replayRoads])
 
-  const geojsonData = useMemo(() => {
-    return props.geojsonData
-  }, [props.geojsonData])
-
-  const imageData = useMemo(() => {
-    return props.imageData
-  }, [props.imageData])
-
-  const clearMarkers = () => {
-    markers.map((item) => item.marker.remove());
-    // setMarkers([]);
-  };
-
   const replayTubes = useRef<any>([])
   const replayArrowTubes = useRef<any>([])
   const animationCameraId = useRef<number>(0)
-  useEffect(() => {
-    if (geojsonData && geojsonData.length > 0) {
-      _.map(geojsonData.current.features, (feature) => {
-        const bounds = bbox(feature);
-        const item = {
-            minX: bounds[0],
-            minY: bounds[1],
-            maxX: bounds[2],
-            maxY: bounds[3],
-            feature: feature
-        };
-        index.insert(item);
-      });
-    }
-  }, [geojsonData])
+  const [isAnimation, setIsAnimation] = useState<boolean>(false)
 
-  const createTubeWithFootprint = (curve, accumulatedPoints, color, tubularSegments) => {
-    const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 6, 6, false);
+  const updateTooltip = useCallback(() => {
+    if (!mapContainer.current || !currentAnimationMarker.current) return
+    const screenPosition = currentAnimationMarker.current.clone();
+    screenPosition.project(window.map.camera); // Project to screen space
+    
+    const x = mapContainer.current.clientWidth / 2;
+    const y = mapContainer.current.clientHeight / 2;
+    
+    const annotationDiv = document.getElementById(`marker-tooltip`);
+    if (annotationDiv) {
+        annotationDiv.style.right = `0px`;
+        annotationDiv.style.top = `0px`;
+
+        // Check if the annotation is inside the viewport
+        const isInViewport = (
+            x >= 0 && x <= mapContainer.current.clientWidth &&
+            y >= 0 && y <= mapContainer.current.clientHeight
+        );
+
+    }
+  }, [isAnimation]);
+
+  function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
+    const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 4, 4, false);
+
+    // Calculate the length of the tube curve
+    const tubeLength = curve.getLength();
+
     // Shader material with progress uniform to control visibility
     const tubeMaterial = new THREE.ShaderMaterial({
         uniforms: {
@@ -211,19 +232,63 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 }
             }
         `,
-        transparent: true,
-        depthWrite: false,
-        depthTest: false,
+        // transparent: true,
+        depthWrite: true,
+        depthTest: true,
     });
 
     const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
     return tube;
   }
+  const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
+  const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
+  const currentSpeed = useRef<number>(1)
+  const currentAnimationMarker = useRef<any>(null)
+  const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
+
+  const clearAnimation = () => {
+    setIsAnimation(false)
+    if (!window.map) return
+    // Remove previous route
+    if (activeObjects.current && activeObjects.current.tube) {
+        window.map.scene.remove(activeObjects.current.tube);
+        activeObjects.current.tube.geometry.dispose();  // Clean up resources
+        activeObjects.current.tube.material.dispose();
+        activeObjects.current.tube = null;
+    }
+    if ( activeObjects.current && activeObjects.current.marker) {
+        window.TruckObject.visible = false
+    }
+    if ( activeObjects.current && activeObjects.current.arrow) {
+        window.map.scene.remove(activeObjects.current.arrow);
+        activeObjects.current.arrow = null;
+    }
+
+    // Reset any previous animation
+    if (activeObjects.current && activeObjects.current.animationId) {
+        cancelAnimationFrame(activeObjects.current.animationId);
+        activeObjects.current.animationId = null;
+    }
+    if (animationRef.current.animationFrameId) {
+        cancelAnimationFrame(animationRef.current.animationFrameId);
+        animationRef.current.animationFrameId = null
+    }
+  }
+
+  useEffect(() => {
+    currentViewType.current = viewType
+  }, [viewType])
 
   useEffect(() => {
     if (currentRoad && window.map) {
       let road = replayRoads.find(_road => _road.id === currentRoad.value)
       if (road) {
+        clearAnimation()
+        setIsAnimation(true)
+        setDuringAnimation(true)
+        window.isAnimation = true
+        let passedSegment = 0;
+        let tubes: any = []; // Array to store all tubes and their associated data
         // remove existing tubes
         if (replayTubes.current && replayTubes.current.length > 0) {
           _.map(replayTubes.current, _tube => {
@@ -262,34 +327,11 @@ const HaulRoadOptimisationMapView = (props: any) => {
           const point = new THREE.Vector3(worldPos.x, worldPos.y, 0);
           // Get the elevation for this point and set the Z coordinate
           let elevationValue = 0
-          const candidates = index.search({
-              minX: lng,
-              minY: lat,
-              maxX: lng,
-              maxY: lat
-          });
-
-          let nearestFeature: any = null;
-
-          candidates.forEach((item) => {
-              const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
-              if (isInside) {
-                  nearestFeature = item.feature;
-                  return false; // Exit loop early if point is inside a polygon
-              }
-          });
-          if (nearestFeature) {
-            elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
-          }
-
-          if (!nearestFeature || isNaN(elevationValue)) {
-            // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-            elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
-          }
+          elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
           point.z = elevationValue + 400
 
           points.push(point)
-          _coordinates.push([coord[0], coord[1], elevationValue + 400])
+          _coordinates.push([coord[0], coord[1]])
         });  // Set Z-axis to 0 for 2D route
 
         const calculatePercentageDiff = (startAltitude, endAltitude) => {
@@ -298,10 +340,11 @@ const HaulRoadOptimisationMapView = (props: any) => {
         };
         
         // Split the points based on altitude changes
-        const splitByAltitude = (points) => {
+        const splitByAltitude = (points, _coordinates) => {
           let segments: any = [];
+          let coordSegments: any = []
           let currentSegment = [points[0]];
-        
+          let currentCoord = [_coordinates[0]]
           for (let i = 1; i < points.length; i++) {
             const prevPoint = points[i - 1];
             const currentPoint = points[i];
@@ -310,21 +353,25 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 (prevPoint.z < currentPoint.z && currentSegment[0].z > prevPoint.z)) {
               // Push current segment if direction changes
               segments.push(currentSegment);
+              coordSegments.push(currentCoord)
               currentSegment = [prevPoint];
+              currentCoord = [_coordinates[i - 1]]
             }
             currentSegment.push(currentPoint);
+            currentCoord.push(_coordinates[i])
           }
         
           // Push the last segment
           if (currentSegment.length > 0) {
             segments.push(currentSegment);
+            coordSegments.push(currentCoord)
           }
-          return segments;
+          return [segments, coordSegments];
         };
         
         // Create tubes for each segment with color logic
-        const createTubes = (segments) => {
-          segments.forEach((segment) => {
+        const createTubes = (segments, coords) => {
+          segments.forEach((segment, idx) => {
             const startZ = segment[0].z;
             const endZ = segment[segment.length - 1].z;
             const diffPercentage = calculatePercentageDiff(startZ, endZ);
@@ -336,9 +383,27 @@ const HaulRoadOptimisationMapView = (props: any) => {
             const tubeGeometry = new THREE.TubeGeometry(tubePath, 50, 6, 6, false);
             const tubeMaterial = new THREE.MeshBasicMaterial({ color, depthTest: false, depthWrite: false });
         
+            const segmentTube = createTubeWithFootprint(tubePath, segment, color, 100);
             const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
-            window.map.scene.add(tube);
-
+            window.map.scene.add(segmentTube);
+            const getRandomData = () => {
+              const randomIndex = Math.floor(Math.random() * tableData.length);
+              return tableData[randomIndex];
+            };
+            const truck = getRandomData()
+            let totalDistance = turf.length(turf.lineString(coords[idx]), { units: 'meters' })
+            tubes.push({
+                tube: segmentTube,
+                curve: tubePath,
+                totalDistance: totalDistance, // Calculate the tube's distance
+                marker: null, // We'll add this later
+                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6) * 2000,  // Assuming total time is shared among tubes
+                progress: 0,  // Initial progress for the animation
+                currentLoad: truck.currentLoad,
+                vehicleName: truck.vehicleName,
+                operatorName: truck.operatorName,
+                speedLimit: parseFloat(truck.speed) // Add the average speed limit for the segment
+            });
             // Create arrows along the tube at intervals
             for (let i = 0; i < segment.length - 1; i++) {
               const start = new THREE.Vector3(segment[i].x, segment[i].y, (segment[i].z - 400) * 2);
@@ -363,157 +428,264 @@ const HaulRoadOptimisationMapView = (props: any) => {
               replayArrowTubes.current.push(arrowMesh)
             }
 
-            replayTubes.current.push(tube)
+            replayTubes.current.push(segmentTube)
           });
         };
 
-        const segments = splitByAltitude(points)
-        createTubes(segments);
+        const [segments, coords] = splitByAltitude(points, _coordinates)
+        createTubes(segments, coords);
 
-        // Animate the camera movement
-        // const zoomDuration = 1000; // 1 second
-        // let startTime: number | null = null;
-        // const startPosition = segments[0][0];
-        // const point = segments[segments.length - 1][segments[segments.length - 1].length - 1]
-        // const targetPosition = point.clone().add(point); // Zoom offset
-        // const animateZoom = (time: number) => {
-        //   if (startTime === null) startTime = time;
-        //   const _elapsed = time - startTime;
-        //   const _progress = Math.min(_elapsed / zoomDuration, 1);
-        //   window.camera.position.lerpVectors(startPosition, targetPosition, _progress);
-        //   window.controls.target.lerpVectors(startPosition, point, _progress);
-        //   window.controls.update();
-        //   if (_progress < 1) {
-        //       animationCameraId.current = requestAnimationFrame(animateZoom);
-        //   }
-        //   else {
-        //     cancelAnimationFrame(animationCameraId.current)
-        //     animationCameraId.current = 0
-        //   } 
-        // };
-        // // window.controls.enabled = false;
-        // animationCameraId.current = requestAnimationFrame(animateZoom);
+
+        activeObjects.current.marker = window.TruckObject;
+
+        let currentSegmentIndex = 0; // To track which segment is being animated
+        let PassedTime = 0
+        // Function to animate a single tube segment
+        const animateSegment = (tubeData, onComplete) => {
+            const { curve, tube, totalDistance, duration, currentLoad, vehicleName, operatorName, speedLimit } = tubeData;
+            const marker = window.TruckObject
+
+            // Animation loop for a single segment
+            const animate = (timestamp) => {
+                const currentPlaybackSpeed = currentSpeed.current;
+                updateTooltip()
+                const cameraOffset = new THREE.Vector3(100, 100, 100);  // Adjust offset as needed
+
+                if (!animationRef.current.startTime) {
+                    animationRef.current.startTime = timestamp;
+                    marker.visible = true;
+                }
+
+                let elapsed = animationRef.current.elapsedTime + (timestamp - animationRef.current.startTime!) * currentPlaybackSpeed;
+
+                const _progress = Math.min(elapsed / duration, 1);
+                const distanceCovered = _progress * totalDistance;
+
+                // Move the marker along the curve
+                if (_progress < 1) {
+                    const point = curve.getPointAt(_progress);
+                    const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
+                    if (point) {
+                        window.TruckObject && (window.TruckObject.visible = true)
+                        currentAnimationMarker.current = point
+                        marker.position.set(point.x, point.y, point.z);
+                        tube.material.uniforms.progress.value = _progress;
+                        // Calculate the forward direction (from point to nextPoint)
+                        const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
+
+                        // Create a new quaternion for rotation
+                        const quaternion = new THREE.Quaternion();
+
+                        // Set the quaternion to rotate the object to face the forward direction
+                        quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), forwardDirection);
+
+                        const angle = Math.atan2(forwardDirection.y, forwardDirection.x);
+                        // // Rotate the object around the Z-axis based on the calculated angle
+                        marker.rotation.z = angle + Math.PI / 2;
+
+                        let cameraOffset = new THREE.Vector3();
+                        const forwardDirectionNormalized = forwardDirection.clone().normalize();
+                        const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+                        // Adjust the camera based on viewType
+                        switch (currentViewType.current) {
+                            case 'TOP':
+                                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                                break;
+                            case 'FRONT':
+                                cameraOffset = forwardDirection.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                                // cameraOffset.z += 50;  // Adjust the height for a better view
+                                break;
+                            case 'LEFT':
+                                // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                                cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                                cameraOffset.z += 10;  // Optionally adjust height
+                                break;
+                            case 'RIGHT':
+                                // Move the camera to the right of the truck using the rightDirection vector
+                                cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                                cameraOffset.z += 10;  // Optionally adjust height
+                                break;
+                            case 'BACK':
+                                cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Camera from behind the marker
+                                // cameraOffset.z += 50;  // Adjust the height
+                                break;
+                            default:
+                                // Default camera behavior if viewType is not defined (use 'Top' view)
+                                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                        }
+
+                        // Set the camera position behind the marker (car)
+                        const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
+                        window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+                        // Make the camera look ahead (at the next point on the curve)
+                        window.camera.lookAt(nextPoint);
+                        window.camera.updateProjectionMatrix();
+                        window.camera.updateMatrixWorld();
+                        window.savedCameraPosition = window.camera.position.clone();
+                        window.savedCameraQuaternion = window.camera.quaternion.clone();
+                        window.renderer.render(window.map.scene, window.camera); // Render updated frame
+                        // set ToolTip content
+
+                        setMarkerToolTipContent('<span>Vehicle: </span>' + vehicleName + '<br/><span>Operator: </span>' + operatorName + '<br/><span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + speedLimit + 'km/h' + '<br/><span>Total: </span>' + (100) + 's<br/><span>Tonnes: </span>' + currentLoad + 't')
+                    }
+
+                    // marker.scale.set(pulseScale * 50, pulseScale * 50, 1); // Apply pulsing scale
+                    // Request next frame for this segment
+                    animationRef.current.animationFrameId = requestAnimationFrame(animate);
+                } else {
+                    tube.material.uniforms.progress.value = 1
+                    const point = curve.getPointAt(1); 
+                    const startPosition = window.map.camera.position.clone();
+                    const targetPosition = point.clone().add(point); // Zoom offset
+
+                    // Animate the camera movement
+                    const zoomDuration = 1000; // 1 second
+                    let startTime: number | null = null;
+
+                    const animateZoom = (time: number) => {
+                        if (startTime === null) startTime = time;
+                        const _elapsed = time - startTime;
+                        const progress = Math.min(_elapsed / zoomDuration, 1);
+
+                        window.map.camera.position.lerpVectors(startPosition, targetPosition, progress);
+                        window.controls.target.lerpVectors(startPosition, point, progress);
+                        window.controls.update();
+
+                        if (progress < 1) {
+                            animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
+                        } 
+                    };
+
+                    // animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
+
+                    // Segment animation complete, proceed to next
+                    animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
+                    animationRef.current.startTime = null;
+                    onComplete();  // Proceed to the next segment
+
+                    passedSegment ++
+                    PassedTime += elapsed
+                    if (passedSegment == tubes.length) {
+                        setIsAnimation(false)
+                    }
+                }
+            };
+
+            // Start the animation for this segment
+            animationRef.current.startTime = null;
+            animationRef.current.animationFrameId = requestAnimationFrame(animate);
+        };
+
+        // Function to animate all segments sequentially
+        const animateTubesSequentially = () => {
+            if (currentSegmentIndex < tubes.length) {
+                // Get the current tube data
+                const currentTubeData = tubes[currentSegmentIndex];
+
+                // Start animation for the current tube
+                animateSegment(currentTubeData, () => {
+                    // Move to the next segment once the current one is done
+                    currentSegmentIndex++;
+                    animateTubesSequentially(); // Recursively call the function to animate the next segment
+                });
+            }
+            else{
+                window.TruckObject && (window.TruckObject.visible = false)
+                setDuringAnimation(false)
+                window.isAnimation = false
+                const zoomDuration = 1000; // 1 second
+                let startTime: number | null = null;
+                const startPosition = segments[0][0];
+                const point = segments[segments.length - 1][segments[segments.length - 1].length - 1]
+                const targetPosition = point.clone().add(point); // Zoom offset
+                const animateZoom = (time: number) => {
+                  if (startTime === null) startTime = time;
+                  const _elapsed = time - startTime;
+                  const _progress = Math.min(_elapsed / zoomDuration, 1);
+                  window.map.camera.position.lerpVectors(startPosition, targetPosition, _progress);
+                  window.controls.target.lerpVectors(startPosition, point, _progress);
+                  window.controls.update();
+                  if (_progress < 1) {
+                      animationCameraId.current = requestAnimationFrame(animateZoom);
+                  }
+                  else {
+                    cancelAnimationFrame(animationCameraId.current)
+                    animationCameraId.current = 0
+                  } 
+                };
+            }
+        };
+
+        // Start the sequential animation
+        animateTubesSequentially();
       }
     }
   }, [currentRoad])
 
   const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
     if (eq.vehicleType == "EXCAVATOR") {
-      switch (eq.status) {
-        case "ACTIVE":
-          return excavatorImages.pc1250;
-        case "STANDBY":
-          return excavatorImages.pc1250;
-        case "DOWN":
-          return excavatorImages.pc1250;
-        case "DELAY":
-          return excavatorImages.pc1250;
-      }
+        switch (eq.status) {
+            case "ACTIVE":
+                return excavatorImages.pc1250;
+            case "STANDBY":
+                return excavatorImages.pc1250;
+            case "DOWN":
+                return excavatorImages.pc1250;
+            case "DELAY":
+                return excavatorImages.pc1250;
+        }
     } else if (eq.vehicleType == "DUMP_TRUCK") {
-      switch (eq.status) {
-        case "ACTIVE":
-          return truckImages.hd785;
-        case "STANDBY":
-          return truckImages.hd785;
-        case "DOWN":
-          return truckImages.hd785;
-        case "DELAY":
-          return truckImages.hd785;
-      }
+        switch (eq.status) {
+            case "ACTIVE":
+                return truckImages.hd785;
+            case "STANDBY":
+                return truckImages.hd785;
+            case "DOWN":
+                return truckImages.hd785;
+            case "DELAY":
+                return truckImages.hd785;
+        }
     }
   };
-
-  let animationFrameId: number;
-  let map: any;
-  useEffect(() => {
-    if (!geojsonData || !imageData) return
-    setIsLoading(true);
-    loadMapView(geojsonData, imageData);
-    // Clean up on component unmount
-    return () => {
-        window.map && window.map.clean()
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-        }
-
-        // Clean up map and controls
-        if (window.mapPicker) {
-            window.mapPicker = null;
-        }
-        if (window.map) {
-            window.map = null;
-        }
-        if (window.controls) {
-            window.controls.dispose();
-        }
-        // Clean up Three.js objects
-        if (mapContainer.current && mapContainer.current.firstChild) {
-            mapContainer.current.removeChild(mapContainer.current.firstChild);
-        }
-    };
-  }, [geojsonData, imageData])
-
-  // useEffect(() => {
-  //   clearMarkers();
-  //   const markersData: MarkerData[] = [];
-  //   let filteredEquipment: EquipmentLocation[] = [];
-  //   if (filter === "All Equipment") {
-  //     filteredEquipment = equipments;
-  //   } else {
-  //     filteredEquipment = equipments.filter(
-  //       (item) => item.vehicleType === filter
-  //     );
-  //   }
-
-  //   filteredEquipment.map((eq) => {
-  //     const el = rippleIcon(eq);
-  //     const marker = new mapboxgl.Marker(el)
-  //       .setLngLat(eq.position)
-  //       .addTo(mapRef.current);
-  //     markersData.push({ id: eq["name"], marker: marker });
-  //     marker.getElement().addEventListener("click", () =>
-  //       mapRef.current?.flyTo({
-  //         center: eq.position,
-  //         zoom: 20,
-  //         speed: 1,
-  //       })
-  //     );
-  //   });
-
-  //   setMarkers(markersData);
-  // }, [filter]);
-
   const { layoutModeType } = useSelector(LayoutSelector );
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
   const eqMarkers: any = []
   // Array to hold all clickable sprites
   const clickableSprites = useRef<any>([]);
-  const RippleIcon = ({ annotation }) => {    
-      const textStyle: any = {
-          position: 'absolute',
-          top: '-65px',
-          left: '-50px',
-          background: annotation.color,
-          borderRadius: '20px',
-          fontSize: '1rem',
-          color: 'white',
-          fontWeight: 600,
-          padding: '6px 16px',
-          width: '112px',
-          textAlign: 'center',
-      };
-  
-      return (
-          <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => setSelectedEq(annotation)}>
-              <div style={textStyle}>
-                  <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
-                  {annotation.name}
-              </div>
-              <div style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)' }}>
-                  <img src={mapLocationImage} alt="Description of the image" />
-              </div>
-          </div>
-      );
+  const RippleIcon = ({ annotation, isLoading }) => {    
+    const textStyle: any = {
+        position: 'absolute',
+        top: '-57px',
+        left: '-50px',
+        background: annotation.color,
+        borderRadius: '20px',
+        fontSize: '1rem',
+        color: 'white',
+        fontWeight: 600,
+        padding: '6px 16px',
+        width: '120px',
+        textAlign: 'center',
+        display: isLoading ? 'none' : 'block',
+        opacity: 0.8
+    };
+    let clickedMarker: any = null
+    _.map(clickableSprites.current, _marker => {
+        if (_marker.userData.data.id === annotation.id) {
+            clickedMarker = _marker
+        }
+    })
+
+    return (
+        <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
+            <div id={`annotation-image-${annotation.id}`} style={textStyle}>
+                <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
+                {annotation.name}
+            </div>
+            <div id={`annotation-marker-${annotation.id}`} style={{ position: 'absolute', bottom: 0, transform: 'translateX(-40%)', display: isLoading ? 'none' : 'block' }}>
+                <img src={mapLocationImage} alt="Description of the image" />
+            </div>
+        </div>
+    );
   };
 
   const setSelectedEq = useCallback((annotation) => {
@@ -521,6 +693,8 @@ const HaulRoadOptimisationMapView = (props: any) => {
   }, [])
 
   const updateAnnotations = useCallback(() => {
+    if (!mapContainer.current || !window.map) return
+    const mapContainerElement = mapContainer.current.getMapContainer();
     const center = {
         tileX: window.map.center.x,
         tileY: window.map.center.y
@@ -537,10 +711,10 @@ const HaulRoadOptimisationMapView = (props: any) => {
         let elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
         let realWorldPosition = new THREE.Vector3(worldPos.x, worldPos.y, elevationValue * 2);
         const screenPosition = annotation.position.clone();
-        screenPosition.project(window.camera); // Project to screen space
+        screenPosition.project(window.map.camera); // Project to screen space
         
-        const x = (screenPosition.x * 0.5 + 0.5) * (mapContainer.current.clientWidth);
-        const y = -(screenPosition.y * 0.5 - 0.5) * (mapContainer.current.clientHeight);
+        const x = (screenPosition.x * 0.5 + 0.5) * (mapContainerElement.clientWidth);
+        const y = -(screenPosition.y * 0.5 - 0.5) * (mapContainerElement.clientHeight);
         
         const annotationDiv = document.getElementById(`annotation-${annotation.userData.data.id}`);
         if (!window.map) {
@@ -551,184 +725,14 @@ const HaulRoadOptimisationMapView = (props: any) => {
             annotationDiv.style.left = `${x}px`;
             annotationDiv.style.top = `${y}px`;
             const isInViewport = (
-                x >= 50 && x <= (mapContainer.current.clientWidth - 50) &&
-                y >= 50 && y <= (mapContainer.current.clientHeight - 25)
+                x >= 50 && x <= (mapContainerElement.clientWidth - 50) &&
+                y >= 50 && y <= (mapContainerElement.clientHeight - 25)
             );
             
-            annotationDiv.style.display = isInViewport && !isLoading ? 'block' : 'none';
+            annotationDiv.style.display = isInViewport ? 'block' : 'none';
         }
     });
-  }, [isLoading])
-
-  
-
-  const fetch3DTruck = async () => {
-    if (!window.map) return
-    try {
-        const mtlLoader = new MTLLoader();
-        const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
-            mtlLoader.load(
-                './Truck/3D_Truck.mtl',
-                (materials) => resolve(materials),
-                undefined,
-                (error) => reject(error)
-            );
-        });
-
-        materials.preload();
-
-        const response = await fetch('./Truck/3D_Truck.zip');
-        const arrayBuffer = await response.arrayBuffer();
-        const zip = await JSZip.loadAsync(arrayBuffer);
-
-        const objFile = await zip.file('3D_Truck.obj')?.async("string");
-
-        if (!objFile) {
-            throw new Error("OBJ file not found in the zip archive");
-        }
-        const goldMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffff00, // Gold color in hex
-            metalness: 1,  // Fully metallic
-            roughness: 0.6,  // Adjust roughness for shiny effect
-            depthTest: false,
-            depthWrite: false
-        });
-        const object = new OBJLoader()
-            .setMaterials(materials)
-            .parse(objFile);
-
-        object.traverse((child: any) => {
-            if (child.isMesh) {
-                child.material = goldMaterial;  // Apply gold material to all mesh parts
-                child.material.needsUpdate = true;  // Ensure material is updated
-            }
-        });
-        
-        object.scale.set(0.4, 0.3 , 0.4);
-        // newObject.position.set(0, 0, -5)
-        object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
-        object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
-        object.rotation.z = 0;           // Z-axis correction if needed
-
-        // object.rotation.z += 0.5
-        const group = new THREE.Group();
-        group.add(object)
-        group.visible = false
-
-        TruckObject.current = group
-        window.map.scene.add(group);
-    } catch (error) {
-        console.error('An error happened:', error);
-    }
-  }
-
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-
-  const loadMapView = useCallback(async (_geojsonData: any, imageData) => {
-    if (!_geojsonData || !imageData) return
-    _.map(_geojsonData.features, (feature) => {
-        const bounds = bbox(feature);
-        const item = {
-            minX: bounds[0],
-            minY: bounds[1],
-            maxX: bounds[2],
-            maxY: bounds[3],
-            feature: feature
-        };
-        index.insert(item);
-    });
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
-
-    camera.up = new THREE.Vector3(0, 0, 1);
-    camera.position.set(0, -1000, 700);
-    camera.updateMatrixWorld();
-    camera.updateProjectionMatrix();
-    window.camera = camera;
-    const renderer = new THREE.WebGLRenderer({
-        antialias: false,
-        alpha: true,
-        // logarithmicDepthBuffer: false,
-    });
-
-    if (mapContainer.current) {
-        renderer.domElement.className = "threejs-view";
-        mapContainer.current.appendChild(renderer.domElement);
-        // renderer.domElement.addEventListener('click', onDocumentMouseClick, false);
-        // renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
-        // renderer.domElement.addEventListener('keydown', onDocumentKeyDown , false);
-    }
-
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    const controls = new MapControls(camera, renderer.domElement);
-    controls.autoRotate = false;
-    controls.maxPolarAngle = Math.PI * 0.3;
-    window.controls = controls;
-    
-    // Load the background image using THREE.TextureLoader
-    if (isLight) {
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND_LIGHT, (texture) => {
-            window.map.scene.background = texture;  // Set the loaded texture as the background
-        });
-    }
-    else{
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND, (texture) => {
-            window.map.scene.background = texture;  // Set the loaded texture as the background
-        });
-    }
-
-    scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
-
-    const ambientLight = new THREE.AmbientLight(0x404040, 2);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    dirLight.castShadow = true;
-    dirLight.position.set(10000, 10000, 10000);
-    scene.add(ambientLight);
-    scene.add(dirLight);
-
-    const position = [lat, lng];
-    const source = new Source('mapbox', mapboxgl.accessToken);
-    let nTiles = 24;
-    let zoom = 18
-    const map = new Map(scene, camera, source, position, nTiles, zoom, {}, _geojsonData, imageData);
-    window.map = map;
-    const mapPicker = new MapPicker(camera, map, mapContainer.current, controls);
-    window.mapPicker = mapPicker;
-
-    const grid: any = new InfiniteGridHelper(16, 256);
-    scene.add(grid);
-
-    let drawed = true
-
-    await fetch3DTruck()
-
-    // Main render loop
-    const mainLoop = (timestamp: number) => {
-        animationFrameId = requestAnimationFrame(mainLoop);
-        
-        if (map.progress >= nTiles * nTiles) {
-            if (drawed) {
-                setIsLoading(false);
-                drawMarkers()
-                drawed = false
-            }
-        } else {
-            let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
-            setProgress(_progress);
-        }
-        renderer.render(scene, camera);
-        controls.update();
-        updateAnnotations();
-    };
-    mainLoop(0);
-    WindowResize(renderer, camera);
-  }, [setProgress])
+  }, [])
 
   const drawMarkers = useCallback(() => {
     if (!mapContainer.current) return;
@@ -770,38 +774,51 @@ const HaulRoadOptimisationMapView = (props: any) => {
   }, [equipments]);
 
   useEffect(() => {
-    if (!window.map) return
-    if (isLight) {
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND_LIGHT, (texture) => {
-            window.map.scene.background = texture;  // Set the loaded texture as the background
-        });
-    }
-    else{
-        const loader = new THREE.TextureLoader();
-        loader.load(BACKGROUND, (texture) => {
-            window.map.scene.background = texture;  // Set the loaded texture as the background
-        });
-    }
-  }, [isLight])
+    _.map(clickableSprites.current, marker => {
+        const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+        const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+        imageDiv && (imageDiv.style.display = 'none')
+        markerDiv && (markerDiv.style.display = 'none')
+    })
+    _.map(clickableSprites.current, marker => {
+        if (marker.userData.data.vehicleType === filter || filter === 'All Equipment') {
+            const imageDiv = document.getElementById('annotation-image-' + marker.userData.data.id)
+            const markerDiv = document.getElementById('annotation-marker-' + marker.userData.data.id)
+            imageDiv && (imageDiv.style.display = 'block')
+            markerDiv && (markerDiv.style.display = 'block')
+        }
+    })
+  }, [filter])
+
   return (
     <React.Fragment>
       <Row>
+          <Col md="12" className='mb-4 d-flex flex-row-reverse'>
+              <Space>
+                  <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+              </Space>
+          </Col>
+      </Row>
+      <Row>
         <Col>
-          {isLoading ? (
-                  <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: 'calc(100% - 20px)', height: '50%', left: '10px'}}>
-                      <Spin className='map-loading-bar' style={{color: 'gold'}} tip="Loading...">
-                          <Progress className='map-loading-progress-bar' percent={progress} status="active" />
-                      </Spin>
-                  </div>
-              ) : (
-              <></>
-          )}
-          <div ref={mapContainer} className="map-container" style={{ height: 'calc(100vh - 215px)', width: '100%', opacity: isLoading ? '0.05' : '1', position: 'relative' }} >
+          <THREEJSMap 
+            ref={mapContainer} 
+            defaultLayers={[]} 
+            isLoading={isLoading} 
+            setIsLoading={setIsLoading} 
+            updateAnnotations={updateAnnotations} 
+            drawMarkers={drawMarkers} 
+          >
+            {
+                duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
+            }
             {equipments.map((annotation, index) => (
-                isLoading ? <></> : <RippleIcon key={index} annotation={annotation} />
+                isAnimation ? <></> : <RippleIcon key={index} annotation={annotation} isLoading={isLoading} />
             ))}
-          </div>
+            <div className="truck-tooltip haul-road-optimization" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
+                <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
+            </div>
+          </THREEJSMap>
         </Col>
       </Row>
     </React.Fragment>

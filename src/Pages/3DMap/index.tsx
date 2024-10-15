@@ -1,0 +1,797 @@
+import { Source, Map, MapPicker } from './modules/Source'
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { Card, CardBody, Col, Container, Row } from 'reactstrap';
+import Breadcrumb from 'Components/Common/Breadcrumb';
+import { useDispatch, useSelector } from 'react-redux';
+import './index.css'
+import mapboxgl from 'mapbox-gl';
+import { WindowResize } from './modules/WindowResize'
+import { InfiniteGridHelper } from './modules/InfiniteGridHelper'
+import * as THREE from "three";
+import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
+import _ from 'lodash';
+import { Checkbox, CheckboxProps, Progress, Spin } from 'antd';
+import 'antd/dist/reset.css';
+import JSZip from '@turbowarp/jszip'
+import * as Leaflet from 'leaflet';
+import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
+import { DropdownType } from 'Components/Common/Dropdown';
+import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
+import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { FenceSelector, LayoutSelector, VehicleRouteSelector } from 'selectors';
+import RBush from 'rbush';
+import bbox from '@turf/bbox';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'; // ES6 import
+import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
+import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
+const index = new RBush();
+
+declare global {
+    interface Window {
+        map: any;
+        mapPicker: any;
+        controls: any;
+        renderer: any;
+        TruckObject: any;
+        savedCameraPosition: any;
+        savedCameraQuaternion: any;
+        isAnimation: any;
+        mixer: any;
+        animationZoom: any;
+    }
+}
+type Propertytype = {
+    blockId: string;
+    name: string;
+    source: string;
+    status: string;
+    tonnes: number;
+    volume: number;
+    density: number;
+    grade: number;
+}
+interface Geofence {
+    id: number,
+    name: string;
+    layer: Leaflet.Layer | null;  // Make layer nullable
+}
+
+interface MapRef {
+    getMapContainer: () => HTMLDivElement | null; // Custom ref type with the method
+}
+interface THREEJSMapProps {
+    defaultLayers: string[];
+    drawMarkers?: () => void;
+    updateAnnotations?: () => void;
+    isLoading: boolean;
+    setIsLoading: (isLoading) => void;
+    updateMarkerTooltip?: () => void;
+    height?: string;
+    width?: string;
+    isAnimation?: boolean;
+    children?: React.ReactNode; // Children prop is optional
+}
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false}, ref: any) => {
+    const dispatch: any = useDispatch();
+    const geoFences = useRef<any>([])
+
+    const localMapContainerRef = useRef<HTMLDivElement | null>(null);
+
+    // This exposes the localMapContainerRef to the parent component using localMapContainerRef
+    useImperativeHandle(ref, () => ({
+        getMapContainer: () => localMapContainerRef.current,
+    }));
+
+    const { vehicleRoutes } = useSelector(VehicleRouteSelector);
+
+    const { layoutModeType } = useSelector(LayoutSelector);
+    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+    const views = ["Top", "Front", "Left", "Right", "Back"]
+    const [currentView, setCurrentView] = useState<any>('')
+    const _layerOptions: DropdownType[] = [
+        { label: 'Current Haul Routes', value: 'CURRENT_HAUL_ROUTES' },
+        { label: 'Future Road Designs', value: 'FUTURE_ROAD_DESIGNS' },
+        { label: 'Speed Restrictions', value: 'SPEED_RESTRICTIONS' },
+        { label: 'Pit Bottom', value: 'PIT_BOTTOM' },
+        { label: 'Pit Climb', value: 'PIT_CLIMB' },
+        { label: 'Stop Signs', value: 'STOP_SIGNS' },
+        { label: 'Restricted', value: 'RESTRICTED' },
+    ];
+    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
+
+    mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
+    const [lng, setLng] = useState(120.44871814239025);
+    const [lat, setLat] = useState(-29.1506602184213);
+    const [checkedList, setCheckedList] = useState<string[]>(defaultLayers || [''])
+    const geojsonData = useRef<any>();
+
+    // state for Map loading status
+    const [progress, setProgress] = useState(0); // Progress state
+    let animationFrameId: number;
+    let map: any;
+    const wheels = useRef<any>([])
+    useEffect(() => {
+        dispatch(getAllVehicleRoutes())
+        dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (map) return
+        setIsLoading(true);
+        fetchGeofences()
+        fetchZipFile()
+        // Clean up on component unmount
+        return () => {
+            map && map.clean()
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+    
+            // Dispose Three.js objects
+            if (geojsonData.current) {
+                geojsonData.current = null;
+            }
+    
+            // Clean up map and controls
+            if (window.mapPicker) {
+                window.mapPicker = null;
+            }
+            if (window.map) {
+                window.map = null;
+            }
+            if (window.controls) {
+                window.controls.dispose();
+            }
+            // Clean up Three.js objects
+            if (localMapContainerRef.current && localMapContainerRef.current.firstChild) {
+                localMapContainerRef.current.removeChild(localMapContainerRef.current.firstChild);
+            }
+        };
+    }, []); // Added dependencies to reinitialize map if lat/lng changes
+    
+    const fetchGeofences = async () => {
+        const _fetchGeofences = async () => {
+            const retrievedData = await getDataByKey('geoFences');
+            if (retrievedData && retrievedData.length > 0) {
+                geoFences.current = retrievedData
+            }
+            else{
+                const fences = await fetch('/SWK_S01_422.geojson')
+                    .then(response => response.json())  // Parse it as JSON
+                    .then(data => {
+                        return data;  // Return the parsed GeoJSON data
+                    })
+                    .catch(error => {
+                        console.error('Error fetching GeoJSON:', error);
+                    });
+        
+                if (fences) {
+                    const features = fences.features;
+                    
+                    // Iterate over the features to access polygons or other geometry types
+                    const _fences: any = []
+                    _.map(features, feature => {
+                        _fences.push(feature)
+                    });
+                    geoFences.current = _fences
+                    await addOrUpdateData('geoFences', _fences);
+                }
+            }
+        }
+        await _fetchGeofences()
+    }
+
+    const fetchZipFile = async () => {
+        const _fetchZipFile = async () => {
+            const retrievedData = await getDataByKey('mainGeojson');
+            if (retrievedData) {
+                processZipFile(retrievedData)
+            }
+            else{
+                const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
+                JSZip.loadAsync(zipBuffer).then(data => {
+                    return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
+                }).then(async (text) => {
+                    var geojsonData = JSON.parse(text as string)
+                    processZipFile(geojsonData)
+                    await addOrUpdateData('mainGeojson', geojsonData);
+                })
+            }
+        };
+      
+        await _fetchZipFile(); 
+    }
+
+    const processZipFile = async (geojsonData) => {
+        // const _processZipFile = async () => {
+        //     // const retrievedData = await getDataByKey('imageData');
+        //     // // if (retrievedData) {
+        //     // //     loadMapView(geojsonData, retrievedData);
+        //     // // }
+        //     // // else{
+                // Fetch the ZIP file and get its ArrayBuffer
+                const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
+                
+                // Initialize an object to hold image data
+                const image_data = {};
+                
+                // Load the ZIP file using JSZip
+                const zip = await JSZip.loadAsync(zipBuffer);
+            
+                // Create an array to hold promises
+                const promises: any = [];
+            
+                // Iterate through each file in the ZIP
+                zip.forEach((relativePath, file) => {
+                    // Check if the file is a WebP image
+                    if (file.name.endsWith('.webp')) {
+                        // Create a promise for each image processing
+                        const promise = file.async('arraybuffer').then(data => {
+                            // Extract the filename without extension
+                            const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+                            // Store the image data in the object
+                            image_data[fileNameWithoutExtension] = data;
+                        });
+                        promises.push(promise);
+                    }
+                });
+            
+                // Wait for all promises to resolve
+                await Promise.all(promises);
+            
+                loadMapView(geojsonData, image_data);
+        //         await addOrUpdateData('imageData', image_data);
+        //     }
+        // }
+
+        // await _processZipFile();
+    }
+
+    // const fetch3DTruck = async () => {
+    //     if (!window.map) return
+    //     try {
+    //         const mtlLoader = new MTLLoader();
+    //         const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
+    //             mtlLoader.load(
+    //                 '/Truck/3D_Truck.mtl',
+    //                 (materials) => resolve(materials),
+    //                 undefined,
+    //                 (error) => reject(error)
+    //             );
+    //         });
+
+    //         materials.preload();
+
+    //         const response = await fetch('/Truck/3D_Truck.zip');
+    //         const arrayBuffer = await response.arrayBuffer();
+    //         const zip = await JSZip.loadAsync(arrayBuffer);
+
+    //         const objFile = await zip.file('3D_Truck.fbx')?.async("string");
+
+    //         if (!objFile) {
+    //             throw new Error("OBJ file not found in the zip archive");
+    //         }
+    //         const goldMaterial = new THREE.MeshStandardMaterial({
+    //             color: 0xffff00, // Gold color in hex
+    //             metalness: 1,  // Fully metallic
+    //             roughness: 0.6,  // Adjust roughness for shiny effect
+    //             depthTest: true,
+    //             depthWrite: true,
+    //             side: THREE.FrontSide,
+
+    //         });
+    //         const object = new OBJLoader()
+    //             .setMaterials(materials)
+    //             .parse(objFile);
+            
+    //         wheels.current = [];
+
+    //         const _wheels: any = {
+    //             frontLeft: null,
+    //             frontRight: null,
+    //             backLeft: null,
+    //             backRight: null
+    //         };
+    //         object.traverse((child: any) => {
+    //             if (child.isMesh) {
+    //                 console.log(child)
+    //                 child.material = goldMaterial;  // Apply gold material to all mesh parts
+    //                 child.material.needsUpdate = true;  // Ensure material is updated
+    //                 child.renderOrder = 9999; // Render this object on top
+    //                 if (child.name === '3D_Truck_Front' || child.name === "3D_Truck_Back" ) {
+    //                     const pivot = new THREE.Object3D();
+
+    //                     // Add the wheel as a child of the pivot
+    //                     pivot.add(child);
+
+    //                     // Add the pivot to the parent object (or scene)
+    //                     object.add(pivot);
+
+    //                     // Store the original position of the wheel
+    //                     const originalPosition = child.position.clone();
+
+    //                     // Update pivot position to match the wheel's original position
+    //                     pivot.position.copy(originalPosition);
+
+    //                     // Move the wheel to the origin of the pivot
+    //                     child.position.set(0, 0, 0); 
+
+    //                     // Push the pivot (not the wheel) to the wheels array for animation
+    //                     wheels.current.push(pivot);
+    //                 }
+    //             }
+    //         });
+
+    //         object.scale.set(30, 30 , 30);
+    //         // newObject.position.set(0, 0, -5)
+    //         object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
+    //         object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
+    //         object.rotation.z = 0;           // Z-axis correction if needed
+    //         object.position.z += 20
+
+    //         // object.rotation.z += 0.5
+    //         const group = new THREE.Group();
+    //         group.add(object)
+    //         group.visible = false
+    //         group.renderOrder = 9999; // Ensure the whole group renders on top
+    //         window.TruckObject = group
+    //         window.map.scene.add(group);
+    //     } catch (error) {
+    //         console.error('An error happened:', error);
+    //     }
+    // }
+
+    const fetch3DTruck = async () => {
+        const loader = new FBXLoader();
+        loader.load('/Truck/3D_Truck.fbx', (object) => {
+            // Set up the AnimationMixer
+            window.mixer = new THREE.AnimationMixer(object);
+            // Traverse the loaded object to find and play animations
+            object.animations.forEach((clip, index) => {
+                if (index === 1 || index === 3) return
+                const action = window.mixer.clipAction(clip);
+                action.play();
+            });
+
+            object.traverse((child: any) => {
+                if (child.isMesh) {
+                    // Set depthTest to false
+                    child.material.needsUpdate = true;  // Ensure material is updated
+                }
+            });
+            object.scale.set(0.25, 0.25 , 0.25);
+            object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
+            object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
+            object.rotation.z = 0;           // Z-axis correction if needed
+            object.position.z += 20
+
+            const group = new THREE.Group();
+            group.add(object)
+            group.renderOrder = 9999; // Ensure the whole group renders on top
+            group.visible = false
+
+            window.TruckObject = group
+            window.map.scene.add(group);
+        }, (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, (error) => {
+            console.error('An error occurred:', error);
+        });
+        
+    }
+
+    const isAnimationRef = useRef(isAnimation);
+    useEffect(() => {
+        isAnimationRef.current = isAnimation;
+    }, [isAnimation]);
+
+    const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
+        geojsonData.current = _geojsonData;
+    
+        _.map(geojsonData.current.features, (feature) => {
+            const bounds = bbox(feature);
+            const item = {
+                minX: bounds[0],
+                minY: bounds[1],
+                maxX: bounds[2],
+                maxY: bounds[3],
+                feature: feature
+            };
+            index.insert(item);
+        });
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
+
+        camera.up = new THREE.Vector3(0, 0, 1);
+        camera.position.set(0, 0, 5000);
+        window.animationZoom = 5000
+
+        camera.updateMatrixWorld();
+        camera.updateProjectionMatrix();
+        window.camera = camera;
+        const renderer = new THREE.WebGLRenderer({
+            antialias: false,
+            alpha: true,
+            // logarithmicDepthBuffer: false,
+        });
+
+        if (localMapContainerRef.current) {
+            renderer.domElement.className = "threejs-view";
+            localMapContainerRef.current.appendChild(renderer.domElement);
+            renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
+        }
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        window.renderer = renderer
+        const controls = new MapControls(window.camera, renderer.domElement);
+        controls.autoRotate = false;
+        controls.maxPolarAngle = Math.PI * 0.3;
+        window.controls = controls;
+
+        let controlsGizmo = new OrbitControlsGizmo(controls, { size: 100, padding: 8 });
+        // Add the Gizmo to the document
+        localMapContainerRef.current && localMapContainerRef.current.appendChild(controlsGizmo.domElement);
+        
+        // Load the background image using THREE.TextureLoader
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        var axesHelper = new THREE.AxesHelper(2000)
+        // scene.add(axesHelper)
+
+        // scene.background = new THREE.Color(0x91abb5);
+        scene.fog = new THREE.FogExp2(0x91abb5, 0.000001);
+
+        const ambientLight = new THREE.AmbientLight(0x404040, 2);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        dirLight.castShadow = true;
+        dirLight.position.set(10000, 10000, 10000);
+        scene.add(ambientLight);
+        scene.add(dirLight);
+
+        const position = [lat, lng];
+        const source = new Source('mapbox', mapboxgl.accessToken);
+        let nTiles = 24;
+        let zoom = 18
+        const map = new Map(scene, window.camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
+        window.map = map;
+        const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
+        window.mapPicker = mapPicker;
+        controls.addEventListener('change', () => {
+            if (window.isAnimation) {
+                // console.log(window.savedCameraPosition)
+                // const zoomAmount = window.camera.position.z - window.animationZoom > 0 ? 10 : -10; // Zoom out or in
+                // window.camera.fov = Math.max(20, Math.min(75, window.camera.fov + zoomAmount)); // Limit the FOV between 20 and 75
+                // window.camera.updateProjectionMatrix(); // Update projection matrix after changing FOV
+                // window.animationZoom = window.camera.position.z
+            }
+        });
+        const grid: any = new InfiniteGridHelper(16, 256);
+        scene.add(grid);
+
+        // set routes to the map variable
+        map.setRoutes(vehicleRoutes)
+        // set default categories
+        map.setFilteredCategories([])
+        // draw the routes only one time
+        let drawed = true
+
+        await fetch3DTruck()
+
+        // Main render loop
+        const mainLoop = (timestamp: number) => {
+            animationFrameId = requestAnimationFrame(mainLoop);
+            
+            if (map.progress >= nTiles * nTiles) {
+                if (drawed) {
+                    setIsLoading(false);
+                    drawGeofences()
+                    drawMarkers && drawMarkers()
+                    window.map.drawRoutes()
+                    drawed = false
+                }
+            } else {
+                let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
+                setProgress(_progress);
+            }
+            if (window.isAnimation) {
+                renderer.render(scene, window.camera);
+            } else {
+                // Lock the camera to the last position during pause
+                window.savedCameraPosition && window.camera.position.copy(window.savedCameraPosition);
+                window.savedCameraQuaternion && window.camera.quaternion.copy(window.savedCameraQuaternion);
+                window.savedCameraPosition = null
+                window.savedCameraQuaternion = null
+                renderer.render(scene, window.camera);
+            }
+        
+            // Conditionally update controls
+            if (window.isAnimation) {
+                // window.controls.update();
+                animateWheels()          
+            }
+            updateAnnotations && updateAnnotations();
+            updateMarkerTooltip && updateMarkerTooltip();
+        };
+        mainLoop(0);
+        WindowResize(renderer, window.camera);
+    }, [setProgress])
+
+    const animateWheels = () => {
+        window.mixer && window.mixer.update(100)
+    }
+
+    useEffect(() => {
+        if (!window.map) return
+        if (isLight) {
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND_LIGHT, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+        else{
+            const loader = new THREE.TextureLoader();
+            loader.load(BACKGROUND, (texture) => {
+                window.map.scene.background = texture;  // Set the loaded texture as the background
+            });
+        }
+    }, [isLight])
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const [showToolTip, setShowToolTip] = useState<boolean>(false)
+    const [properties, setProperties] = useState<Propertytype | null>(null)
+    const onDocumentMouseMove = useCallback((event) => {
+        if (!localMapContainerRef.current || !window.map) return
+        // Normalize mouse position to -1 to 1 range
+        const rect = localMapContainerRef.current.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / localMapContainerRef.current.clientWidth) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / localMapContainerRef.current.clientHeight) * 2 + 1;
+        // Update raycaster with the mouse position and the camera
+        window.camera.updateProjectionMatrix();
+        window.camera.updateMatrixWorld();
+        raycaster.setFromCamera(mouse, window.camera);
+        
+        const x = (mouse.x * 0.5 + 0.5) * localMapContainerRef.current.clientWidth;
+        const y = -(mouse.y * 0.5 - 0.5) * localMapContainerRef.current.clientHeight;
+        // Check for intersections with clickable sprites
+        const intersects = raycaster.intersectObjects(window.map.scene.children, true);
+        // Change cursor style based on intersection
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+            if (intersectedObject.userData && intersectedObject.userData.isGeoFence) {
+                document.body.style.cursor = 'pointer'; // Change to desired cursor style
+                setShowToolTip(true)
+                setProperties(intersectedObject.userData.properties)
+
+                const tooltipRef = document.getElementById(`tooltipRef`);
+                if (tooltipRef) {
+                    tooltipRef.style.left = `${x - 120}px`;
+                    tooltipRef.style.top = `${y - 270}px`;
+                }
+            }
+            else{
+                document.body.style.cursor = 'auto'; // Default cursor style
+                setShowToolTip(false)
+            }
+        } else {
+            document.body.style.cursor = 'auto'; // Default cursor style
+            setShowToolTip(false)
+        }
+    }, [showToolTip])
+
+    useEffect(() => {
+        if (!defaultLayers || defaultLayers.length === 0) return
+        const selectedCategories = _layerOptions
+            .filter((option: any) => defaultLayers && defaultLayers.includes(option?.label)) // Get matching label from _layerOptions
+            .map(option => option.value); // Extract corresponding values (categories)
+        window.map && window.map.setFilteredCategories(selectedCategories)
+    }, [vehicleRoutes, defaultLayers])
+
+
+    const drawGeofences = useCallback(() => {
+        if (geoFences.current.length === 0 || !window.map) return
+
+        const center = {
+            tileX: window.map.center.x,
+            tileY: window.map.center.y
+        }
+        _.map(geoFences.current, _fence => {
+            if (_fence.geometry.coordinates[0].length === 0) return
+
+            const properties = _fence.properties
+            const shape = new THREE.Shape();
+
+            _.map(_fence.geometry.coordinates[0], (coord: [number, number, number], index: number) => {
+                const tileData = window.map.convertGeoToPixel(coord[1], coord[0])
+                const tileX = tileData.tileX;          // tile X coordinate of the point
+                const tileY = tileData.tileY;          // tile Y coordinate of the point
+                const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
+                const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
+                
+                const worldPos = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+                const point = new THREE.Vector3(worldPos.x, worldPos.y, (coord[2] - 400) * 2);
+                if (index === 0) {
+                    shape.moveTo(point.x, point.y);
+                } else {
+                    shape.lineTo(point.x, point.y);
+                }
+            })
+            // Extrude geometry based on the shape and elevation
+            const extrudeSettings = {
+                steps: 1,                    // Number of points along the path
+                depth:  (_fence.properties.altitude - 400) * 2 - 7,                   // Extrude along the Z axis (depth)
+                bevelEnabled: true,          // No bevel for the shape
+            };
+            shape.autoClose = true;
+            // Create the geometry and material
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: properties.fillColor, 
+                depthTest: true,
+                depthWrite: true,
+                opacity: 1 // Adjust opacity if needed
+            });
+            
+            // Create the mesh and add it to the scene
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.renderOrder = -9999
+            mesh.userData = { isGeoFence: true, properties: properties }
+            window.map.scene.add(mesh);
+        })
+    }, [geoFences])
+
+    const updateCameraView = (truckPosition, viewType) => {
+        const offsetDistance = 3000; // Adjust distance as per requirement
+        let cameraPosition;
+        window.controls.enabled = false; // Disable controls if necessary for a locked view
+      
+        switch(viewType) {
+          case 'Top':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y, truckPosition.z + offsetDistance);
+            break;
+          case 'Front':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y - offsetDistance, truckPosition.z);
+            break;
+          case 'Left':
+            cameraPosition = new THREE.Vector3(truckPosition.x - offsetDistance, truckPosition.y, truckPosition.z);
+            break;
+          case 'Right':
+            cameraPosition = new THREE.Vector3(truckPosition.x + offsetDistance, truckPosition.y, truckPosition.z);
+            break;
+          case 'Back':
+            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y + offsetDistance, truckPosition.z);
+            break;
+          default:
+            return;
+        }
+
+        const markerTooltips = document.querySelectorAll('.marker-tooltip');
+
+        _.map(markerTooltips, (marker: HTMLDivElement) => {
+            if (marker) {
+                // Hide the marker itself
+                marker.style.display = 'none';
+        
+                // Hide all child elements of the marker
+                const children = marker.querySelectorAll('div');
+                _.map(children, (child: HTMLElement) => {
+                    child.style.display = 'none';
+                });
+            }
+        });
+        let animationCameraId = 0;
+        const startPosition = window.camera.position.clone();
+        const targetPosition = cameraPosition.clone(); // The new camera position (copied from your logic)
+
+        // Truck position to look at
+        const targetLookAt = truckPosition.clone();
+
+        const animationDuration = 300;
+        let startTime: number | null = null;
+        const animateCameraMove = (time: number) => {
+            if (startTime === null) startTime = time;
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / animationDuration, 1); // Clamp progress to [0, 1]
+          
+            // Interpolate camera position
+            window.camera.position.lerpVectors(startPosition, targetPosition, progress);
+          
+            // Interpolate the lookAt position for smooth transition
+            const currentLookAt = new THREE.Vector3();
+            currentLookAt.lerpVectors(startPosition, targetLookAt, progress);
+            window.camera.lookAt(currentLookAt);
+          
+            window.camera.updateProjectionMatrix();
+            window.camera.updateMatrixWorld();
+            window.renderer.render(window.map.scene, window.camera); // Render updated frame
+          
+            // Continue animating if progress is not yet complete
+            if (progress < 1) {
+                animationCameraId = requestAnimationFrame(animateCameraMove);
+            } else {
+                // Once animation is complete, re-enable controls after a small delay
+                window.controls.enabled = true;
+                _.map(markerTooltips, (marker: HTMLDivElement) => {
+                    if (marker) {
+                        // Hide the marker itself
+                        marker.style.display = 'block';
+                
+                        // Hide all child elements of the marker
+                        const children = marker.querySelectorAll('div');
+                        _.map(children, (child: HTMLElement) => {
+                            child.style.display = 'block';
+                        });
+                    }
+                });
+            }
+        };
+          
+        // // Start the animation
+        animationCameraId = requestAnimationFrame(animateCameraMove);
+        // window.camera.position.copy(cameraPosition);
+        // window.camera.lookAt(truckPosition);
+        // window.camera.updateMatrixWorld();
+        // window.controls.enabled = true;
+    };
+    return (
+        <>
+            <Card className='threejs-view-card-header' style={{marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%'}}>
+                <CardBody className='threejs-view-body'>
+                    {isLoading ? (
+                        <>
+                            <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: 'calc(100% - 20px)', height: '50%', left: '10px'}}>
+                                <Spin className='map-loading-bar' style={{color: 'gold', background: 'transparent'}} tip="Loading...">
+                                    <Progress className='map-loading-progress-bar' percent={progress} status="active" style={{background: 'transparent'}} />
+                                </Spin>
+                            </div>
+                        </>
+                        ) : (
+                            <></>
+                        )}
+                    <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
+                        {children}
+                    </div>
+                    <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
+                        <table
+                            style={{
+                            fontFamily: "arial, sans-serif",
+                            borderCollapse: "collapse",
+                            width: "100%",
+                            // border: "1px solid #000",
+                            }}
+                        >
+                            <tbody>
+                            {properties && Object.entries(properties).map(([key, value], index) => {
+                                if (key != "id" && key != "locationId") {
+                                    return (
+                                        <tr key={key}>
+                                            <td style={{ padding: "4px" }} className='geofence-property-key'>{key}</td>
+                                            <td style={{ padding: "4px" }} className='geofence-property-value'>{key == 'fillColor' ? <><div style={{width: '50px', height: '20px', background: value}}></div></> : value}</td>
+                                        </tr>
+                                    );
+                                }
+                                return "";
+                            })}
+                            </tbody>
+                        </table>
+                        </div>
+                </CardBody>
+            </Card>
+        </>
+    )
+})
