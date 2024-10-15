@@ -94,8 +94,10 @@ const VehicleCard: FC<VehicleCardProps> = ({
   }, [shiftRoster, vehicle]);
 
   const filteredsources = sources
-    .filter((item) => item.status === "INPROGRESS" || item.status === "PLANNED")
-    .map((item) => {
+    ?.filter(
+      (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
+    )
+    ?.map((item) => {
       if (item.status === "INPROGRESS") {
         item.value = 0;
       }
@@ -103,10 +105,8 @@ const VehicleCard: FC<VehicleCardProps> = ({
     });
 
   const nextLocations = sources
-  .filter((item) => item.status === "PLANNED")
-  .sort((a: any, b: any) =>
-    a?.source.name?.localeCompare(b?.source.name)
-  );
+    ?.filter((item) => item.status === "PLANNED")
+    ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
 
   const DropTarget = ({
     targetData,

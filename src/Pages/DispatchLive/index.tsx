@@ -67,7 +67,7 @@ const DispatchLive: React.FC = () => {
   const [startDate, setStartDate] = useState<any>(null);
 
   const [selectedTab, setSelectedTab] = useState<string>("All");
-  const [diggersForShow, setdiggersForShow] = useState<any[]>([]);
+  const [diggersForShow, setDiggersForShow] = useState<any[]>([]);
 
   const [assignedTrucks, setAssignedTrucks] = useState<any[]>(
     truckAllocations || []
@@ -275,12 +275,12 @@ const DispatchLive: React.FC = () => {
   const handleChangeDiggersForShow = useCallback(
     (key: string) => {
       if (key === "All") {
-        setdiggersForShow(normalizedDispatchs);
+        setDiggersForShow(normalizedDispatchs);
       } else {
         const filteredDiggers = normalizedDispatchs.filter(
           (digger: any) => digger.excavator.name == key
         );
-        setdiggersForShow(filteredDiggers);
+        setDiggersForShow(filteredDiggers);
       }
     },
     [normalizedDispatchs]
@@ -383,6 +383,7 @@ const DispatchLive: React.FC = () => {
 
     if (!!deletedIds.length) {
       await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      setDeletedIds([]);
     }
     setIsLoading(false);
   };
