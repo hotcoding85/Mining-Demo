@@ -232,9 +232,9 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 }
             }
         `,
-        transparent: true,
-        depthWrite: false,
-        depthTest: false,
+        // transparent: true,
+        depthWrite: true,
+        depthTest: true,
     });
 
     const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
@@ -397,7 +397,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 curve: tubePath,
                 totalDistance: totalDistance, // Calculate the tube's distance
                 marker: null, // We'll add this later
-                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6) * 1000,  // Assuming total time is shared among tubes
+                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6) * 2000,  // Assuming total time is shared among tubes
                 progress: 0,  // Initial progress for the animation
                 currentLoad: truck.currentLoad,
                 vehicleName: truck.vehicleName,

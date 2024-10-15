@@ -1132,6 +1132,7 @@ const Replay = () => {
 
             // Calculate the point along the curve based on progress
             if (_progress < 1) {
+                if (!window.map) return
                 setTimeValue(Math.floor(_progress / 1 * totalTime))
                 const point = curve.getPointAt(_progress);  // Get the point along the tube curve
                 const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward 
@@ -1186,7 +1187,7 @@ const Replay = () => {
                     window.camera.updateMatrixWorld();
                     window.savedCameraPosition = window.camera.position.clone();
                     window.savedCameraQuaternion = window.camera.quaternion.clone();
-                    window.renderer.render(window.map.scene, window.camera); // Render updated frame
+                    window.map && window.renderer.render(window.map.scene, window.camera); // Render updated frame
                     lastCameraPosition.current = window.camera.position.clone()
                     // set ToolTip content
                     setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>Stop_Sign: </span>' + total_stopSignDuration + 's')
