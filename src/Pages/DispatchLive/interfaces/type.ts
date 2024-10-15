@@ -34,6 +34,7 @@ export interface Truck {
   truckId: string;
   operator: string;
   diggerId?: string;
+  excavatorId?: string;
 }
 
 export interface DumpLocation {

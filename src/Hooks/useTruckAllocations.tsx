@@ -45,18 +45,14 @@ export const useTruckAllocations = () => {
         ...plan,
         truckId: truck.id,
         truck: truck,
-        deletedId: false,
       });
     }
   };
 
   const revokeTruckFromPlan = (truckAllocation, truckId) => {
-    const updatedTruckAllocations = savedTruckAllocations.map((t) => {
-      if (t.truckId === truckId) {
-        return { ...t, deletedId: true };
-      }
-      return t;
-    });
+    const updatedTruckAllocations = savedTruckAllocations.filter(
+      (t) => t.truckId !== truckId
+    );
     setSavedTruckAllocations(updatedTruckAllocations);
   };
 

@@ -44,7 +44,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ row, getValue }) => {
           return (
-            <div style={{fontSize: '14px'}}>
+            <div style={{ fontSize: '14px' }}>
               {row.getCanExpand() ? (
                 <button {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -745,7 +745,7 @@ const Target = (props: any) => {
         enableSorting: true,
         cell: ({ row, getValue }) => {
           return (
-            <div style={{fontSize:'14px'}}>
+            <div style={{ fontSize: '14px' }}>
               {row.getCanExpand() ? (
                 <button {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -1036,6 +1036,19 @@ const Target = (props: any) => {
             <Col lg="12" style={{ height: '60vh' }}>
               <Card style={{ height: '100%', overflow: 'auto' }}>
                 <CardBody>
+                  <h2>Excavators</h2>
+                  <TableContainer
+                    columns={diggerColumns}
+                    data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : []}
+                    total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
+                    theadClass="theadCenterAlign"
+                    isGlobalFilter={false}
+                    isBordered={false}
+                    isPagination={false}
+                    isAddButton={false}
+                  />
+                </CardBody>
+                <CardBody>
                   <h2>Trucks</h2>
                   <TableContainer
                     columns={currentTruckColumns}
@@ -1052,21 +1065,7 @@ const Target = (props: any) => {
                     handleOnDrop={handleDrop}
                   />
                 </CardBody>
-                <CardBody>
-                  <h2>Excavators</h2>
-                  <TableContainer
-                    columns={diggerColumns}
-                    data={data && data['EXCAVATOR'] ? data['EXCAVATOR'] : []}
-                    total={data && data['EXCAVATOR'] ? data['EXCAVATOR'].length : 0}
-                    theadClass="theadCenterAlign"
-                    isGlobalFilter={false}
-                    isBordered={false}
-                    isPagination={false}
-                    isAddButton={false}
-                  />
-                </CardBody>
               </Card>
-
             </Col>
           </Row>
         </Container >

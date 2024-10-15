@@ -21,7 +21,7 @@ const getStatusColor = (status: string) => {
 
 interface VehicleCardProps {
   vehicle?: any;
-  source?: any;
+  sources?: any;
   shiftRoster?: any[];
   smu: number;
   fuelLevel: number;
@@ -32,10 +32,12 @@ interface VehicleCardProps {
   assignedBenches: any[];
   addBenches: (newBenches: any, diggerId: string) => void;
   collapse: boolean;
+  changePlanState: (location: any, vehicleId: string) => void;
+  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   vehicle,
-  source,
+  sources,
   shiftRoster,
   smu,
   fuelLevel,
@@ -46,6 +48,8 @@ const VehicleCard: FC<VehicleCardProps> = ({
   assignedBenches,
   addBenches,
   collapse,
+  changePlanState,
+  addLocation,
 }) => {
   const statusColor = getStatusColor(vehicle?.status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
@@ -89,23 +93,68 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const nextLocations =
-    assignedBenches.find((location) => location.vehicleId === vehicle?.id)
-      ?.benches || [];
+  const filteredsources = useMemo(() => {
+    return (
+      sources
+        ?.filter(
+          (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
+        ) || []
+    );
+  }, [sources]);
 
-  const [{ isOver, canDrop }, drop] = useDrop({
-    accept: "BENCHITEM",
-    drop: (draggedBenches: ActiveBenchData) => {
-      addBenches(draggedBenches, vehicle?.id);
-    },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop(),
-    }),
-  });
+  const inprogressSource = useMemo(() => {
+    return filteredsources.find((item) => item.status === "INPROGRESS");
+  }, [filteredsources]);
+
+  const nextLocations = sources
+    ?.filter((item) => item.status === "PLANNED")
+    ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
+
+  const DropTarget = ({
+    targetData,
+    dropId,
+    field,
+    children,
+    updateLocations,
+    style = "",
+  }) => {
+    const [{ isOver }, drop] = useDrop(() => ({
+      accept: "image",
+      drop: ({ id, value }: any) =>
+        updateLocations(id, dropId, field, value, targetData),
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+      }),
+    }));
+
+    return (
+      <div ref={drop} className={style}>
+        {children}
+      </div>
+    );
+  };
+
+  const updateLocation = (
+    id: string,
+    dropId: string,
+    field: string,
+    value: any,
+    targetData: any
+  ) => {
+    if (dropId === "location") {
+      const roster = shiftRoster?.find((item) => item.vehicleId === vehicle.id);
+      const data = {
+        excavatorId: vehicle.id,
+        excavator: vehicle,
+        roster: roster.roster,
+        status: "PLANNED",
+      };
+      addLocation(value, targetData, data);
+    }
+  };
 
   return (
-    <div ref={drop} className="vehicle-card">
+    <div className="vehicle-card">
       <div className="vehicle-card-header">
         <div className="vehicle-header-image">
           <img src={pc2000} alt="pc2000" style={{ width: 40, height: 40 }} />
@@ -130,11 +179,38 @@ const VehicleCard: FC<VehicleCardProps> = ({
       </div>
       <div className="vehicle-card-details">
         <div className="location-item">
-          {source?.name && (
-            <select name="current-work-location" id="currentWorkLocation">
-              <option value="440_BLK1_HG01" selected>
-                {source?.name}
-              </option>
+          {!!sources?.length && (
+            <select
+              name="current-work-location"
+              id="currentWorkLocation"
+              defaultValue="0"
+              onChange={(e) => {
+                const selectedOptionId = e.target.selectedOptions[0].id;
+                changePlanState(selectedOptionId, vehicle.id);
+              }}
+            >
+              {inprogressSource ? (
+                <option
+                  key={inprogressSource.id}
+                  value={inprogressSource.value}
+                  id={inprogressSource.source.id}
+                  selected
+                  hidden
+                >
+                  {inprogressSource?.source?.name}
+                  {/* - {item?.source.blockId} */}
+                </option>
+              ) : (
+                <option hidden></option>
+              )}
+              {filteredsources.map((item) => {
+                return (
+                  <option key={item.id} value={item.value} id={item.source.id}>
+                    {item?.source?.name}
+                    {/* - {item?.source.blockId} */}
+                  </option>
+                );
+              })}
             </select>
           )}
         </div>
@@ -170,11 +246,35 @@ const VehicleCard: FC<VehicleCardProps> = ({
             <span className="vehicle-progress-label">Next Work Locations</span>
           </p>
           <div className="next-location-container">
-            {nextLocations.map((location) => (
-              <div className="item">
-                <p className="label">{location.name}</p>
-              </div>
+            {nextLocations?.map((location) => (
+              <p className="d-flex gap-3 justify-content-between mb-0">
+                <DropTarget
+                  targetData={location}
+                  dropId="location"
+                  field={"location"}
+                  updateLocations={updateLocation}
+                >
+                  <div className="d-flex flex-column gap-2 item">
+                    <span className="shift-value fill label">
+                      {location?.source?.name}
+                      {/* - {location?.source.blockId} */}
+                    </span>
+                  </div>
+                </DropTarget>
+              </p>
             ))}
+            <p className="d-flex gap-3 justify-content-between mb-0">
+              <DropTarget
+                targetData={""}
+                dropId="location"
+                field={"location"}
+                updateLocations={updateLocation}
+              >
+                <div className="d-flex flex-column gap-2 item">
+                  <span className="shift-value empty label">+New location</span>
+                </div>
+              </DropTarget>
+            </p>
           </div>
         </div>
         <div className="d-flex flex-row-reverse mt-3 mb-3">

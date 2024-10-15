@@ -18,12 +18,17 @@ interface MainCardProps {
   diggerHeader: string;
   dumpLocations: any[];
   assignedBenches: any[];
+  assignedTrucks: any[];
+  locations: any[];
   addBenches: (newBenches: any, diggerId: string) => void;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
   addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   reAssignTruckToFleet: (truck: Truck, fromId: string, toId: string) => void;
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
+  changePlanState: (location: string, vehicleId: string) => void;
+  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
+
 }
 
 const MainCard: React.FC<MainCardProps> = ({
@@ -34,12 +39,16 @@ const MainCard: React.FC<MainCardProps> = ({
   diggerHeader,
   dumpLocations,
   assignedBenches,
+  assignedTrucks,
+  locations,
   addBenches,
   addHaulRoute,
   addDumpLocation,
   assignReadyTrucks,
   reAssignTruckToFleet,
   removeTruckFromAssigned,
+  changePlanState,
+  addLocation
 }) => {
   function getRandomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -60,11 +69,11 @@ const MainCard: React.FC<MainCardProps> = ({
     () =>
       dispatch?.destination
         ? {
-            ...dispatch?.destination,
-            locationImg: dumpLocations.find(
-              (item) => dispatch?.destination?.id === item.id
-            )?.locationImg,
-          }
+          ...dispatch?.destination,
+          locationImg: dumpLocations.find(
+            (item) => dispatch?.destination?.id === item.id
+          )?.locationImg,
+        }
         : undefined,
     [dispatch.destination, dumpLocations]
   );
@@ -77,10 +86,10 @@ const MainCard: React.FC<MainCardProps> = ({
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
               vehicle={excavatorVehicle}
-              source={dispatch.source}
+              sources={dispatch.sources}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
-              fuelLevel={getRandomInt(20, 100)}
+              fuelLevel={80}
               fuelRate={getRandomFloat(40, 80, 1)}
               imageUrl={pc2000}
               lastUpdated={getRandomInt(1, 2) + "m"}
@@ -88,12 +97,14 @@ const MainCard: React.FC<MainCardProps> = ({
               assignedBenches={assignedBenches}
               addBenches={addBenches}
               collapse={false}
+              changePlanState={changePlanState}
+              addLocation={addLocation}
             />
           </div>
           <AssignBoard
             dispatchs={dispatchs}
             dispatch={dispatch}
-            assignedTrucks={[]}
+            assignedTrucks={assignedTrucks}
             assignReadyTrucks={assignReadyTrucks}
             removeTruckFromAssigned={removeTruckFromAssigned}
             reAssignTruckToFleet={reAssignTruckToFleet}
@@ -101,6 +112,8 @@ const MainCard: React.FC<MainCardProps> = ({
             haulRoutes={haulRoutes}
             addDumpLocation={addDumpLocation}
             addHaulRoute={addHaulRoute}
+            locations={locations}
+            shiftRoster={shiftRoster}
           />
         </div>
       </div>

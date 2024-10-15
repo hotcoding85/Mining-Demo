@@ -49,6 +49,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           removeTruckFromAssigned={removeTruckFromAssigned}
           reAssignTruckToFleet={assignTruckToFleet}
           directionDispalyName="wrap"
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -60,6 +61,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
         />
       </div>
       <div className="assign-item-pair">
@@ -71,6 +75,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           reAssignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           directionDispalyName="wrap"
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -82,6 +87,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
         />
       </div>
       <div className="assign-item-pair">
@@ -93,6 +101,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           reAssignTruckToFleet={assignTruckToFleet}
           removeTruckFromAssigned={removeTruckFromAssigned}
           directionDispalyName="wrap"
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -104,6 +113,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
         />
       </div>
       <div className="assign-item-pair">
@@ -115,6 +127,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           removeTruckFromAssigned={removeTruckFromAssigned}
           reAssignTruckToFleet={assignTruckToFleet}
           directionDispalyName="wrap"
+          operator={""}
         />
         <AssignMaterialItem
           diggerId={digger.id}
@@ -126,6 +139,9 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           diggerId={digger.id}
           dumpLocation={dumpLocations}
           addDumpLocation={addDumpLocation}
+          truckId={""}
+          locations={[]}
+          destinationId={""}
         />
       </div>
     </div>

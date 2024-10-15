@@ -108,6 +108,8 @@ const MainCard: React.FC<MainCardProps> = ({
               collapse={collapseView}
               assignedBenches={assignedBenches}
               addBenches={addBenches}
+              addLocation={() => {}}
+              changePlanState={() => {}}
             />
           </div>
           <AssignBoard

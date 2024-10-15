@@ -5,18 +5,24 @@ import { useDrop } from "react-dnd";
 interface AssignLocationItemProps {
   diggerId: string;
   dumpLocation: any;
-  addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
+  destinationId: any;
+  truckId:any;
+  locations: any[];
+  addDumpLocation: (newDumpLocation: any, truckId: string) => void;
 }
 
 const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
   diggerId,
   dumpLocation,
+  destinationId,
+  truckId,
+  locations,
   addDumpLocation,
 }) => {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "DUMPLOCATION",
     drop: (draggedLocation: DumpLocation) => {
-      addDumpLocation(draggedLocation, diggerId);
+      addDumpLocation(draggedLocation, truckId);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -24,19 +30,21 @@ const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
     }),
   });
 
+  const location = locations.find(item => item.id === destinationId);
+
   return (
     <div
       ref={drop}
       className={
         "assign-location-item " +
         (isOver && canDrop ? "can-drop " : "") +
-        (dumpLocation ? "filled" : "")
+        (location ? "filled" : "")
       }
     >
-      {dumpLocation ? (
+      {location ? (
         <div className="assigned-dump-item">
-          <img src={dumpLocation.locationImg} alt="north" />
-          <p className="assigned-dump-chips">{dumpLocation.name}</p>
+          <img src={location.locationImg} alt="north" />
+          <p className="assigned-dump-chips">{location.name}</p>
         </div>
       ) : (
         <p className="empty">+ Assign Location here</p>

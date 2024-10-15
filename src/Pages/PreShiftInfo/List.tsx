@@ -301,13 +301,12 @@ const List = ({
               return t?.excavatorId === excavator.id && t?.deletedId !== true;
             }) || [];
           supportTrucks.sort((a: any, b: any) =>
-            b?.name?.localeCompare(a?.name)
+            a?.truck.name?.localeCompare(b?.truck.name)
           );
 
           const plans = dispatchs.filter((l) => {
             return l?.excavatorId === excavator.id;
           });
-          plans.sort((a, b) => a?.source?.name?.localeCompare(b?.source?.name));
 
           return (
             <Row className="row d-flex pre-shift mb-4">
@@ -371,7 +370,10 @@ const List = ({
                         </p>
                         {plans?.map((item: any, index: number) => {
                           return (
-                            <p className="d-flex gap-3 justify-content-between mb-0">
+                            <p
+                              key={`${item.name}-${index}`}
+                              className="d-flex gap-3 justify-content-between mb-0"
+                            >
                               <span className="shift-label">
                                 {index == 0 ? "Location" : ""}
                               </span>
@@ -443,7 +445,7 @@ const List = ({
                     {(supportTrucks
                       ? [
                           ...supportTrucks,
-                          ...new Array(6 - supportTrucks?.length),
+                          ...new Array(Math.abs(6 - supportTrucks?.length)),
                         ]
                       : [...new Array(6)]
                     )?.map((truckAllocation: any, index: number) => {
@@ -491,7 +493,7 @@ const List = ({
                                         title="Return to Go-Line"
                                         onClick={() => {
                                           revokeTruckFromPlan(
-                                            plan,
+                                            truckAllocation,
                                             truckAllocation.truckId
                                           );
                                         }}

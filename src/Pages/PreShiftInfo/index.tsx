@@ -58,7 +58,7 @@ const PreShiftInfo = () => {
   const { savedPlans, addNewLocation, clearSavedPlans } = usePlans(dispatchs);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const { savedTruckAllocations, assignTruckToPlan, revokeTruckFromPlan } =
     useTruckAllocations();
   const { savedRosters, addNewRoster, clearSavedRoster } = useRosters();
@@ -125,6 +125,7 @@ const PreShiftInfo = () => {
   const excavators = useMemo(() => {
     return fleets.filter((fleet) => excavatorFilter(fleet));
   }, [fleets, excavatorFilter]);
+
   const findVehicle = useCallback(
     (id) => {
       return fleets.find((fleet) => fleet.id === id);
@@ -154,14 +155,6 @@ const PreShiftInfo = () => {
     addNewLocation(plan, location);
   };
 
-  const normalizedDispatch = useMemo(() => {
-    const planSourceIds = savedPlans?.map((item) => item.sourceId) || [];
-    const filteredDispaths: any[] = dispatchs?.filter(
-      (item) => !planSourceIds?.includes(item.sourceId)
-    );
-    return [...filteredDispaths, ...(savedPlans || [])];
-  }, [dispatchs, savedPlans]);
-
   const normalizedRoster = useMemo(() => {
     const rosterVehicleIds = savedRosters?.map((item) => item.vehicleId) || [];
     const filteredRosters: any[] = shiftRosters?.filter(
@@ -174,25 +167,30 @@ const PreShiftInfo = () => {
     return normalizedRoster.filter(({ vehicle }) => excavatorFilter(vehicle));
   }, [normalizedRoster, excavatorFilter]);
 
+  const removeTruckfromPlan = (plan, truckId) => {
+    if (plan?.id) {
+      setDeletedIds([...deletedIds, plan.id]);
+    }
+    revokeTruckFromPlan(plan, truckId);
+  };
+
   const handlePublish = async () => {
     setIsLoading(true);
-    
+
     if (!!savedPlans.length) {
       await dispatch(
         addDispatchs(
           savedPlans.map((item) => ({
             id: item?.id || undefined,
             excavatorId: item?.excavatorId || undefined,
-            destinationId: item?.destinationId || undefined,
             endTime: item?.endTime || undefined,
             roster: item?.roster || undefined,
             sourceId: item?.sourceId || undefined,
             startTime: item?.startTime || undefined,
-            status: 'PLANNED'
+            status: item?.status || 'PLANNED'
           }))
         )
       );
-      clearSavedPlans();
     }
 
     if (!!savedRosters.length) {
@@ -209,34 +207,23 @@ const PreShiftInfo = () => {
       clearSavedRoster();
     }
 
-    if (!!savedTruckAllocations.length) {
-      const result = savedTruckAllocations.filter(
-        (item) => item.deletedId !== undefined && !item.deletedId
-      );
-      if (!!result.length) {
-        await dispatch(
-          addTruckAllocations(
-            result.map((item) => ({
-              id: item?.id || undefined,
-              roster: item?.roster || undefined,
-              excavatorId: item?.excavatorId || undefined,
-              truckId: item?.truckId || undefined,
-              destinationId: item?.destinationId || undefined,
-            }))
-          )
-        );
-      }
+    if (!!deletedIds.length) {
+      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      setDeletedIds([]);
     }
 
     if (!!savedTruckAllocations.length) {
-      const deletedIds = savedTruckAllocations.filter(
-        (item) => item.deletedId && item?.id
+      await dispatch(
+        addTruckAllocations(
+          savedTruckAllocations.map((item) => ({
+            id: item?.id || undefined,
+            roster: item?.roster || undefined,
+            excavatorId: item?.excavatorId || undefined,
+            truckId: item?.truckId || undefined,
+            destinationId: item?.destinationId || undefined,
+          }))
+        )
       );
-      if (!!deletedIds.length) {
-        await dispatch(
-          removeTruckAllocation(deletedIds.map((item) => item?.id))
-        );
-      }
     }
 
     setIsLoading(false);
@@ -264,14 +251,14 @@ const PreShiftInfo = () => {
                   excavators={excavators}
                   excRoster={excRoster}
                   targets={targets}
-                  dispatchs={normalizedDispatch}
+                  dispatchs={savedPlans}
                   shift={shift}
                   startDate={startDate}
                   shiftRosters={normalizedRoster}
                   assignRosterToOperator={assignRosterToOperator}
                   assignLocationToPlan={assignLocationToPlan}
                   assignTruckToPlan={assignTruckToPlan}
-                  revokeTruckFromPlan={revokeTruckFromPlan}
+                  revokeTruckFromPlan={removeTruckfromPlan}
                   savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
@@ -281,7 +268,7 @@ const PreShiftInfo = () => {
                   fleets={fleets}
                   users={users}
                   benches={benches}
-                  dispatchs={normalizedDispatch}
+                  dispatchs={savedPlans}
                   savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
