@@ -396,6 +396,7 @@ export const RealTimePositioning = ({ socket }) => {
     };
 
     const animateCameraToMarker = (marker) => {
+        if (!window.map) return;
         let animationCameraId = 0
         const startPosition = window.map.camera.position.clone();
         const point = marker.position.clone(); // Zoom offset
@@ -404,6 +405,7 @@ export const RealTimePositioning = ({ socket }) => {
         const zoomDuration = 1000; // 1 second
         let startTime: number | null = null;
         window.isAnimation = true
+        window.controls && (window.controls.enabled = false)
         // Initial rotation of the camera
         const animateZoom = (time: number) => {
             if (startTime === null) startTime = time;
@@ -413,16 +415,20 @@ export const RealTimePositioning = ({ socket }) => {
             window.camera.position.lerpVectors(startPosition, targetPosition, progress);
             // THREE.Quaternion.slerp(startQuaternion, targetQuaternion, window.camera.quaternion, progress);
             window.controls.target.lerpVectors(startPosition, point, progress);
-            window.camera.updateProjectionMatrix();
-            window.camera.updateMatrixWorld();
             window.savedCameraPosition = window.camera.position.clone();
             window.savedCameraQuaternion = window.camera.quaternion.clone();
-            window.renderer.render(window.map.scene, window.camera)
+            window.camera.updateProjectionMatrix();
+            window.camera.updateMatrixWorld();
             if (progress < 1) {
                 animationCameraId = requestAnimationFrame(animateZoom);
             } 
             else{
                 window.isAnimation = false
+                setTimeout(() => {
+                    window.controls.update()
+                    window.renderer.render(window.map.scene, window.camera)
+                    window.controls && (window.controls.enabled = true)
+                }, 100);
             }
         };
 
