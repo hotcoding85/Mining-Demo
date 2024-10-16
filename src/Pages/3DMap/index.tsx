@@ -745,8 +745,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
                     </div>
-                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%'}}>
-                        <img id={'compass'} width={120} src={COMPASS} style={{transformOrigin: 'center center', filter: 'invert(1)'}}></img>
+                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%', background: '#FFF2'}}>
+                        <img id={'compass'} width={160} src={COMPASS} style={{transformOrigin: 'center center', filter: 'sepia(1)'}}></img>
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table
