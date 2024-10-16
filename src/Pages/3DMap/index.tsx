@@ -434,6 +434,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             renderer.domElement.className = "threejs-view";
             localMapContainerRef.current.appendChild(renderer.domElement);
             renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
+            renderer.domElement.addEventListener('wheel', onDocumentMouseWheel, false);
         }
 
         renderer.shadowMap.enabled = true;
@@ -639,6 +640,30 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             setShowToolTip(false)
         }
     }, [showToolTip])
+
+    const onDocumentMouseWheel = (event) => {
+        if (!window.camera || !window.isAnimation) return;
+    
+        const minZoom = 0.1;  // Set the minimum zoom level
+        const maxZoom = 3.5;  // Set the maximum zoom level
+    
+        if (event.deltaY < 0) {
+            // Scrolling up (zooming in)
+            if (window.camera.zoom < maxZoom) {  // Check if zoom level is below the max limit
+                window.camera.zoom += 0.05;
+                window.camera.zoom = Math.min(window.camera.zoom, maxZoom);  // Enforce max zoom limit
+                window.camera.updateProjectionMatrix();
+            }
+        } else {
+            // Scrolling down (zooming out)
+            if (window.camera.zoom > minZoom) {  // Check if zoom level is above the min limit
+                window.camera.zoom -= 0.05;
+                window.camera.zoom = Math.max(window.camera.zoom, minZoom);  // Enforce min zoom limit
+                window.camera.updateProjectionMatrix();
+            }
+        }
+    };
+    
 
     useEffect(() => {
         if (!defaultLayers || defaultLayers.length === 0) return
