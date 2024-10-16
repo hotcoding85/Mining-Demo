@@ -125,23 +125,23 @@ const Replay = () => {
             let _x = x, _y = y;
             switch (currentViewType.current) {
                 case 'TOP':
-                    _y = _y - 180
+                    _y = _y - 200
                     _x -= 60
                     break;
                 case 'FRONT':
                     _y = _y - 120
-                    _x += 80
+                    _x += 90
                     break;
                 case 'LEFT':
                     _x = _x - 30
-                    _y = _y - 250
+                    _y = _y - 260
                     break;
                 case 'RIGHT':
                     _x = _x - 30
-                    _y = _y - 250
+                    _y = _y - 260
                     break;
                 case 'BACK':
-                    _y = _y - 120
+                    _y = _y - 130
                     _x += 80 
                     break;
                 default:

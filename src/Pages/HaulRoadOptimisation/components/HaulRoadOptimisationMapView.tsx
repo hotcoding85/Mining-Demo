@@ -191,19 +191,19 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 break;
             case 'FRONT':
                 _y = _y - 120
-                _x += 80
+                _x += 100
                 break;
             case 'LEFT':
-                _x = _x - 30
-                _y = _y - 280
+                _x = _x - 50
+                _y = _y - 300
                 break;
             case 'RIGHT':
-                _x = _x - 30
-                _y = _y - 280
+                _x = _x - 50
+                _y = _y - 300
                 break;
             case 'BACK':
-                _y = _y - 120
-                _x += 80 
+                _y = _y - 140
+                _x += 100 
                 break;
             default:
                 break;
