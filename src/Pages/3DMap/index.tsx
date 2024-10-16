@@ -8,8 +8,8 @@ import mapboxgl from 'mapbox-gl';
 import { WindowResize } from './modules/WindowResize'
 import { InfiniteGridHelper } from './modules/InfiniteGridHelper'
 import * as THREE from "three";
-import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
-import _ from 'lodash';
+import { MapControls } from 'Components/Common/CubeCamera/OrbitControls.js';
+import _, { isArray } from 'lodash';
 import { Checkbox, CheckboxProps, Progress, Spin } from 'antd';
 import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
@@ -27,6 +27,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'; // ES6 import
 import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
+import COMPASS from 'assets/images/compass.png'
 const index = new RBush();
 
 declare global {
@@ -351,7 +352,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.mixer = new THREE.AnimationMixer(object);
             // Traverse the loaded object to find and play animations
             object.animations.forEach((clip, index) => {
-                if (index === 1 || index === 3) return
+                if ( index === 2 || index === 4 || index === 0 || index === 5 || index === 8 || index === 7) return
                 const action = window.mixer.clipAction(clip);
                 action.play();
             });
@@ -359,22 +360,33 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             object.traverse((child: any) => {
                 if (child.isMesh) {
                     // Set depthTest to false
-                    child.material.needsUpdate = true;  // Ensure material is updated
+                    if (isArray(child.material)) {
+                        child.material.map((_child) => {
+                            _child.depthTest = false
+                            _child.depthWrite = true
+                            _child.transparent = true
+                        })
+                        child.renderOrder = 9998
+                    }
+                    else{
+                        child.material.depthTest = false
+                        child.material.depthWrite = true
+                        child.material.transparent = true
+                        child.renderOrder = 10000
+                    }
                 }
             });
-            object.scale.set(0.25, 0.25 , 0.25);
+            object.scale.set(0.2, 0.2 , 0.2);
             object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
             object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
-            object.rotation.z = 0;           // Z-axis correction if needed
-            object.position.z += 20
+            object.position.z += 10
 
             const group = new THREE.Group();
             group.add(object)
-            group.renderOrder = 9999; // Ensure the whole group renders on top
             group.visible = false
 
             window.TruckObject = group
-            window.map.scene.add(group);
+            window.map.scene.add(window.TruckObject);
         }, (xhr) => {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
@@ -471,14 +483,27 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         window.map = map;
         const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
         window.mapPicker = mapPicker;
-        controls.addEventListener('change', () => {
-            if (window.isAnimation) {
-                // console.log(window.savedCameraPosition)
-                // const zoomAmount = window.camera.position.z - window.animationZoom > 0 ? 10 : -10; // Zoom out or in
-                // window.camera.fov = Math.max(20, Math.min(75, window.camera.fov + zoomAmount)); // Limit the FOV between 20 and 75
-                // window.camera.updateProjectionMatrix(); // Update projection matrix after changing FOV
-                // window.animationZoom = window.camera.position.z
+        window.controls.addEventListener('change', () => {
+            if (window.savedCameraPosition && window.savedCameraQuaternion) {
+                window.camera.position.copy(window.savedCameraPosition);
+                window.camera.quaternion.copy(window.savedCameraQuaternion);
             }
+        
+            // If you need to trigger specific logic when zoom happens during animation
+            if (window.isAnimation) {
+                handleZoomDuringAnimation();
+            }
+            var dir = new THREE.Vector3();
+            var sph = new THREE.Spherical();
+            window.camera.getWorldDirection(dir);
+            const adjustedDir = new THREE.Vector3(dir.x, dir.z, dir.y);  // Swap Y and Z
+
+            // Set spherical coordinates based on the adjusted direction
+            sph.setFromVector3(adjustedDir);
+            let normalizedTheta = -sph.theta;
+            
+            // Apply this to the compass
+            compass && (compass.style.transform = `rotate(${THREE.MathUtils.radToDeg(normalizedTheta) - 180}deg)`);
         });
         const grid: any = new InfiniteGridHelper(16, 256);
         scene.add(grid);
@@ -491,39 +516,53 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         let drawed = true
 
         await fetch3DTruck()
-
+        const cubeview: any = document.getElementById('obit-controls-gizmo')
+        const compass: any = document.getElementById('compass')
         // Main render loop
         const mainLoop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(mainLoop);
-            
+
             if (map.progress >= nTiles * nTiles) {
                 if (drawed) {
                     setIsLoading(false);
-                    drawGeofences()
                     drawMarkers && drawMarkers()
                     window.map.drawRoutes()
                     drawed = false
+                    drawGeofences()
                 }
             } else {
                 let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
                 setProgress(_progress);
             }
             if (window.isAnimation) {
-                renderer.render(scene, window.camera);
+                cubeview && (cubeview.style.display = 'none')
+
+                // Update camera and controls if in animation mode
+                animateWheels();
+                
+                // Ensure the camera position is set correctly during animation
+                if (window.savedCameraPosition) {
+                    window.camera.position.copy(window.savedCameraPosition);
+                    window.camera.quaternion.copy(window.savedCameraQuaternion);
+                    window.camera.updateProjectionMatrix();
+                    window.controls.update();
+                    renderer.render(scene, window.camera);
+                }
             } else {
+                cubeview && (cubeview.style.display = 'block')
                 // Lock the camera to the last position during pause
-                window.savedCameraPosition && window.camera.position.copy(window.savedCameraPosition);
-                window.savedCameraQuaternion && window.camera.quaternion.copy(window.savedCameraQuaternion);
-                window.savedCameraPosition = null
-                window.savedCameraQuaternion = null
-                renderer.render(scene, window.camera);
+                if (window.savedCameraPosition && window.savedCameraQuaternion) {
+                    window.camera.position.copy(window.savedCameraPosition);
+                    window.camera.quaternion.copy(window.savedCameraQuaternion);
+                    window.savedCameraPosition = null
+                    window.savedCameraQuaternion = null
+                    window.camera.updateProjectionMatrix();
+                }
+                else{
+                    renderer.render(scene, window.camera);
+                }
             }
-        
-            // Conditionally update controls
-            if (window.isAnimation) {
-                // window.controls.update();
-                animateWheels()          
-            }
+
             updateAnnotations && updateAnnotations();
             updateMarkerTooltip && updateMarkerTooltip();
         };
@@ -531,8 +570,15 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         WindowResize(renderer, window.camera);
     }, [setProgress])
 
+    const handleZoomDuringAnimation = () => {
+        if (!window.camera) return
+        if (window.camera.position.z !== window.animationZoom) {
+            window.animationZoom = window.camera.position.z;  // Update the last known Z position
+        }
+    }
+
     const animateWheels = () => {
-        window.mixer && window.mixer.update(100)
+        window.mixer && window.mixer.update(30)
     }
 
     useEffect(() => {
@@ -643,111 +689,19 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             const material = new THREE.MeshBasicMaterial({ 
                 color: properties.fillColor, 
                 depthTest: true,
-                depthWrite: true,
+                depthWrite: false,
+                transparent: false,
                 opacity: 1 // Adjust opacity if needed
             });
             
             // Create the mesh and add it to the scene
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.renderOrder = -9999
+            mesh.renderOrder = 1
             mesh.userData = { isGeoFence: true, properties: properties }
             window.map.scene.add(mesh);
         })
     }, [geoFences])
 
-    const updateCameraView = (truckPosition, viewType) => {
-        const offsetDistance = 3000; // Adjust distance as per requirement
-        let cameraPosition;
-        window.controls.enabled = false; // Disable controls if necessary for a locked view
-      
-        switch(viewType) {
-          case 'Top':
-            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y, truckPosition.z + offsetDistance);
-            break;
-          case 'Front':
-            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y - offsetDistance, truckPosition.z);
-            break;
-          case 'Left':
-            cameraPosition = new THREE.Vector3(truckPosition.x - offsetDistance, truckPosition.y, truckPosition.z);
-            break;
-          case 'Right':
-            cameraPosition = new THREE.Vector3(truckPosition.x + offsetDistance, truckPosition.y, truckPosition.z);
-            break;
-          case 'Back':
-            cameraPosition = new THREE.Vector3(truckPosition.x, truckPosition.y + offsetDistance, truckPosition.z);
-            break;
-          default:
-            return;
-        }
-
-        const markerTooltips = document.querySelectorAll('.marker-tooltip');
-
-        _.map(markerTooltips, (marker: HTMLDivElement) => {
-            if (marker) {
-                // Hide the marker itself
-                marker.style.display = 'none';
-        
-                // Hide all child elements of the marker
-                const children = marker.querySelectorAll('div');
-                _.map(children, (child: HTMLElement) => {
-                    child.style.display = 'none';
-                });
-            }
-        });
-        let animationCameraId = 0;
-        const startPosition = window.camera.position.clone();
-        const targetPosition = cameraPosition.clone(); // The new camera position (copied from your logic)
-
-        // Truck position to look at
-        const targetLookAt = truckPosition.clone();
-
-        const animationDuration = 300;
-        let startTime: number | null = null;
-        const animateCameraMove = (time: number) => {
-            if (startTime === null) startTime = time;
-            const elapsed = time - startTime;
-            const progress = Math.min(elapsed / animationDuration, 1); // Clamp progress to [0, 1]
-          
-            // Interpolate camera position
-            window.camera.position.lerpVectors(startPosition, targetPosition, progress);
-          
-            // Interpolate the lookAt position for smooth transition
-            const currentLookAt = new THREE.Vector3();
-            currentLookAt.lerpVectors(startPosition, targetLookAt, progress);
-            window.camera.lookAt(currentLookAt);
-          
-            window.camera.updateProjectionMatrix();
-            window.camera.updateMatrixWorld();
-            window.renderer.render(window.map.scene, window.camera); // Render updated frame
-          
-            // Continue animating if progress is not yet complete
-            if (progress < 1) {
-                animationCameraId = requestAnimationFrame(animateCameraMove);
-            } else {
-                // Once animation is complete, re-enable controls after a small delay
-                window.controls.enabled = true;
-                _.map(markerTooltips, (marker: HTMLDivElement) => {
-                    if (marker) {
-                        // Hide the marker itself
-                        marker.style.display = 'block';
-                
-                        // Hide all child elements of the marker
-                        const children = marker.querySelectorAll('div');
-                        _.map(children, (child: HTMLElement) => {
-                            child.style.display = 'block';
-                        });
-                    }
-                });
-            }
-        };
-          
-        // // Start the animation
-        animationCameraId = requestAnimationFrame(animateCameraMove);
-        // window.camera.position.copy(cameraPosition);
-        // window.camera.lookAt(truckPosition);
-        // window.camera.updateMatrixWorld();
-        // window.controls.enabled = true;
-    };
     return (
         <>
             <Card className='threejs-view-card-header' style={{marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%'}}>
@@ -765,6 +719,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         )}
                     <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
+                    </div>
+                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%'}}>
+                        <img id={'compass'} width={120} src={COMPASS} style={{transformOrigin: 'center center', filter: 'invert(1)'}}></img>
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table
