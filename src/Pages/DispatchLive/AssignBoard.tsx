@@ -61,7 +61,6 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
             reAssignTruckToFleet={reAssignTruckToFleet}
             removeTruckFromAssigned={removeTruckFromAssigned}
             directionDispalyName="inline"
-            operator={operators[index]?.operators[0]}
           />
           <AssignLocationItem
             diggerId={dispatch?.excavatorId}

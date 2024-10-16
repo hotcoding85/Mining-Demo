@@ -5,33 +5,57 @@ import {
   Truck,
   DumpLocation,
   Material,
+  HaulRoute,
 } from "../../DispatchLive/interfaces/type";
 import AssignMaterialItem from "./AssignMaterialItem";
 import { Vehicle } from "slices/fleet/reducer";
+import AssignRouteItem from "../../DispatchLive/AssignRouteItem";
 
 interface AssignBoardProps {
-  digger: Vehicle;
-  readyTrucks: Truck[];
   targetMaterials: Material[];
-  dumpLocations: DumpLocation[];
-  addDumpLocation: (newDumpLocation: DumpLocation) => void;
-  updateReadyTrucks: (updatedTask: Truck) => void;
-  assignTruckToFleet: (truck: Truck, diggerId: string) => void;
-  updateTargetMaterials: (updatedTask: Material) => void;
+  dispatch: any;
+  dispatchs: any[];
+  assignedTrucks: any[];
+  haulRoutes: HaulRoute[];
+  dumpLocation: DumpLocation[];
+  locations: any[];
+  shiftRoster: any;
+  inprogressSource: any;
+  updateTargetMaterials: (oldMaterial: any, updatedMaterial: any) => void;
+  addHaulRoute: (newHaulRoute: HaulRoute) => void;
+  addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
+  assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
+  reAssignTruckToFleet: (truck: Truck, fromId: string, toId: string) => void;
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
-  digger,
-  readyTrucks,
-  updateReadyTrucks,
-  assignTruckToFleet,
-  removeTruckFromAssigned,
   targetMaterials,
+  dispatch,
+  dispatchs,
+  haulRoutes,
+  dumpLocation,
+  assignedTrucks,
+  locations,
+  shiftRoster,
+  inprogressSource,
   updateTargetMaterials,
-  dumpLocations,
+  addHaulRoute,
   addDumpLocation,
+  assignReadyTrucks,
+  reAssignTruckToFleet,
+  removeTruckFromAssigned,
 }) => {
+  const filteredTrucks = assignedTrucks
+    .filter((item) => item.excavatorId === dispatch.excavatorId)
+    .sort((a: any, b: any) => a?.truck.name?.localeCompare(b?.truck.name));
+  const truckIds = filteredTrucks.map((item) => item.truckId);
+  const itemLength = filteredTrucks.length >= 5 ? filteredTrucks.length + 1 : 5;
+  const assignArr = Array.from({ length: itemLength });
+  const operators = shiftRoster.filter((item) =>
+    truckIds.includes(item.vehicleId)
+  );
+
   return (
     <div className="assign-item-container">
       <div className="assign-item-pair">
@@ -39,111 +63,35 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <p className="assign-material-item-header">Assigned Mateirals</p>
         <p className="assign-location-item-header">Hauling to Location</p>
       </div>
-
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          dispatchs={[]}
-          diggerId={digger.id}
-          assignedTruck={readyTrucks}
-          assignReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          reAssignTruckToFleet={assignTruckToFleet}
-          directionDispalyName="wrap"
-          operator={""}
-        />
-        <AssignMaterialItem
-          diggerId={digger.id}
-          sourceId={1}
-          targetMaterials={targetMaterials}
-          updateTargetMaterials={updateTargetMaterials}
-        />
-        <AssignLocationItem
-          diggerId={digger.id}
-          dumpLocation={dumpLocations}
-          addDumpLocation={addDumpLocation}
-          truckId={""}
-          locations={[]}
-          destinationId={""}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          dispatchs={[]}
-          diggerId={digger.id}
-          assignedTruck={readyTrucks}
-          assignReadyTrucks={updateReadyTrucks}
-          reAssignTruckToFleet={assignTruckToFleet}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="wrap"
-          operator={""}
-        />
-        <AssignMaterialItem
-          diggerId={digger.id}
-          sourceId={2}
-          targetMaterials={targetMaterials}
-          updateTargetMaterials={updateTargetMaterials}
-        />
-        <AssignLocationItem
-          diggerId={digger.id}
-          dumpLocation={dumpLocations}
-          addDumpLocation={addDumpLocation}
-          truckId={""}
-          locations={[]}
-          destinationId={""}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          dispatchs={[]}
-          diggerId={digger.id}
-          assignedTruck={readyTrucks}
-          assignReadyTrucks={updateReadyTrucks}
-          reAssignTruckToFleet={assignTruckToFleet}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          directionDispalyName="wrap"
-          operator={""}
-        />
-        <AssignMaterialItem
-          diggerId={digger.id}
-          sourceId={3}
-          targetMaterials={targetMaterials}
-          updateTargetMaterials={updateTargetMaterials}
-        />
-        <AssignLocationItem
-          diggerId={digger.id}
-          dumpLocation={dumpLocations}
-          addDumpLocation={addDumpLocation}
-          truckId={""}
-          locations={[]}
-          destinationId={""}
-        />
-      </div>
-      <div className="assign-item-pair">
-        <AssignTruckItem
-          dispatchs={[]}
-          diggerId={digger.id}
-          assignedTruck={readyTrucks}
-          assignReadyTrucks={updateReadyTrucks}
-          removeTruckFromAssigned={removeTruckFromAssigned}
-          reAssignTruckToFleet={assignTruckToFleet}
-          directionDispalyName="wrap"
-          operator={""}
-        />
-        <AssignMaterialItem
-          diggerId={digger.id}
-          sourceId={4}
-          targetMaterials={targetMaterials}
-          updateTargetMaterials={updateTargetMaterials}
-        />
-        <AssignLocationItem
-          diggerId={digger.id}
-          dumpLocation={dumpLocations}
-          addDumpLocation={addDumpLocation}
-          truckId={""}
-          locations={[]}
-          destinationId={""}
-        />
-      </div>
+      {assignArr.map((_, index) => (
+        <div className="assign-item-pair">
+          <AssignTruckItem
+            dispatchs={dispatchs}
+            diggerId={dispatch?.excavatorId}
+            assignedTruck={filteredTrucks[index]}
+            assignReadyTrucks={assignReadyTrucks}
+            reAssignTruckToFleet={reAssignTruckToFleet}
+            removeTruckFromAssigned={removeTruckFromAssigned}
+            directionDispalyName="inline"
+          />
+          <AssignMaterialItem
+            vehicleId={dispatch?.excavatorId}
+            truck={filteredTrucks[index]}
+            inprogressSource={inprogressSource}
+            shiftRoster={shiftRoster}
+            targetMaterials={targetMaterials}
+            updateTargetMaterials={updateTargetMaterials}
+          />
+          <AssignLocationItem
+            diggerId={""}
+            dumpLocation={""}
+            addDumpLocation={addDumpLocation}
+            truckId={""}
+            locations={[]}
+            destinationId={""}
+          />
+        </div>
+      ))}
     </div>
   );
 };

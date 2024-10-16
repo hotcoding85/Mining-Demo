@@ -1,7 +1,7 @@
 import { useState, FC, useMemo } from "react";
 import { pc2000 } from "assets/images/equipment";
 import { Progress } from "antd";
-import { ActiveBenchData } from "./interfaces/type";
+import { ActiveBenchData } from "Pages/DispatchLive/interfaces/type";
 import { useDrop } from "react-dnd";
 
 const getStatusColor = (status: string) => {
@@ -30,8 +30,9 @@ interface VehicleCardProps {
   lastUpdated: string;
   sync: "manual" | "inactive" | "active";
   assignedBenches: any[];
-  addBenches: (newBenches: any, diggerId: string) => void;
+  filteredsources: any[];
   collapse: boolean;
+  addBenches: (newBenches: any, diggerId: string) => void;
   changePlanState: (location: any, vehicleId: string) => void;
   addLocation: (newLocation: any, oldLocation: any, data: any) => void;
 }
@@ -46,8 +47,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
   lastUpdated,
   sync,
   assignedBenches,
-  addBenches,
   collapse,
+  filteredsources,
+  addBenches,
   changePlanState,
   addLocation,
 }) => {
@@ -93,18 +95,6 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const filteredsources = useMemo(() => {
-    return (
-      sources?.filter(
-        (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
-      ) || []
-    );
-  }, [sources]);
-
-  const inprogressSource = useMemo(() => {
-    return filteredsources.find((item) => item.status === "INPROGRESS");
-  }, [filteredsources]);
-
   const nextLocations = sources
     ?.filter((item) => item.status === "PLANNED")
     ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
@@ -142,7 +132,10 @@ const VehicleCard: FC<VehicleCardProps> = ({
   ) => {
     if (dropId === "location") {
       const { id: vehicleId, excavator = {} } = vehicle;
-      const roster = shiftRoster?.[0]?.roster ?? "";
+      const roster =
+        shiftRoster?.find((item) => item.vehicleId === vehicleId)?.roster ??
+        shiftRoster?.[0]?.roster ??
+        [];
 
       const data = {
         excavatorId: vehicleId,
@@ -180,42 +173,6 @@ const VehicleCard: FC<VehicleCardProps> = ({
         </span>
       </div>
       <div className="vehicle-card-details">
-        <div className="location-item">
-          {!!sources?.length && (
-            <select
-              name="current-work-location"
-              id="currentWorkLocation"
-              defaultValue="0"
-              onChange={(e) => {
-                const selectedOptionId = e.target.selectedOptions[0].id;
-                changePlanState(selectedOptionId, vehicle.id);
-              }}
-            >
-              {inprogressSource ? (
-                <option
-                  key={inprogressSource.id}
-                  value={inprogressSource.value}
-                  id={inprogressSource.source.id}
-                  selected
-                  hidden
-                >
-                  {inprogressSource?.source?.name}
-                  {/* - {item?.source.blockId} */}
-                </option>
-              ) : (
-                <option hidden></option>
-              )}
-              {filteredsources.map((item) => {
-                return (
-                  <option key={item.id} value={item.value} id={item.source.id}>
-                    {item?.source?.name}
-                    {/* - {item?.source.blockId} */}
-                  </option>
-                );
-              })}
-            </select>
-          )}
-        </div>
         <div className="vehicle-card-progress">
           <p className="vehicle-progress-text">
             <span className="vehicle-progress-label">Fuel Level</span>

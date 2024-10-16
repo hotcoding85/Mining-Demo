@@ -28,7 +28,6 @@ interface MainCardProps {
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
   changePlanState: (location: string, vehicleId: string) => void;
   addLocation: (newLocation: any, oldLocation: any, data: any) => void;
-
 }
 
 const MainCard: React.FC<MainCardProps> = ({
@@ -63,8 +62,6 @@ const MainCard: React.FC<MainCardProps> = ({
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
 
-  const excavatorVehicle = dispatch?.excavator;
-
   const normalizeDestination = useMemo(
     () =>
       dispatch?.destination
@@ -85,7 +82,7 @@ const MainCard: React.FC<MainCardProps> = ({
           <div className="vehicle-card-container">
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
-              vehicle={excavatorVehicle}
+              vehicle={dispatch}
               sources={dispatch.sources}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}

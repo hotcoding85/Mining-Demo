@@ -47,12 +47,9 @@ const Dispatch = () => {
   const { users } = useSelector(UserSelector);
   const { fleet } = useSelector(FleetSelector);
   const [operators, setOperators] = useState<any>([]);
-  const [filteredOperators, setFilteredOperators] = useState<
-    User[]
-  >([]);
+  const [filteredOperators, setFilteredOperators] = useState<User[]>([]);
   const [trucks, setTrucks] = useState<any>([]);
-  const [equipmentList, setEquipmentList] =
-    useState<Vehicle[]>(fleet);
+  const [equipmentList, setEquipmentList] = useState<Vehicle[]>(fleet);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
@@ -151,7 +148,8 @@ const Dispatch = () => {
     dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
     const queryParams = new URLSearchParams(window.location.search);
-    setShift(queryParams.get("shift") ? queryParams.get("shift") : "DS");
+    const hour = new Date().getHours();
+    setShift(hour >= 6 && hour < 18 ? "DS" : "NS");
     setStartDate(
       queryParams.get("date")
         ? new Date(queryParams.get("date") || new Date())
@@ -170,7 +168,6 @@ const Dispatch = () => {
   useEffect(() => {
     dispatch(getShiftRosters(format(startDate, "yyyy-MM-dd") + ":" + shift)); // Dispatch action to fetch data on component mount
   }, [dispatch, shift, startDate]);
-
 
   useEffect(() => {
     setOperators(
@@ -284,8 +281,8 @@ const Dispatch = () => {
     let rosterTrucks: any = rosters.map((roster) => {
       return roster.trucks && roster.trucks[0]
         ? roster.trucks.map((truck) => {
-          return truck.id;
-        })
+            return truck.id;
+          })
         : undefined;
     });
 
@@ -341,13 +338,11 @@ const Dispatch = () => {
     delete shiftRoster?._id;
     delete shiftRoster?.vehicle;
 
-    if (shiftRoster)
-      shiftRoster["operators"] = [];
+    if (shiftRoster) shiftRoster["operators"] = [];
 
     if (rosterId) {
       dispatch(updateShiftRoster(rosterId, shiftRoster));
     }
-
   };
 
   // const removeTrainer = (event) => {
@@ -388,7 +383,7 @@ const Dispatch = () => {
   //   shiftRoster["trucks"] = trucks;
   //   dispatch(updateShiftRoster(rosterId, shiftRoster));
   // };
-  
+
   const handleDragStart = (event: DragEndEvent) => {
     const { active } = event;
     const activeId = active.id as string;
@@ -649,12 +644,19 @@ const Dispatch = () => {
   };
 
   const matchSkill = (model: string, person: any) => {
-    if (!person?.skills || !Array.isArray(person.skills) || person.skills.length === 0) {
+    if (
+      !person?.skills ||
+      !Array.isArray(person.skills) ||
+      person.skills.length === 0
+    ) {
       return false;
     }
 
-    return person?.skills?.includes(model) || person?.skills?.filter(s => model.startsWith(s)).length > 0;
-  }
+    return (
+      person?.skills?.includes(model) ||
+      person?.skills?.filter((s) => model.startsWith(s)).length > 0
+    );
+  };
 
   const handleMouseEnter = (index: number) => setTooltipIndex(index);
 
@@ -764,12 +766,12 @@ const Dispatch = () => {
                                           <select
                                             className={
                                               equipment.state.toLowerCase() ===
-                                                "standby"
+                                              "standby"
                                                 ? "select-alert"
                                                 : equipment.state.toLowerCase() ===
                                                   "down"
-                                                  ? "select-danger"
-                                                  : ""
+                                                ? "select-danger"
+                                                : ""
                                             }
                                             value={equipment.state}
                                             onChange={(event) =>
@@ -808,9 +810,10 @@ const Dispatch = () => {
                                                 }}
                                                 onClick={() =>
                                                   removeOperator(
-                                                    `${equipment.id}::${getOperators(
-                                                      equipment?.id
-                                                    )[0].id
+                                                    `${equipment.id}::${
+                                                      getOperators(
+                                                        equipment?.id
+                                                      )[0].id
                                                     }`
                                                   )
                                                 }
@@ -855,7 +858,7 @@ const Dispatch = () => {
                             disabled={false}
                             name={person.firstName + " " + person.lastName}
                             person={person}
-                            onDragStart={() => { }}
+                            onDragStart={() => {}}
                           >
                             <List.Item
                               style={{ borderBottom: "1px solid #e8e8e8" }}
