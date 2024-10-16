@@ -174,27 +174,44 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const animationCameraId = useRef<number>(0)
   const [isAnimation, setIsAnimation] = useState<boolean>(false)
 
-  const updateTooltip = useCallback(() => {
-    if (!mapContainer.current || !currentAnimationMarker.current) return
-    const screenPosition = currentAnimationMarker.current.clone();
-    screenPosition.project(window.map.camera); // Project to screen space
-    
-    const x = mapContainer.current.clientWidth / 2;
-    const y = mapContainer.current.clientHeight / 2;
-    
+  const updateMarkerTooltip = useCallback((point) => {
+    if (!mapContainer.current || !window.map) return
+    const _point = point
+    const mapContainerElement = mapContainer.current.getMapContainer();
+    const screenPoint = _point.clone().project(window.camera);
+    const x = (screenPoint.x * 0.5 + 0.5) * (mapContainerElement.clientWidth);
+    const y = -(screenPoint.y * 0.5 - 0.5) * (mapContainerElement.clientHeight);
     const annotationDiv = document.getElementById(`marker-tooltip`);
     if (annotationDiv) {
-        annotationDiv.style.right = `0px`;
-        annotationDiv.style.top = `0px`;
-
-        // Check if the annotation is inside the viewport
-        const isInViewport = (
-            x >= 0 && x <= mapContainer.current.clientWidth &&
-            y >= 0 && y <= mapContainer.current.clientHeight
-        );
-
+        let _x = x, _y = y;
+        switch (currentViewType.current) {
+            case 'TOP':
+                _y = _y - 240
+                _x -= 60
+                break;
+            case 'FRONT':
+                _y = _y - 120
+                _x += 80
+                break;
+            case 'LEFT':
+                _x = _x - 30
+                _y = _y - 280
+                break;
+            case 'RIGHT':
+                _x = _x - 30
+                _y = _y - 280
+                break;
+            case 'BACK':
+                _y = _y - 120
+                _x += 80 
+                break;
+            default:
+                break;
+        }
+        annotationDiv.style.left = `${_x}px`;
+        annotationDiv.style.top = `${_y}px`;
     }
-  }, [isAnimation]);
+}, [isAnimation])
 
   function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
     const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 4, 4, false);
@@ -232,9 +249,9 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 }
             }
         `,
-        // transparent: true,
-        depthWrite: true,
-        depthTest: true,
+        transparent: true,
+        depthWrite: false,
+        depthTest: false,
     });
 
     const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
@@ -249,6 +266,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const clearAnimation = () => {
     setIsAnimation(false)
     if (!window.map) return
+    window.camera.zoom = 1
     // Remove previous route
     if (activeObjects.current && activeObjects.current.tube) {
         window.map.scene.remove(activeObjects.current.tube);
@@ -277,6 +295,8 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
   useEffect(() => {
     currentViewType.current = viewType
+    if (!window.camera) return
+    window.camera.zoom = 1
   }, [viewType])
 
   useEffect(() => {
@@ -286,6 +306,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
         clearAnimation()
         setIsAnimation(true)
         setDuringAnimation(true)
+        window.camera.zoom = 1
         window.isAnimation = true
         let passedSegment = 0;
         let tubes: any = []; // Array to store all tubes and their associated data
@@ -448,7 +469,6 @@ const HaulRoadOptimisationMapView = (props: any) => {
             // Animation loop for a single segment
             const animate = (timestamp) => {
                 const currentPlaybackSpeed = currentSpeed.current;
-                updateTooltip()
                 const cameraOffset = new THREE.Vector3(100, 100, 100);  // Adjust offset as needed
 
                 if (!animationRef.current.startTime) {
@@ -466,6 +486,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                     const point = curve.getPointAt(_progress);
                     const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
                     if (point) {
+                        if (!window.map) return
                         window.TruckObject && (window.TruckObject.visible = true)
                         currentAnimationMarker.current = point
                         marker.position.set(point.x, point.y, point.z);
@@ -527,6 +548,8 @@ const HaulRoadOptimisationMapView = (props: any) => {
                         // set ToolTip content
 
                         setMarkerToolTipContent('<span>Vehicle: </span>' + vehicleName + '<br/><span>Operator: </span>' + operatorName + '<br/><span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + speedLimit + 'km/h' + '<br/><span>Total: </span>' + (100) + 's<br/><span>Tonnes: </span>' + currentLoad + 't')
+
+                        updateMarkerTooltip(point)
                     }
 
                     // marker.scale.set(pulseScale * 50, pulseScale * 50, 1); // Apply pulsing scale
@@ -590,29 +613,19 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 });
             }
             else{
-                window.TruckObject && (window.TruckObject.visible = false)
-                setDuringAnimation(false)
-                window.isAnimation = false
-                const zoomDuration = 1000; // 1 second
-                let startTime: number | null = null;
-                const startPosition = segments[0][0];
-                const point = segments[segments.length - 1][segments[segments.length - 1].length - 1]
-                const targetPosition = point.clone().add(point); // Zoom offset
-                const animateZoom = (time: number) => {
-                  if (startTime === null) startTime = time;
-                  const _elapsed = time - startTime;
-                  const _progress = Math.min(_elapsed / zoomDuration, 1);
-                  window.map.camera.position.lerpVectors(startPosition, targetPosition, _progress);
-                  window.controls.target.lerpVectors(startPosition, point, _progress);
-                  window.controls.update();
-                  if (_progress < 1) {
-                      animationCameraId.current = requestAnimationFrame(animateZoom);
-                  }
-                  else {
-                    cancelAnimationFrame(animationCameraId.current)
-                    animationCameraId.current = 0
-                  } 
-                };
+              window.TruckObject.visible = false
+              // Clean up marker
+              // window.map.scene.remove(marker);
+              setIsAnimation(false)
+              setDuringAnimation(false)
+              // Segment animation complete, proceed to next
+              animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
+              animationRef.current.startTime = null;
+              window.isAnimation = false
+              setTimeout(() => {
+                  window.controls.target.copy(currentAnimationMarker.current);
+                  window.controls.enabled = true;
+              }, 300)
             }
         };
 

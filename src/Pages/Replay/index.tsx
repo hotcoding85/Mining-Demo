@@ -113,18 +113,42 @@ const Replay = () => {
     const currentAnimationStatus = useRef<boolean>(false)
     const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
 
-    const updateMarkerTooltip = useCallback(() => {
-        if (!mapContainer.current || !currentAnimationMarker.current || !window.map) return
-        const screenPosition = currentAnimationMarker.current.clone();
-        screenPosition.project(window.camera); // Project to screen space
-        
-        const x = mapContainer.current.clientWidth / 2;
-        const y = mapContainer.current.clientHeight / 2;
-        
+    const updateMarkerTooltip = useCallback((point) => {
+        if (!mapContainer.current || !NextCameraPoistion.current || !window.map) return
+        const _point = point
+        const mapContainerElement = mapContainer.current.getMapContainer();
+        const screenPoint = _point.clone().project(window.camera);
+        const x = (screenPoint.x * 0.5 + 0.5) * (mapContainerElement.clientWidth);
+        const y = -(screenPoint.y * 0.5 - 0.5) * (mapContainerElement.clientHeight);
         const annotationDiv = document.getElementById(`marker-tooltip`);
         if (annotationDiv) {
-            annotationDiv.style.right = `0px`;
-            annotationDiv.style.top = `0px`;
+            let _x = x, _y = y;
+            switch (currentViewType.current) {
+                case 'TOP':
+                    _y = _y - 180
+                    _x -= 60
+                    break;
+                case 'FRONT':
+                    _y = _y - 120
+                    _x += 80
+                    break;
+                case 'LEFT':
+                    _x = _x - 30
+                    _y = _y - 250
+                    break;
+                case 'RIGHT':
+                    _x = _x - 30
+                    _y = _y - 250
+                    break;
+                case 'BACK':
+                    _y = _y - 120
+                    _x += 80 
+                    break;
+                default:
+                    break;
+            }
+            annotationDiv.style.left = `${_x}px`;
+            annotationDiv.style.top = `${_y}px`;
         }
     }, [isAnimation])
 
@@ -390,11 +414,20 @@ const Replay = () => {
                     cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
             }
             // Set the camera position behind the marker (car)
+            if (window.controls) window.controls.enabled = false;
+
             const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
             window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
             // Interpolate the lookAt position for smooth transition
             window.camera.lookAt(NextCameraPoistion.current);
-            window.controls.update()
+            console.log('paused position:' + window.camera.position)
+            setTimeout(() => {
+                window.controls.target.copy(currentAnimationMarker.current);
+                window.controls.enabled = true;
+                window.camera.zoom = 1
+                window.camera.updateProjectionMatrix();
+            }, 300)
+            window.renderer.render(window.map.scene, window.camera)
             window.savedCameraPosition = window.camera.position.clone();
             window.savedCameraQuaternion = window.camera.quaternion.clone();
         }
@@ -408,6 +441,8 @@ const Replay = () => {
 
     useEffect(() => {
         currentViewType.current = viewType
+        if (!window.camera) return
+        window.camera.zoom = 1
         if (duringAnimation && !currentIsPlaying.current) {
             let cameraOffset = new THREE.Vector3();
             forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
@@ -447,8 +482,9 @@ const Replay = () => {
             window.camera.lookAt(NextCameraPoistion.current);
             window.savedCameraPosition = window.camera.position.clone();
             window.savedCameraQuaternion = window.camera.quaternion.clone();
+            currentAnimationMarker.current && updateMarkerTooltip(currentAnimationMarker.current)
         }
-    }, [viewType, duringAnimation])
+    }, [viewType, duringAnimation, currentAnimationMarker])
 
     const handleSpeedChange = (value: number) => {
         setSpeed(value);
@@ -949,11 +985,12 @@ const Replay = () => {
                 }
             `,
             transparent: true,
-            depthWrite: true,
-            depthTest: true,
+            depthWrite: false,
+            depthTest: false,
         });
     
         const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+        tube.renderOrder = 1000;
         return tube;
     }
 
@@ -1040,11 +1077,11 @@ const Replay = () => {
         if (!totalTime || totalTime === 0) {
             totalTime = Math.floor(distance / (saving_data.speedLimits / 3.6));  // Assumed speed in m/s
         }
-
         // Animation loop
         const duration = totalTime * 1000;  // Convert total time to milliseconds
         const totalDistance = distance;
         let prevXvalue: null | number = null, prevYvalue: null | number = null;
+        window.camera && (window.camera.zoom = 1)
         const animate = (timestamp) => {
             const currentPlaybackSpeed = currentSpeed.current;
             if (!animationRef.current.startTime) {
@@ -1183,16 +1220,18 @@ const Replay = () => {
                     window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
                     // Make the camera look ahead (at the next point on the curve)
                     window.camera.lookAt(nextPoint);
+
                     window.camera.updateProjectionMatrix();
                     window.camera.updateMatrixWorld();
                     window.savedCameraPosition = window.camera.position.clone();
                     window.savedCameraQuaternion = window.camera.quaternion.clone();
-                    window.map && window.renderer.render(window.map.scene, window.camera); // Render updated frame
                     lastCameraPosition.current = window.camera.position.clone()
                     // set ToolTip content
                     setMarkerToolTipContent('<span>Distance: </span>' + Math.ceil(distanceCovered) + 'm<br/><span>Altitude: </span>' + Math.floor(point.z / 2 + 400) + 'm' + "<br/><span>Speed: </span>" + Math.floor(saving_data.speedLimits) + "km/h" + '<br/><span>Total: </span>' + (totalTime + total_stopSignDuration) + 's<br/><span>Stop_Sign: </span>' + total_stopSignDuration + 's')
 
                     window.TruckObject && (window.TruckObject.visible = true)
+                    // set Marker
+                    updateMarkerTooltip(point)
                 }
             }
             if (_progress < 1) {
@@ -1210,7 +1249,6 @@ const Replay = () => {
 
             } else {
                 window.TruckObject.visible = false
-                activeObjects.current.tube.material.uniforms.progress.value = 1
                 // Clean up marker
                 // window.map.scene.remove(marker);
                 setIsAnimation(false)
@@ -1220,6 +1258,12 @@ const Replay = () => {
                 animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
                 animationRef.current.startTime = null;
                 window.isAnimation = false
+                setTimeout(() => {
+                    window.controls.target.copy(currentAnimationMarker.current);
+                    window.controls.enabled = true;
+                    window.camera.zoom = 1
+                    window.camera.updateProjectionMatrix();
+                }, 300)
             }
         };
 
@@ -1357,8 +1401,7 @@ const Replay = () => {
                                             isLoading={isLoading} 
                                             setIsLoading={setIsLoading} 
                                             drawMarkers={drawMarkers} 
-                                            updateAnnotations={updateAnnotations} 
-                                            updateMarkerTooltip={updateMarkerTooltip}
+                                            updateAnnotations={updateAnnotations}
                                             isAnimation={!isAnimation}
                                         >
                                             {
@@ -1397,7 +1440,7 @@ const Replay = () => {
                                             {equipments.map((annotation, index) => (
                                                 <RippleIcon key={index} annotation={annotation} isLoading={isLoading} duringAnimation={duringAnimation} />
                                             ))}
-                                            <div className="truck-tooltip" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
+                                            <div className="truck-tooltip" id="marker-tooltip" style={{display: isPlaying ? 'block' : 'none'}}>
                                                 <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
                                             </div>
                                         </THREEJSMap>
