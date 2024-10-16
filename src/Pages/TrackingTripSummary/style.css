@@ -1,0 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+.currentdatepicker{
+  float: right;
+}
+
+.trucking-trip-summary-cards{
+  padding: 1rem !important;
+}
+
+.waste-material-movement, .total-rom-ore {
+  align-items: center;
+  flex-direction: column;
+}
+
+.font-color-red{
+  color: red;
+  font-size: 14px;
+}
+
+.font-color-green {
+  color: green;
+  font-size: 14px;
+}
+
+.truck-icon-green > svg{
+  width: 24px;
+  height: 24px;
+  color: #449e23;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.truck-icon-red > svg {
+  width: 24px;
+  height: 24px;
+  color: #ff3f3f;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.gaugechart-subtext {
+  position: absolute;
+  bottom: 55px;
+}
+
+body[data-layout-mode="light"] {
+  & .trucking-trip-summary {
+      thead, tbody, th, tr, td {
+          background-color: white;
+      }
+    }
+}
+& .trucking-trip-summary {
+  tr.parent-row {
+    border-bottom: 1px solid grey;
+  }
+}

@@ -204,6 +204,14 @@ const SidebarContent = (props: any) => {
                         </Link>
                       </li>
                     }
+                    {
+                      menu.title == 'Production' && 
+                      <li>
+                        <Link to="/trucking-trip-summary">
+                          {props.t("Trucking Trip Summary")}
+                        </Link>
+                      </li>
+                    }
                   </ul>
                 )}
               </li>
