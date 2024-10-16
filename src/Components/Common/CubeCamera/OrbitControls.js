@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-( function () {
 
 	// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
 	//
@@ -1101,7 +1100,6 @@ import * as THREE from 'three'
 
 	}
 
-	THREE.MapControls = MapControls;
-	THREE.OrbitControls = OrbitControls;
-
-} )();
+	// THREE.MapControls = MapControls;
+	// THREE.OrbitControls = OrbitControls;
+export { OrbitControls, MapControls };

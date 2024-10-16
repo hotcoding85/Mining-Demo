@@ -595,8 +595,8 @@ export const RealTimePositioning = ({ socket }) => {
                                     style={{
                                     position: "absolute",
                                     width: "20%",
-                                    top: "10px",
-                                    right: "10px",
+                                    bottom: "10px",
+                                    right: "0px",
                                     }}
                                 >
                                     <button

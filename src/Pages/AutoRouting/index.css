@@ -108,13 +108,13 @@
 }
   
 .truck-tooltip .tooltiptext::after {
-    content: '';
+    /* content: '';
     position: absolute;
-    top: 100%; /* At the bottom of the tooltip */
+    top: 100%;
     left: 50%;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #33333380 transparent transparent transparent; /* Tooltip arrow */
+    border-color: #33333380 transparent transparent transparent; */
 }
 

@@ -3,11 +3,11 @@ import { Button, Tooltip, Image } from "antd";
 import "./FloatingButton.css"; // You can style the highlight here
 
 // Import truck images
-import TOPTruck from "../../../assets/images/Truck/TOP.png";
-import LEFTTruck from "../../../assets/images/Truck/LEFT.png";
-import RIGHTTruck from "../../../assets/images/Truck/RIGHT.png";
-import FRONTTruck from "../../../assets/images/Truck/FRONT.png";
-import BACKTruck from "../../../assets/images/Truck/BACK.png";
+import TOPTruck from "../../../assets/images/Truck/Truck-Top.svg";
+import LEFTTruck from "../../../assets/images/Truck/Truck-Left.svg";
+import RIGHTTruck from "../../../assets/images/Truck/Truck-Right.svg";
+import FRONTTruck from "../../../assets/images/Truck/Truck-Front.svg";
+import BACKTruck from "../../../assets/images/Truck/Truck-Back.svg";
 
 const FloatingActionButton = ({ _viewType, setViewType }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +34,7 @@ const FloatingActionButton = ({ _viewType, setViewType }) => {
             }`}
             onClick={() => handleViewChange("FRONT")}
           >
-            <Image src={FRONTTruck} preview={false} width={40} alt="FRONT" />
+            <Image src={FRONTTruck} preview={false} width={30} alt="FRONT" />
           </Button>
         </Tooltip>
 
@@ -46,7 +46,7 @@ const FloatingActionButton = ({ _viewType, setViewType }) => {
             }`}
             onClick={() => handleViewChange("LEFT")}
           >
-            <Image src={LEFTTruck} preview={false} width={50} alt="LEFT" />
+            <Image src={LEFTTruck} preview={false} width={40} alt="LEFT" />
           </Button>
         </Tooltip>
 
@@ -82,7 +82,7 @@ const FloatingActionButton = ({ _viewType, setViewType }) => {
             }`}
             onClick={() => handleViewChange("BACK")}
           >
-            <Image src={BACKTruck} preview={false} width={50} alt="BACK" />
+            <Image src={BACKTruck} preview={false} width={30} alt="BACK" />
           </Button>
         </Tooltip>
       </div>

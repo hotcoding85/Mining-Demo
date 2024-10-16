@@ -152,6 +152,8 @@ import MenuSettings from "Pages/MenuSettings";
 // const Materials = React.lazy(() => import("Pages/Materials"));
 import Materials from "Pages/Materials";
 
+import RosterScheduler from "Pages/RosterScheduler";
+
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
 const PreStartDetails = React.lazy(() => import("Pages/PreStartDetails"));
@@ -258,6 +260,8 @@ const authProtectedRoutes = [
   { path: "/underground-map", exact: true, component: <Underground /> },
 
   { path: "/menu-settings", exact: true, component: <MenuSettings /> },
+
+  { path: "/roster-scheduler", exact: true, component: <RosterScheduler /> },
 ];
 
 const publicRoutes = [
