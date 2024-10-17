@@ -71,7 +71,8 @@ export const TripSummary = (props) => {
       const dumpings: any = []
       const durations: any = []
       if (item['subRows'].length > 0) {
-        item['subRows'].map(_item => {
+        for (let i = 0 ; i < item['subRows'].length ; i ++){
+          const _item = item['subRows'][i]
           _item['equipmentName'] = ''
           _item['source'] = ''
           _item['destination'] = ''
@@ -81,8 +82,9 @@ export const TripSummary = (props) => {
           loadings.push(_item['loading'])
           haulings.push(_item['hauling'])
           dumpings.push(_item['dumping'])
-        })
+        }
       }
+
       item['travelling'] = calculateAverageTime(travellings)
       item['queuing'] = calculateAverageTime(queuings)
       item['loading'] = calculateAverageTime(loadings)
@@ -126,7 +128,8 @@ export const TripSummary = (props) => {
 
 
   useEffect(() => {
-    const rowData = createHierarchicalData(data);
+    const _data = JSON.parse(JSON.stringify(data));
+    const rowData = createHierarchicalData(_data);
     setTableData(rowData)
   }, [])
 
@@ -322,7 +325,6 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
-          console.log(row.original)
           return (
             <>
               {
@@ -337,8 +339,6 @@ export const TripSummary = (props) => {
     // [handleOnEdit, handleOnDelete]
     [tableData]
   );
-
-  console.log(tableData)
 
   return (
     <Card>
