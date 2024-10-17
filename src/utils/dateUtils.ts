@@ -52,7 +52,7 @@ export function calculateTimelineSlots(selectedDate: Date, shiftType: string, zo
     });
     const formattedDate = startTime.toLocaleDateString([], {
       // weekday: 'short',
-      // year: 'numeric',
+      year: '2-digit',
       month: 'short',
       day: 'numeric',
     });

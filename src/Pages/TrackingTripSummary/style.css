@@ -8,6 +8,17 @@
   padding: 1rem !important;
 }
 
+.trucking-trip-material-title {
+  color: white;
+  font-size: 20px;
+}
+
+.trucking-trip-material-info {
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+}
+
 .waste-material-movement, .total-rom-ore {
   align-items: center;
   flex-direction: column;
@@ -41,7 +52,8 @@
 
 .gaugechart-subtext {
   position: absolute;
-  bottom: 55px;
+  bottom: 36px;
+  font-size: 16px;
 }
 
 body[data-layout-mode="light"] {

@@ -73,18 +73,18 @@ export const LineGraph: React.FC<LineGraphProps> = ({
                         ))}
                     </div>
                 </Col>
-                <Col md={6}>
+                {/* <Col md={6}>
                     <div className='d-flex justify-content-center align-items-center h-100'>
-                            <ProgressPieChart width={150} height={150} color={'#00ff00'} bgColor={isLight? 'transparent' : '#00ff00'} textColor='#a6b0cf' value={50} maxValue={100} />
+                            <ProgressPieChart width={220} height={220} color={'#00ff00'} bgColor={isLight? 'transparent' : '#00ff00'} textColor='#a6b0cf' value={420} maxValue={580} />
                             <div>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                     <h5>Trips Completed</h5>
-                                    <span>300/600</span>
+                                    <span>420/580</span>
                                     <span>Forecasted Trips</span>
                                 </div>
                             </div>
                         </div>
-                </Col>
+                </Col> */}
             </Row>
             <Line data={data} options={options} />
 

@@ -31,12 +31,12 @@ export const TruckingExecutionPlan = (props) => {
             },
         },
     };
-    
+
     const textColor2: TextColor[] = [
         { text: "Plan", color: "#0050b3d1" },
         { text: "Actual", color: "#e2e2e2" },
     ];
-    
+
     const lineData = {
         labels: [
             "DT01",
@@ -71,19 +71,19 @@ export const TruckingExecutionPlan = (props) => {
                 tension: 0,
                 pointRadius: 4,
             },
-            ],
+        ],
     };
-    
+
     return (
         <Card className="trucking-trip-summary-cards">
             <LineGraph
-                  header="Current Trucking Execution Plan"
-                  data={lineData}
-                  options={lineOptions}
-                  widthVal={'100%'}
-                  textColor={textColor2}
-                  backgroundCol={"#24314D"}
-                />
+                header="Current Trucking Execution Plan"
+                data={lineData}
+                options={lineOptions}
+                widthVal={'100%'}
+                textColor={textColor2}
+                backgroundCol={"#24314D"}
+            />
         </Card>
     )
 }
