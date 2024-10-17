@@ -23,11 +23,13 @@ import {
   addTruckAllocations,
   getTruckAllocations,
   removeTruckAllocation,
+  getEventMetas,
 } from "slices/thunk";
 import { format } from "date-fns";
 import _ from "lodash";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 import { useMaterials } from "Hooks/useMaterials";
+import { useEventmetas } from "Hooks/useEventmetas";
 
 const LocationImages = [dumpNorth, dumpCentral, dumpSouth];
 
@@ -61,6 +63,9 @@ const DispatchLive: React.FC = () => {
       }
     )
   );
+
+  const { findEventmetaByTruckId, updateEventmeta, removeEventmeta, handleSubmitEventmeta } =
+    useEventmetas();
 
   const { materials, findMaterialsById } = useMaterials();
 
@@ -102,6 +107,7 @@ const DispatchLive: React.FC = () => {
       dispatch(
         getTruckAllocations(format(startDate, "yyyy-MM-dd") + ":" + shift)
       );
+      dispatch(getEventMetas(format(startDate, "yyyy-MM-dd") + ":" + shift));
     }
   }, [startDate, shift]);
 
@@ -159,13 +165,20 @@ const DispatchLive: React.FC = () => {
     return fleets.filter((fleet) => excavatorFilter(fleet));
   }, [fleets, excavatorFilter]);
 
-  const removeTruckFromAssigned = (removedTruck, diggerId) => {
+  const removeTruckFromAssigned = (removedTruckAllocation, diggerId) => {
     const result = assignedTrucks.filter(
-      (item) => item.truckId !== removedTruck.truckId
+      (item) => item.truckId !== removedTruckAllocation.truckId
     );
     setAssignedTrucks(result);
-    if (!!removedTruck?.id) {
-      setDeletedIds([...deletedIds, removedTruck.id]);
+    if (!!removedTruckAllocation?.id) {
+      setDeletedIds([...deletedIds, removedTruckAllocation.id]);
+    }
+
+    const selectedEventmeta = findEventmetaByTruckId(
+      removedTruckAllocation.truckId
+    );
+    if (!!selectedEventmeta) {
+      removeEventmeta(removedTruckAllocation.truckId);
     }
   };
 
@@ -198,6 +211,14 @@ const DispatchLive: React.FC = () => {
       }
       return item;
     });
+
+    const selectedEventmeta = findEventmetaByTruckId(truckId);
+    if (!!selectedEventmeta) {
+      updateEventmeta(truckId, {
+        ...selectedEventmeta,
+        destinationId: newDumpLocation.id,
+      });
+    }
 
     setAssignedTrucks(updateAssignedTrucks);
   };
@@ -465,6 +486,9 @@ const DispatchLive: React.FC = () => {
         )
       );
     }
+
+    await handleSubmitEventmeta();
+
     setIsLoading(false);
   };
 
