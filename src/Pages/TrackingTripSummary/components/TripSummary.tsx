@@ -1,12 +1,43 @@
-import { Card, CardBody, CardTitle } from "reactstrap"
-import { useEffect, useMemo, useState } from "react";
+import { Card, CardBody, CardTitle, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap"
+import { Fragment, useEffect, useMemo, useState } from "react";
 import data from "../sampleData/sampleData.json";
 import HierarchycalTable, { HierarchycalTableColumn } from "./HierarchycalTable";
 import _ from "lodash";
 import { Link } from "react-router-dom";
+import { Button, Col, Row, Table } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { SearchDropdown } from "../../../Components/Common/Dropdown";
 export const TripSummary = (props) => {
 
   const [tableData, setTableData] = useState<any>();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggle = () => setDropdownOpen((prevState) => !prevState);
+  const filters = {
+    model: [
+      {
+        label: "HD1500",
+        value: "HD1500",
+      },
+      {
+        label: "HD785",
+        value: "HD785",
+      },
+    ],
+    fleet: [
+      {
+        label: "Fleet1",
+        value: "TD001",
+      },
+      {
+        label: "Fleet2",
+        value: "TD002",
+      },
+      {
+        label: "Fleet3",
+        value: "TD003",
+      },
+    ],
+  };
 
   const calculateSum = (key: any) => {
     let value = tableData?.reduce((sum: any, item: any) => sum + (item[key] || 0), 0);
@@ -91,8 +122,56 @@ export const TripSummary = (props) => {
       item['hauling'] = calculateAverageTime(haulings)
       item['dumping'] = calculateAverageTime(dumpings)
     })
+
+    const convertToNestedFormat = (data) => {
+      return Object.keys(data).map((key, index) => {
+        const item = data[key];
+        return {
+          key: index + 1, // Assign a unique key for each top-level item
+          equipmentName: item.equipmentName,
+          source: item.source,
+          destination: item.destination,
+          rowCount: item.rowCount,
+          loadsCompleted: item.loadsCompleted,
+          trips: item.trips,
+          materialType: item.materialType,
+          actual: item.actual,
+          planned: item.planned,
+          tonnesIndicated: item.tonnesIndicated,
+          avgLoadCarriedBack: item.avgLoadCarriedBack,
+          actualTonnes: item.actualTonnes,
+          travelling: item.travelling,
+          queuing: item.queuing,
+          loading: item.loading,
+          hauling: item.hauling,
+          dumping: item.dumping,
+          mishaul: item.mishaul,
+          children: item.subRows.map((subRow, subIndex) => ({
+            key: `${index + 1}-${subIndex + 1}`, // Assign a unique key for each sub-row
+            equipmentName: subRow.equipmentName,
+            loadsCompleted: subRow.loadsCompleted,
+            trips: subRow.trips,
+            materialType: subRow.materialType,
+            actual: subRow.actual,
+            planned: subRow.planned,
+            tonnesIndicated: subRow.tonnesIndicated,
+            avgLoadCarriedBack: subRow.avgLoadCarriedBack,
+            actualTonnes: subRow.actualTonnes,
+            travelling: subRow.travelling,
+            queuing: subRow.queuing,
+            loading: subRow.loading,
+            hauling: subRow.hauling,
+            dumping: subRow.dumping,
+            mishaul: subRow.mishaul,
+            source: subRow.source,
+            destination: subRow.destination
+          }))
+        };
+      });
+    };
     // Convert groupedData back to an array format
-    return Object.values(groupedData);
+    console.log(convertToNestedFormat(groupedData))
+    return convertToNestedFormat(groupedData);
   }
 
   function calculateAverageTime(times: string[]): string {
@@ -133,202 +212,195 @@ export const TripSummary = (props) => {
     setTableData(rowData)
   }, [])
 
-  const columns: HierarchycalTableColumn[] = useMemo(
+  const columns: any[] = useMemo(
     () => [
       {
-        header: "Equipment Name",
-        accessorKey: "equipmentName",
+        title: "Equipment Name",
+        dataIndex: "equipmentName",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
+        render: (text, row) => {
           return (
-            <button
-              {...{
-                onClick: row.getToggleExpandedHandler(),
-                style: { cursor: "pointer" },
-              }}
-            >
-              <span className="me-2">{row.original.equipmentName}</span>
-              {row.getCanExpand() ? `${row.getIsExpanded() ? "▼" : "▶"}` : ""}
-            </button>
+              <span className="me-2">{text}</span>
           );
         },
       },
       {
-        header: "Source",
-        accessorKey: "source",
+        title: "Source",
+        dataIndex: "source",
         enableColumnFilter: false,
         enableSorting: true,
       },
       {
-        header: "Destination",
-        accessorKey: "destination",
+        title: "Destination",
+        dataIndex: "destination",
         enableColumnFilter: false,
         enableSorting: true,
       },
       {
-        header: "Trip",
-        accessorKey: "trips",
+        title: "Trip",
+        dataIndex: "trips",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
+        render: (text, row) => {
+          console.log(row)
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.original.subRows ? <><span>Total</span><span>{row.original.trips}</span></> : <></>}
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children ? <><span>Total</span><span>{text}</span></> : <></>}
               </div>
             </>
           );
         },
       },
       {
-        header: "Tonnes",
-        accessorKey: "actualTonnes",
+        title: "Tonnes",
+        dataIndex: "actualTonnes",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Total</span>}
-                <span style={{ color: color }}>{row.original.actualTonnes}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Total</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.actualTonnes}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Material",
-        accessorKey: "materialType",
+        title: "Material",
+        dataIndex: "materialType",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <span style={{ color: color }}>{row.original.materialType}</span>
+              <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.materialType}</span>
             </>
           );
         },
       },
       {
-        header: "Travelling",
-        accessorKey: "travelling",
+        title: "Travelling",
+        dataIndex: "travelling",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Average</span>}
-                <span style={{ color: color }}>{row.original.travelling}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Average</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.travelling}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Queuing",
-        accessorKey: "queuing",
+        title: "Queuing",
+        dataIndex: "queuing",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Average</span>}
-                <span style={{ color: color }}>{row.original.queuing}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Average</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.queuing}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Loading",
-        accessorKey: "loading",
+        title: "Loading",
+        dataIndex: "loading",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Average</span>}
-                <span style={{ color: color }}>{row.original.loading}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Average</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.loading}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Hauling",
-        accessorKey: "hauling",
+        title: "Hauling",
+        dataIndex: "hauling",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Average</span>}
-                <span style={{ color: color }}>{row.original.hauling}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Average</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }}>{row.hauling}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Dumping",
-        accessorKey: "dumping",
+        title: "Dumping",
+        dataIndex: "dumping",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Average</span>}
-                <span style={{ color: color }} >{row.original.dumping}</span>
+              <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
+                {row.children && row.children.length > 0 && <span>Average</span>}
+                <span className={`font-color-${color}`} style={{ color: `${color} !important` }} >{row.dumping}</span>
               </div>
             </>
           );
         },
       },
       {
-        header: "Mishaul?",
-        accessorKey: "mishaul",
+        title: "Mishaul?",
+        dataIndex: "mishaul",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
-          let value = row.original.mishaul;
+        render: (text, row) => {
+          let value = row.mishaul;
           let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <span style={{ color: color }}>{value}</span>
+              <span className={`font-color-${color}`} style={{ color: `${color}; !important` }}>{value}</span>
             </>
           );
         },
       },
       {
-        header: "Action",
-        accessorKey: "",
+        title: "Action",
+        dataIndex: "",
         enableColumnFilter: false,
         enableSorting: true,
-        cell: ({ row }: any) => {
+        render: (text, row) => {
           return (
             <>
               {
-                row.original.subRows ? <></> : <Link to={'/route-replay'}>Review trip</Link>
+                row.children ? <></> : <Link to={'/route-replay'}>Review trip</Link>
               }
 
             </>
@@ -343,16 +415,45 @@ export const TripSummary = (props) => {
   return (
     <Card>
       <CardBody>
-        <HierarchycalTable
-          divClassName={"descrepencies-wrapper"}
-          columns={columns}
-          data={tableData || []}
-          // total={total || 0}
-          isGlobalFilter={false}
-          isPagination={true}
-          isAddButton={false}
-          isImportButton={true}
-        />
+        <Fragment>
+          <Row className="px-3 py-3 mx-0 mb-4 align-items-center report-head justify-content-space-between descrepencies-wrapper" style={{justifyContent: 'space-between'}}>
+            <Col md={6} className="ps-0">
+              <h3 className="report-heading mb-0" style={{fontFamily: "Montserrat", fontWeight: 'bold', fontSize:' large'}}>
+                  Trip Summary
+              </h3>
+            </Col>
+            <Col md={6} className="pe-0">
+              <div className="d-flex align-items-center gap-3 justify-content-end">
+                <SearchDropdown
+                  itemsGroup={filters}
+                  disableTitle={false}
+                  disableDivider={false}
+                />
+
+                <div className="export-csv">
+                  <Button color="primary">
+                    Export CSV
+                    <UploadOutlined />
+                  </Button>
+                </div>
+                <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+                    <DropdownToggle caret size="md">
+                        Show/Hide Columns
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem>Day</DropdownItem>
+                        <DropdownItem>Night</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+              </div>
+            </Col>
+          </Row>
+          <Table
+            className="table-responsive trucking-trip-summary"
+            columns={columns}
+            dataSource={tableData}
+          />
+        </Fragment>
       </CardBody>
     </Card>
   )
