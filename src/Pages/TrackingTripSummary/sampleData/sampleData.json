@@ -1,0 +1,88 @@
+[
+  [
+    {
+      "id": "1a",
+      "equipmentName": "DT101",
+      "loadsCompleted": "9/35",
+      "trips": "1",
+      "materialType": "Waste",
+      "actual": "10",
+      "planned": "10",
+      "tonnesIndicated": "10",
+      "avgLoadCarriedBack": "10",
+      "actualTonnes": "79.2",
+      "travelling": "00:08:32",
+      "queuing": "00:01:31",
+      "loading": "00:02:34",
+      "hauling": "00:12:15",
+      "dumping": "00:01:45",
+
+      "mishaul": "No",
+      "source": "EMU_S04_465_004",
+      "destination": "CENTRAL WASTE LOCATION"
+    },
+    {
+      "id": "1a",
+      "equipmentName": "DT101",
+      "loadsCompleted": "9/35",
+      "trips": "2",
+      "materialType": "Waste",
+      "actual": "10",
+      "planned": "10",
+      "tonnesIndicated": "10",
+      "avgLoadCarriedBack": "10",
+      "actualTonnes": "72.3",
+      "travelling": "00:07:30",
+      "queuing": "00:02:45",
+      "loading": "00:04:11",
+      "hauling": "00:14:37",
+      "dumping": "00:03:21",
+
+      "mishaul": "No",
+      "source": "EMU_S04_465_004",
+      "destination": "CENTRAL WASTE LOCATION"
+    },
+    {
+      "id": "1a",
+      "equipmentName": "DT101",
+      "loadsCompleted": "9/35",
+      "trips": "3",
+      "materialType": "LG02",
+      "actual": "20",
+      "planned": "20",
+      "tonnesIndicated": "20",
+      "avgLoadCarriedBack": "20",
+      "actualTonnes": "69.8",
+      "travelling": "00:09:27",
+      "queuing": "00:02:17",
+      "loading": "00:05:34",
+      "hauling": "00:19:24",
+      "dumping": "00:02:12",
+
+      "mishaul": "Yes",
+      "source": "EMU_S04_465_004",
+      "destination": "CENTRAL WASTE LOCATION"
+    },
+    {
+      "id": "1b",
+      "equipmentName": "DT102",
+      "loadsCompleted": "9/35",
+      "trips": "1",
+      "materialType": "Waste",
+      "actual": "20",
+      "planned": "20",
+      "tonnesIndicated": "20",
+      "avgLoadCarriedBack": "20",
+      "actualTonnes": "80.3",
+      "travelling": "00:08:19",
+      "queuing": "00:02:52",
+      "loading": "00:05:11",
+      "hauling": "00:16:18",
+      "dumping": "00:02:12",
+
+      "mishaul": "No",
+      "source": "EMU_S04_465_004",
+      "destination": "CENTRAL WASTE LOCATION"
+    }
+  ]
+]

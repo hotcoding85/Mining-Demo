@@ -153,6 +153,7 @@ import MenuSettings from "Pages/MenuSettings";
 import Materials from "Pages/Materials";
 
 import RosterScheduler from "Pages/RosterScheduler";
+import TruckingTripSummary from "Pages/TrackingTripSummary";
 
 const ManagerKPI = React.lazy(() => import("Pages/ManagerKPI"));
 
@@ -262,6 +263,8 @@ const authProtectedRoutes = [
   { path: "/menu-settings", exact: true, component: <MenuSettings /> },
 
   { path: "/roster-scheduler", exact: true, component: <RosterScheduler /> },
+
+  { path: "/trucking-trip-summary", exact: true, component: <TruckingTripSummary /> },
 ];
 
 const publicRoutes = [
