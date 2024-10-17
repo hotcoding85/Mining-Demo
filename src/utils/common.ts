@@ -23,7 +23,7 @@ export const shifts: any = JSON.parse(localStorage.getItem('shifts')!);
 export const shiftsInFormat: any = (shifts) => {
 
   let currentShifts = shifts;
-  if(!shifts) {
+  if (!shifts) {
     currentShifts = JSON.parse(localStorage.getItem('shifts')!);
   }
 
@@ -33,7 +33,7 @@ export const shiftsInFormat: any = (shifts) => {
 export const shiftDuration = (shifts, shift) => {
 
   let currentShifts = shifts;
-  if(!shifts) {
+  if (!shifts) {
     currentShifts = JSON.parse(localStorage.getItem('shifts')!);
   }
 
@@ -52,7 +52,7 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
   let shifTimings;
   let currentShifts = shifts;
 
-  if(!shifts) {
+  if (!shifts) {
     currentShifts = JSON.parse(localStorage.getItem('shifts')!);
   }
 
@@ -83,7 +83,7 @@ export const shiftTimings = (date: Dayjs = dayjs()) => {
 
 export const shiftTimingsByDateandShift = (shiftDate: string, shift: string): ShiftTimingsInfo => {
   let currentShifts = shifts;
-  if(!shifts) {
+  if (!shifts) {
     currentShifts = JSON.parse(localStorage.getItem('shifts')!);
   }
 
@@ -176,7 +176,7 @@ export const round2One = (value: number): number => {
 }
 
 export const round2Two = (value: number): string => {
-  if(!value) return ""
+  if (!value) return ""
   let formatter = new Intl.NumberFormat('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let formattedNumber: string = formatter.format(value);
   return formattedNumber
@@ -263,7 +263,7 @@ export const getTarget = (vehicleType, capacity, targetType, date, shift) => {
 
   if (targetType === 'SHIFT') {
     let currentShifts = shifts;
-    if(!shifts) {
+    if (!shifts) {
       currentShifts = JSON.parse(localStorage.getItem('shifts')!);
     }
     const duration = shiftDuration(currentShifts, shift);
@@ -303,6 +303,14 @@ export const minutesToHhMm = (minutes: number): string => {
 
   // Return the formatted string
   return `${formattedHours}:${formattedMinutes}`;
+}
+
+export const secondsToHMS = (totalSeconds: number): string => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 export const divide12HoursRandomlyFormatted = (numParts: number): string[] => {

@@ -11,7 +11,7 @@ import {
   FLEET_TIME_STATE_COLOR,
   LAYOUT_MODE_TYPES,
 } from "Components/constants/layout";
-import StateTime from "./components/StateTime";
+import StateTime, { StateTimeProps } from "./components/StateTime";
 import EquipmentTimeLine from "./components/EquipmentTimeLine";
 import "./fleettimeline.css";
 import { PieChart } from "Components/Charts/PieChart";
@@ -25,6 +25,7 @@ import {
 } from "./_mock";
 import CustomDatePicker from "Components/Common/DatePicker/CustomDatePicker";
 import { FleetSelector, LayoutSelector } from "selectors";
+import { divide12HoursRandomly, minutesToHhMm, round2Two, secondsToHMS } from "utils/common";
 
 const EquipmentTypes = [
   {
@@ -114,53 +115,29 @@ const FleetTimeline = (props: any) => {
     dispatch(getAllEvents(format(startDate, "yyyy-MM-dd")));
   }, [dispatch, startDate]);
 
-  const StateTimes = useMemo(() => {
+  const StateTimes: StateTimeProps[] = useMemo<any>(() => {
     const textColor =
       layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#2A2A2A";
     const bgColor = layoutModeType === LAYOUT_MODE_TYPES.DARK ? "#fff" : "#fff";
 
-    return [
-      {
-        state: "Active",
-        time: "00:24:52",
-        pctValue: 34.21,
-        color: FLEET_TIME_STATE_COLOR.ACTIVE,
+    const stateKeys = [{ state: 'Active', color: FLEET_TIME_STATE_COLOR.ACTIVE }, { state: 'StandBy', color: FLEET_TIME_STATE_COLOR.STANDBY }, { state: 'Down', color: FLEET_TIME_STATE_COLOR.DOWN }, { state: 'Idle', color: FLEET_TIME_STATE_COLOR.IDLE }, { state: 'Delay', color: FLEET_TIME_STATE_COLOR.DELAY }]
+    const data = divide12HoursRandomly(5)
+    const formatted = secondsToHMS(data[0] * 60)
+    console.log(data, formatted)
+
+    const props = data.map((item, index) => {
+      const keys = stateKeys[index]
+      const value = item
+      return {
+        state: keys.state,
+        time: secondsToHMS(value * 60),
+        pctValue: round2Two((value / 720) * 100),
+        color: keys.color,
         bgColor: bgColor,
         textColor: textColor,
-      },
-      {
-        state: "StandBy",
-        time: "00:24:52",
-        pctValue: 49.04,
-        color: FLEET_TIME_STATE_COLOR.STANDBY,
-        bgColor: bgColor,
-        textColor: textColor,
-      },
-      {
-        state: "Down",
-        time: "00:24:52",
-        pctValue: 16.3,
-        color: FLEET_TIME_STATE_COLOR.DOWN,
-        bgColor: bgColor,
-        textColor: textColor,
-      },
-      {
-        state: "Idle",
-        time: "00:24:52",
-        pctValue: 0.0,
-        color: FLEET_TIME_STATE_COLOR.IDLE,
-        bgColor: bgColor,
-        textColor: textColor,
-      },
-      {
-        state: "Delay",
-        time: "00:24:52",
-        pctValue: 0.35,
-        color: FLEET_TIME_STATE_COLOR.DELAY,
-        bgColor: bgColor,
-        textColor: textColor,
-      },
-    ];
+      }
+    })
+    return props
   }, [layoutModeType]);
 
   const stateData = {

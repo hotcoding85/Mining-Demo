@@ -31,12 +31,16 @@ const StatusLabel = styled.div<{ bgColor: string; color?: string }>`
   line-height: 36px;
 `;
 
-interface StateTimeProps extends ProgressPieChartProps {
+export interface StateTimeProps extends ProgressPieChartProps {
   time: string;
   state: string;
+  color: string;
+  bgColor: string;
+  textColor: string;
+  pctValue: number;
 }
 
-const StateTime: React.FC<StateTimeProps> = ({ time, state, ...props }) => {
+const StateTime: React.FC<StateTimeProps> = ({ time, state, color, bgColor, textColor, pctValue }) => {
   const { layoutModeType } = useSelector(
     createSelector(
       (state: any) => state.Layout,
@@ -52,11 +56,11 @@ const StateTime: React.FC<StateTimeProps> = ({ time, state, ...props }) => {
     <div className="d-flex flex-column align-items-start justify-content-start  gap-3">
       <ChartWrapper>
         <CenteredChart>
-          <ProgressPieChart width={410} {...props} />
+          <ProgressPieChart width={410} color={color} bgColor={bgColor} textColor={textColor} pctValue={pctValue} />
         </CenteredChart>
       </ChartWrapper>
       <div className="d-flex flex-column align-items-start justify-content-start mt-5">
-        <StatusLabel bgColor={props.color}>{state}</StatusLabel>
+        <StatusLabel bgColor={color}>{state}</StatusLabel>
         <StatusLabel
           bgColor={isLight ? "#fff" : "var(--bg-color)"}
           color={isLight ? "#2A2A2A" : "#fff"}

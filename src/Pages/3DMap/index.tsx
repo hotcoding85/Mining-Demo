@@ -28,6 +28,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'; // ES6 impo
 import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
 import COMPASS from 'assets/images/compass.png'
+import COMPASS_VECTOR from 'assets/images/compass-vector.png'
 const index = new RBush();
 
 declare global {
@@ -70,12 +71,15 @@ interface THREEJSMapProps {
     isLoading: boolean;
     setIsLoading: (isLoading) => void;
     updateMarkerTooltip?: () => void;
+    onDocumentMouseClick?: (event: any) => void;
+    onDocumentMouseDblClick?: (event: any) => void;
     height?: string;
     width?: string;
     isAnimation?: boolean;
+    isAutoRouting?: boolean;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, isAutoRouting = false}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -352,19 +356,20 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.mixer = new THREE.AnimationMixer(object);
             // Traverse the loaded object to find and play animations
             object.animations.forEach((clip, index) => {
-                if ( index === 2 || index === 4 || index === 0 || index === 5 || index === 8 || index === 7) return
+                if ( index === 2 || index === 4 || index === 0 || index === 5 || index === 8 || index === 6) return
                 const action = window.mixer.clipAction(clip);
                 action.play();
             });
-
             object.traverse((child: any) => {
                 if (child.isMesh) {
                     // Set depthTest to false
+                    console.log(child)
                     if (isArray(child.material)) {
                         child.material.map((_child) => {
                             _child.depthTest = false
                             _child.depthWrite = true
                             _child.transparent = true
+                            _child.metal = true
                         })
                         child.renderOrder = 9998
                     }
@@ -435,6 +440,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             localMapContainerRef.current.appendChild(renderer.domElement);
             renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
             renderer.domElement.addEventListener('wheel', onDocumentMouseWheel, false);
+            onDocumentMouseClick && renderer.domElement.addEventListener('click', onDocumentMouseClick, false)
+            onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', onDocumentMouseDblClick, false)
         }
 
         renderer.shadowMap.enabled = true;
@@ -452,6 +459,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         
         // Load the background image using THREE.TextureLoader
         if (isLight) {
+            if (!window.map.scene) return;
             const loader = new THREE.TextureLoader();
             loader.load(BACKGROUND_LIGHT, (texture) => {
                 window.map.scene.background = texture;  // Set the loaded texture as the background
@@ -639,6 +647,22 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             document.body.style.cursor = 'auto'; // Default cursor style
             setShowToolTip(false)
         }
+        if (intersects.length > 0) {
+            // Filter the intersects array for objects with userData.isStopSign, isRoute, or isPointer
+            const validIntersects = intersects.filter(intersect => {
+                const userData = intersect.object.userData;
+                return userData && (userData.isStopSign || userData.isRoute || userData.isPointer);
+            });
+        
+            // If there is exactly one valid intersect, change the cursor to 'pointer'
+            if (validIntersects.length === 1) {
+                document.body.style.cursor = 'pointer';
+            } else {
+                document.body.style.cursor = 'auto'; // Default cursor style
+            }
+        } else {
+            document.body.style.cursor = 'auto'; // Default cursor style
+        }
     }, [showToolTip])
 
     const onDocumentMouseWheel = (event) => {
@@ -745,8 +769,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
                         {children}
                     </div>
-                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%'}}>
-                        <img id={'compass'} width={160} src={COMPASS} style={{transformOrigin: 'center center', filter: 'sepia(1)'}}></img>
+                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: isAutoRouting ? '40px' : '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%', display: 'flex', 'justifyContent': 'center', width: '160px'}}>
+                        <img id={'compass'} width={160} src={COMPASS} style={{position: 'absolute',filter: 'sepia(1)'}}></img>
+                        <img src={COMPASS_VECTOR} height={120} style={{transformOrigin: 'center center', position: 'absolute', top: '19px', left: '72px'}}>
+                        </img>
                     </div>
                     <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
                         <table

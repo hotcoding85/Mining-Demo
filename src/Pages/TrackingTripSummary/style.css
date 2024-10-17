@@ -1,0 +1,101 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+.currentdatepicker{
+  float: right;
+}
+
+.trucking-trip-summary-cards{
+  padding: 1rem !important;
+}
+
+.trucking-trip-material-title {
+  color: white;
+  font-size: 20px;
+}
+
+.trucking-trip-material-info {
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+}
+
+.waste-material-movement, .total-rom-ore {
+  align-items: center;
+  flex-direction: column;
+}
+
+.font-color-red{
+  color: red;
+  font-size: 14px;
+}
+
+.font-color-green {
+  color: green;
+  font-size: 14px;
+}
+
+.truck-icon-green > svg{
+  width: 24px;
+  height: 24px;
+  color: #449e23;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.truck-icon-red > svg {
+  width: 24px;
+  height: 24px;
+  color: #ff3f3f;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.gaugechart-subtext {
+  position: absolute;
+  bottom: 36px;
+  font-size: 16px;
+}
+
+body[data-layout-mode="light"] {
+  & .trucking-trip-summary {
+      thead, tbody, th, tr, td {
+          background-color: white;
+          color: #283655 !important;
+          font-weight: bold;
+      }
+      span.font-color-red {
+        color: red !important;
+      }
+    }
+}
+body[data-layout-mode="dark"] {
+  & .trucking-trip-summary {
+    thead, tbody, th, tr, td {
+        background-color: var(--bs-card-bg);
+        color: white;
+        font-weight: bold;
+    }
+  }
+  & .trucking-trip-summary {
+    td.ant-table-cell-row-hover {
+      background: #28365590 !important;
+    }
+    td{
+      text-align: center;
+    }
+    .ant-table-row-expand-icon {
+      background-color: #283655;
+    }
+  }
+}
+.trucking-trip-summary {
+  tr:hover {
+    background-color: grey !important;
+  }
+  td.ant-table-cell-with-append {
+    white-space: nowrap;
+  }
+  span{
+    background-color: transparent;
+  }
+}

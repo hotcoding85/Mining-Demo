@@ -26,7 +26,7 @@ const DragAndDropCalendar = withDragAndDrop(Calendar);
 
 const FuelScheduler = (props: any) => {
   document.title = "Fuel Scheduler | FMS Live";
-  const [displayType, setDisplayType] = useState<string>("CALENDAR");
+  const [displayType, setDisplayType] = useState<string>("DASHBOARD");
   const [events, setEvents] = useState<Events[]>(sampleEvents);
   const [view, setView] = useState<View>("day");
   const [currentDate, setCurrentDate] = useState(new Date());
