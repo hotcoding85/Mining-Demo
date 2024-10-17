@@ -26,7 +26,7 @@ import {
   getTargetsByRoster,
   addTruckAllocations,
   getTruckAllocations,
-  removeTruckAllocation,
+  removeTruckAllocations,
   getEventMetas,
   addEventMetas,
   removeEventMetas,
@@ -513,7 +513,7 @@ const OreSpotter: React.FC = () => {
     }
 
     if (!!deletedTruckIds.length) {
-      await dispatch(removeTruckAllocation(deletedTruckIds));
+      await dispatch(removeTruckAllocations(deletedTruckIds));
       setDeletedTruckIds([]);
     }
 

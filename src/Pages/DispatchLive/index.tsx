@@ -20,9 +20,7 @@ import {
   getDispatchs,
   getShiftRosters,
   getTargetsByRoster,
-  addTruckAllocations,
   getTruckAllocations,
-  removeTruckAllocation,
   getEventMetas,
 } from "slices/thunk";
 import { format } from "date-fns";
@@ -30,6 +28,7 @@ import _ from "lodash";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 import { useMaterials } from "Hooks/useMaterials";
 import { useEventmetas } from "Hooks/useEventmetas";
+import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
 
 const LocationImages = [dumpNorth, dumpCentral, dumpSouth];
 
@@ -45,7 +44,6 @@ const DispatchLive: React.FC = () => {
     dispatchs,
     vehicleRoutes,
     shiftRosters,
-    truckAllocations,
   } = useSelector(
     createSelector(
       (state: any) => state,
@@ -58,16 +56,27 @@ const DispatchLive: React.FC = () => {
           targets: state.Targets.data,
           dispatchs: state.Dispatch.data,
           vehicleRoutes: state.VehicleRoutes.data,
-          truckAllocations: state.TruckAllocation.data,
         };
       }
     )
   );
 
-  const { findEventmetaByTruckId, updateEventmeta, removeEventmeta, handleSubmitEventmeta } =
-    useEventmetas();
+  const {
+    findEventmetaByTruckId,
+    updateEventmeta,
+    handleSubmitEventmeta,
+  } = useEventmetas();
 
-  const { materials, findMaterialsById } = useMaterials();
+  const {
+    mergedTruckAllocations,
+    findTruckAllocationByTruckId,
+    addNewTruckAllocation,
+    removeTruckAllocation,
+    updateTruckAllocation,
+    handleSubmitTruckAllocation,
+  } = useTruckAllocations();
+
+  const { materials } = useMaterials();
 
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
@@ -75,9 +84,6 @@ const DispatchLive: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<string>("All");
   const [diggersForShow, setDiggersForShow] = useState<any[]>([]);
 
-  const [assignedTrucks, setAssignedTrucks] = useState<any[]>(
-    truckAllocations || []
-  );
   const [haulRoutes, setHaulRoutes] = useState<HaulRoute[]>([]);
   const [assignedBenches, setAssignedBenches] = useState<any[]>([]);
   const [savedDispatchs, setSavedDispatchs] = useState<any[]>(dispatchs);
@@ -123,36 +129,8 @@ const DispatchLive: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading) setAssignedTrucks(truckAllocations);
-  }, [truckAllocations]);
-
-  useEffect(() => {
     if (!isLoading) setSavedDispatchs(dispatchs);
   }, [dispatchs]);
-
-  const assignReadyTrucks = (oldTruck, newTruck, diggerId) => {
-    const newAssignTruck = {
-      excavatorId: diggerId,
-      roster: newTruck?.roster,
-      truckId: newTruck?.vehicleId,
-      truck: newTruck?.vehicle,
-    };
-    if (!!oldTruck) {
-      const result = assignedTrucks.map((item) => {
-        if (item.truckId === oldTruck.truckId) {
-          return { ...newAssignTruck, updated: true };
-        }
-        return item;
-      });
-
-      setAssignedTrucks(result);
-    } else {
-      setAssignedTrucks([
-        ...assignedTrucks,
-        { ...newAssignTruck, updated: true },
-      ]);
-    }
-  };
 
   const excavatorFilter = useCallback(
     (vehicle) =>
@@ -165,52 +143,36 @@ const DispatchLive: React.FC = () => {
     return fleets.filter((fleet) => excavatorFilter(fleet));
   }, [fleets, excavatorFilter]);
 
-  const removeTruckFromAssigned = (removedTruckAllocation, diggerId) => {
-    const result = assignedTrucks.filter(
-      (item) => item.truckId !== removedTruckAllocation.truckId
-    );
-    setAssignedTrucks(result);
-    if (!!removedTruckAllocation?.id) {
-      setDeletedIds([...deletedIds, removedTruckAllocation.id]);
+  const assignReadyTrucks = (oldTruck, newTruck, excavatorId) => {
+    const newAssignTruck = {
+      excavatorId: excavatorId,
+      roster: newTruck?.roster,
+      truckId: newTruck?.vehicleId,
+      truck: newTruck?.vehicle,
+    };
+    if (!!oldTruck) {
+      updateTruckAllocation(oldTruck.truckId, newAssignTruck);
+    } else {
+      addNewTruckAllocation(newAssignTruck);
     }
+  };
 
-    const selectedEventmeta = findEventmetaByTruckId(
-      removedTruckAllocation.truckId
-    );
-    if (!!selectedEventmeta) {
-      removeEventmeta(removedTruckAllocation.truckId);
-    }
+  const removeTruckFromAssigned = (removedTruckAllocation, diggerId) => {
+    removeTruckAllocation(removedTruckAllocation.truckId);
   };
 
   const reAssignTruckToFleet = (truck, from, to) => {
-    if (!!truck.id) {
-      setDeletedIds([...deletedIds, truck.id]);
-      const result = assignedTrucks.map((item) => {
-        if (item?.truckId === truck?.truckId) {
-          return _.omit({ ...truck, excavatorId: to, updated: true }, "id");
-        }
-        return item;
-      });
-      setAssignedTrucks(result);
-    } else {
-      const result = assignedTrucks.map((item) => {
-        if (item?.truckId === truck?.truckId) {
-          return { ...item, excavatorId: to, updated: true };
-        }
-        return item;
-      });
-
-      setAssignedTrucks(result);
-    }
+    updateTruckAllocation(truck.truckId, { ...truck, excavatorId: to });
   };
 
   const addDumpLocation = (newDumpLocation: any, truckId: string) => {
-    const updateAssignedTrucks = assignedTrucks.map((item) => {
-      if (item.truckId === truckId) {
-        return { ...item, destinationId: newDumpLocation.id, updated: true };
-      }
-      return item;
-    });
+    const selectedTruckAllocation = findTruckAllocationByTruckId(truckId);
+    if (!!selectedTruckAllocation) {
+      updateTruckAllocation(truckId, {
+        ...selectedTruckAllocation,
+        destinationId: newDumpLocation.id,
+      });
+    }
 
     const selectedEventmeta = findEventmetaByTruckId(truckId);
     if (!!selectedEventmeta) {
@@ -219,8 +181,6 @@ const DispatchLive: React.FC = () => {
         destinationId: newDumpLocation.id,
       });
     }
-
-    setAssignedTrucks(updateAssignedTrucks);
   };
 
   const addHaulRoute = (newHaulRoute: HaulRoute) => {
@@ -243,129 +203,7 @@ const DispatchLive: React.FC = () => {
     }
   };
 
-  const addBenches = (newBench: any, diggerId: string) => {
-    const existItem = assignedBenches.find(
-      (item) => item.vehicleId === diggerId
-    );
-    if (!existItem) {
-      setAssignedBenches((prevBenches) => [
-        ...prevBenches,
-        {
-          vehicleId: diggerId,
-          benches: [newBench],
-        },
-      ]);
-    } else {
-      const remainingItems = assignedBenches.filter(
-        (item) => item.vehicleId !== diggerId
-      );
-      setAssignedBenches((prevBenches) => [
-        ...remainingItems,
-        {
-          vehicleId: diggerId,
-          benches: [...existItem.benches, newBench],
-        },
-      ]);
-    }
-  };
-
-  const normalizedDispatchs = useMemo(() => {
-    const updatedDispatchIds = savedDispatchs.map((item) => item.excavatorId);
-
-    const data = [
-      ...savedDispatchs.filter(
-        (item) => !updatedDispatchIds.includes(item.excavatorId)
-      ),
-      ...savedDispatchs,
-    ];
-    data.sort((a, b) => a?.excavator?.name.localeCompare(b?.excavator?.name));
-
-    const result = Object.values(
-      data.reduce((item, { excavator, source, excavatorId, status }) => {
-        if (!item[excavatorId]) {
-          item[excavatorId] = {
-            excavator,
-            excavatorId,
-            sources: [{ source, status }],
-          };
-        } else {
-          item[excavatorId] = {
-            ...item[excavatorId],
-            sources: [...item[excavatorId].sources, { source, status }],
-          };
-        }
-        return { ...item };
-      }, {})
-    );
-
-    return result;
-  }, [savedDispatchs]);
-
-  const handleChangeDiggersForShow = useCallback(
-    (key: string) => {
-      if (key === "All") {
-        setDiggersForShow(mergedDispatchs);
-      } else {
-        const filteredDiggers = mergedDispatchs.filter(
-          (digger: any) => digger.name == key
-        );
-        setDiggersForShow(filteredDiggers);
-      }
-    },
-    [normalizedDispatchs]
-  );
-
-  useEffect(() => {
-    handleChangeDiggersForShow(selectedTab);
-  }, [handleChangeDiggersForShow]);
-
-  const mergedDispatchs = useMemo(() => {
-    return excavators.map((digger) => {
-      const item: any = normalizedDispatchs.find(
-        (dispatch: any) => dispatch.excavatorId === digger.id
-      );
-      return {
-        ...digger,
-        excavator: digger || {},
-        sources: item?.sources || [],
-        excavatorId: digger.id || "",
-      };
-    });
-  }, [savedDispatchs]);
-
-  const tabItems: TabsProps["items"] = useMemo(
-    () => [
-      {
-        key: "All",
-        label: "All",
-      },
-      ...mergedDispatchs.map((item: any) => ({
-        key: item?.name,
-        label: item?.name,
-      })),
-    ],
-    [normalizedDispatchs]
-  );
-
-  const onTabChange = (key: string) => {
-    setSelectedTab(key);
-    handleChangeDiggersForShow(key);
-  };
-
-  const changePlanState = (locationId, vehicleId) => {
-    const locations = savedDispatchs.map((item: any) => {
-      if (item.excavatorId !== vehicleId) return item;
-      if (item.source.id === locationId) {
-        return { ...item, status: "INPROGRESS", updated: true };
-      }
-      if (item.status === "INPROGRESS")
-        return { ...item, status: "PLANNED", updated: true };
-      return item;
-    });
-    setSavedDispatchs(locations);
-  };
-
-  const addLocation = (newLocation, oldLocation, data) => {
+  const addBenches = (newLocation, oldLocation, data) => {
     if (oldLocation !== "") {
       const result = savedDispatchs.map((item) => {
         if (item.sourceId === oldLocation.source.id) {
@@ -425,20 +263,103 @@ const DispatchLive: React.FC = () => {
   }, [getLocations]);
 
   const normalizedFleets = useMemo(() => {
-    const truckIds = assignedTrucks.map((item) => item.truckId);
+    const truckIds = mergedTruckAllocations.map((item) => item?.truckId);
     const result = fleets.filter((item) => !truckIds.includes(item.id));
 
     return result;
-  }, [assignedTrucks]);
+  }, [mergedTruckAllocations]);
 
   const normalizedRosters = useMemo(() => {
-    const truckIds = assignedTrucks.map((item) => item.truckId);
+    const truckIds = mergedTruckAllocations.map((item) => item?.truckId);
     const result = shiftRosters.filter(
       (item) => !truckIds.includes(item?.vehicle.id)
     );
 
     return result;
-  }, [assignedTrucks]);
+  }, [mergedTruckAllocations]);
+
+  const normalizedDispatchs = useMemo(() => {
+    const updatedDispatchIds = savedDispatchs.map((item) => item.excavatorId);
+
+    const data = [
+      ...savedDispatchs.filter(
+        (item) => !updatedDispatchIds.includes(item.excavatorId)
+      ),
+      ...savedDispatchs,
+    ];
+    data.sort((a, b) => a?.excavator?.name.localeCompare(b?.excavator?.name));
+
+    const result = Object.values(
+      data.reduce((item, { excavator, source, excavatorId, status }) => {
+        if (!item[excavatorId]) {
+          item[excavatorId] = {
+            excavator,
+            excavatorId,
+            sources: [{ source, status }],
+          };
+        } else {
+          item[excavatorId] = {
+            ...item[excavatorId],
+            sources: [...item[excavatorId].sources, { source, status }],
+          };
+        }
+        return { ...item };
+      }, {})
+    );
+
+    return result;
+  }, [savedDispatchs]);
+
+  const mergedDispatchs = useMemo(() => {
+    return excavators.map((digger) => {
+      const item: any = normalizedDispatchs.find(
+        (dispatch: any) => dispatch.excavatorId === digger.id
+      );
+      return {
+        ...digger,
+        excavator: digger || {},
+        sources: item?.sources || [],
+        excavatorId: digger.id || "",
+      };
+    });
+  }, [savedDispatchs]);
+
+  const handleChangeDiggersForShow = useCallback(
+    (key: string) => {
+      if (key === "All") {
+        setDiggersForShow(mergedDispatchs);
+      } else {
+        const filteredDiggers = mergedDispatchs.filter(
+          (excavator: any) => excavator.name == key
+        );
+        setDiggersForShow(filteredDiggers);
+      }
+    },
+    [normalizedDispatchs]
+  );
+
+  useEffect(() => {
+    handleChangeDiggersForShow(selectedTab);
+  }, [handleChangeDiggersForShow]);
+
+  const tabItems: TabsProps["items"] = useMemo(
+    () => [
+      {
+        key: "All",
+        label: "All",
+      },
+      ...mergedDispatchs.map((item: any) => ({
+        key: item?.name,
+        label: item?.name,
+      })),
+    ],
+    [normalizedDispatchs]
+  );
+
+  const onTabChange = (key: string) => {
+    setSelectedTab(key);
+    handleChangeDiggersForShow(key);
+  };
 
   const getYesterdayDate = (): string => {
     const now = new Date();
@@ -446,6 +367,19 @@ const DispatchLive: React.FC = () => {
     const dayOffset = hours >= 18 ? 0 : 864e5;
     const yesterday = new Date(Date.now() - dayOffset);
     return format(yesterday, "dd MMM yyyy");
+  };
+
+  const changePlanState = (locationId, vehicleId) => {
+    const locations = savedDispatchs.map((item: any) => {
+      if (item.excavatorId !== vehicleId) return item;
+      if (item.source.id === locationId) {
+        return { ...item, status: "INPROGRESS", updated: true };
+      }
+      if (item.status === "INPROGRESS")
+        return { ...item, status: "PLANNED", updated: true };
+      return item;
+    });
+    setSavedDispatchs(locations);
   };
 
   const handlePublishDispatch = async () => {
@@ -467,26 +401,7 @@ const DispatchLive: React.FC = () => {
       );
     }
 
-    if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds));
-      setDeletedIds([]);
-    }
-
-    const truckResult = assignedTrucks.filter((item) => item.updated);
-    if (!!truckResult.length) {
-      await dispatch(
-        addTruckAllocations(
-          truckResult.map((item) => ({
-            id: item?.id || undefined,
-            roster: item?.roster || undefined,
-            excavatorId: item?.excavatorId || undefined,
-            truckId: item?.truckId || undefined,
-            destinationId: item?.destinationId || undefined,
-          }))
-        )
-      );
-    }
-
+    await handleSubmitTruckAllocation();
     await handleSubmitEventmeta();
 
     setIsLoading(false);
@@ -566,11 +481,10 @@ const DispatchLive: React.FC = () => {
                     addDumpLocation={addDumpLocation}
                     addHaulRoute={addHaulRoute}
                     assignedBenches={assignedBenches}
-                    addBenches={addBenches}
-                    assignedTrucks={assignedTrucks}
+                    assignedTrucks={mergedTruckAllocations}
                     locations={getLocations()}
                     changePlanState={changePlanState}
-                    addLocation={addLocation}
+                    addBenches={addBenches}
                   />
                 ))}
               </div>

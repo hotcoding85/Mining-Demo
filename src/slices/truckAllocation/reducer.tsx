@@ -7,6 +7,13 @@ interface CreateResponse {
   data: TruckAllocation;
 }
 
+interface CreateResponses {
+  code: number;
+  type: string;
+  success: boolean;
+  data: TruckAllocation[];
+}
+
 interface TruckAllocation {
   id: string;
   roster: string;
@@ -46,9 +53,9 @@ const truckAllocationSlice = createSlice({
       state.loading = false;
       state.error = false;
     },
-    createSuccess(state, action: PayloadAction<CreateResponse>) {
-      var newBench = action.payload.data[0];
-      state.data = [...state.data, newBench];
+    createSuccess(state, action: PayloadAction<CreateResponses>) {
+      var newBench = action.payload.data;
+      state.data = [...state.data, ...newBench];
       state.loading = false;
       state.error = false;
     },
@@ -68,7 +75,7 @@ const truckAllocationSlice = createSlice({
       state.error = false;
     },
     deleteSuccess(state, action) {
-      var deletedIds = action.payload.data as string;
+      var deletedIds = action.payload.data as string[];
       state.data = state.data.filter((item) => !deletedIds.includes(item.id));
       state.loading = false;
       state.error = false;

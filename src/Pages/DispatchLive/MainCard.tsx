@@ -20,14 +20,13 @@ interface MainCardProps {
   assignedBenches: any[];
   assignedTrucks: any[];
   locations: any[];
-  addBenches: (newBenches: any, diggerId: string) => void;
+  addBenches: (newLocation: any, oldLocation: any, data: any) => void;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
   addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   reAssignTruckToFleet: (truck: Truck, fromId: string, toId: string) => void;
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
   changePlanState: (location: string, vehicleId: string) => void;
-  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
@@ -47,7 +46,6 @@ const MainCard: React.FC<MainCardProps> = ({
   reAssignTruckToFleet,
   removeTruckFromAssigned,
   changePlanState,
-  addLocation
 }) => {
   function getRandomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -95,7 +93,6 @@ const MainCard: React.FC<MainCardProps> = ({
               addBenches={addBenches}
               collapse={false}
               changePlanState={changePlanState}
-              addLocation={addLocation}
             />
           </div>
           <AssignBoard

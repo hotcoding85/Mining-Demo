@@ -68,8 +68,8 @@ const dispatchSlice = createSlice({
       state.error = false;
     },
     deleteSuccess(state, action) {
-      var deletedId = action.payload.data as string;
-      state.data = state.data.filter((item) => item.id !== deletedId);
+      var deletedIds = action.payload.data as string;
+      state.data = state.data.filter((item) => !deletedIds.includes(item.id));
       state.loading = false;
       state.error = false;
     },

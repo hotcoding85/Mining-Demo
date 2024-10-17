@@ -20,7 +20,7 @@ import {
   getShiftRosters,
   getTargetsByRoster,
   getTruckAllocations,
-  removeTruckAllocation,
+  removeTruckAllocations,
   addTruckAllocations,
 } from "slices/thunk";
 import { format } from "date-fns";
@@ -217,7 +217,7 @@ const PreShiftInfo = () => {
     }
 
     if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      await dispatch(removeTruckAllocations(deletedIds.map((item) => item)));
       setDeletedIds([]);
     }
 

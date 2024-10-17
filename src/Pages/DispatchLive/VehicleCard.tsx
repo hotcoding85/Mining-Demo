@@ -30,10 +30,9 @@ interface VehicleCardProps {
   lastUpdated: string;
   sync: "manual" | "inactive" | "active";
   assignedBenches: any[];
-  addBenches: (newBenches: any, diggerId: string) => void;
   collapse: boolean;
   changePlanState: (location: any, vehicleId: string) => void;
-  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
+  addBenches: (newLocation: any, oldLocation: any, data: any) => void;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   vehicle,
@@ -46,10 +45,9 @@ const VehicleCard: FC<VehicleCardProps> = ({
   lastUpdated,
   sync,
   assignedBenches,
-  addBenches,
   collapse,
   changePlanState,
-  addLocation,
+  addBenches,
 }) => {
   const statusColor = getStatusColor(vehicle?.status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
@@ -147,7 +145,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
         status: "PLANNED",
       };
 
-      addLocation(value, targetData, data);
+      addBenches(value, targetData, data);
     }
   };
 

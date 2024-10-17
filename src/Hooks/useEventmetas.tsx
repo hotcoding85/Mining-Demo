@@ -1,12 +1,8 @@
 import { omit, uniq } from "lodash";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import {
-  addEventMetas,
-  removeEventMetasFromState,
-} from "slices/thunk";
+import { addEventMetas, removeEventMetasFromState } from "slices/thunk";
 
 export const useEventmetas = () => {
   const dispatch: any = useDispatch();
@@ -35,18 +31,8 @@ export const useEventmetas = () => {
   const isExistEventmeta = (truckId) =>
     eventmetas?.find((item) => item.truckId === truckId) || null;
 
-  const handleSaveEventmeta = (eventmeta) => {
-    setSavedEventmetas([...savedEventmetas, eventmeta]);
-  };
-
   const addNewEventmeta = (eventmeta) => {
-    let selectedEventmeta = isExistEventmeta(eventmeta);
-
-    if (!!selectedEventmeta) {
-      return;
-    } else {
-      handleSaveEventmeta(eventmeta);
-    }
+    setSavedEventmetas([...savedEventmetas, eventmeta]);
   };
 
   const updateEventmeta = (truckId, newData) => {
@@ -57,13 +43,13 @@ export const useEventmetas = () => {
   const removeEventmeta = (truckId) => {
     const selectedEventMeta = isExistEventmeta(truckId);
     const selectedSavedEventMeta = isExistSavedEventmeta(truckId);
-    
+
     if (!!selectedEventMeta || !!selectedSavedEventMeta) {
       setSavedEventmetas((prevData) =>
         prevData.filter((item) => item.truckId !== selectedEventMeta.truckId)
       );
       setDeletedEventmataIds((prevIds) =>
-        uniq([...prevIds, selectedEventMeta.id])
+        uniq([...prevIds, selectedEventMeta?.id])
       );
     }
   };
