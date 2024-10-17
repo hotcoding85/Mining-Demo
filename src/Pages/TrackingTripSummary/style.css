@@ -60,11 +60,42 @@ body[data-layout-mode="light"] {
   & .trucking-trip-summary {
       thead, tbody, th, tr, td {
           background-color: white;
+          color: #283655 !important;
+          font-weight: bold;
+      }
+      span.font-color-red {
+        color: red !important;
       }
     }
 }
-& .trucking-trip-summary {
-  tr.parent-row {
-    border-bottom: 1px solid grey;
+body[data-layout-mode="dark"] {
+  & .trucking-trip-summary {
+    thead, tbody, th, tr, td {
+        background-color: var(--bs-card-bg);
+        color: white;
+        font-weight: bold;
+    }
+  }
+  & .trucking-trip-summary {
+    td.ant-table-cell-row-hover {
+      background: #28365590 !important;
+    }
+    td{
+      text-align: center;
+    }
+    .ant-table-row-expand-icon {
+      background-color: #283655;
+    }
+  }
+}
+.trucking-trip-summary {
+  tr:hover {
+    background-color: grey !important;
+  }
+  td.ant-table-cell-with-append {
+    white-space: nowrap;
+  }
+  span{
+    background-color: transparent;
   }
 }
