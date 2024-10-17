@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import data from "../sampleData/sampleData.json";
 import HierarchycalTable, { HierarchycalTableColumn } from "./HierarchycalTable";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 export const TripSummary = (props) => {
 
   const [tableData, setTableData] = useState<any>();
@@ -14,19 +15,6 @@ export const TripSummary = (props) => {
 
   function createHierarchicalData(arrays: any[]) {
 
-    const myGroupedData = _.reduce(data[0], (acc, item) => {
-      console.log(item)
-      const key = `${item['equipmentName']}|${item['source']}|${item['destination']}`;
-      
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-      
-      acc[key].push(item);
-      return acc;
-    }, {});
-
-    console.log(myGroupedData)
     // Create a map to group items by 'id'
     const groupedData: Record<string, any> = {};
 
@@ -184,8 +172,7 @@ export const TripSummary = (props) => {
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
-                {row.subRows.length > 0 && <span>Total</span>}
-                <span>{row.original.trips}</span>
+                {row.original.subRows ? <><span>Total</span><span>{row.original.trips}</span></> : <></>}
               </div>
             </>
           );
@@ -197,11 +184,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Total</span>}
-                <span>{row.original.actualTonnes}</span>
+                <span style={{ color: color }}>{row.original.actualTonnes}</span>
               </div>
             </>
           );
@@ -212,6 +201,15 @@ export const TripSummary = (props) => {
         accessorKey: "materialType",
         enableColumnFilter: false,
         enableSorting: true,
+        cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
+          return (
+            <>
+              <span style={{ color: color }}>{row.original.materialType}</span>
+            </>
+          );
+        },
       },
       {
         header: "Travelling",
@@ -219,11 +217,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Average</span>}
-                <span>{row.original.travelling}</span>
+                <span style={{ color: color }}>{row.original.travelling}</span>
               </div>
             </>
           );
@@ -235,11 +235,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Average</span>}
-                <span>{row.original.queuing}</span>
+                <span style={{ color: color }}>{row.original.queuing}</span>
               </div>
             </>
           );
@@ -251,11 +253,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Average</span>}
-                <span>{row.original.loading}</span>
+                <span style={{ color: color }}>{row.original.loading}</span>
               </div>
             </>
           );
@@ -267,11 +271,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Average</span>}
-                <span>{row.original.hauling}</span>
+                <span style={{ color: color }}>{row.original.hauling}</span>
               </div>
             </>
           );
@@ -283,11 +289,13 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         cell: ({ row }: any) => {
+          let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column' }}>
                 {row.subRows.length > 0 && <span>Average</span>}
-                <span>{row.original.dumping}</span>
+                <span style={{ color: color }} >{row.original.dumping}</span>
               </div>
             </>
           );
@@ -300,9 +308,27 @@ export const TripSummary = (props) => {
         enableSorting: true,
         cell: ({ row }: any) => {
           let value = row.original.mishaul;
+          let color = value == 'Yes' ? 'red' : 'white'
           return (
             <>
-              <span style={{ color: value == 'Yes' ? 'red' : 'white' }}>{value}</span>
+              <span style={{ color: color }}>{value}</span>
+            </>
+          );
+        },
+      },
+      {
+        header: "Action",
+        accessorKey: "",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: ({ row }: any) => {
+          console.log(row.original)
+          return (
+            <>
+              {
+                row.original.subRows ? <></> : <Link to={'/route-replay'}>Review trip</Link>
+              }
+
             </>
           );
         },
@@ -311,6 +337,8 @@ export const TripSummary = (props) => {
     // [handleOnEdit, handleOnDelete]
     [tableData]
   );
+
+  console.log(tableData)
 
   return (
     <Card>
