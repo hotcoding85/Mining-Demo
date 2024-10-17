@@ -1,8 +1,6 @@
 import { Card, CardBody, CardTitle, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap"
 import { Fragment, useEffect, useMemo, useState } from "react";
 import data from "../sampleData/sampleData.json";
-import HierarchycalTable, { HierarchycalTableColumn } from "./HierarchycalTable";
-import _ from "lodash";
 import { Link } from "react-router-dom";
 import { Button, Col, Row, Table } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
@@ -37,11 +35,6 @@ export const TripSummary = (props) => {
         value: "TD003",
       },
     ],
-  };
-
-  const calculateSum = (key: any) => {
-    let value = tableData?.reduce((sum: any, item: any) => sum + (item[key] || 0), 0);
-    return typeof value === 'string' ? "" : value
   };
 
   function createHierarchicalData(arrays: any[]) {
@@ -170,7 +163,6 @@ export const TripSummary = (props) => {
       });
     };
     // Convert groupedData back to an array format
-    console.log(convertToNestedFormat(groupedData))
     return convertToNestedFormat(groupedData);
   }
 
@@ -243,7 +235,6 @@ export const TripSummary = (props) => {
         enableColumnFilter: false,
         enableSorting: true,
         render: (text, row) => {
-          console.log(row)
           return (
             <>
               <div className="d-flex" style={{ flexDirection: 'column', alignItems: 'center' }}>
