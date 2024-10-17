@@ -101,10 +101,6 @@ const VehicleCard: FC<VehicleCardProps> = ({
     );
   }, [sources]);
 
-  const inprogressSource = useMemo(() => {
-    return filteredsources.find((item) => item.status === "INPROGRESS");
-  }, [filteredsources]);
-
   const nextLocations = sources
     ?.filter((item) => item.status === "PLANNED")
     ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
@@ -185,29 +181,14 @@ const VehicleCard: FC<VehicleCardProps> = ({
             <select
               name="current-work-location"
               id="currentWorkLocation"
-              defaultValue="0"
               onChange={(e) => {
                 const selectedOptionId = e.target.selectedOptions[0].id;
                 changePlanState(selectedOptionId, vehicle.id);
               }}
             >
-              {inprogressSource ? (
-                <option
-                  key={inprogressSource.id}
-                  value={inprogressSource.value}
-                  id={inprogressSource.source.id}
-                  selected
-                  hidden
-                >
-                  {inprogressSource?.source?.name}
-                  {/* - {item?.source.blockId} */}
-                </option>
-              ) : (
-                <option hidden></option>
-              )}
               {filteredsources.map((item) => {
                 return (
-                  <option key={item.id} value={item.value} id={item.source.id}>
+                  <option key={item.id} value={item.value} id={item.source.id} selected={item.status === "INPROGRESS"}>
                     {item?.source?.name}
                     {/* - {item?.source.blockId} */}
                   </option>

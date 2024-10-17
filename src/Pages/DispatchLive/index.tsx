@@ -117,11 +117,11 @@ const DispatchLive: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setAssignedTrucks(truckAllocations);
+    if (!isLoading) setAssignedTrucks(truckAllocations);
   }, [truckAllocations]);
 
   useEffect(() => {
-    setSavedDispatchs(dispatchs);
+    if (!isLoading) setSavedDispatchs(dispatchs);
   }, [dispatchs]);
 
   const assignReadyTrucks = (oldTruck, newTruck, diggerId) => {
@@ -305,9 +305,9 @@ const DispatchLive: React.FC = () => {
       );
       return {
         ...digger,
-        excavator: item?.excavator || {},
+        excavator: digger || {},
         sources: item?.sources || [],
-        excavatorId: item?.excavatorId || "",
+        excavatorId: digger.id || "",
       };
     });
   }, [savedDispatchs]);
@@ -424,9 +424,7 @@ const DispatchLive: React.FC = () => {
     const hours = now.getHours();
     const dayOffset = hours >= 18 ? 0 : 864e5;
     const yesterday = new Date(Date.now() - dayOffset);
-    return `${yesterday.getDate().toString().padStart(2, "0")} ${yesterday
-      .toLocaleString("en-US", { month: "short" })
-      .toUpperCase()} ${yesterday.getFullYear()}`;
+    return format(yesterday, "dd MMM yyyy");
   };
 
   const handlePublishDispatch = async () => {
@@ -449,7 +447,7 @@ const DispatchLive: React.FC = () => {
     }
 
     if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      await dispatch(removeTruckAllocation(deletedIds));
       setDeletedIds([]);
     }
 

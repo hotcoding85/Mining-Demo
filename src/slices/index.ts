@@ -17,6 +17,7 @@ import VehicleRoutesReducer, { VehicleRoutesState } from "./vehicleRoutes/reduce
 import VehicleStateReasonReducer, { VehicleStateReasonState } from "./stateReasons/reducer";
 import MenuSettingReducer, { MenuSettingState } from "./menuSettings/reducer";
 import TruckAllocationReducer, { TruckAllocationState } from "./truckAllocation/reducer";
+import EventMetaReducer, { EventMetaState } from "./eventMeta/reducer";
 
 export interface RootState {
   Layout: LayoutState;
@@ -35,6 +36,7 @@ export interface RootState {
   VehicleStateReasons: VehicleStateReasonState;
   MenuSettings: MenuSettingState;
   TruckAllocations: TruckAllocationState;
+  EventMetas: EventMetaState;
   // Add other slices as needed
 }
 
@@ -54,7 +56,8 @@ const rootReducer = combineReducers({
   VehicleRoutes: VehicleRoutesReducer,
   VehicleStateReasons: VehicleStateReasonReducer,
   MenuSettings: MenuSettingReducer,
-  TruckAllocation: TruckAllocationReducer
+  TruckAllocation: TruckAllocationReducer,
+  EventMeta: EventMetaReducer
 });
 
 export default rootReducer;

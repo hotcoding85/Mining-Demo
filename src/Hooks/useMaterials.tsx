@@ -15,7 +15,7 @@ export const useMaterials = () => {
   );
 
   const findMaterialsById = useCallback(
-    (id) => materials.find((item) => item.id === id) || null,
+    (id) => materials?.find((item) => item.id === id) || null,
     [materials]
   );
 

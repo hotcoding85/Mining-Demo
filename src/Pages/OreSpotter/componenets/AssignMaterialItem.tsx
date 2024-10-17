@@ -24,11 +24,10 @@ const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
 }) => {
   const { findMaterialsById } = useMaterials();
 
-  const materialForAssign = targetMaterials.find(
+  const materialForAssign = targetMaterials?.find(
     (material: any) =>
       material?.vehicleId === vehicleId &&
-      material?.truckId === truck?.truckId &&
-      material?.destinationId === truck?.destinationId
+      material?.truckId === truck?.truckId
   );
 
   const DropTarget = ({
@@ -71,24 +70,34 @@ const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
   ) => {
     if (dropId === "material") {
       if (!!truck) {
-        const roster =
-          shiftRoster?.find((item) => item.vehicleId === vehicleId)?.roster ??
-          shiftRoster?.[0]?.roster ??
-          [];
+        if (!!inprogressSource?.id) {
+          const roster =
+            shiftRoster?.find((item) => item.vehicleId === vehicleId)?.roster ??
+            shiftRoster?.[0]?.roster ??
+            [];
 
-        const data = {
-          id: targetData?.id || undefined,
-          vehicleId: vehicleId || undefined,
-          truckId: truck?.truckId || undefined,
-          destinationId: truck?.destinationId || undefined,
-          sourceId: inprogressSource?.source.id || undefined,
-          planId: inprogressSource?.id || undefined,
-          materialId: value.id || undefined,
-          roster: roster || undefined,
-        };
+          const data = {
+            id: targetData?.id || undefined,
+            vehicleId: vehicleId || undefined,
+            truckId: truck?.truckId || undefined,
+            destinationId: truck?.destinationId || undefined,
+            sourceId: inprogressSource?.source.id || undefined,
+            planId: inprogressSource?.id || undefined,
+            materialId: value.id || undefined,
+            roster: roster || undefined,
+          };
 
-        updateTargetMaterials(targetData, data);
-      } else toast.warning("Not able to assign material! Please assign truck first!", { autoClose: 2000 });
+          updateTargetMaterials(targetData, data);
+        } else {
+          toast.warning("No assigned current work location!", {
+            autoClose: 2000,
+          });
+        }
+      } else
+        toast.warning(
+          "Not able to assign material! Please assign truck first!",
+          { autoClose: 2000 }
+        );
     }
   };
 

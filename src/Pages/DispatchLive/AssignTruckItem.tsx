@@ -113,7 +113,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
                 </div>
                 <div>HD785-7</div>
                 <div className="vehicle-driver">
-                  {shiftRoster?.operators[0].firstName}
+                  {shiftRoster?.operators?.[0]?.firstName || "Unassigned"}
                 </div>
               </div>
             </div>{" "}

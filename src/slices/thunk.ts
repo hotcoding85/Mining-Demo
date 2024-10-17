@@ -39,3 +39,6 @@ export * from "./vehicleRoutes/thunk";
 
 // Truck allocations
 export * from "./truckAllocation/thunk";
+
+// EventMeta
+export * from "./eventMeta/thunk";

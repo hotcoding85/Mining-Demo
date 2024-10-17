@@ -27,6 +27,9 @@ import {
   addTruckAllocations,
   getTruckAllocations,
   removeTruckAllocation,
+  getEventMetas,
+  addEventMetas,
+  removeEventMetas,
 } from "slices/thunk";
 import { format } from "date-fns";
 import _ from "lodash";
@@ -48,6 +51,7 @@ const OreSpotter: React.FC = () => {
     materials,
     shiftRosters,
     truckAllocations,
+    eventMetas,
   } = useSelector(
     createSelector(
       (state: any) => state,
@@ -62,6 +66,7 @@ const OreSpotter: React.FC = () => {
           vehicleRoutes: state.VehicleRoutes.data,
           materials: state.Materials.data,
           truckAllocations: state.TruckAllocation.data,
+          eventMetas: state.EventMeta.data,
         };
       }
     )
@@ -80,8 +85,15 @@ const OreSpotter: React.FC = () => {
   const [assignedBenches, setAssignedBenches] = useState<any[]>([]);
   const [savedDispatchs, setSavedDispatchs] = useState<any[]>(dispatchs);
   const [deletedTruckIds, setDeletedTruckIds] = useState<any[]>([]);
+  const [deletedMaterialIds, setDeletedMaterialIds] = useState<any[]>([]);
+  const [targetMaterials, setTargetMaterials] = useState<Material[]>(
+    eventMetas || []
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [targetMaterials, setTargetMaterials] = useState<Material[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) setTargetMaterials(eventMetas);
+  }, [eventMetas, isLoading]);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -106,6 +118,7 @@ const OreSpotter: React.FC = () => {
       dispatch(
         getTruckAllocations(format(startDate, "yyyy-MM-dd") + ":" + shift)
       );
+      dispatch(getEventMetas(format(startDate, "yyyy-MM-dd") + ":" + shift));
     }
   }, [startDate, shift]);
 
@@ -121,12 +134,12 @@ const OreSpotter: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setAssignedTrucks(truckAllocations);
-  }, [truckAllocations]);
+    if (!isLoading) setAssignedTrucks(truckAllocations);
+  }, [truckAllocations, isLoading]);
 
   useEffect(() => {
-    setSavedDispatchs(dispatchs);
-  }, [dispatchs]);
+    if (!isLoading) setSavedDispatchs(dispatchs);
+  }, [dispatchs, isLoading]);
 
   const assignReadyTrucks = (oldTruck, newTruck, diggerId) => {
     const newAssignTruck = {
@@ -171,6 +184,7 @@ const OreSpotter: React.FC = () => {
     if (!!removedTruck?.id) {
       setDeletedTruckIds([...deletedTruckIds, removedTruck.id]);
     }
+    removeTargetMaterial(removedTruck);
   };
 
   const reAssignTruckToFleet = (truck, from, to) => {
@@ -182,6 +196,7 @@ const OreSpotter: React.FC = () => {
         }
         return item;
       });
+
       setAssignedTrucks(result);
     } else {
       const result = assignedTrucks.map((item) => {
@@ -192,6 +207,18 @@ const OreSpotter: React.FC = () => {
       });
 
       setAssignedTrucks(result);
+    }
+
+    const foundMaterial = targetMaterials.find(
+      (material: any) => material.truckId === truck.truckId
+    );
+
+    if (!!foundMaterial) {
+      removeTargetMaterial(truck);
+      updateTargetMaterials(null, {
+        ...foundMaterial,
+        vehicleId: to,
+      });
     }
   };
 
@@ -303,15 +330,15 @@ const OreSpotter: React.FC = () => {
   }, [handleChangeDiggersForShow]);
 
   const mergedDispatchs = useMemo(() => {
-    return excavators.map((digger) => {
+    return excavators.map((excavator) => {
       const item: any = normalizedDispatchs.find(
-        (dispatch: any) => dispatch.excavatorId === digger.id
+        (dispatch: any) => dispatch.excavatorId === excavator.id
       );
       return {
-        ...digger,
-        excavator: item?.excavator || {},
+        ...excavator,
+        excavator: excavator || {},
         sources: item?.sources || [],
-        excavatorId: item?.excavatorId || "",
+        excavatorId: excavator.id || "",
       };
     });
   }, [savedDispatchs]);
@@ -425,18 +452,109 @@ const OreSpotter: React.FC = () => {
 
   const updateTargetMaterials = (oldMaterial: any, updatedMaterial: any) => {
     if (oldMaterial) {
-      if (oldMaterial?.id) {
+      if (oldMaterial?.id && !deletedMaterialIds.includes(oldMaterial?.id)) {
+        setDeletedMaterialIds([...deletedMaterialIds, oldMaterial?.id]);
       }
-      const result = targetMaterials.map((material: any) => {
-        if (material.truckId === oldMaterial?.truckId) {
-          return updatedMaterial;
-        }
-        return material;
-      });
-      setTargetMaterials(result);
+
+      setTargetMaterials((prev) => [
+        ...prev.filter(
+          (material: any) => material.truckId !== oldMaterial.truckId
+        ),
+        { ...updatedMaterial, updated: true },
+      ]);
     } else {
-      setTargetMaterials([...targetMaterials, updatedMaterial]);
+      setTargetMaterials((prev) => [
+        ...prev,
+        { ...updatedMaterial, updated: true },
+      ]);
     }
+  };
+
+  const removeTargetMaterial = (removedTruck: any) => {
+    const findMaterialsByTruckId = targetMaterials.find(
+      (material: any) => material.truckId === removedTruck.truckId
+    );
+    if (!!findMaterialsByTruckId) {
+      if (
+        !!findMaterialsByTruckId?.id &&
+        !deletedMaterialIds.includes(findMaterialsByTruckId?.id)
+      ) {
+        setDeletedMaterialIds([
+          ...deletedMaterialIds,
+          findMaterialsByTruckId.id,
+        ]);
+      }
+
+      setTargetMaterials((prev) =>
+        prev.filter(
+          (material: any) => material.truckId !== removedTruck.truckId
+        )
+      );
+    }
+  };
+
+  const handlePublishOreSpotter = async () => {
+    setIsLoading(true);
+    const dispatchResult = savedDispatchs.filter((item) => item.updated);
+    if (!!dispatchResult.length) {
+      await dispatch(
+        addDispatchs(
+          dispatchResult.map((item) => ({
+            id: item?.id || undefined,
+            endTime: item?.endTime || undefined,
+            roster: item?.roster || undefined,
+            sourceId: item?.sourceId || undefined,
+            startTime: item?.startTime || undefined,
+            excavatorId: item?.excavatorId,
+            status: item?.status || "PLANNED",
+          }))
+        )
+      );
+    }
+
+    if (!!deletedTruckIds.length) {
+      await dispatch(removeTruckAllocation(deletedTruckIds));
+      setDeletedTruckIds([]);
+    }
+
+    const truckResult = assignedTrucks.filter((item) => item.updated);
+    if (!!truckResult.length) {
+      await dispatch(
+        addTruckAllocations(
+          truckResult.map((item) => ({
+            id: item?.id || undefined,
+            roster: item?.roster || undefined,
+            excavatorId: item?.excavatorId || undefined,
+            truckId: item?.truckId || undefined,
+            destinationId: item?.destinationId || undefined,
+          }))
+        )
+      );
+    }
+
+    if (!!deletedMaterialIds.length) {
+      await dispatch(removeEventMetas(deletedMaterialIds));
+      setDeletedMaterialIds([]);
+    }
+
+    const materialResult = targetMaterials.filter((item: any) => item.updated);
+    if (!!materialResult.length) {
+      await dispatch(
+        addEventMetas(
+          materialResult.map((item: any) => ({
+            id: item?.id || undefined,
+            planId: item?.planId || undefined,
+            vehicleId: item?.vehicleId || undefined,
+            truckId: item?.truckId || undefined,
+            destinationId: item?.destinationId || undefined,
+            sourceId: item?.sourceId || undefined,
+            materialId: item?.materialId || undefined,
+            roster: item?.roster || undefined,
+          }))
+        )
+      );
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -447,8 +565,8 @@ const OreSpotter: React.FC = () => {
             <div className="ore-trakcer-content dispatch-live-content">
               <div className="dispatch-live-left">
                 <Breadcrumb breadcrumbItem="Ore Spotter" title="Operations" />
-                <Row>
-                  <Col md="12" className="d-flex">
+                <Row className="schedule-filter">
+                  <Col md="9" className="d-flex">
                     <Space>
                       <Tabs
                         defaultActiveKey="1"
@@ -456,6 +574,21 @@ const OreSpotter: React.FC = () => {
                         onChange={onTabChange}
                       ></Tabs>
                     </Space>
+                  </Col>
+                  <Col md="3" className="d-flex flex-row-reverse">
+                    <Button
+                      style={{
+                        backgroundColor: "blue",
+                        color: "white",
+                        fontSize: "16px",
+                        height: "48px",
+                        marginRight: "8px",
+                      }}
+                      onClick={handlePublishOreSpotter}
+                    >
+                      {isLoading ? <Spinner size="sm"></Spinner> : <></>}
+                      {"  "}Publish to Production
+                    </Button>
                   </Col>
                 </Row>
                 <div className="dispatch-digger-container">
