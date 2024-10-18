@@ -419,7 +419,7 @@ const Replay = () => {
             const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
             window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
             // Interpolate the lookAt position for smooth transition
-            window.camera.lookAt(NextCameraPoistion.current);
+            window.camera.lookAt((currentViewType.current === 'TOP' ? NextCameraPoistion.current : currentAnimationMarker.current));
             console.log('paused position:' + window.camera.position)
             setTimeout(() => {
                 window.controls.target.copy(currentAnimationMarker.current);
@@ -1219,7 +1219,7 @@ const Replay = () => {
                     const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
                     window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
                     // Make the camera look ahead (at the next point on the curve)
-                    window.camera.lookAt(nextPoint);
+                    window.camera.lookAt((currentViewType.current === 'TOP' ? nextPoint : point));
 
                     window.camera.updateProjectionMatrix();
                     window.camera.updateMatrixWorld();

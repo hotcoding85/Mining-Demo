@@ -350,26 +350,27 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     // }
 
     const fetch3DTruck = async () => {
+        if (!window.map) return;
         const loader = new FBXLoader();
         loader.load('/Truck/3D_Truck.fbx', (object) => {
             // Set up the AnimationMixer
             window.mixer = new THREE.AnimationMixer(object);
             // Traverse the loaded object to find and play animations
             object.animations.forEach((clip, index) => {
-                if ( index === 2 || index === 4 || index === 0 || index === 5 || index === 8 || index === 6) return
-                const action = window.mixer.clipAction(clip);
-                action.play();
+                console.log(clip)
+                if (clip.name === '3D_Truck_Back1|3D_Truck_BackAction' || clip.name === '3D_Truck_Back2|3D_Truck_BackAction' || clip.name === '3D_Truck_Front|3D_Truck_FrontAction'){
+                    const action = window.mixer.clipAction(clip);
+                    action.play();
+                }
             });
             object.traverse((child: any) => {
                 if (child.isMesh) {
                     // Set depthTest to false
-                    console.log(child)
                     if (isArray(child.material)) {
                         child.material.map((_child) => {
                             _child.depthTest = false
                             _child.depthWrite = true
                             _child.transparent = true
-                            _child.metal = true
                         })
                         child.renderOrder = 9998
                     }

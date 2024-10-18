@@ -69,7 +69,9 @@ const HaulRoadOptimization = (props: any) => {
                   <HaulRoadOptimisationMapView
                     geojsonData={geojsonData}
                     currentRoad={currentRoad}
-                    replayRoads={vehicleRoutes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}
+                    setCurrentRoad={setCurrentRoad}
+                    vehicleRoutes={vehicleRoutes.filter(_route => _route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE')}
+                    replayRoads={replayRoads}
                   />
                 </TabPane>
 
