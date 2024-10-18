@@ -617,6 +617,7 @@ const OreSpotter: React.FC = () => {
                       locations={getLocations()}
                       changePlanState={changePlanState}
                       addLocation={addLocation}
+                      excavators={excavators}
                     />
                   ))}
                 </div>

@@ -6,20 +6,23 @@ import { hd785 } from "assets/images/equipment";
 import { Progress, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import { useShiftRosters } from "Hooks/useShiftRosters";
+import { uniqBy } from "lodash";
 
 interface AssignTruckItemProps {
+  excavators: any[];
   dispatchs: any[];
-  diggerId: string;
+  excavatorId: string;
   assignedTruck: any;
-  assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
-  removeTruckFromAssigned: (removedTruck, diggerId) => void;
+  assignReadyTrucks: (oldTruck, newTruck, excavatorId) => void;
+  removeTruckFromAssigned: (removedTruck, excavatorId) => void;
   reAssignTruckToFleet: (truck, fromId, toId) => void;
   directionDispalyName: "inline" | "wrap";
 }
 
 const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
+  excavators,
   dispatchs,
-  diggerId,
+  excavatorId,
   assignedTruck,
   assignReadyTrucks,
   reAssignTruckToFleet,
@@ -33,8 +36,8 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   };
 
   const items: MenuProps["items"] = useMemo(() => {
-    const filteredDispatchs = dispatchs.filter(
-      (item) => item.excavatorId !== diggerId
+    const filteredDispatchs = excavators.filter(
+      (item) => item.id !== excavatorId
     );
 
     return [
@@ -43,18 +46,18 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
         label: "Return to GO-Line",
       },
       ...filteredDispatchs.map((item) => ({
-        key: item?.excavatorId,
-        label: `Re-assign to ${item?.excavator?.name}`,
+        key: item?.id,
+        label: `Re-assign to ${item?.name}`,
       })),
     ];
-  }, [dispatchs, diggerId]);
+  }, [dispatchs, excavatorId]);
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     if (assignedTruck) {
       if (e.key == "Return") {
-        removeTruckFromAssigned(assignedTruck, diggerId);
+        removeTruckFromAssigned(assignedTruck, excavatorId);
       } else {
-        reAssignTruckToFleet(assignedTruck, diggerId, e.key);
+        reAssignTruckToFleet(assignedTruck, excavatorId, e.key);
       }
     }
   };
@@ -67,7 +70,7 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "READYTRUCK",
     drop: (draggedTruck: Truck) => {
-      assignReadyTrucks(assignedTruck, draggedTruck, diggerId);
+      assignReadyTrucks(assignedTruck, draggedTruck, excavatorId);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),

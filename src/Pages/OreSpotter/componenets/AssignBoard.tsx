@@ -12,6 +12,7 @@ import { Vehicle } from "slices/fleet/reducer";
 import AssignRouteItem from "../../DispatchLive/AssignRouteItem";
 
 interface AssignBoardProps {
+  excavators:any[];
   targetMaterials: Material[];
   dispatch: any;
   dispatchs: any[];
@@ -30,6 +31,7 @@ interface AssignBoardProps {
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
+  excavators,
   targetMaterials,
   dispatch,
   dispatchs,
@@ -67,12 +69,13 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <div className="assign-item-pair">
           <AssignTruckItem
             dispatchs={dispatchs}
-            diggerId={dispatch?.excavatorId}
+            excavatorId={dispatch?.excavatorId}
             assignedTruck={filteredTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
             removeTruckFromAssigned={removeTruckFromAssigned}
             directionDispalyName="inline"
+            excavators={excavators}
           />
           <AssignMaterialItem
             vehicleId={dispatch?.excavatorId}

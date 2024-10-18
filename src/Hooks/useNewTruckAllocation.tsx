@@ -1,5 +1,5 @@
 import { omit, uniq } from "lodash";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
 import {
@@ -29,6 +29,20 @@ export const useTruckAllocations = () => {
   const [deletedTruckAllocationIds, setDeletedTruckAllocationIds] = useState<
     string[]
   >([]);
+  const [isLoading, setIsLoaing] = useState<boolean>(false);
+  const [mergedTruckAllocations, setMergedTruckAllocation] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const result = [...truckAllocations, ...savedTruckAllocations]
+      .filter((item) => !deletedTruckAllocationIds.includes(item?.id))
+      .map((item) => ({
+        ...item,
+        truck: findVehicleById(item.truckId),
+      }));
+      setMergedTruckAllocation([...result]);
+    }
+  }, [truckAllocations, savedTruckAllocations, deletedTruckAllocationIds, isLoading]);
 
   const findTruckAllocationByTruckId = (truckId) =>
     mergedTruckAllocations?.find((item) => item.truckId === truckId) || null;
@@ -68,17 +82,10 @@ export const useTruckAllocations = () => {
     }
   };
 
-  const mergedTruckAllocations = useMemo(() => {
-    const result = [...truckAllocations, ...savedTruckAllocations];
-    return result
-      .filter((item) => !deletedTruckAllocationIds.includes(item?.id))
-      .map((item) => ({
-        ...item,
-        truck: findVehicleById(item.truckId),
-      }));
-  }, [truckAllocations, savedTruckAllocations, deletedTruckAllocationIds]);
+
 
   const handleSubmitTruckAllocation = async () => {
+    setIsLoaing(true);
     if (!!savedTruckAllocations.length || !!deletedTruckAllocationIds.length) {
       await dispatch(
         addTruckAllocations([
@@ -101,6 +108,7 @@ export const useTruckAllocations = () => {
       setDeletedTruckAllocationIds([]);
       setSavedTruckAllocations([]);
     }
+    setIsLoaing(false);
   };
   return {
     truckAllocations,

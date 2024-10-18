@@ -12,6 +12,7 @@ import AssignBoard from "./AssignBoard";
 import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
+  excavators:any[];
   targetMaterials: Material[];
   dispatch: any;
   dispatchs: any[];
@@ -34,6 +35,7 @@ interface MainCardProps {
 }
 
 const MainCard: React.FC<MainCardProps> = ({
+  excavators,
   targetMaterials,
   dispatch,
   dispatchs,
@@ -200,6 +202,7 @@ const MainCard: React.FC<MainCardProps> = ({
             locations={locations}
             shiftRoster={shiftRoster}
             inprogressSource={inprogressSource}
+            excavators={excavators}
           />
         </div>
       </div>

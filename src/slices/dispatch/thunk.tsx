@@ -69,3 +69,13 @@ export const removeDispatch = (id: string) => async (dispatch: any) => {
         dispatch(apiError(error));
     }
 };
+
+
+export const removeDispatchFromState =
+  (dispatchs: any) => async (dispatch: any) => {
+    dispatch(
+      deleteSuccess({
+        data: dispatchs,
+      })
+    );
+  };

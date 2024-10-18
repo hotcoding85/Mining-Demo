@@ -21,7 +21,7 @@ const getStatusColor = (status: string) => {
 
 interface VehicleCardProps {
   vehicle?: any;
-  sources?: any;
+  dispatchs?: any;
   shiftRoster?: any[];
   smu: number;
   fuelLevel: number;
@@ -36,7 +36,7 @@ interface VehicleCardProps {
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   vehicle,
-  sources,
+  dispatchs,
   shiftRoster,
   smu,
   fuelLevel,
@@ -91,17 +91,17 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const filteredsources = useMemo(() => {
-    return (
-      sources?.filter(
-        (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
-      ) || []
-    );
-  }, [sources]);
+  const filteredsources = dispatchs?.filter(
+    (item) =>
+      (item.status === "INPROGRESS" || item.status === "PLANNED") &&
+      item.excavatorId === vehicle.id
+  );
 
-  const nextLocations = sources
-    ?.filter((item) => item.status === "PLANNED")
-    ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
+  const nextLocations = dispatchs
+    ?.filter(
+      (item) => item.status === "PLANNED" && item.excavatorId === vehicle.id
+    )
+    ?.sort((a: any, b: any) => a?.source?.name?.localeCompare(b?.source?.name));
 
   const DropTarget = ({
     targetData,
@@ -175,7 +175,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
       </div>
       <div className="vehicle-card-details">
         <div className="location-item">
-          {!!sources?.length && (
+          {!!filteredsources?.length && (
             <select
               name="current-work-location"
               id="currentWorkLocation"
@@ -186,7 +186,12 @@ const VehicleCard: FC<VehicleCardProps> = ({
             >
               {filteredsources.map((item) => {
                 return (
-                  <option key={item.id} value={item.value} id={item.source.id} selected={item.status === "INPROGRESS"}>
+                  <option
+                    key={item.id}
+                    value={item.value}
+                    id={item?.source?.id}
+                    selected={item.status === "INPROGRESS"}
+                  >
                     {item?.source?.name}
                     {/* - {item?.source.blockId} */}
                   </option>

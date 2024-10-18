@@ -11,6 +11,7 @@ import {
 import AssignBoard from "./AssignBoard";
 
 interface MainCardProps {
+  excavators:any[];
   dispatch: any;
   dispatchs: any[];
   shiftRoster: any;
@@ -30,6 +31,7 @@ interface MainCardProps {
 }
 
 const MainCard: React.FC<MainCardProps> = ({
+  excavators,
   dispatch,
   dispatchs,
   haulRoutes,
@@ -81,7 +83,7 @@ const MainCard: React.FC<MainCardProps> = ({
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
               vehicle={dispatch}
-              sources={dispatch.sources}
+              dispatchs={dispatchs}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
               fuelLevel={80}
@@ -108,6 +110,7 @@ const MainCard: React.FC<MainCardProps> = ({
             addHaulRoute={addHaulRoute}
             locations={locations}
             shiftRoster={shiftRoster}
+            excavators={excavators}
           />
         </div>
       </div>
