@@ -279,12 +279,12 @@ const DispatchLive: React.FC = () => {
         key: "All",
         label: "All",
       },
-      ...mergedPlans.map((item: any) => ({
+      ...excavators.map((item: any) => ({
         key: item?.name,
         label: item?.name,
       })),
     ],
-    [mergedPlans]
+    [excavators]
   );
 
   const onTabChange = (key: string) => {

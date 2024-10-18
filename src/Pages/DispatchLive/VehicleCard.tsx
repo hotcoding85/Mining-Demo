@@ -184,6 +184,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
                 changePlanState(selectedOptionId, vehicle.id);
               }}
             >
+              <option hidden></option>
               {filteredsources.map((item) => {
                 return (
                   <option

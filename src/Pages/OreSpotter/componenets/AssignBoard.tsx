@@ -12,9 +12,9 @@ import { Vehicle } from "slices/fleet/reducer";
 import AssignRouteItem from "../../DispatchLive/AssignRouteItem";
 
 interface AssignBoardProps {
-  excavators:any[];
+  excavators: any[];
   targetMaterials: Material[];
-  dispatch: any;
+  vehicle: any;
   dispatchs: any[];
   assignedTrucks: any[];
   haulRoutes: HaulRoute[];
@@ -33,7 +33,7 @@ interface AssignBoardProps {
 const AssignBoard: React.FC<AssignBoardProps> = ({
   excavators,
   targetMaterials,
-  dispatch,
+  vehicle,
   dispatchs,
   haulRoutes,
   dumpLocation,
@@ -49,14 +49,11 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   removeTruckFromAssigned,
 }) => {
   const filteredTrucks = assignedTrucks
-    .filter((item) => item.excavatorId === dispatch.excavatorId)
-    .sort((a: any, b: any) => a?.truck.name?.localeCompare(b?.truck.name));
-  const truckIds = filteredTrucks.map((item) => item.truckId);
+    .filter((item) => item.excavatorId === vehicle.id)
+    .sort((a: any, b: any) => a?.truck?.name?.localeCompare(b?.truck?.name));
   const itemLength = filteredTrucks.length >= 5 ? filteredTrucks.length + 1 : 5;
   const assignArr = Array.from({ length: itemLength });
-  const operators = shiftRoster.filter((item) =>
-    truckIds.includes(item.vehicleId)
-  );
+  console.log("vehicleId", vehicle);
 
   return (
     <div className="assign-item-container">
@@ -69,7 +66,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <div className="assign-item-pair">
           <AssignTruckItem
             dispatchs={dispatchs}
-            excavatorId={dispatch?.excavatorId}
+            excavatorId={vehicle?.id}
             assignedTruck={filteredTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
@@ -78,7 +75,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
             excavators={excavators}
           />
           <AssignMaterialItem
-            vehicleId={dispatch?.excavatorId}
+            vehicleId={vehicle?.id}
             truck={filteredTrucks[index]}
             inprogressSource={inprogressSource}
             shiftRoster={shiftRoster}

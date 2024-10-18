@@ -102,10 +102,8 @@ const RightBoard: React.FC<RightBoardProps> = ({
   }, [fleets]);
 
   const activeBenches = useMemo(() => {
-    const allSources = dispatchs?.flatMap(item => item.sources);
-    const assignedSourceIds = allSources?.map((item) => {
-      return item?.source?.id;
-    }) || []
+    const assignedSourceIds =
+      dispatchs?.flatMap((item) => item.sourceId) || [];
 
     return (
       benches

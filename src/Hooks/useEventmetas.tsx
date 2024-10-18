@@ -1,5 +1,5 @@
 import { omit, uniq } from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { addEventMetas, removeEventMetasFromState } from "slices/thunk";
@@ -21,6 +21,17 @@ export const useEventmetas = () => {
   // New Event Metas
   const [savedEventmetas, setSavedEventmetas] = useState<any[]>([]);
   const [deletedEventmataIds, setDeletedEventmataIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [mergedEventmetas, setMergedEventmetas] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const result = eventmetas.filter(
+        (item) => !deletedEventmataIds.includes(item?.id)
+      );
+      setMergedEventmetas([...result, ...savedEventmetas]);
+    }
+  }, [eventmetas, savedEventmetas, deletedEventmataIds, isLoading]);
 
   const findEventmetaByTruckId = (truckId) =>
     eventmetas?.find((item) => item.truckId === truckId) || null;
@@ -55,7 +66,7 @@ export const useEventmetas = () => {
   };
 
   const handleSubmitEventmeta = async () => {
-    if (!!savedEventmetas.length && !!deletedEventmataIds.length) {
+    if (!!savedEventmetas.length || !!deletedEventmataIds.length) {
       await dispatch(
         addEventMetas([
           ...deletedEventmataIds.map((id) => ({
@@ -86,6 +97,7 @@ export const useEventmetas = () => {
     eventmetas,
     savedEventmetas,
     deletedEventmataIds,
+    mergedEventmetas,
     addNewEventmeta,
     updateEventmeta,
     removeEventmeta,

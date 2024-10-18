@@ -58,36 +58,35 @@ export const usePlans = () => {
 
   const changePlan = (newSourceId, excavatorId) => {
     const oldPlan = findInprogressPlan(excavatorId);
-    const isSavedNewPlan = isExistSavedPlan(newSourceId);
-    const isNewPlan = isExistPlan(newSourceId);
 
-    let updatedPlans = [...savedPlans];
-    let deletedPlans = [...deletedPlanIds];
+    let updatedPlans = savedPlans;
+    let deletedPlans = deletedPlanIds;
 
-    // Handle old plan
     if (oldPlan) {
-      const isSavedOldPlan = isExistSavedPlan(oldPlan.sourceId);
-      const isOldPlan = isExistPlan(oldPlan.sourceId);
-
-      // Update or add the old plan
-      if (isSavedOldPlan) {
+      const savedOldPlan = isExistSavedPlan(oldPlan.sourceId);
+      
+      if (savedOldPlan) {
         updatedPlans = updatePlanStatus(
           updatedPlans,
           oldPlan.sourceId,
           "PLANNED"
         );
       } else {
+        const isOldPlan = isExistPlan(oldPlan.sourceId);
         updatedPlans.push({ ...isOldPlan, status: "PLANNED" });
         deletedPlans.push(isOldPlan.id);
       }
     }
 
+    const savedNewPlan = isExistSavedPlan(newSourceId);
+    
     // Handle new plan
-    if (isSavedNewPlan) {
+    if (savedNewPlan) {
       updatedPlans = updatePlanStatus(updatedPlans, newSourceId, "INPROGRESS");
     } else {
-      updatedPlans.push({ ...isNewPlan, status: "INPROGRESS" });
-      deletedPlans.push(isNewPlan.id);
+      const newPlan = isExistPlan(newSourceId);
+      updatedPlans.push({ ...newPlan, status: "INPROGRESS" });
+      deletedPlans.push(newPlan.id);
     }
 
     setSavedPlans(updatedPlans);
@@ -115,7 +114,7 @@ export const usePlans = () => {
 
   const handlepublishPlan = async () => {
     setIsLoading(true);
-    
+
     if (!!savedPlans.length || !!deletedPlanIds.length) {
       await dispatch(removeDispatchFromState(deletedPlanIds));
       await dispatch(
@@ -136,7 +135,7 @@ export const usePlans = () => {
         ])
       );
     }
-    
+
     setDeletedPlanIds([]);
     setSavedPlans([]);
 

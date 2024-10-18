@@ -12,9 +12,9 @@ import AssignBoard from "./AssignBoard";
 import { Vehicle } from "slices/fleet/reducer";
 
 interface MainCardProps {
-  excavators:any[];
+  excavators: any[];
   targetMaterials: Material[];
-  dispatch: any;
+  vehicle: any;
   dispatchs: any[];
   shiftRoster: any;
   haulRoutes: HaulRoute[];
@@ -24,20 +24,19 @@ interface MainCardProps {
   assignedTrucks: any[];
   locations: any[];
   updateTargetMaterials: (oldMaterial: any, updatedMaterial: any) => void;
-  addBenches: (newBenches: any, diggerId: string) => void;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
   addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   reAssignTruckToFleet: (truck: Truck, fromId: string, toId: string) => void;
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
   changePlanState: (location: string, vehicleId: string) => void;
-  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
+  addBenches: (newLocation: any, oldLocation: any, data: any) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
   excavators,
   targetMaterials,
-  dispatch,
+  vehicle,
   dispatchs,
   haulRoutes,
   shiftRoster,
@@ -54,7 +53,6 @@ const MainCard: React.FC<MainCardProps> = ({
   reAssignTruckToFleet,
   removeTruckFromAssigned,
   changePlanState,
-  addLocation,
 }) => {
   const [collapseView, setCollapseView] = useState<boolean>(true);
 
@@ -75,15 +73,11 @@ const MainCard: React.FC<MainCardProps> = ({
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
 
-  // const excavatorVehicle = dispatch?.excavator;
-
-  const filteredsources = useMemo(() => {
-    return (
-      dispatch.sources?.filter(
-        (item) => item.status === "INPROGRESS" || item.status === "PLANNED"
-      ) || []
-    );
-  }, [dispatch]);
+  const filteredsources = dispatchs?.filter(
+    (item) =>
+      (item.status === "INPROGRESS" || item.status === "PLANNED") &&
+      item.excavatorId === vehicle.id
+  );
 
   const inprogressSource = useMemo(() => {
     return filteredsources.find((item) => item.status === "INPROGRESS");
@@ -91,15 +85,15 @@ const MainCard: React.FC<MainCardProps> = ({
 
   const normalizeDestination = useMemo(
     () =>
-      dispatch?.destination
+      vehicle?.destination
         ? {
-            ...dispatch?.destination,
+            ...vehicle?.destination,
             locationImg: dumpLocations.find(
-              (item) => dispatch?.destination?.id === item.id
+              (item) => vehicle?.destination?.id === item.id
             )?.locationImg,
           }
         : undefined,
-    [dispatch.destination, dumpLocations]
+    [vehicle.destination, dumpLocations]
   );
 
   return (
@@ -109,36 +103,22 @@ const MainCard: React.FC<MainCardProps> = ({
           <div className="current-location-containe">
             <div className="current-location-text">
               <p className="current-location-label">Current Work Location</p>
-              {!!dispatch.sources?.length && (
+              {!!filteredsources?.length && (
                 <select
                   name="current-work-location"
                   id="currentWorkLocation"
-                  defaultValue="0"
                   onChange={(e) => {
                     const selectedOptionId = e.target.selectedOptions[0].id;
-                    changePlanState(selectedOptionId, dispatch.id);
+                    changePlanState(selectedOptionId, vehicle.id);
                   }}
                 >
-                  {inprogressSource ? (
-                    <option
-                      key={inprogressSource.id}
-                      value={inprogressSource.value}
-                      id={inprogressSource.source.id}
-                      selected
-                      hidden
-                    >
-                      {inprogressSource?.source?.name}
-                      {/* - {item?.source.blockId} */}
-                    </option>
-                  ) : (
-                    <option hidden></option>
-                  )}
                   {filteredsources.map((item) => {
                     return (
                       <option
                         key={item.id}
                         value={item.value}
-                        id={item.source.id}
+                        id={item?.source?.id}
+                        selected={item.status === "INPROGRESS"}
                       >
                         {item?.source?.name}
                         {/* - {item?.source.blockId} */}
@@ -169,8 +149,8 @@ const MainCard: React.FC<MainCardProps> = ({
           <div className="vehicle-card-container">
             <p className="vehicle-card-name">Digger Fleet</p>
             <VehicleCard
-              vehicle={dispatch}
-              sources={dispatch.sources}
+              vehicle={vehicle}
+              dispatchs={dispatchs}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
               fuelLevel={80}
@@ -182,15 +162,13 @@ const MainCard: React.FC<MainCardProps> = ({
               addBenches={addBenches}
               collapse={false}
               changePlanState={changePlanState}
-              addLocation={addLocation}
-              filteredsources={filteredsources}
             />
           </div>
           <AssignBoard
             targetMaterials={targetMaterials}
             updateTargetMaterials={updateTargetMaterials}
             dispatchs={dispatchs}
-            dispatch={dispatch}
+            vehicle={vehicle}
             assignedTrucks={assignedTrucks}
             assignReadyTrucks={assignReadyTrucks}
             removeTruckFromAssigned={removeTruckFromAssigned}
