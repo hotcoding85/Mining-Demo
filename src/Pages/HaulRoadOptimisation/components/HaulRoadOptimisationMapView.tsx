@@ -13,7 +13,8 @@ import * as turf from '@turf/turf';
 import { getRandomInt } from "utils/random";
 import { Segmented, Space } from "antd";
 import FloatingActionButton from "Pages/Replay/components/FloatingActionButton";
-
+import { Slider, Button, Select } from 'antd';
+import { LeftOutlined, PauseCircleFilled, PlayCircleFilled, RightOutlined } from "@ant-design/icons";
 type ActiveObjectType = {
   tube: any
   marker: any
@@ -30,6 +31,23 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const [duringAnimation, setDuringAnimation] = useState<boolean>(false)
   const [viewType, setViewType] = useState<string>("TOP")
   const currentViewType = useRef<string>(viewType)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const currentIsPlaying = useRef<boolean>(false)
+  const [speed, setSpeed] = useState(1);
+  const currentSpeed = useRef<number>(1);
+  const forwardDirection = useRef<any>(null)
+  const NextCameraPoistion = useRef<any>(null)
+  const currentAnimationMarker = useRef<any>(null)
+  const [timeValue, setTimeValue] = useState(0);
+  const currentTimeValue = useRef<number>(-1)
+  const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
+  const { Option } = Select;
+  const pausedTimeValue = useRef<number>(0)
+  const pausedTubeIndex = useRef<number>(-1)
+  const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
+  const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
+  const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
+
   const tableData = useMemo(
     () => [
       {
@@ -169,6 +187,10 @@ const HaulRoadOptimisationMapView = (props: any) => {
     return props.replayRoads
   }, [props.replayRoads])
 
+  const vehicleRoutes = useMemo(() => {
+    return props.vehicleRoutes
+  }, [props.vehicleRoutes])
+
   const replayTubes = useRef<any>([])
   const replayArrowTubes = useRef<any>([])
   const animationCameraId = useRef<number>(0)
@@ -211,7 +233,145 @@ const HaulRoadOptimisationMapView = (props: any) => {
         annotationDiv.style.left = `${_x}px`;
         annotationDiv.style.top = `${_y}px`;
     }
-}, [isAnimation])
+  }, [isAnimation])
+
+  const handleSpeedChange = (value: number) => {
+    setSpeed(value);
+    currentSpeed.current = value
+  };
+
+  const lastCameraPosition = useRef<any>(null)
+  const lastCameraQuaternion = useRef<any>(null)
+  const cameraStopAnimationId = useRef<number>(0)
+  const animationCameraFrameId = useRef<number>(0);
+
+  const togglePlay = useCallback(() => {
+  if (!currentRoad.value) return;
+    setIsPlaying(!isPlaying);
+    window.isAnimation = false
+    currentIsPlaying.current = !isPlaying
+    if (isPlaying === false) {
+        setTimeValue(0)
+        currentTimeValue.current = 0
+        clearAnimation()
+        if (cameraStopAnimationId.current !== 0) {
+            cancelAnimationFrame(cameraStopAnimationId.current)
+            lastCameraQuaternion.current = false
+        }
+        if (activeObjects.current && activeObjects.current.animationId) {
+            cancelAnimationFrame(activeObjects.current.animationId);
+            activeObjects.current.animationId = null;
+        }
+    }
+    
+    if (cameraStopAnimationId.current !== 0) {
+        cancelAnimationFrame(cameraStopAnimationId.current)
+        lastCameraQuaternion.current = false
+    }
+    if (!currentIsPlaying.current) {
+        let cameraOffset = new THREE.Vector3();
+        forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+        const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+        const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+        // Adjust the camera based on viewType
+        switch (currentViewType.current) {
+            case 'TOP':
+                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+                break;
+            case 'FRONT':
+                cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                // cameraOffset.z += 50;  // Adjust the height for a better view
+                break;
+            case 'LEFT':
+                // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+                cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+                cameraOffset.z += 10;  // Optionally adjust height
+                break;
+            case 'RIGHT':
+                // Move the camera to the right of the truck using the rightDirection vector
+                cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+                cameraOffset.z += 10;  // Optionally adjust height
+                break;
+            case 'BACK':
+                cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+                // cameraOffset.z += 50;  // Adjust the height
+                break;
+            default:
+                // Default camera behavior if viewType is not defined (use 'Top' view)
+                cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+        }
+        // Set the camera position behind the marker (car)
+        if (window.controls) window.controls.enabled = false;
+
+        const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+        window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+        // Interpolate the lookAt position for smooth transition
+        window.camera.lookAt((currentViewType.current === 'TOP' ? NextCameraPoistion.current : currentAnimationMarker.current));
+        setTimeout(() => {
+            window.controls.target.copy(currentAnimationMarker.current);
+            window.controls.enabled = true;
+            window.camera.zoom = 1
+            window.camera.updateProjectionMatrix();
+        }, 300)
+        window.renderer.render(window.map.scene, window.camera)
+        window.savedCameraPosition = window.camera.position.clone();
+        window.savedCameraQuaternion = window.camera.quaternion.clone();
+    }
+    else {
+        // Save the camera's last position and orientation at the moment the animation is paused
+        window.savedCameraPosition = window.camera.position.clone();
+        window.savedCameraQuaternion = window.camera.quaternion.clone();
+        window.controls.update()
+    }
+  }, [currentRoad, isPlaying, forwardDirection, currentAnimationMarker, NextCameraPoistion, currentViewType]);
+
+  useEffect(() => {
+    if (isPlaying && !animationRef.current.animationFrameId && currentRoad) {
+        if (totalTime == currentTimeValue.current) {
+            animationRef.current.startTime = null
+            currentTimeValue.current = -1
+            animationRef.current.elapsedTime = 0
+        }
+        
+        drawRoute()
+    }
+  }, [isPlaying, currentRoad, animationRef, totalTime])
+
+  // Handler for the PrevRoute button
+  const onPrevRoute = useCallback(() => {
+    if (replayRoads &&  replayRoads.length > 0) {
+        if (currentRoad == null) {
+            // If no trip is selected, select the first one
+        } else {
+            // Find the index of the currently selected trip
+            const currentIndex = _.findIndex(replayRoads, _route => _route === currentRoad);
+
+            // Determine the next index
+            const prevIndex = (currentIndex - 1 + replayRoads.length) % replayRoads.length;
+
+            // Set the next trip in the sequence
+            props.setCurrentRoad(replayRoads[prevIndex]);
+        }
+    }
+  }, [currentRoad, replayRoads]);
+
+  // Handler for the NextRoute button
+  const onNextRoute = useCallback(() => {
+      if (replayRoads && replayRoads.length > 0) {
+          if (currentRoad == null) {
+              // If no trip is selected, select the first one
+              props.setCurrentRoad(replayRoads[0]);
+          } else {
+              // Find the index of the currently selected trip
+              const currentIndex = _.findIndex(replayRoads, _route => _route === currentRoad);
+              // Determine the next index
+              const nextIndex = (currentIndex + 1) % replayRoads.length;
+
+              // Set the next trip in the sequence
+              props.setCurrentRoad(replayRoads[nextIndex]);
+          }
+      }
+  }, [replayRoads, currentRoad]);
 
   function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
     const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 4, 4, false);
@@ -257,14 +417,11 @@ const HaulRoadOptimisationMapView = (props: any) => {
     const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
     return tube;
   }
-  const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
-  const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
-  const currentSpeed = useRef<number>(1)
-  const currentAnimationMarker = useRef<any>(null)
-  const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
 
   const clearAnimation = () => {
     setIsAnimation(false)
+    setTimeValue(0)
+    setTotalTime(0)
     if (!window.map) return
     window.camera.zoom = 1
     // Remove previous route
@@ -297,14 +454,67 @@ const HaulRoadOptimisationMapView = (props: any) => {
     currentViewType.current = viewType
     if (!window.camera) return
     window.camera.zoom = 1
+    if (duringAnimation && !currentIsPlaying.current) {
+      let cameraOffset = new THREE.Vector3();
+      forwardDirection.current = new THREE.Vector3().subVectors(NextCameraPoistion.current, currentAnimationMarker.current).normalize();
+      const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
+      const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
+      // Adjust the camera based on viewType
+      switch (currentViewType.current) {
+          case 'TOP':
+              cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+              break;
+          case 'FRONT':
+              cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+              // cameraOffset.z += 50;  // Adjust the height for a better view
+              break;
+          case 'LEFT':
+              // Move the camera to the left of the truck using the rightDirection vector (negated for the left side)
+              cameraOffset = rightDirection.clone().multiplyScalar(80);  // Camera from the left side
+              cameraOffset.z += 10;  // Optionally adjust height
+              break;
+          case 'RIGHT':
+              // Move the camera to the right of the truck using the rightDirection vector
+              cameraOffset = rightDirection.clone().multiplyScalar(-80);  // Camera from the right side
+              cameraOffset.z += 10;  // Optionally adjust height
+              break;
+          case 'BACK':
+              cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
+              // cameraOffset.z += 50;  // Adjust the height
+              break;
+          default:
+              // Default camera behavior if viewType is not defined (use 'Top' view)
+              cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
+      }
+      // Set the camera position behind the marker (car)
+      const cameraPosition = new THREE.Vector3().copy(currentAnimationMarker.current).add(cameraOffset);
+      window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
+      // Interpolate the lookAt position for smooth transition
+      window.camera.lookAt(NextCameraPoistion.current);
+      window.savedCameraPosition = window.camera.position.clone();
+      window.savedCameraQuaternion = window.camera.quaternion.clone();
+      currentAnimationMarker.current && updateMarkerTooltip(currentAnimationMarker.current)
+  }
   }, [viewType])
 
   useEffect(() => {
-    if (currentRoad && window.map) {
-      let road = replayRoads.find(_road => _road.id === currentRoad.value)
+    clearAnimation()
+    pausedTimeValue.current = 0
+    pausedTubeIndex.current = -1
+    currentIsPlaying.current = true
+    animationRef.current.startTime = null;
+    animationRef.current.elapsedTime = 0;
+    setTimeValue(0)
+    
+    drawRoute()
+  }, [currentRoad])
+
+  const drawRoute = useCallback(() => {
+    if (currentRoad && window.map && vehicleRoutes.length > 0) {
+      let road = vehicleRoutes.find(_road => _road.id === currentRoad.value)
       if (road) {
-        clearAnimation()
         setIsAnimation(true)
+        setIsPlaying(true)
         setDuringAnimation(true)
         window.camera.zoom = 1
         window.isAnimation = true
@@ -318,6 +528,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
             _tube.material.dispose();
           })
         }
+        replayTubes.current = []
         if (replayArrowTubes.current && replayArrowTubes.current.length > 0) {
           _.map(replayArrowTubes.current, _tube => {
             window.map.scene.remove(_tube)
@@ -325,6 +536,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
             _tube.material.dispose();
           })
         }
+        replayArrowTubes.current = []
         if (animationCameraId.current != 0) {
           cancelAnimationFrame(animationCameraId.current)
         }
@@ -418,7 +630,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 curve: tubePath,
                 totalDistance: totalDistance, // Calculate the tube's distance
                 marker: null, // We'll add this later
-                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6) * 2000,  // Assuming total time is shared among tubes
+                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6),  // Assuming total time is shared among tubes
                 progress: 0,  // Initial progress for the animation
                 currentLoad: truck.currentLoad,
                 vehicleName: truck.vehicleName,
@@ -429,22 +641,23 @@ const HaulRoadOptimisationMapView = (props: any) => {
             for (let i = 0; i < segment.length - 1; i++) {
               const start = new THREE.Vector3(segment[i].x, segment[i].y, (segment[i].z - 400) * 2);
               const end = new THREE.Vector3(segment[i + 1].x, segment[i + 1].y, (segment[i + 1].z - 400) * 2);
-              
+
               const direction = new THREE.Vector3().subVectors(end, start).normalize();
               
               // Create arrow cone
               const arrowGeometry = new THREE.ConeGeometry(5, 20, 32); // Adjust size as necessary
-              const arrowMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, depthTest: false, depthWrite: false});
+              const arrowMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, depthTest: false, depthWrite: false, transparent: true});
 
               const arrowMesh = new THREE.Mesh(arrowGeometry, arrowMaterial);
 
               // Set position at the start point of each segment
               arrowMesh.position.copy(start);
-
+              const middlePoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+              arrowMesh.position.copy(middlePoint);
               // Align arrow along the direction of the segment
               arrowMesh.lookAt(end);
               arrowMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2); // Rotate to align with the tube direction
-
+              arrowMesh.scale.set(0.5, 0.5, 0.5);
               window.map.scene.add(arrowMesh);
               replayArrowTubes.current.push(arrowMesh)
             }
@@ -455,57 +668,66 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
         const [segments, coords] = splitByAltitude(points, _coordinates)
         createTubes(segments, coords);
-
-
+        console.log(window.map.scene, replayArrowTubes.current)
         activeObjects.current.marker = window.TruckObject;
-
         let currentSegmentIndex = 0; // To track which segment is being animated
+        if (pausedTimeValue.current != 0) {
+          currentSegmentIndex = pausedTubeIndex.current
+          drawPreviousTubes(tubes, currentSegmentIndex)
+        }
         let PassedTime = 0
         // Function to animate a single tube segment
         const animateSegment = (tubeData, onComplete) => {
             const { curve, tube, totalDistance, duration, currentLoad, vehicleName, operatorName, speedLimit } = tubeData;
             const marker = window.TruckObject
-
+            // if (currentTimeValue.current >= 0) { // when the user changed the timeslider
+            //     animationRef.current.elapsedTime = currentTimeValue.current * 1000;
+            //     currentTimeValue.current = -1
+            // }
             // Animation loop for a single segment
             const animate = (timestamp) => {
                 const currentPlaybackSpeed = currentSpeed.current;
-                const cameraOffset = new THREE.Vector3(100, 100, 100);  // Adjust offset as needed
-
                 if (!animationRef.current.startTime) {
                     animationRef.current.startTime = timestamp;
                     marker.visible = true;
                 }
 
-                let elapsed = animationRef.current.elapsedTime + (timestamp - animationRef.current.startTime!) * currentPlaybackSpeed;
+                let elapsed;
+                let deltaTime;
+                deltaTime = (timestamp - animationRef.current.startTime!) * currentPlaybackSpeed;
+                if (pausedTimeValue.current != 0) {
+                    elapsed = pausedTimeValue.current
+                }
+                else{
+                    elapsed = animationRef.current.elapsedTime + deltaTime;
+                }
 
-                const _progress = Math.min(elapsed / duration, 1);
+                const _progress = Math.min(elapsed / (duration * 2000), 1);
                 const distanceCovered = _progress * totalDistance;
-
                 // Move the marker along the curve
                 if (_progress < 1) {
+                    setTimeValue(Math.floor(_progress / 1 * totalTime))
                     const point = curve.getPointAt(_progress);
                     const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
                     if (point) {
                         if (!window.map) return
                         window.TruckObject && (window.TruckObject.visible = true)
                         currentAnimationMarker.current = point
+                        NextCameraPoistion.current = nextPoint
                         marker.position.set(point.x, point.y, point.z);
                         tube.material.uniforms.progress.value = _progress;
                         // Calculate the forward direction (from point to nextPoint)
-                        const forwardDirection = new THREE.Vector3().subVectors(nextPoint, point).normalize();
+                        
+                        forwardDirection.current = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
-                        // Create a new quaternion for rotation
-                        const quaternion = new THREE.Quaternion();
+                        
 
-                        // Set the quaternion to rotate the object to face the forward direction
-                        quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), forwardDirection);
-
-                        const angle = Math.atan2(forwardDirection.y, forwardDirection.x);
+                        const angle = Math.atan2(forwardDirection.current.y, forwardDirection.current.x);
                         // // Rotate the object around the Z-axis based on the calculated angle
                         marker.rotation.z = angle + Math.PI / 2;
 
                         let cameraOffset = new THREE.Vector3();
-                        const forwardDirectionNormalized = forwardDirection.clone().normalize();
+                        const forwardDirectionNormalized = forwardDirection.current.clone().normalize();
                         const rightDirection = new THREE.Vector3(0, 0, 1).cross(forwardDirectionNormalized).normalize();
                         // Adjust the camera based on viewType
                         switch (currentViewType.current) {
@@ -513,7 +735,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                                 cameraOffset = new THREE.Vector3(0, 0, 120);  // Camera from above (Top view)
                                 break;
                             case 'FRONT':
-                                cameraOffset = forwardDirection.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
+                                cameraOffset = forwardDirection.current.clone().multiplyScalar(100);  // Camera in front of the marker (Truck)
                                 // cameraOffset.z += 50;  // Adjust the height for a better view
                                 break;
                             case 'LEFT':
@@ -527,7 +749,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                                 cameraOffset.z += 10;  // Optionally adjust height
                                 break;
                             case 'BACK':
-                                cameraOffset = forwardDirection.clone().multiplyScalar(-100);  // Camera from behind the marker
+                                cameraOffset = forwardDirection.current.clone().multiplyScalar(-100);  // Camera from behind the marker
                                 // cameraOffset.z += 50;  // Adjust the height
                                 break;
                             default:
@@ -539,7 +761,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                         const cameraPosition = new THREE.Vector3().copy(point).add(cameraOffset);
                         window.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z + 30);
                         // Make the camera look ahead (at the next point on the curve)
-                        window.camera.lookAt(nextPoint);
+                        window.camera.lookAt((currentViewType.current === 'TOP' ? nextPoint : point));
                         window.camera.updateProjectionMatrix();
                         window.camera.updateMatrixWorld();
                         window.savedCameraPosition = window.camera.position.clone();
@@ -554,38 +776,29 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
                     // marker.scale.set(pulseScale * 50, pulseScale * 50, 1); // Apply pulsing scale
                     // Request next frame for this segment
-                    animationRef.current.animationFrameId = requestAnimationFrame(animate);
+
+                    // animationRef.current.elapsedTime += deltaTime;
+                    animationRef.current.startTime = timestamp;
+                    if (currentIsPlaying.current){
+                        animationRef.current.animationFrameId = requestAnimationFrame(animate);
+                        pausedTimeValue.current = 0
+                    }
+                    else{
+                        pausedTubeIndex.current = currentSegmentIndex
+                        animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
+                        animationRef.current.animationFrameId = null
+                        pausedTimeValue.current = elapsed
+                    }
+                    animationRef.current.elapsedTime = elapsed
+
                 } else {
                     tube.material.uniforms.progress.value = 1
-                    const point = curve.getPointAt(1); 
-                    const startPosition = window.map.camera.position.clone();
-                    const targetPosition = point.clone().add(point); // Zoom offset
-
-                    // Animate the camera movement
-                    const zoomDuration = 1000; // 1 second
-                    let startTime: number | null = null;
-
-                    const animateZoom = (time: number) => {
-                        if (startTime === null) startTime = time;
-                        const _elapsed = time - startTime;
-                        const progress = Math.min(_elapsed / zoomDuration, 1);
-
-                        window.map.camera.position.lerpVectors(startPosition, targetPosition, progress);
-                        window.controls.target.lerpVectors(startPosition, point, progress);
-                        window.controls.update();
-
-                        if (progress < 1) {
-                            animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
-                        } 
-                    };
-
-                    // animationRef.current.animationCameraId = requestAnimationFrame(animateZoom);
-
                     // Segment animation complete, proceed to next
                     animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
                     animationRef.current.startTime = null;
                     onComplete();  // Proceed to the next segment
-
+                    animationRef.current.elapsedTime = 0
+                    animationRef.current.startTime = null
                     passedSegment ++
                     PassedTime += elapsed
                     if (passedSegment == tubes.length) {
@@ -604,7 +817,6 @@ const HaulRoadOptimisationMapView = (props: any) => {
             if (currentSegmentIndex < tubes.length) {
                 // Get the current tube data
                 const currentTubeData = tubes[currentSegmentIndex];
-
                 // Start animation for the current tube
                 animateSegment(currentTubeData, () => {
                     // Move to the next segment once the current one is done
@@ -616,8 +828,10 @@ const HaulRoadOptimisationMapView = (props: any) => {
               window.TruckObject.visible = false
               // Clean up marker
               // window.map.scene.remove(marker);
+              clearAnimation()
               setIsAnimation(false)
               setDuringAnimation(false)
+              setIsPlaying(false)
               // Segment animation complete, proceed to next
               animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
               animationRef.current.startTime = null;
@@ -625,6 +839,10 @@ const HaulRoadOptimisationMapView = (props: any) => {
               setTimeout(() => {
                   window.controls.target.copy(currentAnimationMarker.current);
                   window.controls.enabled = true;
+                  window.camera.zoom = 1
+                  pausedTimeValue.current = 0
+                  pausedTubeIndex.current = -1
+                  window.camera.updateProjectionMatrix();
               }, 300)
             }
         };
@@ -635,6 +853,13 @@ const HaulRoadOptimisationMapView = (props: any) => {
     }
   }, [currentRoad])
 
+  const drawPreviousTubes = (tubes, index) => {
+    for (let i = 0; i < index ; i ++) {
+      const tubeData = tubes[i]
+      const { curve, tube, totalDistance, duration, currentLoad, vehicleName, operatorName, speedLimit } = tubeData;
+      tube.material.uniforms.progress.value = 1
+    }
+  }
   const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
     if (eq.vehicleType == "EXCAVATOR") {
         switch (eq.status) {
@@ -826,10 +1051,47 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
             }
             {equipments.map((annotation, index) => (
-                isAnimation ? <></> : <RippleIcon key={index} annotation={annotation} isLoading={isLoading} />
+                duringAnimation ? <></> : <RippleIcon key={index} annotation={annotation} isLoading={isLoading} />
             ))}
             <div className="truck-tooltip haul-road-optimization" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
                 <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
+            </div>
+            <div className="time-slider-container haul-road-optimization-timeslider" style={{}}>
+              {/* Prev Button */}
+              <Button
+                type="text"
+                icon={<LeftOutlined style={{color: 'white'}} />}
+                onClick={onPrevRoute}
+                style={{marginRight: '10px'}}
+              />
+
+              <Button
+                style={{marginRight: '10px'}}
+                type="text"
+                icon={isPlaying ? <PauseCircleFilled style={{fontSize: '32px', color: 'white'}}  /> : <PlayCircleFilled style={{fontSize: '32px', color: 'white'}}  />}
+                onClick={togglePlay}
+              />
+
+              {/* Next Button */}
+              <Button
+                type="text"
+                icon={<RightOutlined style={{color: 'white'}} />}
+                onClick={onNextRoute}
+                style={{marginRight: '10px'}}
+              />
+
+              {/* Speed Selector (1X, 2X, 3X, 4X) */}
+              <Select
+                className={'speed-indicator'}
+                value={speed}
+                style={{color: 'white'}}
+                onChange={handleSpeedChange}
+              >
+                <Option value={1}>1X</Option>
+                <Option value={2}>2X</Option>
+                <Option value={3}>3X</Option>
+                <Option value={4}>4X</Option>
+              </Select>
             </div>
           </THREEJSMap>
         </Col>
