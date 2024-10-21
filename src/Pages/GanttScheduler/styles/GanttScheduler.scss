@@ -34,7 +34,7 @@
   overflow-x: auto;
 }
 
-.task-list-container {
+.plan-list-container {
   width: 20%;
   padding: 10px;
   background-color: #f9f9f9;
@@ -42,12 +42,12 @@
   overflow-y: auto;
 }
 
-.task-list-container.light-mode {
+.plan-list-container.light-mode {
   background-color: #f9f9f9;
   color: var(--dark-text-color);
 }
 
-.task-list-container.dark-mode {
+.plan-list-container.dark-mode {
   background-color: var(--dark-text-color);
   color: #fff;
   border-right: 1px solid #555;
@@ -88,12 +88,12 @@
   margin-right: 10px;
 }
 
-.tasks {
+.plans {
   flex-grow: 1;
   display: flex;
 }
 
-.task-item {
+.plan-item {
   background-color: #007bff;
   color: white;
   padding: 5px 10px;
@@ -101,7 +101,43 @@
   border-radius: 4px;
 }
 
+body[data-layout-mode="dark"] {
+  .plan-left {
+    width: calc(100% - 350px);
+    margin-right: 20px;
+    height: 100%;
+  }
+  .plan-right {
+    width: 350px;
+    flex: none;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    height: 100%;
+    padding-top: 70px;
+    padding-bottom: 60px;
+    overflow-y: scroll;
+  }
+}
 
+body[data-layout-mode="light"] {
+  .plan-left {
+    width: calc(100% - 350px);
+    margin-right: 20px;
+    height: 100%;
+  }
+  .plan-right {
+    width: 350px;
+    flex: none;
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    height: 100%;
+    padding-top: 70px;
+    padding-bottom: 60px;
+    overflow-y: scroll;
+  }
+}
 
 /* Responsive Layout */
 @media (max-width: 1200px) {
@@ -114,7 +150,7 @@
   }
 
   .resources,
-  .task-list-container {
+  .plan-list-container {
     width: 100%;
     margin-bottom: 10px;
   }
@@ -145,12 +181,12 @@
     margin-top: 10px;
   }
 
-  .task-list-container, .resources {
+  .plan-list-container, .resources {
     display: flex;
     justify-content: center;
     margin: 0;
   }
-  .task-list {
+  .plan-list {
     height: max-content;
   }
 }
@@ -180,12 +216,12 @@
     margin-top: 10px;
   }
 
-  .task-list-container, .resources {
+  .plan-list-container, .resources {
     display: flex;
     justify-content: center;
     margin: 0;
   }
-  .task-list {
+  .plan-list {
     height: max-content;
   }
 }
@@ -220,13 +256,13 @@
     font-size: 12px;
   }
 
-  .task-list-container, .resources {
+  .plan-list-container, .resources {
     display: flex;
     justify-content: center;
     margin: 0;
   }
 
-  .task-list {
+  .plan-list {
     height: max-content;
   }
 }

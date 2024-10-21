@@ -49,7 +49,7 @@ export const addTruckAllocations =
           autoClose: 2000,
         }
       );
-      dispatch(upsertSuccess(response));
+      dispatch(createSuccess(response));
     } catch (error) {
       dispatch(apiError(error));
     }
@@ -66,7 +66,7 @@ export const updateTruckAllocation =
     }
   };
 
-export const removeTruckAllocation = (id: any) => async (dispatch: any) => {
+export const removeTruckAllocations = (id: any) => async (dispatch: any) => {
   try {
     let response: any;
     if (typeof id === "string") {
@@ -79,3 +79,12 @@ export const removeTruckAllocation = (id: any) => async (dispatch: any) => {
     dispatch(apiError(error));
   }
 };
+
+export const removeTruckAllocationFromState =
+  (truckAllocations: any) => async (dispatch: any) => {
+    dispatch(
+      deleteSuccess({
+        data: truckAllocations,
+      })
+    );
+  };

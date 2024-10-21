@@ -17,14 +17,14 @@ export const usePlans = (dispatchs: any[]) => {
   const [savedPlans, setSavedPlans] = useState<any[]>(plans || []);
 
   useEffect(() => {
-    setSavedPlans(plans);
+    setSavedPlans(plans || []);
   }, [plans]);
 
   const isExistPlanOnSave = (plan) =>
     savedPlans.find((item) => item.excavatorId === plan?.excavatorId);
 
   const handleSavePlan = (plan) => {
-    setSavedPlans([...(savedPlans || []), {...plan, updated:true}]);
+    setSavedPlans([...savedPlans, { ...plan, updated: true }]);
   };
 
   const addNewPlan = (plan) => {
@@ -48,7 +48,12 @@ export const usePlans = (dispatchs: any[]) => {
   const updateLocationToPlan = (oldLocation, newLocation) => {
     const updatedPlans = savedPlans.map((l) => {
       if (l.sourceId === oldLocation.sourceId) {
-        return { ...l, source: newLocation, sourceId: newLocation.id, updated:true };
+        return {
+          ...l,
+          source: newLocation,
+          sourceId: newLocation.id,
+          updated: true,
+        };
       }
       return l;
     });

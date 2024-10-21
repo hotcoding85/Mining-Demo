@@ -1,20 +1,21 @@
-.task-list {
+.plan-list {
   padding: 10px;
     display: flex;
     flex-direction: column;
   }
-  .gantt-task-list-title {
+  .gantt-plan-list-title {
     text-align: center;
     font-size: 16px;
     padding: 10px;
   }
-  .task-list-item {
+  .plan-list-item {
     padding: 10px;
     margin-bottom: 10px;
     /* background-color: #fff; */
     color: var(--dark-text-color);
     cursor: pointer;
     border-radius: 8px;
+    border:1px solid #ebebeb
   }
     .list-item-span {
         margin: 0;

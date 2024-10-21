@@ -147,23 +147,17 @@ const Dispatch = () => {
     dispatch(getAllUsers(1, 100)); // Dispatch action to fetch users data on component mount
     dispatch(getAllFleet(1, 100)); // Dispatch action to fetch fleet data on component mount
 
-    const queryParams = new URLSearchParams(window.location.search);
     const hour = new Date().getHours();
     setShift(hour >= 6 && hour < 18 ? "DS" : "NS");
-    setStartDate(
-      queryParams.get("date")
-        ? new Date(queryParams.get("date") || new Date())
-        : new Date()
-    );
-
-    if (!queryParams.get("shift")) {
-      var params: URLSearchParams = new URLSearchParams({
-        shift: "DS",
-        date: format(new Date(), "yyyy-MM-dd"),
-      });
-      setSearchParams(params);
+    if (hour < 6) {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      setStartDate(yesterday);
+    } else {
+      setStartDate(new Date());
     }
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     dispatch(getShiftRosters(format(startDate, "yyyy-MM-dd") + ":" + shift)); // Dispatch action to fetch data on component mount

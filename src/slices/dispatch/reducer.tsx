@@ -1,6 +1,4 @@
 import { PayloadAction, Reducer, createSlice } from "@reduxjs/toolkit";
-import { User } from "slices/users/reducer";
-import { Vehicle } from "slices/fleet/reducer";
 
 interface CreateResponse {
   code: number;
@@ -9,11 +7,20 @@ interface CreateResponse {
   data: Dispatch;
 }
 
+interface CreateResponses {
+  code: number;
+  type: string;
+  success: boolean;
+  data: Dispatch[];
+}
+
 interface Dispatch {
   id: string;
   roster: string;
-  operators: User[];
-  vehicle: Vehicle;
+  truckId: string;
+  destinationId: string;
+  status: string;
+  deleteIds: string[];
 }
 
 export interface DispatchState {
@@ -46,9 +53,9 @@ const dispatchSlice = createSlice({
       state.loading = false;
       state.error = false;
     },
-    createSuccess(state, action: PayloadAction<CreateResponse>) {
-      var newBench = action.payload.data[0];
-      state.data = [...state.data, newBench];
+    createSuccess(state, action: PayloadAction<CreateResponses>) {
+      var newBench = action.payload.data;
+      state.data = [...state.data, ...newBench];
       state.loading = false;
       state.error = false;
     },
@@ -61,15 +68,15 @@ const dispatchSlice = createSlice({
       state.error = false;
     },
     updateSuccess(state, action: PayloadAction<CreateResponse>) {
-      var newBench = action.payload.data[0];
+      var newBench = action.payload.data;
       var data = state.data.filter((item) => item.id !== newBench.id);
       state.data = [...data, newBench];
       state.loading = false;
       state.error = false;
     },
     deleteSuccess(state, action) {
-      var deletedId = action.payload.data as string;
-      state.data = state.data.filter((item) => item.id !== deletedId);
+      var deletedIds = action.payload.data as string[];
+      state.data = state.data.filter((item) => !deletedIds.includes(item.id));
       state.loading = false;
       state.error = false;
     },

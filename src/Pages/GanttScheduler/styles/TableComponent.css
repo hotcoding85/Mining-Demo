@@ -251,17 +251,21 @@ body[data-layout-mode="light"] {
   height: 100%;
 }
 
-.task-item {
+.plan-item {
   border-radius: 5px;
 }
-.task-item-inner {
-  width: 100%;
+.plan-item-inner {
+  /* width: 100%; */
   height: 100%;
   display: flex;
   align-items: center;
+  white-space: nowrap;       /* Prevent text from wrapping to the next line */
+  overflow: hidden;          /* Hide the overflowed text */
+  text-overflow: ellipsis;   /* Add the ellipsis (...) */
+  max-width: 200px; 
 }
 
-.task-item-progress-bar {
+.plan-item-progress-bar {
   background-size: auto auto;
   background-color: rgba(255, 255, 255, 0);
   background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, rgba(255, 255, 255, 0.15) 10px, rgba(255, 255, 255, 0.15) 20px);

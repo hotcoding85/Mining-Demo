@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { Task } from '../interfaces/type';
+import { Plan } from '../interfaces/type';
 import '../styles/TimelineCell.css';
 
 interface TimelineCellProps {
@@ -9,9 +9,9 @@ interface TimelineCellProps {
   slotTime: string;
   slotDate: string;
   selectedDate: Date;
-  tasks: Task[];
-  updateTask: (updatedTask: Task) => void;
-  addTask: (resourceId: string, startTime: Date, task?: Task) => void;
+  plans: Plan[];
+  updatePlan: (updatedPlan: any) => void;
+  addPlan: (resourceId: string, startTime: Date, plan?: Plan) => void;
   slotIndex: number;
   totalSlots: number;
   zoomSize: number;
@@ -25,9 +25,9 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   slotTime,
   slotDate,
   selectedDate,
-  tasks,
-  updateTask,
-  addTask,
+  plans,
+  updatePlan,
+  addPlan,
   slotIndex,
   totalSlots,
   zoomSize,
@@ -41,24 +41,24 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
     slotDateTime.getTime() + zoomSize * 60 * 1000
   );
 
-  const taskForSlot = tasks.find(
-    (task) =>
-      task.resourceId === resourceId &&
-      ((task.startTime >= slotDateTime && new Date(task.startTime.getTime() - zoomSize * 60 * 1000) < slotDateTime) ||
-      (task.endTime <= slotEndDateTime && new Date(task.endTime.getTime()+zoomSize * 60 * 1000) > slotEndDateTime) ||
-      (slotDateTime >= task.startTime && slotDateTime < task.endTime)
+  const taskForSlot = plans.find(
+    (plan) =>
+      plan.resourceId === resourceId &&
+      ((plan.startTime >= slotDateTime && new Date(plan.startTime.getTime() - zoomSize * 60 * 1000) < slotDateTime) ||
+      (plan.endTime <= slotEndDateTime && new Date(plan.endTime.getTime()+zoomSize * 60 * 1000) > slotEndDateTime) ||
+      (slotDateTime >= plan.startTime && slotDateTime < plan.endTime)
     )
   );
   
-  const isTaskStartSlot = (taskForSlot && taskForSlot.startTime.getTime() >= slotDateTime.getTime()) || (taskForSlot && taskForSlot.startTime.getTime() < slotDateTime.getTime() && slotDateTime.getTime() == startSlotTime.getTime());
+  const isPlanStartSlot = (taskForSlot && taskForSlot.startTime.getTime() >= slotDateTime.getTime()) || (taskForSlot && taskForSlot.startTime.getTime() < slotDateTime.getTime() && slotDateTime.getTime() == startSlotTime.getTime());
 
   let elementPos = 0;
   let elementWidth = 0;
   let colSpan = 1;
   if(taskForSlot) {
-      elementPos = (taskForSlot && isTaskStartSlot) ? 100 * (Math.max(taskForSlot.startTime.getTime(),startSlotTime.getTime()) - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
+      elementPos = (taskForSlot && isPlanStartSlot) ? 100 * (Math.max(taskForSlot.startTime.getTime(),startSlotTime.getTime()) - slotDateTime.getTime()) / (60 * 1000* zoomSize) : 0;
       elementWidth = 100 * (Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - Math.max(taskForSlot.startTime.getTime(),startSlotTime.getTime())) / (60 * 1000* zoomSize);
-      colSpan = (taskForSlot && isTaskStartSlot) ? Math.ceil((Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
+      colSpan = (taskForSlot && isPlanStartSlot) ? Math.ceil((Math.min(endSlotTime.getTime(), taskForSlot.endTime.getTime()) - slotDateTime.getTime()) / (60 * 1000 * zoomSize)) : 1;
   }
 
   const [isResizing, setIsResizing] = useState(false);
@@ -98,14 +98,14 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
           initialEndTime.getTime() + deltaMinutes * 60 * 1000
         );
         if (newEndTime > initialStartTime) {
-          updateTask({ ...taskForSlot!, endTime: newEndTime });
+          updatePlan({ ...taskForSlot!, endTime: newEndTime });
         }
       } else if (resizeDirection === 'left') {
         const newStartTime = new Date(
           initialStartTime.getTime() + deltaMinutes * 60 * 1000
         );
         if (newStartTime < initialEndTime) {
-          updateTask({ ...taskForSlot!, startTime: newStartTime });
+          updatePlan({ ...taskForSlot!, startTime: newStartTime });
         }
       }
     }
@@ -130,7 +130,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
       if (isOnRightEdge || isOnLeftEdge) {
         taskElementRef.current.style.cursor = 'ew-resize'; // Change cursor to resize when near either edge
       } else {
-        taskElementRef.current.style.cursor = 'grab'; // Change cursor to grab when inside the task
+        taskElementRef.current.style.cursor = 'grab'; // Change cursor to grab when inside the plan
       }
     }
   };
@@ -152,12 +152,12 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLTableCellElement>) => {
     if (!isResizing && !taskForSlot) {
-      addTask(resourceId, slotDateTime);
+      addPlan(resourceId, slotDateTime);
     }
   };
 
   const [{ isDragging }, drag] = useDrag({
-    type: 'TASK',
+    type: 'plan',
     item: { ...taskForSlot, slotIndex, totalSlots },
     canDrag: !!taskForSlot && !isResizing,
     collect: (monitor) => ({
@@ -166,24 +166,24 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
   });
 
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: 'TASK',
-    drop: (draggedTask: Task & { fromList?: boolean }) => {
-      if (draggedTask.fromList) {
-        addTask(resourceId, slotDateTime, draggedTask);
+    accept: 'plan',
+    drop: (draggedPlan: Plan & { fromList?: boolean }) => {
+      if (draggedPlan.fromList) {
+        addPlan(resourceId, slotDateTime, draggedPlan);
       } else {
         const durationMinutes =
-          (draggedTask.endTime.getTime() - draggedTask.startTime.getTime()) /
+          (draggedPlan.endTime.getTime() - draggedPlan.startTime.getTime()) /
           (60 * 1000);
         const newStartTime = new Date(slotDateTime);
         const newEndTime = new Date(newStartTime.getTime() + durationMinutes * 60 * 1000);
-        const newTask = {
-          ...draggedTask,
+        const newPlan = {
+          ...draggedPlan,
           resourceId,
           startTime: newStartTime,
           endTime: newEndTime,
-          span: draggedTask.span,
+          span: draggedPlan.span,
         };
-        updateTask(newTask);
+        updatePlan(newPlan);
       }
     },
     collect: (monitor) => ({
@@ -205,7 +205,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
         cursor: taskForSlot ? (isResizing ? 'ew-resize' : 'pointer') : 'default',
         position: 'relative',
         opacity: isDragging ? 0.5 : 1,
-        display : (taskForSlot && !isTaskStartSlot) ? 'none':''
+        display : (taskForSlot && !isPlanStartSlot) ? 'none':''
       }}
       onClick={handleClick}
       colSpan={colSpan}
@@ -213,7 +213,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
       {taskForSlot && (
         <div
           ref={setRefs}
-          className="task"
+          className="plan"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseOver}
           style={{
@@ -230,7 +230,7 @@ const TimelineCell: React.FC<TimelineCellProps> = ({
             zIndex: 1,
           }}
         >
-          {isTaskStartSlot && 
+          {isPlanStartSlot && 
             <div style={{ textAlign: 'center' }}>
               <p className='list-item-span bold'>{taskForSlot.label}</p>
               <span className='list-item-span'>{taskForSlot.name}</span>

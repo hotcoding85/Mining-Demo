@@ -5,6 +5,7 @@ import { Truck, DumpLocation, DiggerData, HaulRoute } from "./interfaces/type";
 import AssignRouteItem from "./AssignRouteItem";
 
 interface AssignBoardProps {
+  excavators:any[];
   dispatch: any;
   dispatchs: any[];
   assignedTrucks: any[];
@@ -20,6 +21,7 @@ interface AssignBoardProps {
 }
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
+  excavators,
   dispatch,
   dispatchs,
   haulRoutes,
@@ -34,7 +36,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   removeTruckFromAssigned,
 }) => {
   const filteredTrucks = assignedTrucks.
-    filter(item => item.excavatorId === dispatch.excavatorId)
+    filter(item => item.excavatorId === dispatch.id)
     .sort((a: any, b: any) =>
       a?.truck.name?.localeCompare(b?.truck.name)
     );
@@ -55,15 +57,16 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <div className="assign-item-pair">
           <AssignTruckItem
             dispatchs={dispatchs}
-            diggerId={dispatch?.excavatorId}
+            excavatorId={dispatch?.id}
             assignedTruck={filteredTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
             removeTruckFromAssigned={removeTruckFromAssigned}
             directionDispalyName="inline"
+            excavators={excavators}
           />
           <AssignLocationItem
-            diggerId={dispatch?.excavatorId}
+            diggerId={dispatch?.id}
             dumpLocation={dumpLocation}
             addDumpLocation={addDumpLocation}
             destinationId={filteredTrucks[index]?.destinationId}
@@ -71,7 +74,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
             truckId={filteredTrucks[index]?.truckId}
           />
           <AssignRouteItem
-            diggerId={dispatch?.excavatorId}
+            diggerId={dispatch?.id}
             sourceId={index}
             haulRoutes={haulRoutes}
             addHaulRoute={addHaulRoute}
