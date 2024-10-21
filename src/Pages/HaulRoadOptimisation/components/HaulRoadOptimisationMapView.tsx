@@ -668,7 +668,6 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
         const [segments, coords] = splitByAltitude(points, _coordinates)
         createTubes(segments, coords);
-        console.log(window.map.scene, replayArrowTubes.current)
         activeObjects.current.marker = window.TruckObject;
         let currentSegmentIndex = 0; // To track which segment is being animated
         if (pausedTimeValue.current != 0) {

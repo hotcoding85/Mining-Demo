@@ -829,6 +829,18 @@ export class Map {
       ['mapSW', 'mapNW', 'mapSE', 'mapNE'].forEach(key => tile.mesh.material.uniforms[key].value.dispose())
       tile.mesh.material.dispose()
     })
+
+    this.scene.traverse((object) => {
+      if (object.isMesh) {
+        console.log(object)
+        object.geometry.dispose();
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => material.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+    });
     this.tileCache = {}
     this.progress = 1;
   }
