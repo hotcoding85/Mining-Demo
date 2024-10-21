@@ -20,7 +20,7 @@ interface Dispatch {
   truckId: string;
   destinationId: string;
   status: string;
-  deleteIds:string[];
+  deleteIds: string[];
 }
 
 export interface DispatchState {
@@ -61,7 +61,6 @@ const dispatchSlice = createSlice({
     },
     upsertSuccess(state, action: PayloadAction<CreateResponse>) {
       var newBenches: any = action.payload.data;
-      console.log("payload", newBenches)
       var newBenchesIds = newBenches?.map((item) => item.id);
       var data = state.data.filter((item) => !newBenchesIds.includes(item.id));
       state.data = [...data, ...newBenches];

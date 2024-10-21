@@ -7,7 +7,7 @@ export interface Resource {
     status: string;
   }
   
-export interface Task {
+export interface Plan {
   id: string;
   name: string;
   label?: string;
@@ -17,7 +17,6 @@ export interface Task {
   span: number; 
   color: string;
   progress: number;
-  rowIndex : number;
   status: string;
 }
 

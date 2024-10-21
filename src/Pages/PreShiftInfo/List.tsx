@@ -293,7 +293,7 @@ const List = ({
             roster:
               roster?.roster || `${format(startDate, "yyyy-MM-dd")}:${shift}`,
             excavatorId: excavator?.id,
-            ...getShiftTimes(shift, startDate),
+            // ...getShiftTimes(shift, startDate),
           };
 
           const supportTrucks =

@@ -13,11 +13,10 @@ const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }
 
   // TODO: WORK WEEK - Show a week view
   const shifts = [
-    
     // { id: 'WORK_DAY', label: 'CURRENT DAY', value: 'WORK_DAY' },
-    { id: 'DAY_SHIFT', label: 'DAY SHIFT', value: 'DAY_SHIFT' },
-    { id: 'NIGHT_SHIFT', label: 'NIGHT SHIFT', value: 'NIGHT_SHIFT' },
-    { id: 'WORK_WEEK', label: 'WORK WEEK', value: 'WORK_WEEK' },
+    { id: 'DS', label: 'DAY SHIFT', value: 'DAY_SHIFT' },
+    { id: 'NS', label: 'NIGHT SHIFT', value: 'NIGHT_SHIFT' },
+    // { id: 'WORK_WEEK', label: 'WORK WEEK', value: 'WORK_WEEK' },
   ];
 
   const handleShiftClick = (shift: any) => {
