@@ -4,39 +4,52 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { addDispatchs, removeDispatchFromState } from "slices/thunk";
+import { useVehicles } from "./useVehicles";
+import { useBenches } from "./useBenches";
 
 export const usePlans = () => {
   const dispatch: any = useDispatch();
 
-  const { plans, fleets } = useSelector(
+  const { plans } = useSelector(
     createSelector(
       (state: any) => state,
       (state) => {
         return {
           plans: state.Dispatch.data,
-          fleets: state.Fleet.data,
         };
       }
     )
   );
-
+  const { findVehicleById } = useVehicles();
+  const { findBenchesById } = useBenches();
+  const [mergedPlans, setMergedPlans] = useState<any[]>([]);
   const [savedPlans, setSavedPlans] = useState<any[]>([]);
   const [deletedPlanIds, setDeletedPlanIds] = useState<string[]>([]);
-  const [mergedPlans, setMergedPlans] = useState<any[]>([]);
+  const [normalPlans, setNomalPlans] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const result = normalPlans.map((item) => ({
+      ...item,
+      excavator: findVehicleById(item.excavatorId),
+      source: findBenchesById(item.sourceId),
+    }));
+    setMergedPlans(result);
+  }, [normalPlans]);
+
 
   useEffect(() => {
     if (!isLoading) {
       const result = plans.filter((item) => !deletedPlanIds.includes(item?.id));
-      setMergedPlans([...result, ...savedPlans]);
+      setNomalPlans([...result, ...savedPlans]);
     }
   }, [plans, savedPlans, deletedPlanIds, isLoading]);
 
   const findPlanBySourceId = (sourceId) =>
-    mergedPlans?.find((item) => item.sourceId === sourceId);
+    normalPlans?.find((item) => item.sourceId === sourceId);
 
   const findInprogressPlan = (excavatorId) =>
-    mergedPlans?.find(
+    normalPlans?.find(
       (item) =>
         item?.status === "INPROGRESS" && item?.excavatorId === excavatorId
     );
@@ -64,7 +77,7 @@ export const usePlans = () => {
 
     if (oldPlan) {
       const savedOldPlan = isExistSavedPlan(oldPlan.sourceId);
-      
+
       if (savedOldPlan) {
         updatedPlans = updatePlanStatus(
           updatedPlans,
@@ -79,7 +92,7 @@ export const usePlans = () => {
     }
 
     const savedNewPlan = isExistSavedPlan(newSourceId);
-    
+
     // Handle new plan
     if (savedNewPlan) {
       updatedPlans = updatePlanStatus(updatedPlans, newSourceId, "INPROGRESS");

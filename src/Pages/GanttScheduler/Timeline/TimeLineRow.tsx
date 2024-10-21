@@ -75,7 +75,7 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
   }, [rowRef.current, plans]);
 
   const [{ isOver, canDrop }, drop] = useDrop({
-    accept: "TASK",
+    accept: "PLAN",
     drop: (draggedPlan: Plan & { fromList?: boolean }) => {
       const deltaMinutes = Math.round(
         (mousePosition.current.x / 100) * zoomSize

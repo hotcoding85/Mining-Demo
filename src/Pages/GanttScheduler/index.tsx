@@ -29,23 +29,24 @@ import { debounce } from "lodash";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { deleteDispatch } from "Helpers/api_dispatch_helper";
+import { usePlans } from "Hooks/usePlans";
 
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
 
-  const { benches, fleets, dispatchs } = useSelector(
+  const { benches, fleets  } = useSelector(
     createSelector(
       (state: any) => state,
       (state) => {
         return {
           benches: state.Benches.data,
           fleets: state.Fleet.data,
-          dispatchs: state.Dispatch.data,
         };
       }
     )
   );
+  const { mergedPlans } = usePlans();
   const zoomSteps = [5, 15, 30, 60, 180, 360, 720];
   const minZoom = zoomSteps[0];
   const maxZoom = zoomSteps[zoomSteps.length - 1];
@@ -105,7 +106,7 @@ const GanttScheduler: React.FC = () => {
       }))
     );
     addSavedPlans();
-  }, [dispatchs]);
+  }, [mergedPlans]);
 
   const activeBenches = useMemo(
     () => benches.filter((item) => item.status === "ACTIVE"),
@@ -131,11 +132,11 @@ const GanttScheduler: React.FC = () => {
   };
 
   const noAssignedPlans = useMemo(() => {
-    return convertData(dispatchs.filter((item) => !item.startTime));
-  }, [dispatchs]);
+    return convertData(mergedPlans.filter((item) => !item.startTime));
+  }, [mergedPlans]);
 
   const addSavedPlans = () => {
-    const result = convertData(dispatchs.filter((item) => !!item.startTime));
+    const result = convertData(mergedPlans.filter((item) => !!item.startTime));
     setPlans(result);
   };
 
@@ -196,7 +197,7 @@ const GanttScheduler: React.FC = () => {
   };
 
   const confirm = (plan) => {
-    const selectedPlans = dispatchs.filter(
+    const selectedPlans = mergedPlans.filter(
       (item: any) => item.excavatorId === plan.excavatorId
     );
 

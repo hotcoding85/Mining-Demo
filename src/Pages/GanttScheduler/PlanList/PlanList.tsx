@@ -31,7 +31,7 @@ interface PlanListItemProps {
 
 const PlanListItem: React.FC<PlanListItemProps> = ({ plan }) => {
   const [{ isDragging }, drag] = useDrag({
-    type: plan.status == "ACTIVE" ? "TASK" : "",
+    type: plan.status == "ACTIVE" ? "PLAN" : "",
     item: { ...plan, fromList: true },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),

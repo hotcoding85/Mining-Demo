@@ -34,7 +34,7 @@ interface PlanListItemProps {
 
 const PlanListItem: React.FC<PlanListItemProps> = ({ plan }) => {
   const [{ isDragging }, drag] = useDrag({
-    type: plan.status == "PLANNED" ? "TASK" : "",
+    type: "PLAN",
     item: { ...plan, fromList: true },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -47,7 +47,7 @@ const PlanListItem: React.FC<PlanListItemProps> = ({ plan }) => {
       className="plan-list-item"
       style={{ backgroundColor: plan.color, opacity: isDragging ? 0.5 : 1 }}
     >
-      <p className="list-item-span bold">{plan.excavator.name}</p>
+      <p className="list-item-span bold">{plan.excavator?.name}</p>
 
       <p className="list-item-span">
         {plan.name} - {plan?.blockId}
