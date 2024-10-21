@@ -60,7 +60,7 @@ const PreShiftInfo = () => {
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { savedRosters, addNewRoster, clearSavedRoster } = useRosters();
+  const { savedRosters, addNewRoster, handleSubmitShiftRoster } = useRosters();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -200,7 +200,11 @@ const PreShiftInfo = () => {
     setIsLoading(true);
 
     try {
-      await Promise.all([handleSubmitTruckAllocation(), handlepublishPlan()]);
+      await Promise.all([
+        handleSubmitTruckAllocation(),
+        handlepublishPlan(),
+        handleSubmitShiftRoster(),
+      ]);
     } catch (error) {
       console.error("An error occurred:", error);
     } finally {
