@@ -17,8 +17,8 @@ import "../DispatchLive/styles/style.scss";
 import "./styles/style.scss";
 import { useMaterials } from "Hooks/useMaterials";
 import { useEventmetas } from "Hooks/useEventmetas";
-import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
-import { usePlans } from "Hooks/useNewPlans";
+import { useTruckAllocations } from "Hooks/useTruckAllocations";
+import { usePlans } from "Hooks/usePlans";
 import {
   addDispatchs,
   getAllBenches,

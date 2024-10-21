@@ -4,7 +4,6 @@ import { useDrop } from "react-dnd";
 
 interface AssignLocationItemProps {
   diggerId: string;
-  dumpLocation: any;
   destinationId: any;
   truckId:any;
   locations: any[];
@@ -13,7 +12,6 @@ interface AssignLocationItemProps {
 
 const AssignLocationItem: React.FC<AssignLocationItemProps> = ({
   diggerId,
-  dumpLocation,
   destinationId,
   truckId,
   locations,

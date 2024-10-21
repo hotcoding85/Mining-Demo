@@ -53,7 +53,6 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
     .sort((a: any, b: any) => a?.truck?.name?.localeCompare(b?.truck?.name));
   const itemLength = filteredTrucks.length >= 5 ? filteredTrucks.length + 1 : 5;
   const assignArr = Array.from({ length: itemLength });
-  console.log("vehicleId", vehicle);
 
   return (
     <div className="assign-item-container">
@@ -84,7 +83,6 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
           />
           <AssignLocationItem
             diggerId={""}
-            dumpLocation={""}
             addDumpLocation={addDumpLocation}
             truckId={""}
             locations={[]}

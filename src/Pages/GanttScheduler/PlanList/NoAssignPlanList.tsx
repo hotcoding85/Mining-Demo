@@ -12,7 +12,6 @@ const NoAssignPlanList: React.FC<NoAssignPlanListProps> = ({
   plans,
   title,
 }) => {
-  console.log(plans);
   return (
     <div className="plan-list">
       <span className="gantt-plan-list-title">{title}</span>

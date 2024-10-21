@@ -22,8 +22,8 @@ import { DatePicker, DatePickerProps, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import RosterFilter from "./Filter";
-import { usePlans } from "Hooks/useNewPlans";
-import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
+import { usePlans } from "Hooks/usePlans";
+import { useTruckAllocations } from "Hooks/useTruckAllocations";
 import { useRosters } from "Hooks/useRosters";
 
 const PreShiftInfo = () => {
