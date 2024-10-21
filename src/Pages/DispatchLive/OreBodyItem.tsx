@@ -12,22 +12,40 @@ const OreBodyItem: React.FC<OreBodyItemProps> = ({
   oreBody,
   fontColor,
 }) => {
-  const [{ isDragging }, drag] = useDrag({
-    type: "TARGETMATERIAL",
-    item: { ...oreBody },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
+  function DragTarget({ id, value, disabled, onDragStart, children }) {
+    const [{ isDragging }, drag] = useDrag(() => ({
+      type: "TARGETMATERIAL",
+      item: { id: id, value: value },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+    }));
+
+    return (
+      <div
+        className={"ore-body-item " + (oreBody ? "filled" : "empty")}
+        style={{
+          opacity: isDragging ? 0.5 : 1,
+          cursor: disabled ? "not-allowed" : "move",
+        }}
+        draggable
+        ref={drag}
+        onDragStart={disabled ? (e) => e.preventDefault() : onDragStart}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
-    <div
-      ref={drag}
-      style={{ opacity: isDragging ? 0.5 : 1, height: "64px" }}
-      className={"ore-body-item " + (oreBody ? "filled" : "empty")}
+    <DragTarget
+      id={"material"}
+      disabled={oreBody !== "" ? false : true}
+      value={oreBody}
+      onDragStart={() => {}}
     >
       <p className="ore-body-label">{oreBody.name}</p>
-    </div>
+    </DragTarget>
   );
 };
 

@@ -27,6 +27,7 @@ import {
 import { format } from "date-fns";
 import _ from "lodash";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
+import { useMaterials } from "Hooks/useMaterials";
 
 const LocationImages = [dumpNorth, dumpCentral, dumpSouth];
 
@@ -41,7 +42,6 @@ const DispatchLive: React.FC = () => {
     targets,
     dispatchs,
     vehicleRoutes,
-    materials,
     shiftRosters,
     truckAllocations,
   } = useSelector(
@@ -56,12 +56,13 @@ const DispatchLive: React.FC = () => {
           targets: state.Targets.data,
           dispatchs: state.Dispatch.data,
           vehicleRoutes: state.VehicleRoutes.data,
-          materials: state.Materials.data,
           truckAllocations: state.TruckAllocation.data,
         };
       }
     )
   );
+
+  const { materials, findMaterialsById } = useMaterials();
 
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
@@ -116,11 +117,11 @@ const DispatchLive: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setAssignedTrucks(truckAllocations);
+    if (!isLoading) setAssignedTrucks(truckAllocations);
   }, [truckAllocations]);
 
   useEffect(() => {
-    setSavedDispatchs(dispatchs);
+    if (!isLoading) setSavedDispatchs(dispatchs);
   }, [dispatchs]);
 
   const assignReadyTrucks = (oldTruck, newTruck, diggerId) => {
@@ -146,6 +147,17 @@ const DispatchLive: React.FC = () => {
       ]);
     }
   };
+
+  const excavatorFilter = useCallback(
+    (vehicle) =>
+      vehicle?.category === "EXCAVATOR" &&
+      (vehicle?.state === "ACTIVE" || vehicle?.state === "STANDBY"),
+    []
+  );
+
+  const excavators = useMemo(() => {
+    return fleets.filter((fleet) => excavatorFilter(fleet));
+  }, [fleets, excavatorFilter]);
 
   const removeTruckFromAssigned = (removedTruck, diggerId) => {
     const result = assignedTrucks.filter(
@@ -271,10 +283,10 @@ const DispatchLive: React.FC = () => {
   const handleChangeDiggersForShow = useCallback(
     (key: string) => {
       if (key === "All") {
-        setDiggersForShow(normalizedDispatchs);
+        setDiggersForShow(mergedDispatchs);
       } else {
-        const filteredDiggers = normalizedDispatchs.filter(
-          (digger: any) => digger.excavator.name == key
+        const filteredDiggers = mergedDispatchs.filter(
+          (digger: any) => digger.name == key
         );
         setDiggersForShow(filteredDiggers);
       }
@@ -286,15 +298,29 @@ const DispatchLive: React.FC = () => {
     handleChangeDiggersForShow(selectedTab);
   }, [handleChangeDiggersForShow]);
 
+  const mergedDispatchs = useMemo(() => {
+    return excavators.map((digger) => {
+      const item: any = normalizedDispatchs.find(
+        (dispatch: any) => dispatch.excavatorId === digger.id
+      );
+      return {
+        ...digger,
+        excavator: digger || {},
+        sources: item?.sources || [],
+        excavatorId: digger.id || "",
+      };
+    });
+  }, [savedDispatchs]);
+
   const tabItems: TabsProps["items"] = useMemo(
     () => [
       {
         key: "All",
         label: "All",
       },
-      ...normalizedDispatchs.map((item: any) => ({
-        key: item?.excavator?.name,
-        label: item?.excavator?.name,
+      ...mergedDispatchs.map((item: any) => ({
+        key: item?.name,
+        label: item?.name,
       })),
     ],
     [normalizedDispatchs]
@@ -394,19 +420,20 @@ const DispatchLive: React.FC = () => {
   }, [assignedTrucks]);
 
   const getYesterdayDate = (): string => {
-    const yesterday = new Date(Date.now() - 864e5); // Subtract 1 day in milliseconds
-    return `${yesterday.getDate().toString().padStart(2, "0")} ${yesterday
-      .toLocaleString("en-US", { month: "short" })
-      .toUpperCase()} ${yesterday.getFullYear()}`;
+    const now = new Date();
+    const hours = now.getHours();
+    const dayOffset = hours >= 18 ? 0 : 864e5;
+    const yesterday = new Date(Date.now() - dayOffset);
+    return format(yesterday, "dd MMM yyyy");
   };
 
   const handlePublishDispatch = async () => {
     setIsLoading(true);
-    const dispatchresults = savedDispatchs.filter((item) => item.updated);
-    if (!!dispatchresults.length) {
+    const dispatchResult = savedDispatchs.filter((item) => item.updated);
+    if (!!dispatchResult.length) {
       await dispatch(
         addDispatchs(
-          dispatchresults.map((item) => ({
+          dispatchResult.map((item) => ({
             id: item?.id || undefined,
             endTime: item?.endTime || undefined,
             roster: item?.roster || undefined,
@@ -420,7 +447,7 @@ const DispatchLive: React.FC = () => {
     }
 
     if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
+      await dispatch(removeTruckAllocation(deletedIds));
       setDeletedIds([]);
     }
 
@@ -482,7 +509,7 @@ const DispatchLive: React.FC = () => {
                       {shift === "DS"
                         ? format(new Date(), "dd MMM yyyy")
                         : getYesterdayDate()}{" "}
-                      - {shift === "DS" ? "DAY SHIFT" : "NIGHT SHIFT"}
+                      {shift === "DS" ? "DAY SHIFT" : "NIGHT SHIFT"}
                     </h5>
                   </Col>
                 </Row>

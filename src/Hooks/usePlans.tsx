@@ -24,7 +24,7 @@ export const usePlans = (dispatchs: any[]) => {
     savedPlans.find((item) => item.excavatorId === plan?.excavatorId);
 
   const handleSavePlan = (plan) => {
-    setSavedPlans([...(savedPlans || []), plan]);
+    setSavedPlans([...(savedPlans || []), {...plan, updated:true}]);
   };
 
   const addNewPlan = (plan) => {
@@ -48,7 +48,7 @@ export const usePlans = (dispatchs: any[]) => {
   const updateLocationToPlan = (oldLocation, newLocation) => {
     const updatedPlans = savedPlans.map((l) => {
       if (l.sourceId === oldLocation.sourceId) {
-        return { ...l, source: newLocation, sourceId: newLocation.id };
+        return { ...l, source: newLocation, sourceId: newLocation.id, updated:true };
       }
       return l;
     });

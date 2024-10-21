@@ -5,12 +5,12 @@ import { Truck } from "./interfaces/type";
 import { hd785 } from "assets/images/equipment";
 import { Progress, Dropdown } from "antd";
 import type { MenuProps } from "antd";
+import { useShiftRosters } from "Hooks/useShiftRosters";
 
 interface AssignTruckItemProps {
   dispatchs: any[];
   diggerId: string;
   assignedTruck: any;
-  operator:any;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   removeTruckFromAssigned: (removedTruck, diggerId) => void;
   reAssignTruckToFleet: (truck, fromId, toId) => void;
@@ -21,14 +21,13 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
   dispatchs,
   diggerId,
   assignedTruck,
-  operator,
   assignReadyTrucks,
   reAssignTruckToFleet,
   removeTruckFromAssigned,
   directionDispalyName,
 }) => {
   const [isShowMore, setIsShowMore] = useState<boolean>(true);
-
+  const { findShiftRostersByTruckId } = useShiftRosters();
   const onShowMoreOrLess = () => {
     setIsShowMore(!isShowMore);
   };
@@ -76,6 +75,8 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
     }),
   });
 
+  const shiftRoster = findShiftRostersByTruckId(assignedTruck?.truckId);
+
   return (
     <div
       ref={drop}
@@ -103,13 +104,17 @@ const AssignTruckItem: React.FC<AssignTruckItemProps> = ({
               </div>
               <div className="assigned-truck-name">
                 <div className="assigned-truck-id-status">
-                  <p className="assigned-truck-id">{assignedTruck?.truck?.name}</p>
+                  <p className="assigned-truck-id">
+                    {assignedTruck?.truck?.name}
+                  </p>
                   {directionDispalyName === "inline" && (
                     <p className="assigned-truck-status">Active</p>
                   )}
                 </div>
                 <div>HD785-7</div>
-                <div className="vehicle-driver">{operator?.firstName}</div>
+                <div className="vehicle-driver">
+                  {shiftRoster?.operators?.[0]?.firstName || "Unassigned"}
+                </div>
               </div>
             </div>{" "}
             <Dropdown menu={menu} placement="bottomLeft" arrow>

@@ -10,7 +10,7 @@ export const useRosters = () => {
     const filteredPlan = savedRosters?.filter(
       (item) => item.vehicleId !== roster.vehicleId
     );
-    setSavedRosters([...(filteredPlan || []), roster]);
+    setSavedRosters([...(filteredPlan || []), {...roster, updated:true}]);
   };
 
   const addNewRoster = (roster, operator) => {

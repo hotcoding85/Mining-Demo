@@ -27,7 +27,7 @@ export const useTruckAllocations = () => {
     );
     setSavedTruckAllocations([
       ...(filteredTruckAllocation || []),
-      truckAllocation,
+      {...truckAllocation, updated:true},
     ]);
   };
 
@@ -35,7 +35,7 @@ export const useTruckAllocations = () => {
     if (plan?.truckId) {
       const updatedTruckAllocations = savedTruckAllocations.map((l) => {
         if (l.truckId === plan.truckId) {
-          return { ...l, truckId: truck.id, truck: truck };
+          return { ...l, truckId: truck.id, truck: truck, updated:true };
         }
         return l;
       });
@@ -49,7 +49,7 @@ export const useTruckAllocations = () => {
     }
   };
 
-  const revokeTruckFromPlan = (truckAllocation, truckId) => {
+  const revokeTruckFromPlan = (truckId) => {
     const updatedTruckAllocations = savedTruckAllocations.filter(
       (t) => t.truckId !== truckId
     );

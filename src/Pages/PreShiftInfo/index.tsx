@@ -67,7 +67,8 @@ const PreShiftInfo = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    setShift(queryParams.get("shift") ? queryParams.get("shift") : "DS");
+    const hour = new Date().getHours();
+    setShift(hour >= 6 && hour < 18 ? "DS" : "NS");
     setStartDate(
       queryParams.get("date")
         ? new Date(queryParams.get("date") || new Date())
@@ -167,36 +168,44 @@ const PreShiftInfo = () => {
     return normalizedRoster.filter(({ vehicle }) => excavatorFilter(vehicle));
   }, [normalizedRoster, excavatorFilter]);
 
-  const removeTruckfromPlan = (plan, truckId) => {
-    if (plan?.id) {
-      setDeletedIds([...deletedIds, plan.id]);
+  const removeTruck = (newTruck, truckId) => {
+    if (newTruck?.id) {
+      setDeletedIds([...deletedIds, newTruck.id]);
     }
-    revokeTruckFromPlan(plan, truckId);
+    revokeTruckFromPlan(truckId);
+  };
+
+  const assignTruck = (oldTruck, newTruck) => {
+    assignTruckToPlan(oldTruck, newTruck);
+    if (oldTruck?.id) {
+      setDeletedIds([...deletedIds, oldTruck.id]);
+    }
   };
 
   const handlePublish = async () => {
     setIsLoading(true);
-
-    if (!!savedPlans.length) {
+    const planResult = savedPlans.filter((item) => item.updated);
+    if (!!planResult.length) {
       await dispatch(
         addDispatchs(
-          savedPlans.map((item) => ({
+          planResult.map((item) => ({
             id: item?.id || undefined,
             excavatorId: item?.excavatorId || undefined,
             endTime: item?.endTime || undefined,
             roster: item?.roster || undefined,
             sourceId: item?.sourceId || undefined,
             startTime: item?.startTime || undefined,
-            status: item?.status || 'PLANNED'
+            status: item?.status || "PLANNED",
           }))
         )
       );
     }
 
-    if (!!savedRosters.length) {
+    const rosterResult = savedRosters.filter((item) => item.updated);
+    if (!!rosterResult.length) {
       await dispatch(
         addShiftRosters(
-          savedRosters.map((item) => ({
+          rosterResult.map((item) => ({
             id: item?.id || undefined,
             operators: item?.operators || undefined,
             roster: item?.roster || undefined,
@@ -212,10 +221,11 @@ const PreShiftInfo = () => {
       setDeletedIds([]);
     }
 
-    if (!!savedTruckAllocations.length) {
+    const truckResult = savedTruckAllocations.filter((item) => item.updated);
+    if (!!truckResult.length) {
       await dispatch(
         addTruckAllocations(
-          savedTruckAllocations.map((item) => ({
+          truckResult.map((item) => ({
             id: item?.id || undefined,
             roster: item?.roster || undefined,
             excavatorId: item?.excavatorId || undefined,
@@ -257,8 +267,8 @@ const PreShiftInfo = () => {
                   shiftRosters={normalizedRoster}
                   assignRosterToOperator={assignRosterToOperator}
                   assignLocationToPlan={assignLocationToPlan}
-                  assignTruckToPlan={assignTruckToPlan}
-                  revokeTruckFromPlan={removeTruckfromPlan}
+                  assignTruckToPlan={assignTruck}
+                  revokeTruckFromPlan={removeTruck}
                   savedTruckAllocations={savedTruckAllocations}
                 />
               </div>
