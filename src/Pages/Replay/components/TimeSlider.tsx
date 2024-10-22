@@ -13,6 +13,7 @@ interface TimeSliderProps {
     speed: number;
     timeValue: number;
     totalTime: number;
+    isFleetTracking?: boolean;
     onTimeChange: (value: number) => void;
     onSpeedChange: (value: number) => void;
     onPlayPauseToggle: () => void;
@@ -29,6 +30,7 @@ const TimeSlider: React.FC<TimeSliderProps> = (
       speed,
       timeValue,
       totalTime,
+      isFleetTracking = true,
       onTimeChange,
       onSpeedChange,
       onPlayPauseToggle,
@@ -131,21 +133,25 @@ const TimeSlider: React.FC<TimeSliderProps> = (
         onClick={onPlayPauseToggle}
       />
 
-      <Button
-        type="text"
-        icon={<img  src={BACK} />}
-        onClick={onPrev}
-        style={{marginRight: '10px'}}
-      />
-
-
-      {/* Next Button */}
-      <Button
-        type="text"
-        icon={<img src={FORWARD}  />}
-        onClick={onNext}
-        style={{marginRight: '10px'}}
-      />
+      {
+        isFleetTracking && <>
+          <Button
+            type="text"
+            icon={<img  src={BACK} />}
+            onClick={onPrev}
+            style={{marginRight: '10px'}}
+          />
+    
+    
+          {/* Next Button */}
+          <Button
+            type="text"
+            icon={<img src={FORWARD}  />}
+            onClick={onNext}
+            style={{marginRight: '10px'}}
+          />
+        </>
+      }
       
       <Button
         type="text"
