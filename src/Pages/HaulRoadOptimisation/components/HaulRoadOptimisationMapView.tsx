@@ -15,6 +15,8 @@ import { Segmented, Space } from "antd";
 import FloatingActionButton from "Pages/Replay/components/FloatingActionButton";
 import { Slider, Button, Select } from 'antd';
 import { LeftOutlined, PauseCircleFilled, PlayCircleFilled, RightOutlined } from "@ant-design/icons";
+import TimeSlider from "Pages/Replay/components/TimeSlider";
+import StatusCard from "./StatusCard";
 type ActiveObjectType = {
   tube: any
   marker: any
@@ -43,6 +45,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const [totalTime, setTotalTime] = useState(0); // 00h 59m 24s in seconds
   const { Option } = Select;
   const pausedTimeValue = useRef<number>(0)
+  const currentTotalTimeValue = useRef<number>(0)
   const pausedTubeIndex = useRef<number>(-1)
   const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
   const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
@@ -195,7 +198,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
   const replayArrowTubes = useRef<any>([])
   const animationCameraId = useRef<number>(0)
   const [isAnimation, setIsAnimation] = useState<boolean>(false)
-
+  const [selectedEq, setSelectedEq] = useState<any>({})
   const updateMarkerTooltip = useCallback((point) => {
     if (!mapContainer.current || !window.map) return
     const _point = point
@@ -250,8 +253,9 @@ const HaulRoadOptimisationMapView = (props: any) => {
     setIsPlaying(!isPlaying);
     window.isAnimation = false
     currentIsPlaying.current = !isPlaying
-    if (isPlaying === false) {
+    if (isPlaying === false && timeValue === totalTime) {
         setTimeValue(0)
+        currentTotalTimeValue.current = 0
         currentTimeValue.current = 0
         clearAnimation()
         if (cameraStopAnimationId.current !== 0) {
@@ -324,6 +328,62 @@ const HaulRoadOptimisationMapView = (props: any) => {
         window.controls.update()
     }
   }, [currentRoad, isPlaying, forwardDirection, currentAnimationMarker, NextCameraPoistion, currentViewType]);
+
+  const handleTimeChange = (value: number) => {
+    setTimeValue(value);
+    currentTimeValue.current = value
+  };
+
+  // Handler for the "Next" button
+  const handleNext = useCallback(() => {
+    if (currentTimeValue.current === undefined || totalTime === undefined) return;
+    const newTime = Math.min(timeValue + 10, totalTime); // Add 10 seconds, but don't exceed maxTimeValue
+    setTimeValue(newTime); // Update the value
+    currentTimeValue.current = newTime; // Update the ref
+  }, [setTimeValue, currentTimeValue, totalTime, timeValue]);
+
+  // Handler for the "Prev" button
+  const handlePrev = useCallback(() => {
+      if (currentTimeValue.current === undefined) return;
+      const newTime = Math.max(timeValue - 10, 0); // Subtract 10 seconds, but don't go below 0
+      setTimeValue(newTime); // Update the value
+      currentTimeValue.current = newTime; // Update the ref
+  }, [setTimeValue, currentTimeValue, timeValue]);
+
+  // Use useRef to store the interval ID
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (isPlaying) {
+        const intervalTime = 2000 / speed;
+        intervalRef.current = setInterval(() => {
+            // setTimeValue((prev) => {
+            //     const newValue = prev + 1;
+            //     if (newValue >= totalTime) {
+            //         setIsPlaying(false); // Stop when reaching the end
+            //         currentIsPlaying.current = false
+            //         return totalTime;
+            //     }
+            //     return newValue;
+            // });
+            if (timeValue >= totalTime) {
+                setIsPlaying(false); // Stop when reaching the end
+                currentIsPlaying.current = false
+                return totalTime;
+            }
+        }, intervalTime);
+    } else if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null; // Clear the reference
+    }
+
+    // Cleanup when component unmounts or when isPlaying changes
+    return () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null; // Clear the reference
+        }
+    };
+  }, [isPlaying, speed, timeValue, totalTime]);
 
   useEffect(() => {
     if (isPlaying && !animationRef.current.animationFrameId && currentRoad) {
@@ -420,8 +480,6 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
   const clearAnimation = () => {
     setIsAnimation(false)
-    setTimeValue(0)
-    setTotalTime(0)
     if (!window.map) return
     window.camera.zoom = 1
     // Remove previous route
@@ -497,15 +555,22 @@ const HaulRoadOptimisationMapView = (props: any) => {
   }
   }, [viewType])
 
+  const getRandomData = () => {
+    const randomIndex = Math.floor(Math.random() * tableData.length);
+    setSelectedEq(tableData[randomIndex])
+  };
+
   useEffect(() => {
     clearAnimation()
     pausedTimeValue.current = 0
+    currentTotalTimeValue.current = 0
     pausedTubeIndex.current = -1
+    currentTimeValue.current = -1
     currentIsPlaying.current = true
     animationRef.current.startTime = null;
     animationRef.current.elapsedTime = 0;
     setTimeValue(0)
-    
+    getRandomData()
     drawRoute()
   }, [currentRoad])
 
@@ -603,6 +668,8 @@ const HaulRoadOptimisationMapView = (props: any) => {
         };
         
         // Create tubes for each segment with color logic
+        let total_duration = 0;
+
         const createTubes = (segments, coords) => {
           segments.forEach((segment, idx) => {
             const startZ = segment[0].z;
@@ -619,23 +686,20 @@ const HaulRoadOptimisationMapView = (props: any) => {
             const segmentTube = createTubeWithFootprint(tubePath, segment, color, 100);
             const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
             window.map.scene.add(segmentTube);
-            const getRandomData = () => {
-              const randomIndex = Math.floor(Math.random() * tableData.length);
-              return tableData[randomIndex];
-            };
-            const truck = getRandomData()
             let totalDistance = turf.length(turf.lineString(coords[idx]), { units: 'meters' })
+            let _duration = Math.ceil(totalDistance / parseFloat(selectedEq.speed) / 3.6)
+            total_duration += _duration
             tubes.push({
                 tube: segmentTube,
                 curve: tubePath,
                 totalDistance: totalDistance, // Calculate the tube's distance
                 marker: null, // We'll add this later
-                duration: Math.ceil(totalDistance / parseFloat(truck.speed) / 3.6),  // Assuming total time is shared among tubes
+                duration: Math.ceil(totalDistance / parseFloat(selectedEq.speed) / 3.6),  // Assuming total time is shared among tubes
                 progress: 0,  // Initial progress for the animation
-                currentLoad: truck.currentLoad,
-                vehicleName: truck.vehicleName,
-                operatorName: truck.operatorName,
-                speedLimit: parseFloat(truck.speed) // Add the average speed limit for the segment
+                currentLoad: selectedEq.currentLoad,
+                vehicleName: selectedEq.vehicleName,
+                operatorName: selectedEq.operatorName,
+                speedLimit: parseFloat(selectedEq.speed) // Add the average speed limit for the segment
             });
             // Create arrows along the tube at intervals
             for (let i = 0; i < segment.length - 1; i++) {
@@ -668,25 +732,48 @@ const HaulRoadOptimisationMapView = (props: any) => {
 
         const [segments, coords] = splitByAltitude(points, _coordinates)
         createTubes(segments, coords);
-        console.log(window.map.scene, replayArrowTubes.current)
+        setTotalTime(total_duration)
+        let PassedTime = 0
+
         activeObjects.current.marker = window.TruckObject;
         let currentSegmentIndex = 0; // To track which segment is being animated
         if (pausedTimeValue.current != 0) {
           currentSegmentIndex = pausedTubeIndex.current
-          drawPreviousTubes(tubes, currentSegmentIndex)
+          PassedTime = drawPreviousTubes(tubes, currentSegmentIndex)
         }
-        let PassedTime = 0
+        let timeValueChanged = false;
+        // if (currentTimeValue.current >= 0) {
+        //   timeValueChanged = true;
+        //   // Reset segment index and remaining time within segment
+        //   let remainingTime = currentTimeValue.current;
+          
+        //   // Find which segment the current time falls into
+        //   for (let i = 0; i < tubes.length; i++) {
+        //     const { duration } = tubes[i];
+        //     if (remainingTime < duration) {
+        //       currentSegmentIndex = i;
+        //       break;
+        //     }
+        //     remainingTime -= duration; // Decrease the remaining time
+        //   }
+
+        //   // Set the remaining time in currentTimeValue to the time within the current segment
+        //   currentTimeValue.current = remainingTime;
+        //   console.log("Start from segment:", currentSegmentIndex, "Remaining time within segment:", remainingTime);
+        // }
         // Function to animate a single tube segment
         const animateSegment = (tubeData, onComplete) => {
             const { curve, tube, totalDistance, duration, currentLoad, vehicleName, operatorName, speedLimit } = tubeData;
             const marker = window.TruckObject
-            // if (currentTimeValue.current >= 0) { // when the user changed the timeslider
-            //     animationRef.current.elapsedTime = currentTimeValue.current * 1000;
-            //     currentTimeValue.current = -1
-            // }
             // Animation loop for a single segment
             const animate = (timestamp) => {
                 const currentPlaybackSpeed = currentSpeed.current;
+                // if (currentTimeValue.current >= 0) { // when the user changed the timeslider
+                //   animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
+                //   drawRoute()
+                //     // animationRef.current.elapsedTime = currentTimeValue.current * 1000;
+                //     // currentTimeValue.current = -1
+                // }
                 if (!animationRef.current.startTime) {
                     animationRef.current.startTime = timestamp;
                     marker.visible = true;
@@ -695,6 +782,10 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 let elapsed;
                 let deltaTime;
                 deltaTime = (timestamp - animationRef.current.startTime!) * currentPlaybackSpeed;
+                if (timeValueChanged) {
+                  deltaTime = animationRef.current.elapsedTime * 1000
+                  timeValueChanged = false
+                }
                 if (pausedTimeValue.current != 0) {
                     elapsed = pausedTimeValue.current
                 }
@@ -706,7 +797,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                 const distanceCovered = _progress * totalDistance;
                 // Move the marker along the curve
                 if (_progress < 1) {
-                    setTimeValue(Math.floor(_progress / 1 * totalTime))
+                    setTimeValue(Math.floor(currentTotalTimeValue.current / 1000))
                     const point = curve.getPointAt(_progress);
                     const nextPoint = curve.getPointAt(Math.min(_progress + 0.01, 1));  // Slightly ahead of the current point to calculate the forward direction
                     if (point) {
@@ -789,6 +880,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
                         animationRef.current.animationFrameId = null
                         pausedTimeValue.current = elapsed
                     }
+                    currentTotalTimeValue.current += deltaTime / 2
                     animationRef.current.elapsedTime = elapsed
 
                 } else {
@@ -832,6 +924,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
               setIsAnimation(false)
               setDuringAnimation(false)
               setIsPlaying(false)
+              setTimeValue(totalTime)
               // Segment animation complete, proceed to next
               animationRef.current.animationFrameId && cancelAnimationFrame(animationRef.current.animationFrameId);
               animationRef.current.startTime = null;
@@ -851,14 +944,17 @@ const HaulRoadOptimisationMapView = (props: any) => {
         animateTubesSequentially();
       }
     }
-  }, [currentRoad])
+  }, [currentRoad, selectedEq])
 
   const drawPreviousTubes = (tubes, index) => {
+    let PassedTime = 0;
     for (let i = 0; i < index ; i ++) {
       const tubeData = tubes[i]
       const { curve, tube, totalDistance, duration, currentLoad, vehicleName, operatorName, speedLimit } = tubeData;
       tube.material.uniforms.progress.value = 1
+      PassedTime += duration
     }
+    return PassedTime
   }
   const getEquipmentStatusIcon = (eq: EquipmentLocation) => {
     if (eq.vehicleType == "EXCAVATOR") {
@@ -914,7 +1010,7 @@ const HaulRoadOptimisationMapView = (props: any) => {
     })
 
     return (
-        <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} onClick={() => {setSelectedEq(annotation)}}>
+        <div id={`annotation-${annotation.id}`} className="marker-tooltip" style={{ position: 'absolute' }} >
             <div id={`annotation-image-${annotation.id}`} style={textStyle}>
                 <img width="28px" style={{ objectFit: 'contain' }} src={getEquipmentStatusIcon(annotation)} alt="equipment-image" />
                 {annotation.name}
@@ -925,10 +1021,6 @@ const HaulRoadOptimisationMapView = (props: any) => {
         </div>
     );
   };
-
-  const setSelectedEq = useCallback((annotation) => {
-
-  }, [])
 
   const updateAnnotations = useCallback(() => {
     if (!mapContainer.current || !window.map) return
@@ -1056,43 +1148,27 @@ const HaulRoadOptimisationMapView = (props: any) => {
             <div className="truck-tooltip haul-road-optimization" id="marker-tooltip" style={{display: isAnimation ? 'block' : 'none'}}>
                 <div className="tooltiptext" dangerouslySetInnerHTML={{__html: markerToolTipContent}}></div>
             </div>
-            <div className="time-slider-container haul-road-optimization-timeslider" style={{}}>
-              {/* Prev Button */}
-              <Button
-                type="text"
-                icon={<LeftOutlined style={{color: 'white'}} />}
-                onClick={onPrevRoute}
-                style={{marginRight: '10px'}}
-              />
-
-              <Button
-                style={{marginRight: '10px'}}
-                type="text"
-                icon={isPlaying ? <PauseCircleFilled style={{fontSize: '32px', color: 'white'}}  /> : <PlayCircleFilled style={{fontSize: '32px', color: 'white'}}  />}
-                onClick={togglePlay}
-              />
-
-              {/* Next Button */}
-              <Button
-                type="text"
-                icon={<RightOutlined style={{color: 'white'}} />}
-                onClick={onNextRoute}
-                style={{marginRight: '10px'}}
-              />
-
-              {/* Speed Selector (1X, 2X, 3X, 4X) */}
-              <Select
-                className={'speed-indicator'}
-                value={speed}
-                style={{color: 'white'}}
-                onChange={handleSpeedChange}
-              >
-                <Option value={1}>1X</Option>
-                <Option value={2}>2X</Option>
-                <Option value={3}>3X</Option>
-                <Option value={4}>4X</Option>
-              </Select>
-            </div>
+            <TimeSlider
+                isFleetTracking={false}
+                style={{display: currentRoad.value ? 'flex' : 'none', bottom: '-13px'}}
+                isPlaying={isPlaying}
+                speed={speed}
+                timeValue={timeValue}
+                totalTime={totalTime}
+                onTimeChange={handleTimeChange}
+                onSpeedChange={handleSpeedChange}
+                onPlayPauseToggle={togglePlay}
+                onNext={handleNext}
+                onPrev={handlePrev}
+                onNextRoute={onNextRoute}
+                onPrevRoute={onPrevRoute}
+            />
+            {
+              currentRoad.value ? 
+              <StatusCard selectedEq={selectedEq} />
+              :
+              <></>
+            }
           </THREEJSMap>
         </Col>
       </Row>

@@ -150,6 +150,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             if (window.controls) {
                 window.controls.dispose();
             }
+            if (window.renderer) {
+                window.renderer.renderLists && window.renderer.renderLists.dispose();
+                window.renderer.dispose();
+            }
             // Clean up Three.js objects
             if (localMapContainerRef.current && localMapContainerRef.current.firstChild) {
                 localMapContainerRef.current.removeChild(localMapContainerRef.current.firstChild);
@@ -357,7 +361,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.mixer = new THREE.AnimationMixer(object);
             // Traverse the loaded object to find and play animations
             object.animations.forEach((clip, index) => {
-                console.log(clip)
                 if (clip.name === '3D_Truck_Back1|3D_Truck_BackAction' || clip.name === '3D_Truck_Back2|3D_Truck_BackAction' || clip.name === '3D_Truck_Front|3D_Truck_FrontAction'){
                     const action = window.mixer.clipAction(clip);
                     action.play();
@@ -442,7 +445,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
             renderer.domElement.addEventListener('wheel', onDocumentMouseWheel, false);
             onDocumentMouseClick && renderer.domElement.addEventListener('click', onDocumentMouseClick, false)
-            onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', onDocumentMouseDblClick, false)
+            onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', (e) => {onDocumentMouseDblClick(e)}, false)
         }
 
         renderer.shadowMap.enabled = true;
@@ -612,6 +615,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     const [showToolTip, setShowToolTip] = useState<boolean>(false)
     const [properties, setProperties] = useState<Propertytype | null>(null)
     const onDocumentMouseMove = useCallback((event) => {
+        if (isAutoRouting) return;
         if (!localMapContainerRef.current || !window.map) return
         // Normalize mouse position to -1 to 1 range
         const rect = localMapContainerRef.current.getBoundingClientRect();
