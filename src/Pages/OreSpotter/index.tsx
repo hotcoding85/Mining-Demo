@@ -20,7 +20,6 @@ import { useEventmetas } from "Hooks/useEventmetas";
 import { useTruckAllocations } from "Hooks/useTruckAllocations";
 import { usePlans } from "Hooks/usePlans";
 import {
-  addDispatchs,
   getAllBenches,
   getAllFleet,
   getAllMaterials,
@@ -28,15 +27,10 @@ import {
   getDispatchs,
   getShiftRosters,
   getTargetsByRoster,
-  addTruckAllocations,
   getTruckAllocations,
-  removeTruckAllocations,
   getEventMetas,
-  addEventMetas,
-  removeEventMetas,
 } from "slices/thunk";
 import { format } from "date-fns";
-import _ from "lodash";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 
 const LocationImages = [dumpNorth, dumpCentral, dumpSouth];
@@ -195,13 +189,13 @@ const OreSpotter: React.FC = () => {
     const existItem = haulRoutes.find(
       (item) =>
         item.assignId === newHaulRoute.assignId &&
-        item.diggerId == newHaulRoute.diggerId
+        item.diggerId === newHaulRoute.diggerId
     );
     if (existItem) {
       setHaulRoutes((prevBenches) =>
         prevBenches.map((item) =>
           item.assignId === newHaulRoute.assignId &&
-          item.diggerId == newHaulRoute.diggerId
+          item.diggerId === newHaulRoute.diggerId
             ? newHaulRoute
             : item
         )

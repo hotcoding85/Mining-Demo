@@ -6,7 +6,6 @@ import { hd785 } from "assets/images/equipment";
 import { Progress, Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import { useShiftRosters } from "Hooks/useShiftRosters";
-import { uniqBy } from "lodash";
 
 interface AssignTruckItemProps {
   excavators: any[];

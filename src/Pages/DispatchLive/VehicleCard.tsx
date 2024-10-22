@@ -91,7 +91,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const filteredsources = dispatchs?.filter(
+  const filteredLocations = dispatchs?.filter(
     (item) =>
       (item.status === "INPROGRESS" || item.status === "PLANNED") &&
       item.excavatorId === vehicle.id
@@ -175,7 +175,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
       </div>
       <div className="vehicle-card-details">
         <div className="location-item">
-          {!!filteredsources?.length && (
+          {!!filteredLocations?.length && (
             <select
               name="current-work-location"
               id="currentWorkLocation"
@@ -185,7 +185,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
               }}
             >
               <option hidden></option>
-              {filteredsources.map((item) => {
+              {filteredLocations.map((item) => {
                 return (
                   <option
                     key={item.id}

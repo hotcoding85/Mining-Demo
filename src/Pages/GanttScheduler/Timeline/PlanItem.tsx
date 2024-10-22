@@ -151,7 +151,7 @@ const PlanItem: React.FC<PlanItemProps> = ({
   }, [isResizing]);
 
   const [{ isDragging }, drag] = useDrag({
-    type: "TASK",
+    type: "PLAN",
     item: { ...plan },
     canDrag: !!plan && !isResizing,
     collect: (monitor) => ({
