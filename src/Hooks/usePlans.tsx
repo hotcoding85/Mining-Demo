@@ -1,9 +1,15 @@
-import { filter, uniq, uniqBy, update } from "lodash";
+import { omit, uniq } from "lodash";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { useEffect, useState } from "react";
+import { addDispatchs, removeDispatchFromState } from "slices/thunk";
+import { useVehicles } from "./useVehicles";
+import { useBenches } from "./useBenches";
 
-export const usePlans = (dispatchs: any[]) => {
+export const usePlans = () => {
+  const dispatch: any = useDispatch();
+
   const { plans } = useSelector(
     createSelector(
       (state: any) => state,
@@ -14,66 +20,152 @@ export const usePlans = (dispatchs: any[]) => {
       }
     )
   );
-  const [savedPlans, setSavedPlans] = useState<any[]>(plans || []);
+  const { findVehicleById } = useVehicles();
+  const { findBenchesById } = useBenches();
+  const [mergedPlans, setMergedPlans] = useState<any[]>([]);
+  const [savedPlans, setSavedPlans] = useState<any[]>([]);
+  const [deletedPlanIds, setDeletedPlanIds] = useState<string[]>([]);
+  const [normalPlans, setNomalPlans] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    setSavedPlans(plans || []);
-  }, [plans]);
+    const result = normalPlans.map((item) => ({
+      ...item,
+      excavator: findVehicleById(item.excavatorId),
+      source: findBenchesById(item.sourceId),
+    }));
+    setMergedPlans(result);
+  }, [normalPlans]);
 
-  const isExistPlanOnSave = (plan) =>
-    savedPlans.find((item) => item.excavatorId === plan?.excavatorId);
 
-  const handleSavePlan = (plan) => {
-    setSavedPlans([...savedPlans, { ...plan, updated: true }]);
-  };
+  useEffect(() => {
+    if (!isLoading) {
+      const result = plans.filter((item) => !deletedPlanIds.includes(item?.id));
+      setNomalPlans([...result, ...savedPlans]);
+    }
+  }, [plans, savedPlans, deletedPlanIds, isLoading]);
+
+  const findPlanBySourceId = (sourceId) =>
+    normalPlans?.find((item) => item.sourceId === sourceId);
+
+  const findInprogressPlan = (excavatorId) =>
+    normalPlans?.find(
+      (item) =>
+        item?.status === "INPROGRESS" && item?.excavatorId === excavatorId
+    );
+
+  const isExistSavedPlan = (sourceId) =>
+    savedPlans.find((item) => item.sourceId === sourceId);
+
+  const isExistPlan = (sourceId) =>
+    plans.find((item) => item.sourceId === sourceId);
 
   const addNewPlan = (plan) => {
-    let selectedPlan = isExistPlanOnSave(plan);
+    setSavedPlans([...savedPlans, plan]);
+  };
+
+  const updatePlanStatus = (plans, sourceId, status) =>
+    plans.map((item) =>
+      item.sourceId === sourceId ? { ...item, status } : item
+    );
+
+  const changePlan = (newSourceId, excavatorId) => {
+    const oldPlan = findInprogressPlan(excavatorId);
+
+    let updatedPlans = savedPlans;
+    let deletedPlans = deletedPlanIds;
+
+    if (oldPlan) {
+      const savedOldPlan = isExistSavedPlan(oldPlan.sourceId);
+
+      if (savedOldPlan) {
+        updatedPlans = updatePlanStatus(
+          updatedPlans,
+          oldPlan.sourceId,
+          "PLANNED"
+        );
+      } else {
+        const isOldPlan = isExistPlan(oldPlan.sourceId);
+        updatedPlans.push({ ...isOldPlan, status: "PLANNED" });
+        deletedPlans.push(isOldPlan.id);
+      }
+    }
+
+    const savedNewPlan = isExistSavedPlan(newSourceId);
+
+    // Handle new plan
+    if (savedNewPlan) {
+      updatedPlans = updatePlanStatus(updatedPlans, newSourceId, "INPROGRESS");
+    } else {
+      const newPlan = isExistPlan(newSourceId);
+      updatedPlans.push({ ...newPlan, status: "INPROGRESS" });
+      deletedPlans.push(newPlan.id);
+    }
+
+    setSavedPlans(updatedPlans);
+    setDeletedPlanIds(deletedPlans);
+  };
+
+  const updatePlan = (sourceId, newPlan) => {
+    removePlan(sourceId);
+    setSavedPlans((prevData) => [...prevData, omit(newPlan, ["id"])]);
+  };
+
+  const removePlan = (sourceId) => {
+    const selectedPlan = isExistPlan(sourceId);
+    const selectedSavedPlan = isExistSavedPlan(sourceId);
 
     if (!!selectedPlan) {
-      return;
-    } else {
-      handleSavePlan(plan);
+      setDeletedPlanIds((prevIds) => uniq([...prevIds, selectedPlan.id]));
+    }
+    if (!!selectedSavedPlan) {
+      setSavedPlans((prevData) =>
+        prevData.filter((item) => item.sourceId !== selectedSavedPlan?.sourceId)
+      );
     }
   };
 
-  const addLocationToPlan = (plan, location) => {
-    return {
-      ...plan,
-      sourceId: location.id,
-      source: location,
-    };
-  };
+  const handlepublishPlan = async () => {
+    setIsLoading(true);
 
-  const updateLocationToPlan = (oldLocation, newLocation) => {
-    const updatedPlans = savedPlans.map((l) => {
-      if (l.sourceId === oldLocation.sourceId) {
-        return {
-          ...l,
-          source: newLocation,
-          sourceId: newLocation.id,
-          updated: true,
-        };
-      }
-      return l;
-    });
-    setSavedPlans(updatedPlans);
-  };
-
-  const addNewLocation = (oldLocation, newLocation) => {
-    if (oldLocation.sourceId) {
-      updateLocationToPlan(oldLocation, newLocation);
-    } else {
-      handleSavePlan(addLocationToPlan(oldLocation, newLocation));
+    if (!!savedPlans.length || !!deletedPlanIds.length) {
+      await dispatch(removeDispatchFromState(deletedPlanIds));
+      await dispatch(
+        addDispatchs([
+          ...deletedPlanIds.map((id) => ({
+            id,
+            status: "ARCHIVE",
+          })),
+          ...savedPlans.map((item) => ({
+            id: item?.id || undefined,
+            endTime: item?.endTime || undefined,
+            roster: item?.roster || undefined,
+            sourceId: item?.sourceId || undefined,
+            startTime: item?.startTime || undefined,
+            excavatorId: item?.excavatorId,
+            status: item?.status || "PLANNED",
+          })),
+        ])
+      );
     }
-  };
 
-  const clearSavedPlans = () => setSavedPlans([]);
+    setDeletedPlanIds([]);
+    setSavedPlans([]);
+
+    setIsLoading(false);
+  };
 
   return {
+    plans,
     savedPlans,
+    deletedPlanIds,
+    mergedPlans,
+    findPlanBySourceId,
+    findInprogressPlan,
     addNewPlan,
-    addNewLocation,
-    clearSavedPlans,
+    updatePlan,
+    removePlan,
+    changePlan,
+    handlepublishPlan,
   };
 };

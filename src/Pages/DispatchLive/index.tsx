@@ -27,8 +27,8 @@ import _ from "lodash";
 import { dumpCentral, dumpNorth, dumpSouth } from "assets/images/locations";
 import { useMaterials } from "Hooks/useMaterials";
 import { useEventmetas } from "Hooks/useEventmetas";
-import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
-import { usePlans } from "Hooks/useNewPlans";
+import { useTruckAllocations } from "Hooks/useTruckAllocations";
+import { usePlans } from "Hooks/usePlans";
 
 const LocationImages = [dumpNorth, dumpCentral, dumpSouth];
 
@@ -372,11 +372,11 @@ const DispatchLive: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                {diggersForShow.map((dispatch, index) => (
+                {diggersForShow.map((excavator, index) => (
                   <MainCard
                     key={index}
                     dispatchs={mergedPlans}
-                    dispatch={dispatch}
+                    excavator={excavator}
                     shiftRoster={shiftRosters}
                     diggerHeader={""}
                     assignReadyTrucks={assignReadyTrucks}

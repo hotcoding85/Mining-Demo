@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Container, Row } from "reactstrap";
+import { Container } from "reactstrap";
 import SideBar from "./sidebar/SideBar";
-import { shiftInfoData, sideMenu } from "./data/sampleData";
+import { shiftInfoData } from "./data/sampleData";
 import List from "./List";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -18,12 +18,12 @@ import {
   getTruckAllocations,
 } from "slices/thunk";
 import { format } from "date-fns";
-import { DatePicker, DatePickerProps, Segmented } from "antd";
+import { DatePickerProps } from "antd";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import RosterFilter from "./Filter";
-import { usePlans } from "Hooks/useNewPlans";
-import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
+import { usePlans } from "Hooks/usePlans";
+import { useTruckAllocations } from "Hooks/useTruckAllocations";
 import { useRosters } from "Hooks/useRosters";
 
 const PreShiftInfo = () => {
@@ -31,7 +31,7 @@ const PreShiftInfo = () => {
 
   const dispatch: any = useDispatch();
 
-  const { shiftRosters, fleets, users, benches, targets, dispatchs } =
+  const { shiftRosters, fleets, users, benches, targets } =
     useSelector(
       createSelector(
         (state: any) => state,
@@ -42,7 +42,6 @@ const PreShiftInfo = () => {
             users: state.Users.data,
             benches: state.Benches.data,
             targets: state.Targets.data,
-            dispatchs: state.Dispatch.data,
           };
         }
       )

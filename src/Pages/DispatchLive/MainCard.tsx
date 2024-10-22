@@ -12,7 +12,7 @@ import AssignBoard from "./AssignBoard";
 
 interface MainCardProps {
   excavators:any[];
-  dispatch: any;
+  excavator: any;
   dispatchs: any[];
   shiftRoster: any;
   haulRoutes: HaulRoute[];
@@ -32,7 +32,7 @@ interface MainCardProps {
 
 const MainCard: React.FC<MainCardProps> = ({
   excavators,
-  dispatch,
+  excavator,
   dispatchs,
   haulRoutes,
   shiftRoster,
@@ -62,19 +62,6 @@ const MainCard: React.FC<MainCardProps> = ({
     return Math.round((Math.random() * (max - min) + min) * factor) / factor;
   }
 
-  const normalizeDestination = useMemo(
-    () =>
-      dispatch?.destination
-        ? {
-          ...dispatch?.destination,
-          locationImg: dumpLocations.find(
-            (item) => dispatch?.destination?.id === item.id
-          )?.locationImg,
-        }
-        : undefined,
-    [dispatch.destination, dumpLocations]
-  );
-
   return (
     <React.Fragment>
       <div className="dispatch-live-main-card">
@@ -82,7 +69,7 @@ const MainCard: React.FC<MainCardProps> = ({
           <div className="vehicle-card-container">
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
-              vehicle={dispatch}
+              vehicle={excavator}
               dispatchs={dispatchs}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
@@ -99,12 +86,11 @@ const MainCard: React.FC<MainCardProps> = ({
           </div>
           <AssignBoard
             dispatchs={dispatchs}
-            dispatch={dispatch}
+            excavator={excavator}
             assignedTrucks={assignedTrucks}
             assignReadyTrucks={assignReadyTrucks}
             removeTruckFromAssigned={removeTruckFromAssigned}
             reAssignTruckToFleet={reAssignTruckToFleet}
-            dumpLocation={normalizeDestination}
             haulRoutes={haulRoutes}
             addDumpLocation={addDumpLocation}
             addHaulRoute={addHaulRoute}

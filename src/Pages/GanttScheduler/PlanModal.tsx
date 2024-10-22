@@ -33,7 +33,7 @@ const PlanModal: React.FC<PlanModalProps> = ({
       setPlanName(plan?.name || "");
       setBlockId(plan?.blockId || "");
       setNewColor(plan?.color || defaultColor);
-      setSelectedBenchId(plan?.id);
+      setSelectedBenchId(plan?.sourceId);
     }
   }, [isOpen, plan]);
 
@@ -92,7 +92,6 @@ const PlanModal: React.FC<PlanModalProps> = ({
           }
           value={`${planName} - ${blockId}`}
           onChange={(id, e: any) => {
-            console.log("options", e, id);
             setSelectedBenchId(id);
             setPlanName(e.name);
             setBlockId(e.blockId);

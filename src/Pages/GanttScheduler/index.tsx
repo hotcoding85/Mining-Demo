@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ShiftSelector from "./ShiftSelector";
 import ZoomControl from "./ZoomControl";
 import TableComponent from "./TableComponent";
@@ -28,24 +34,24 @@ import { createSelector } from "reselect";
 import { debounce } from "lodash";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { deleteDispatch } from "Helpers/api_dispatch_helper";
+import { usePlans } from "Hooks/usePlans";
 
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
 
-  const { benches, fleets, dispatchs } = useSelector(
+  const { benches, fleets } = useSelector(
     createSelector(
       (state: any) => state,
       (state) => {
         return {
           benches: state.Benches.data,
           fleets: state.Fleet.data,
-          dispatchs: state.Dispatch.data,
         };
       }
     )
   );
+  const { mergedPlans } = usePlans();
   const zoomSteps = [5, 15, 30, 60, 180, 360, 720];
   const minZoom = zoomSteps[0];
   const maxZoom = zoomSteps[zoomSteps.length - 1];
@@ -56,10 +62,22 @@ const GanttScheduler: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalPlan, setModalPlan] = useState<any>();
+  const [requestCount, setRequestCount] = useState<number>(0);
+
   const [roster, setRoster] = useState<string>(
     format(selectedDate, "yyyy-MM-dd") +
       ":" +
       (shiftType === "DAY_SHIFT" ? "DS" : "NS")
+  );
+
+  const addRequestCount = useCallback(
+    () => setRequestCount((prev) => (prev === 0 ? prev + 2 : prev + 1)),
+    [setRequestCount]
+  );
+
+  const reduceRequestCount = useCallback(
+    () => setRequestCount((prev) => prev - 1),
+    [setRequestCount]
   );
 
   const excavatorFilter = useCallback(
@@ -74,11 +92,24 @@ const GanttScheduler: React.FC = () => {
   }, [fleets, excavatorFilter]);
 
   const [heights, setHeights] = useState<any[]>(
-    excavators.map((resource) => ({
-      excavatorId: resource.excavatorId,
+    excavators.map((excavator) => ({
+      excavatorId: excavator.excavatorId,
       height: 50,
     }))
   );
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    setShiftType(hour >= 6 && hour < 18 ? "DAY_SHIFT" : "NIGHT_SHIFT");
+    if (hour < 6) {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      setSelectedDate(yesterday);
+    } else {
+      setSelectedDate(new Date());
+    }
+  }, []);
 
   useEffect(() => {
     const result =
@@ -98,14 +129,13 @@ const GanttScheduler: React.FC = () => {
   }, [roster]);
 
   useEffect(() => {
-    setHeights(
-      excavators.map((resource) => ({
-        excavatorId: resource.excavatorId,
-        height: 50,
-      }))
-    );
-    addSavedPlans();
-  }, [dispatchs]);
+    if (requestCount === 0) {
+      addSavedPlans();
+    } else if (requestCount === 1) {
+      addSavedPlans();
+      toast.success(`Operation completed successfully.`, { autoClose: 2000 });
+    }
+  }, [mergedPlans]);
 
   const activeBenches = useMemo(
     () => benches.filter((item) => item.status === "ACTIVE"),
@@ -131,11 +161,11 @@ const GanttScheduler: React.FC = () => {
   };
 
   const noAssignedPlans = useMemo(() => {
-    return convertData(dispatchs.filter((item) => !item.startTime));
-  }, [dispatchs]);
+    return convertData(mergedPlans.filter((item) => !item.startTime));
+  }, [mergedPlans]);
 
   const addSavedPlans = () => {
-    const result = convertData(dispatchs.filter((item) => !!item.startTime));
+    const result = convertData(mergedPlans.filter((item) => !!item.startTime));
     setPlans(result);
   };
 
@@ -164,47 +194,39 @@ const GanttScheduler: React.FC = () => {
           },
         ]);
         const result = {
-          startTime: startTime.getTime(),
-          endTime: endTime.getTime(),
+          ...newPlan,
           excavatorId: plan.excavatorId,
-          sourceId: plan?.sourceId || plan.id,
-          status: "PLANNED",
-          roster: plan?.roster || roster,
-          color: plan?.color || "#ff6247",
         };
-        await dispatch(updateDispatch(plan.id, result));
+        addRequestCount();
+        await dispatch(updateDispatch(plan.id, result, true));
+        reduceRequestCount();
       } else {
         toast.warning("Excavator is not matched!", { autoClose: 2000 });
       }
     } else if (!confirm(newPlan)) {
-      setPlans((prevPlans) => [
-        ...prevPlans,
-        {
-          ...newPlan,
-          startTime,
-          endTime,
-          blockId: plan.blockId,
-          name: plan.name,
-        },
-      ]);
-      await dispatch(addDispatch(newPlan));
+      addRequestCount();
+      await dispatch(addDispatch(newPlan, true));
+      reduceRequestCount();
     } else {
-      toast.warning("Not able to assign Benches.", {
+      toast.warning("Unable to assign benches. Please try again.", {
         autoClose: 2000,
       });
     }
   };
 
   const confirm = (plan) => {
-    const selectedPlans = dispatchs.filter(
+    const selectedPlans = mergedPlans.filter(
       (item: any) => item.excavatorId === plan.excavatorId
     );
-
     const exist = selectedPlans.find(
       (item) =>
-        (item.startTime <= plan.startTime && item.endTime >= plan.startTime) ||
-        (item.startTime < plan.endTime && item.endTime >= plan.endTime) ||
-        item.sourceId === plan.sourceId
+        (item.startTime <= plan.startTime &&
+          item.endTime >= plan.startTime &&
+          item.id !== plan?.id) ||
+        (item.startTime < plan.endTime &&
+          item.endTime >= plan.endTime &&
+          item.id !== plan?.id) ||
+        (item.sourceId === plan.sourceId && item.id !== plan?.id)
     );
     return exist;
   };
@@ -219,8 +241,9 @@ const GanttScheduler: React.FC = () => {
       roster: updatedPlan.roster || roster, // Assuming `roster` is defined in the outer scope
       color: updatedPlan.color || "#ff6247",
     };
-
-    await dispatch(updateDispatch(updatedPlan.id, result));
+    addRequestCount();
+    await dispatch(updateDispatch(updatedPlan.id, result, true));
+    reduceRequestCount();
   };
 
   const debouncedSave = useCallback(
@@ -244,12 +267,9 @@ const GanttScheduler: React.FC = () => {
     } else if (flag === "drag" && !confirm(updatedPlan)) {
       updatePlans();
     } else {
-      toast.warning(
-        "Duplicated bench entry detected. Please check and try again",
-        {
-          autoClose: 2000,
-        }
-      );
+      toast.warning("Unable to assign benches. Please try again.", {
+        autoClose: 2000,
+      });
     }
   };
 
@@ -262,12 +282,9 @@ const GanttScheduler: React.FC = () => {
       );
       save(updatedPlan);
     } else {
-      toast.warning(
-        "Duplicated bench entry detected. Please check and try again",
-        {
-          autoClose: 2000,
-        }
-      );
+      toast.warning("Unable to assign benches. Please try again.", {
+        autoClose: 2000,
+      });
     }
   };
 
@@ -283,7 +300,9 @@ const GanttScheduler: React.FC = () => {
 
   const deletePlan = async (planId) => {
     closeModal();
-    await dispatch(removeDispatch(planId));
+    addRequestCount();
+    await dispatch(removeDispatch(planId, true));
+    reduceRequestCount();
   };
 
   const onDateChange: DatePickerProps["onChange"] = (date, dateString) => {

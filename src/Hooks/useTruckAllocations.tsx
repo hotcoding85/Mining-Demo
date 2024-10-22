@@ -1,8 +1,16 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { omit, uniq } from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
+import {
+  addTruckAllocations,
+  removeTruckAllocationFromState,
+} from "slices/thunk";
+import { useVehicles } from "./useVehicles";
 
 export const useTruckAllocations = () => {
+  const dispatch: any = useDispatch();
+
   const { truckAllocations } = useSelector(
     createSelector(
       (state: any) => state,
@@ -13,55 +21,104 @@ export const useTruckAllocations = () => {
       }
     )
   );
-  const [savedTruckAllocations, setSavedTruckAllocations] = useState<any[]>(
-    truckAllocations || []
-  );
+
+  const { findVehicleById } = useVehicles();
+
+  // Updated or Added Truck Allocations
+  const [savedTruckAllocations, setSavedTruckAllocations] = useState<any[]>([]);
+  const [deletedTruckAllocationIds, setDeletedTruckAllocationIds] = useState<
+    string[]
+  >([]);
+  const [isLoading, setIsLoaing] = useState<boolean>(false);
+  const [mergedTruckAllocations, setMergedTruckAllocation] = useState<any[]>([]);
 
   useEffect(() => {
-    setSavedTruckAllocations(truckAllocations);
-  }, [truckAllocations]);
+    if (!isLoading) {
+      const result = [...truckAllocations, ...savedTruckAllocations]
+      .filter((item) => !deletedTruckAllocationIds.includes(item?.id))
+      .map((item) => ({
+        ...item,
+        truck: findVehicleById(item.truckId),
+      }));
+      setMergedTruckAllocation([...result]);
+    }
+  }, [truckAllocations, savedTruckAllocations, deletedTruckAllocationIds, isLoading]);
 
-  const handleSaveAllocation = (truckAllocation) => {
-    const filteredTruckAllocation = savedTruckAllocations?.filter(
-      (item) => item.truckId !== truckAllocation.truckId
-    );
-    setSavedTruckAllocations([
-      ...(filteredTruckAllocation || []),
-      {...truckAllocation, updated:true},
+  const findTruckAllocationByTruckId = (truckId) =>
+    mergedTruckAllocations?.find((item) => item.truckId === truckId) || null;
+
+  const isExistSavedTruckAllocation = (truckId) =>
+    savedTruckAllocations.find((item) => item.truckId === truckId) || null;
+
+  const isExistTruckAllocation = (truckId) =>
+    truckAllocations.find((item) => item.truckId === truckId) || null;
+
+  const addNewTruckAllocation = (truckAllocation) => {
+    setSavedTruckAllocations([...savedTruckAllocations, truckAllocation]);
+  };
+
+  const updateTruckAllocation = (truckId, newTruckAllocation) => {
+    removeTruckAllocation(truckId);
+    setSavedTruckAllocations((prevData) => [
+      ...prevData,
+      omit(newTruckAllocation, ["id"]),
     ]);
   };
 
-  const assignTruckToPlan = (plan, truck) => {
-    if (plan?.truckId) {
-      const updatedTruckAllocations = savedTruckAllocations.map((l) => {
-        if (l.truckId === plan.truckId) {
-          return { ...l, truckId: truck.id, truck: truck, updated:true };
-        }
-        return l;
-      });
-      setSavedTruckAllocations(updatedTruckAllocations);
-    } else {
-      handleSaveAllocation({
-        ...plan,
-        truckId: truck.id,
-        truck: truck,
-      });
+  const removeTruckAllocation = (truckId) => {
+    const selectedTruckAllocation = isExistTruckAllocation(truckId);
+    const selectedSavedTruckAllocation = isExistSavedTruckAllocation(truckId);
+    if (!!selectedSavedTruckAllocation || !!selectedTruckAllocation) {
+      setSavedTruckAllocations((prevData) =>
+        prevData.filter(
+          (item) => item.truckId !== selectedSavedTruckAllocation?.truckId
+        )
+      );
+      if (!!selectedTruckAllocation) {
+        setDeletedTruckAllocationIds((prevIds) =>
+          uniq([...prevIds, selectedTruckAllocation?.id])
+        );
+      }
     }
   };
 
-  const revokeTruckFromPlan = (truckId) => {
-    const updatedTruckAllocations = savedTruckAllocations.filter(
-      (t) => t.truckId !== truckId
-    );
-    setSavedTruckAllocations(updatedTruckAllocations);
+
+
+  const handleSubmitTruckAllocation = async () => {
+    setIsLoaing(true);
+    if (!!savedTruckAllocations.length || !!deletedTruckAllocationIds.length) {
+      await dispatch(
+        addTruckAllocations([
+          ...deletedTruckAllocationIds.map((id) => ({
+            id,
+            status: "ARCHIVE",
+          })),
+          ...savedTruckAllocations.map((item) => ({
+            id: item?.id || undefined,
+            roster: item?.roster || undefined,
+            excavatorId: item?.excavatorId || undefined,
+            truckId: item?.truckId || undefined,
+            destinationId: item?.destinationId || undefined,
+            status: "ACTIVE",
+          })),
+        ])
+      );
+
+      await dispatch(removeTruckAllocationFromState(deletedTruckAllocationIds));
+      setDeletedTruckAllocationIds([]);
+      setSavedTruckAllocations([]);
+    }
+    setIsLoaing(false);
   };
-
-  const clearSavedPTruckAllocations = () => setSavedTruckAllocations([]);
-
   return {
+    truckAllocations,
     savedTruckAllocations,
-    assignTruckToPlan,
-    revokeTruckFromPlan,
-    clearSavedPTruckAllocations,
+    deletedTruckAllocationIds,
+    mergedTruckAllocations,
+    findTruckAllocationByTruckId,
+    addNewTruckAllocation,
+    updateTruckAllocation,
+    removeTruckAllocation,
+    handleSubmitTruckAllocation,
   };
 };

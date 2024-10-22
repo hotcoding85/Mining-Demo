@@ -25,16 +25,18 @@ export const getDispatchs = (roster) => async (dispatch: any) => {
   }
 };
 
-export const addDispatch = (Dispatch: any) => async (dispatch: any) => {
-  try {
-    let response: any;
-    response = await postDispatch(Dispatch);
-    toast.success("Dispatch added successfully", { autoClose: 2000 });
-    dispatch(createSuccess(response));
-  } catch (error) {
-    dispatch(apiError(error));
-  }
-};
+export const addDispatch =
+  (Dispatch: any, disableNotify?: boolean) => async (dispatch: any) => {
+    try {
+      let response: any;
+      response = await postDispatch(Dispatch);
+      if (!disableNotify)
+        toast.success("Dispatch added successfully", { autoClose: 2000 });
+      dispatch(createSuccess(response));
+    } catch (error) {
+      dispatch(apiError(error));
+    }
+  };
 
 export const addDispatchs = (dispatchs: any) => async (dispatch: any) => {
   try {
@@ -50,31 +52,36 @@ export const addDispatchs = (dispatchs: any) => async (dispatch: any) => {
 };
 
 export const updateDispatch =
-  (id: string, Dispatch: any) => async (dispatch: any) => {
+  (id: string, Dispatch: any, disableNotify?: boolean) =>
+  async (dispatch: any) => {
     try {
       let response: any;
       response = await putDispatch(id, Dispatch);
-      toast.success(`Dispatch updated successfully`, {
-        autoClose: 2000,
-      });
+      if (!disableNotify) {
+        toast.success(`Dispatch updated successfully`, {
+          autoClose: 2000,
+        });
+      }
       dispatch(updateSuccess(response));
     } catch (error) {
       dispatch(apiError(error));
     }
   };
 
-export const removeDispatch = (id: string) => async (dispatch: any) => {
-  try {
-    let response: any;
-    response = await deleteDispatch(id);
-    toast.success(`Dispatch deleted successfully`, {
-        autoClose: 2000,
-      });
-    dispatch(deleteSuccess(response));
-  } catch (error) {
-    dispatch(apiError(error));
-  }
-};
+export const removeDispatch =
+  (id: string, disableNotify?: boolean) => async (dispatch: any) => {
+    try {
+      let response: any;
+      response = await deleteDispatch(id);
+      if (!disableNotify)
+        toast.success(`Dispatch deleted successfully`, {
+          autoClose: 2000,
+        });
+      dispatch(deleteSuccess(response));
+    } catch (error) {
+      dispatch(apiError(error));
+    }
+  };
 
 export const removeDispatchFromState =
   (dispatchs: any) => async (dispatch: any) => {

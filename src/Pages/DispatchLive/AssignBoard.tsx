@@ -6,11 +6,10 @@ import AssignRouteItem from "./AssignRouteItem";
 
 interface AssignBoardProps {
   excavators:any[];
-  dispatch: any;
+  excavator: any;
   dispatchs: any[];
   assignedTrucks: any[];
   haulRoutes: HaulRoute[];
-  dumpLocation: DumpLocation[];
   locations: any[];
   shiftRoster: any;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
@@ -22,10 +21,9 @@ interface AssignBoardProps {
 
 const AssignBoard: React.FC<AssignBoardProps> = ({
   excavators,
-  dispatch,
+  excavator,
   dispatchs,
   haulRoutes,
-  dumpLocation,
   assignedTrucks,
   locations,
   shiftRoster,
@@ -36,7 +34,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
   removeTruckFromAssigned,
 }) => {
   const filteredTrucks = assignedTrucks.
-    filter(item => item.excavatorId === dispatch.id)
+    filter(item => item.excavatorId === excavator.id)
     .sort((a: any, b: any) =>
       a?.truck.name?.localeCompare(b?.truck.name)
     );
@@ -57,7 +55,7 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
         <div className="assign-item-pair">
           <AssignTruckItem
             dispatchs={dispatchs}
-            excavatorId={dispatch?.id}
+            excavatorId={excavator?.id}
             assignedTruck={filteredTrucks[index]}
             assignReadyTrucks={assignReadyTrucks}
             reAssignTruckToFleet={reAssignTruckToFleet}
@@ -66,15 +64,14 @@ const AssignBoard: React.FC<AssignBoardProps> = ({
             excavators={excavators}
           />
           <AssignLocationItem
-            diggerId={dispatch?.id}
-            dumpLocation={dumpLocation}
+            diggerId={excavator?.id}
             addDumpLocation={addDumpLocation}
             destinationId={filteredTrucks[index]?.destinationId}
             locations={locations}
             truckId={filteredTrucks[index]?.truckId}
           />
           <AssignRouteItem
-            diggerId={dispatch?.id}
+            diggerId={excavator?.id}
             sourceId={index}
             haulRoutes={haulRoutes}
             addHaulRoute={addHaulRoute}
