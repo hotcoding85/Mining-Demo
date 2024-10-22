@@ -10,7 +10,7 @@ import bbox from "@turf/bbox";
 
 // redux
 import { useDispatch } from "react-redux";
-import { addGeoFence, updateGeoFence } from "slices/thunk";
+import { addGeoFence, updateGeoFence, addBench } from "slices/thunk";
 
 // lodush
 import _ from "lodash";
@@ -292,15 +292,23 @@ export const useInitPolygonMap = (props: {
     handleCloseBoundboxModal();
   };
 
-  const handleSaveFence = async (bench: any, name: string, color: string) => {
+  const handleSaveFence = async (
+    bench: any,
+    name: string,
+    color: string,
+    newBench?: any
+  ) => {
     const coordinates = geoJson?.geometry?.coordinates || [];
-
+    let response;
+    if (newBench && !bench) {
+      response = await dispatch(addBench(newBench));
+    }
     // Check if editing an existing fence
     if (fence) {
       const success = await dispatch(
         updateGeoFence(fence.id, {
           name,
-          locationId: bench?.id,
+          locationId: !!bench?.id ? bench?.id : response?.id,
           color,
         })
       );
@@ -326,7 +334,7 @@ export const useInitPolygonMap = (props: {
     const success = await dispatch(
       addGeoFence({
         name,
-        locationId: bench?.id,
+        locationId: !!bench?.id ? bench?.id : response?.id,
         geoJson: {
           type: "Feature",
           geometry: {

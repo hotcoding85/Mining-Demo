@@ -16,7 +16,6 @@ import { Button, Card, Col, Container, Row } from "reactstrap";
 // ant design
 import { Tooltip } from "antd";
 // redux
-import { createSelector } from "reselect";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllBenches, getGeoFences, removeGeoFence } from "slices/thunk";
 // import modals
@@ -28,6 +27,7 @@ import "./styles.scss";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { BenchSelector, FenceSelector } from "selectors";
+import { useMaterials } from "Hooks/useMaterials";
 
 // default wasted's polygon and line color - 'green'
 const defaultColor = "#00ff00";
@@ -68,6 +68,7 @@ const ROMManagement = () => {
 
   const { fences } = useSelector(FenceSelector);
   const { benches } = useSelector(BenchSelector);
+  const { findMaterialsById } = useMaterials();
 
   const oreDumpFences = useMemo(() => {
     const data: any[] = Array.from(fences);
@@ -76,9 +77,14 @@ const ROMManagement = () => {
   }, [fences]);
 
   const availalbeBenches = useMemo(() => {
-    const locationIds = fences.map((fence) => fence.locationId);
-    return benches.filter((location) => !locationIds.includes(location.id));
-  }, [fences, benches]);
+    const locationIds = oreDumpFences.map((fence) => fence.locationId);
+    return benches.filter(
+      (location: any) =>
+        !locationIds.includes(location.id) &&
+        location.category === "DESTINATION" &&
+        findMaterialsById(location?.materialId)?.category === "ORE"
+    );
+  }, [oreDumpFences, benches]);
 
   useEffect(() => {
     if (!mapRef) return;
@@ -211,7 +217,7 @@ const ROMManagement = () => {
         </Container>
       </div>
       <FenceEditModal
-        category="Ore"
+        category="ORE"
         isOpen={isModalOpen}
         onClose={handleCloseEditModal}
         benches={[

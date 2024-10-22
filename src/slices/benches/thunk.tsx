@@ -46,6 +46,7 @@ export const addBench = (bench: any) => async (dispatch: any) => {
     let response: any;
     response = await postBench(bench);
     dispatch(createSuccess(response));
+    return response["data"];
   } catch (error) {
     dispatch(apiError(error));
   }
@@ -56,9 +57,9 @@ export const upsertBenches = (benches: any) => async (dispatch: any) => {
     let response: any;
     response = await postUpsertBenches(benches);
     dispatch(upsertSuccess(response));
-    toast.success("Successfully uploaded!", {autoClose: 2000})
+    toast.success("Successfully uploaded!", { autoClose: 2000 });
   } catch (error: any) {
-    toast.error(error?.data?.message || "Server Error!" , { autoClose: 2000 });
+    toast.error(error?.data?.message || "Server Error!", { autoClose: 2000 });
     dispatch(apiError(error));
   }
 };

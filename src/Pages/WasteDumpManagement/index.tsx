@@ -27,6 +27,7 @@ import "./styles.scss";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { BenchSelector, FenceSelector } from "selectors";
+import { useMaterials } from "Hooks/useMaterials";
 
 // default wasted's polygon and line color - 'green'
 const defaultColor = "#00ff00";
@@ -67,6 +68,7 @@ const WasteDumpManagement = () => {
 
   const { fences } = useSelector(FenceSelector);
   const { benches } = useSelector(BenchSelector);
+  const { findMaterialsById } = useMaterials();
 
   const wasteDumpFences = useMemo(() => {
     const data: any[] = Array.from(fences);
@@ -75,9 +77,14 @@ const WasteDumpManagement = () => {
   }, [fences]);
 
   const availalbeBenches = useMemo(() => {
-    const locationIds = fences.map((fence) => fence.locationId);
-    return benches.filter((location) => !locationIds.includes(location.id));
-  }, [fences, benches]);
+    const locationIds = wasteDumpFences.map((fence) => fence.locationId);
+    return benches.filter(
+      (location: any) =>
+        !locationIds.includes(location.id) &&
+        location.category === "DESTINATION" &&
+        findMaterialsById(location?.materialId)?.category === "WASTE"
+    );
+  }, [wasteDumpFences, benches]);
 
   useEffect(() => {
     if (!mapRef) return;
@@ -213,7 +220,7 @@ const WasteDumpManagement = () => {
         </Container>
       </div>
       <FenceEditModal
-        category="Waste"
+        category="WASTE"
         isOpen={isModalOpen}
         onClose={handleCloseEditModal}
         benches={[
