@@ -11,6 +11,7 @@ import {
 import AssignBoard from "./AssignBoard";
 
 interface MainCardProps {
+  excavators:any[];
   dispatch: any;
   dispatchs: any[];
   shiftRoster: any;
@@ -20,17 +21,17 @@ interface MainCardProps {
   assignedBenches: any[];
   assignedTrucks: any[];
   locations: any[];
-  addBenches: (newBenches: any, diggerId: string) => void;
+  addBenches: (newLocation: any, oldLocation: any, data: any) => void;
   addHaulRoute: (newHaulRoute: HaulRoute) => void;
   addDumpLocation: (newDumpLocation: any, diggerId: string) => void;
   assignReadyTrucks: (oldTruck, newTruck, diggerId) => void;
   reAssignTruckToFleet: (truck: Truck, fromId: string, toId: string) => void;
   removeTruckFromAssigned: (removedTruck: Truck, diggerId: string) => void;
   changePlanState: (location: string, vehicleId: string) => void;
-  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
 }
 
 const MainCard: React.FC<MainCardProps> = ({
+  excavators,
   dispatch,
   dispatchs,
   haulRoutes,
@@ -47,7 +48,6 @@ const MainCard: React.FC<MainCardProps> = ({
   reAssignTruckToFleet,
   removeTruckFromAssigned,
   changePlanState,
-  addLocation
 }) => {
   function getRandomInt(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -83,7 +83,7 @@ const MainCard: React.FC<MainCardProps> = ({
             <p className="vehicle-card-name">{diggerHeader}</p>
             <VehicleCard
               vehicle={dispatch}
-              sources={dispatch.sources}
+              dispatchs={dispatchs}
               shiftRoster={shiftRoster}
               smu={getRandomFloat(23000, 38000, 1)}
               fuelLevel={80}
@@ -95,7 +95,6 @@ const MainCard: React.FC<MainCardProps> = ({
               addBenches={addBenches}
               collapse={false}
               changePlanState={changePlanState}
-              addLocation={addLocation}
             />
           </div>
           <AssignBoard
@@ -111,6 +110,7 @@ const MainCard: React.FC<MainCardProps> = ({
             addHaulRoute={addHaulRoute}
             locations={locations}
             shiftRoster={shiftRoster}
+            excavators={excavators}
           />
         </div>
       </div>

@@ -9,10 +9,6 @@ import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { useDispatch } from "react-redux";
 import {
-  addDispatch,
-  addDispatchs,
-  addShiftRoster,
-  addShiftRosters,
   getAllBenches,
   getAllFleet,
   getAllUsers,
@@ -20,16 +16,14 @@ import {
   getShiftRosters,
   getTargetsByRoster,
   getTruckAllocations,
-  removeTruckAllocation,
-  addTruckAllocations,
 } from "slices/thunk";
 import { format } from "date-fns";
 import { DatePicker, DatePickerProps, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import RosterFilter from "./Filter";
-import { usePlans } from "Hooks/usePlans";
-import { useTruckAllocations } from "Hooks/useTruckAllocations";
+import { usePlans } from "Hooks/useNewPlans";
+import { useTruckAllocations } from "Hooks/useNewTruckAllocation";
 import { useRosters } from "Hooks/useRosters";
 
 const PreShiftInfo = () => {
@@ -53,27 +47,34 @@ const PreShiftInfo = () => {
         }
       )
     );
+
+  const { mergedPlans, addNewPlan, updatePlan, handlepublishPlan } = usePlans();
+  const {
+    mergedTruckAllocations,
+    addNewTruckAllocation,
+    updateTruckAllocation,
+    removeTruckAllocation,
+    handleSubmitTruckAllocation,
+  } = useTruckAllocations();
+
   const [shift, setShift] = useState<any>(null);
   const [startDate, setStartDate] = useState<any>(null);
-  const { savedPlans, addNewLocation, clearSavedPlans } = usePlans(dispatchs);
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [deletedIds, setDeletedIds] = useState<string[]>([]);
-  const { savedTruckAllocations, assignTruckToPlan, revokeTruckFromPlan } =
-    useTruckAllocations();
-  const { savedRosters, addNewRoster, clearSavedRoster } = useRosters();
+  const { savedRosters, addNewRoster, handleSubmitShiftRoster } = useRosters();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
     const hour = new Date().getHours();
     setShift(hour >= 6 && hour < 18 ? "DS" : "NS");
-    setStartDate(
-      queryParams.get("date")
-        ? new Date(queryParams.get("date") || new Date())
-        : new Date()
-    );
+    if (hour < 6) {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      setStartDate(yesterday);
+    } else {
+      setStartDate(new Date());
+    }
   }, []);
 
   useEffect(() => {
@@ -153,7 +154,16 @@ const PreShiftInfo = () => {
   };
 
   const assignLocationToPlan = async (plan, location) => {
-    addNewLocation(plan, location);
+    const result = {
+      ...plan,
+      source: location,
+      sourceId: location.id,
+    };
+    if (plan) {
+      updatePlan(plan.sourceId, result);
+    } else {
+      addNewPlan(result);
+    }
   };
 
   const normalizedRoster = useMemo(() => {
@@ -169,74 +179,37 @@ const PreShiftInfo = () => {
   }, [normalizedRoster, excavatorFilter]);
 
   const removeTruck = (newTruck, truckId) => {
-    if (newTruck?.id) {
-      setDeletedIds([...deletedIds, newTruck.id]);
-    }
-    revokeTruckFromPlan(truckId);
+    removeTruckAllocation(truckId);
   };
 
   const assignTruck = (oldTruck, newTruck) => {
-    assignTruckToPlan(oldTruck, newTruck);
-    if (oldTruck?.id) {
-      setDeletedIds([...deletedIds, oldTruck.id]);
+    const newAssignTruck = {
+      excavatorId: oldTruck.excavatorId,
+      roster: oldTruck?.roster,
+      truckId: newTruck?.id,
+      truck: newTruck,
+    };
+    if (oldTruck) {
+      updateTruckAllocation(oldTruck.truckId, newAssignTruck);
+    } else {
+      addNewTruckAllocation(newAssignTruck);
     }
   };
 
   const handlePublish = async () => {
     setIsLoading(true);
-    const planResult = savedPlans.filter((item) => item.updated);
-    if (!!planResult.length) {
-      await dispatch(
-        addDispatchs(
-          planResult.map((item) => ({
-            id: item?.id || undefined,
-            excavatorId: item?.excavatorId || undefined,
-            endTime: item?.endTime || undefined,
-            roster: item?.roster || undefined,
-            sourceId: item?.sourceId || undefined,
-            startTime: item?.startTime || undefined,
-            status: item?.status || "PLANNED",
-          }))
-        )
-      );
-    }
 
-    const rosterResult = savedRosters.filter((item) => item.updated);
-    if (!!rosterResult.length) {
-      await dispatch(
-        addShiftRosters(
-          rosterResult.map((item) => ({
-            id: item?.id || undefined,
-            operators: item?.operators || undefined,
-            roster: item?.roster || undefined,
-            vehicleId: item?.vehicleId || undefined,
-          }))
-        )
-      );
-      clearSavedRoster();
+    try {
+      await Promise.all([
+        handleSubmitTruckAllocation(),
+        handlepublishPlan(),
+        handleSubmitShiftRoster(),
+      ]);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    if (!!deletedIds.length) {
-      await dispatch(removeTruckAllocation(deletedIds.map((item) => item)));
-      setDeletedIds([]);
-    }
-
-    const truckResult = savedTruckAllocations.filter((item) => item.updated);
-    if (!!truckResult.length) {
-      await dispatch(
-        addTruckAllocations(
-          truckResult.map((item) => ({
-            id: item?.id || undefined,
-            roster: item?.roster || undefined,
-            excavatorId: item?.excavatorId || undefined,
-            truckId: item?.truckId || undefined,
-            destinationId: item?.destinationId || undefined,
-          }))
-        )
-      );
-    }
-
-    setIsLoading(false);
   };
 
   if (startDate === null || shift === null) return null;
@@ -261,7 +234,7 @@ const PreShiftInfo = () => {
                   excavators={excavators}
                   excRoster={excRoster}
                   targets={targets}
-                  dispatchs={savedPlans}
+                  dispatchs={mergedPlans}
                   shift={shift}
                   startDate={startDate}
                   shiftRosters={normalizedRoster}
@@ -269,7 +242,7 @@ const PreShiftInfo = () => {
                   assignLocationToPlan={assignLocationToPlan}
                   assignTruckToPlan={assignTruck}
                   revokeTruckFromPlan={removeTruck}
-                  savedTruckAllocations={savedTruckAllocations}
+                  savedTruckAllocations={mergedTruckAllocations}
                 />
               </div>
               <div className="sidebar-section p-0">
@@ -278,8 +251,8 @@ const PreShiftInfo = () => {
                   fleets={fleets}
                   users={users}
                   benches={benches}
-                  dispatchs={savedPlans}
-                  savedTruckAllocations={savedTruckAllocations}
+                  dispatchs={mergedPlans}
+                  savedTruckAllocations={mergedTruckAllocations}
                 />
               </div>
             </div>

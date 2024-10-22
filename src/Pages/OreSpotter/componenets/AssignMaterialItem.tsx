@@ -23,11 +23,9 @@ const AssignMaterialItem: React.FC<AssignMaterialItemProps> = ({
   updateTargetMaterials,
 }) => {
   const { findMaterialsById } = useMaterials();
-
   const materialForAssign = targetMaterials?.find(
     (material: any) =>
-      material?.vehicleId === vehicleId &&
-      material?.truckId === truck?.truckId
+      material?.vehicleId === vehicleId && material?.truckId === truck?.truckId
   );
 
   const DropTarget = ({

@@ -1,7 +1,6 @@
 import { useState, FC, useMemo } from "react";
 import { pc2000 } from "assets/images/equipment";
 import { Progress } from "antd";
-import { ActiveBenchData } from "Pages/DispatchLive/interfaces/type";
 import { useDrop } from "react-dnd";
 
 const getStatusColor = (status: string) => {
@@ -21,7 +20,7 @@ const getStatusColor = (status: string) => {
 
 interface VehicleCardProps {
   vehicle?: any;
-  sources?: any;
+  dispatchs?: any;
   shiftRoster?: any[];
   smu: number;
   fuelLevel: number;
@@ -30,15 +29,13 @@ interface VehicleCardProps {
   lastUpdated: string;
   sync: "manual" | "inactive" | "active";
   assignedBenches: any[];
-  filteredsources: any[];
   collapse: boolean;
-  addBenches: (newBenches: any, diggerId: string) => void;
   changePlanState: (location: any, vehicleId: string) => void;
-  addLocation: (newLocation: any, oldLocation: any, data: any) => void;
+  addBenches: (newLocation: any, oldLocation: any, data: any) => void;
 }
 const VehicleCard: FC<VehicleCardProps> = ({
   vehicle,
-  sources,
+  dispatchs,
   shiftRoster,
   smu,
   fuelLevel,
@@ -48,10 +45,8 @@ const VehicleCard: FC<VehicleCardProps> = ({
   sync,
   assignedBenches,
   collapse,
-  filteredsources,
-  addBenches,
   changePlanState,
-  addLocation,
+  addBenches,
 }) => {
   const statusColor = getStatusColor(vehicle?.status);
   const [isHoveringSync, setIsHoveringSync] = useState(false);
@@ -95,9 +90,17 @@ const VehicleCard: FC<VehicleCardProps> = ({
     return shiftRoster?.find((item) => item.vehicleId === vehicle?.id) || null;
   }, [shiftRoster, vehicle]);
 
-  const nextLocations = sources
-    ?.filter((item) => item.status === "PLANNED")
-    ?.sort((a: any, b: any) => a?.source.name?.localeCompare(b?.source.name));
+  const filteredsources = dispatchs?.filter(
+    (item) =>
+      (item.status === "INPROGRESS" || item.status === "PLANNED") &&
+      item.excavatorId === vehicle.id
+  );
+
+  const nextLocations = dispatchs
+    ?.filter(
+      (item) => item.status === "PLANNED" && item.excavatorId === vehicle.id
+    )
+    ?.sort((a: any, b: any) => a?.source?.name?.localeCompare(b?.source?.name));
 
   const DropTarget = ({
     targetData,
@@ -132,10 +135,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
   ) => {
     if (dropId === "location") {
       const { id: vehicleId, excavator = {} } = vehicle;
-      const roster =
-        shiftRoster?.find((item) => item.vehicleId === vehicleId)?.roster ??
-        shiftRoster?.[0]?.roster ??
-        [];
+      const roster = shiftRoster?.[0]?.roster ?? "";
 
       const data = {
         excavatorId: vehicleId,
@@ -144,7 +144,7 @@ const VehicleCard: FC<VehicleCardProps> = ({
         status: "PLANNED",
       };
 
-      addLocation(value, targetData, data);
+      addBenches(value, targetData, data);
     }
   };
 
