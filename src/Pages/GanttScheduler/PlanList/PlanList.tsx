@@ -1,6 +1,6 @@
 import React from "react";
 import { useDrag } from "react-dnd";
-import "../styles/PlanList.css";
+import "../styles/PlanList.scss";
 import { Input } from "antd";
 
 interface PlanListProps {

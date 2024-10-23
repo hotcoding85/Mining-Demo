@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Resource, Plan, ShiftType, resourceHeight } from "./interfaces/type";
 import { calculateTimelineSlots, TimelineSlot } from "utils/dateUtils";
 import TimeLineRow from "./Timeline/TimeLineRow";
-import "./styles/TableComponent.css";
+import "./styles/TableComponent.scss";
 import { wrap } from "module";
 
 interface TableComponentProps {
@@ -68,7 +68,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
       <div className="gantt-resource">
         <div className="timeline-row header">
           <div
-            style={{ width: 100, height: 50, color: "white" }}
+            style={{ width: 100, height: 50 }}
             className="timeline-grid-row-cell"
           >
             Equipment
@@ -85,7 +85,6 @@ const TableComponent: React.FC<TableComponentProps> = ({
               style={{
                 width: 100,
                 fontSize: "24px",
-                color: "white",
                 paddingLeft: "4px",
                 textAlign: "left",
                 alignItems: "start",

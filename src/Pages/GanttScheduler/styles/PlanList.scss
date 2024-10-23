@@ -1,0 +1,45 @@
+.plan-list {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.gantt-plan-list-title {
+  text-align: center;
+  font-size: 16px;
+  padding: 10px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+body[data-layout-mode="dark"] {
+  .plan-list-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    /* background-color: #fff; */
+    color: var(--dark-text-color);
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #ebebeb
+  }
+
+  .list-item-span {
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    color: white;
+  }
+}
+
+body[data-layout-mode="light"] {
+  .plan-list-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    color: #242424;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #E0E0E0;
+  }
+}
