@@ -171,7 +171,7 @@ const GraphCard = (props) => {
             
             <defs>
               <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="70%" stopColor="green" stopOpacity={0.7} />
+                <stop offset="50%" stopColor="green" stopOpacity={0.7} />
                 <stop offset="100%" stopColor="red" stopOpacity={0.3} />
               </linearGradient>
             </defs>
