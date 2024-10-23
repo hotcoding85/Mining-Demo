@@ -189,6 +189,34 @@ const DiggingOptimisationVisualView = () => {
         const heightAdjustment = parseInt(newHeight, 10) / 2; // Center the image vertically
         // el.style.transform = `translate(-40px, -${heightAdjustment}px)`;
       }
+
+      if (markers.current && markers.current.length > 0) {
+        markers.current.forEach((marker) => {
+          const _el = marker.getElement();
+      
+          if (_el) {
+            // Create a wrapper for marker content if it doesn't already exist
+            let contentWrapper = _el.querySelector('svg');
+            // Recalculate the scale for each marker based on distance and zoom
+            const minScale = 0; // Minimum scale factor
+            const maxScale = 1; // Maximum scale factor
+            const minZoomLevel = 16;
+            const maxZoomLevel = 23;
+            const zoomLevel = mapRef.current.getZoom(); // Get current zoom level
+      
+            const zoomScaleFactor = maxScale - (maxScale - minScale) * ((maxZoomLevel - zoomLevel) / (maxZoomLevel - minZoomLevel));
+            if (contentWrapper) {
+        
+              // Apply scaling only to the wrapper
+              contentWrapper.style.scale = `${zoomScaleFactor}`;
+            }
+            else{
+              let div = _el.querySelector('div.cluster-each-marker');
+              div && (div.style.scale = `${zoomScaleFactor}`)
+            }
+          }
+        });
+      }
       updateScaleBar()
     }
     
@@ -205,12 +233,12 @@ const DiggingOptimisationVisualView = () => {
       addScaleBar();
       updateScaleBar();
       updateMarkerAndScaleBar(el)
-      const marker = new mapboxgl.Marker(el, {
-          rotationAlignment: 'map',  // Ensures the icon stays flat on the map
-          pitchAlignment: 'map'      // Prevents the icon from tilting with the map
-        })
-        .setLngLat([lng, lat])
-        .addTo(mapRef.current);
+      // const marker = new mapboxgl.Marker(el, {
+      //     rotationAlignment: 'map',  // Ensures the icon stays flat on the map
+      //     pitchAlignment: 'map'      // Prevents the icon from tilting with the map
+      //   })
+      //   .setLngLat([lng, lat])
+      //   .addTo(mapRef.current);
 
       const createDashedCircleLayer = (sourceId, layerId, radius) => {
         coordinates.current = generateCircleCoordinates([lng, lat], radius)
@@ -243,28 +271,28 @@ const DiggingOptimisationVisualView = () => {
           }
           drawBufferedPolygon(coordinates.current)
         }
-        const geoJson = {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [coordinates.current],
-          },
-        };
-        mapRef.current?.addSource(sourceId, {
-          type: "geojson",
-          data: geoJson,
-        });
-        mapRef.current?.addLayer({
-          id: layerId,
-          type: "line",
-          source: sourceId,
-          layout: {},
-          paint: {
-            "line-color": "#000",
-            "line-width": 2,
-            "line-dasharray": [1, 2],
-          },
-        });
+        // const geoJson = {
+        //   type: "Feature",
+        //   geometry: {
+        //     type: "Polygon",
+        //     coordinates: [coordinates.current],
+        //   },
+        // };
+        // mapRef.current?.addSource(sourceId, {
+        //   type: "geojson",
+        //   data: geoJson,
+        // });
+        // mapRef.current?.addLayer({
+        //   id: layerId,
+        //   type: "line",
+        //   source: sourceId,
+        //   layout: {},
+        //   paint: {
+        //     "line-color": "#000",
+        //     "line-width": 2,
+        //     "line-dasharray": [1, 2],
+        //   },
+        // });
       };
       createDashedCircleLayer("dashed-outer-circle", "dashed-line-layer", 10);
       createDashedCircleLayer(
@@ -275,12 +303,10 @@ const DiggingOptimisationVisualView = () => {
     });
   }, [lat, lng, selectedInterval]);
 
+  const popup = useRef<any>(null);
+
   const drawBufferedPolygon = useCallback((coordinates) => {
     if (!coordinates || coordinates.length === 0) return;
-  
-    // Remove existing markers
-    markers.current.forEach(marker => marker.remove());
-    markers.current = []; // Clear markers array for new markers
   
     const geofencesWithCircle = geofences.features.filter((geofence) => {
       const polygon: any = geofence.geometry;
@@ -365,35 +391,93 @@ const DiggingOptimisationVisualView = () => {
     });
   
     // Draw grouped markers
-    let popup;
     groupedMarkers.forEach((group) => {
       if (group.count > 1) {
         // Create a grouped marker for the cluster
         const avgLng = group.markers.reduce((sum, m) => sum + m.lng, 0) / group.count;
         const avgLat = group.markers.reduce((sum, m) => sum + m.lat, 0) / group.count;
-        const marker = new mapboxgl.Marker({ color: 'red', scale: 0.5 + (group.count * 0.1) }) // Scale based on count
+        // Create a custom marker element
+        const div = document.createElement('div')
+        const markerElement = document.createElement('div');
+        div.style.width = '30px'; // Adjust width as necessary
+        div.style.height = '30px'; // Adjust height as necessary
+        markerElement.style.backgroundColor = 'red'; // Background color
+        div.style.borderRadius = '50%'; // Make it circular
+        markerElement.style.display = 'flex'; // Use flexbox for centering
+        markerElement.style.alignItems = 'center'; // Center vertically
+        markerElement.style.justifyContent = 'center'; // Center horizontally
+        markerElement.style.color = 'white'; // Text color
+        markerElement.style.fontSize = '14px'; // Font size
+        markerElement.style.position = 'absolute'; // Positioning context for text
+        markerElement.style.width = '100%'
+        markerElement.style.height = '100%'
+        markerElement.style.borderRadius = '50%'
+        markerElement.className = 'cluster-each-marker'
+        // Scale the marker based on count
+        const scale = 0.5 + (group.count * 0.1);
+        div.style.transform = `scale(${scale})`; // Apply scaling
+        div.append(markerElement)
+        // Add the count to the marker
+        markerElement.textContent = group.count;
+        
+        // Create the marker
+        const marker = new mapboxgl.Marker(div)
           .setLngLat({ lng: avgLng, lat: avgLat })
           .addTo(mapRef.current);
   
+
+        let html = '<div class="clustered-marker-popup">'
+        for (let i = 0 ; i < group.count ; i ++) {
+          const _digpoint = {
+            TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
+            TonnesLoaded: Math.floor(Math.random() * (18 - 5 + 1)) + 5,
+            Destination: Math.random() > 0.5 ? 'Central Waste' : 'Central Waste',
+          };
+
+          const formatTimestamp = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = Math.floor(Math.random() * 24);
+            const minutes = Math.floor(Math.random() * 60);
+          
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+          };
+          
+          // Create a new Date object and format it
+          const timestamp = formatTimestamp(new Date());
+
+          html += `<strong>Point${i + 1}</strong><br /><strong>${_digpoint.TruckName}</strong> <strong>(${timestamp})</strong><br />
+          <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
+          <strong>Dump Location:</strong> ${_digpoint.Destination}<br />
+          <strong>GPS Coordinates: [${group.markers[i].lng}, ${group.markers[i].lat}]</strong><br />
+          <div class='divider'></div>`
+        }
+        html += '</div>';
         // Tooltip for grouped markers
         marker.getElement().addEventListener('mouseenter', () => {
           marker.getElement().style.cursor = 'pointer';
-          popup = new mapboxgl.Popup()
+          if (popup.current) {
+            popup.current.remove();
+            popup.current = null
+          }
+          popup.current = new mapboxgl.Popup()
             .setLngLat({ lng: avgLng, lat: avgLat })
-            .setHTML(`${group.count} dig points`)
+            .setHTML(html)
             .addTo(mapRef.current);
         });
   
         marker.getElement().addEventListener('mouseleave', () => {
-          if (popup) popup.remove(); // Remove the popup on mouse leave
+          // if (popup) popup.remove(); // Remove the popup on mouse leave
         });
   
         markers.current.push(marker);
       } else {
+        let popup
         const _digpoint = {
           TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
-          TonnesLoaded: Math.ceil(Math.random() * 100),
-          Destination: Math.random() > 0.5 ? 'Haul Truck' : 'Dozer',
+          TonnesLoaded: Math.floor(Math.random() * (18 - 5 + 1)) + 5,
+          Destination: Math.random() > 0.5 ? 'Central Waste' : 'Central Waste',
         };
         // Count is 1, so draw individual marker
         const marker = new mapboxgl.Marker({ color: 'green', scale: 0.5 })
@@ -421,10 +505,10 @@ const DiggingOptimisationVisualView = () => {
           marker.getElement().style.cursor = 'pointer';
           popup = new mapboxgl.Popup()
             .setLngLat(group.markers[0])
-            .setHTML(`<strong>Truck Name:</strong> ${_digpoint.TruckName}<br />
+            .setHTML(`<strong>${_digpoint.TruckName}</strong> <strong>(${timestamp})</strong><br />
                       <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
-                      <strong>Destination:</strong> ${_digpoint.Destination}<br />
-                      <strong>Timestamp:</strong> ${timestamp}`) // Replace with actual info if needed
+                      <strong>Dump Location:</strong> ${_digpoint.Destination}<br />
+                      <strong>GPS Coordinates: [${group.markers[0].lng}, ${group.markers[0].lat}]</strong>`) // Replace with actual info if needed
             .addTo(mapRef.current);
         });
   
@@ -465,6 +549,8 @@ const DiggingOptimisationVisualView = () => {
       if (mapRef.current?.getSource(clusterMarkerId)) {
         mapRef.current?.removeSource(clusterMarkerId);
       }
+      markers.current.forEach(marker => marker.remove());
+      markers.current = []; // Clear markers array for new markers
     }
     drawBufferedPolygon(coordinates.current)
   }, [selectedInterval, coordinates.current])

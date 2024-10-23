@@ -8,11 +8,15 @@ import DiggingOptimisationMapView from "./components/DiggingOptimisationMapView"
 import DiggingOptimisationVisualView from "./components/DiggingOptimisationVisualView";
 
 const DiggingOptimisation = (props: any) => {
-  document.title = "Digging Optimisation | FMS Live";
+  document.title = "Digger Ore Tracking | FMS Live";
 
-  const [displayType, setDisplayType] = useState("TABLE");
+  const [displayType, setDisplayType] = useState("VISUAL");
 
   const tabItems: TabsProps["items"] = [
+    {
+      key: "visual",
+      label: "Visual Analytics",
+    },
     {
       key: "table",
       label: "Table View",
@@ -20,10 +24,6 @@ const DiggingOptimisation = (props: any) => {
     {
       key: "map",
       label: "Map View",
-    },
-    {
-      key: "visual",
-      label: "Visual Analytics",
     },
   ];
 
@@ -43,7 +43,7 @@ const DiggingOptimisation = (props: any) => {
         <Container className="digging-optimisation" fluid>
           <Breadcrumb
             title="Mine Dynamics"
-            breadcrumbItem="Digging Optimisation"
+            breadcrumbItem="Digger Ore Tracking"
           />
           <Row>
             <Col lg="12">
