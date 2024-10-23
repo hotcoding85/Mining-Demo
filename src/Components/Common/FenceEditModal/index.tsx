@@ -67,7 +67,7 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
   };
 
   const handleSave = () => {
-    if (selectedMaterialId === "") {
+    if (selectedMaterialId === "" && !selectedBenchId) {
       setIsValdation(true);
       return;
     }

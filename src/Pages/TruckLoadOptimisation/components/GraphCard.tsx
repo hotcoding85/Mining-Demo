@@ -1,5 +1,8 @@
-import React from "react";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+import React, { useEffect, useState } from "react";
 import { Card, CardBody } from "reactstrap";
+import {data} from "../data/sampleData";
 import {
   AreaChart,
   Area,
@@ -8,7 +11,18 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  ReferenceLine,
+  ScatterChart,
+  Legend,
+  Scatter,
 } from "recharts";
+
+const CustomDot = (props) => {
+  const { cx, cy, fill } = props;
+  return (
+    <circle cx={cx} cy={cy} r={5} fill={fill} /> // 'r' defines the radius of the circle
+  );
+};
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -22,29 +36,126 @@ const CustomTooltip = ({ active, payload }: any) => {
           color: "#fff",
         }}
       >
-        <p>{`Trip 1 - EX01`}</p>
-        <p>{`Time: 06:13`}</p>
-        <p>{`Payload: ${payload[0].value}`}</p>
+        <p> {payload[0].payload.truck || ''}</p>
+        <p>{payload[0].payload.trip}</p>
+        <p>{`Loading Time:  ${payload[0].payload.time}`}</p>
+        <p>{`Total Passes: ${payload[0].payload.passes}`}</p>
+        <p>{`Payload: ${payload[0].value}t`}</p>
       </div>
     );
   }
   return null;
 };
 
-const GraphCard = () => {
-  const data = [
-    { percent: -1, load: 0 },
-    { percent: "100%", load: 90 },
-    { percent: "110%", load: 10 },
-    { percent: "120%", load: 0 },
-    { percent: "", load: 0 },
+const GraphCard = (props) => {
+  const chartdata = [
+    { percent: '90%', x: (props.loads * 0.9), y: 0 },
+    { percent: "100%", x: props.loads, y: 6 },
+    { percent: "110%", x: (props.loads * 110 / 100), y: 1.2 },
+    { percent: "120%", x: (props.loads * 1.2), y: 0 },
   ];
+
+  console.log([props.loads * 90 / 100, props.loads * 130 / 100], chartdata)
+
+  const [scatter, setScatter] = useState([
+    { x: 90, y: 4},
+    { x: 100, y: 3.8},
+    { x: 110, y: 3.5},
+    // Add more data points as needed
+  ]);
+  const legendData = [
+    {
+      label: "Load Plan",
+      color: "#1890FF",
+    },
+    {
+      label: "Actual Loading",
+      color: "#CF1322",
+    },
+  ];
+
+  useEffect(() => {
+    if (!props.type || props.type === '') {
+      setScatter([])
+      return
+    }
+    // Utility function to convert "HH:MM:SS" to minutes
+    const convertLoadingTimeToMinutes = (timeString) => {
+      const [hours, minutes, seconds] = timeString.split(":").map(Number);
+      return hours * 60 + minutes + seconds / 60;
+    };
+
+    // Function to generate scatterData based on the model type (e.g., "HD1500")
+    const generateScatterData = (modelType) => {
+      return data[0]
+        .filter((item) => item.model === modelType) // Filter by model
+        .map((item) => ({
+          x: parseFloat(item.actualTonnes), // Using 'trips' as the x-axis value
+          y: convertLoadingTimeToMinutes(item.loading), // Convert loading time to y-axis value in minutes
+          truck: item.truck,
+          trip: `Trip ${item.trips}`, // Trip label for the tooltip
+          time: item.loading, // Loading time for tooltip
+          passes: item.totalPasses, // Passes count
+          payload: `${item.actualTonnes}t`, // Payload for the tooltip
+        }));
+    };
+
+    const scatterData = generateScatterData(props.type);
+    console.log(scatterData)
+    setScatter(scatterData)
+  }, [props.type])
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 1000);
+  }, [props.loads]);
+  const [force, setForce] = useState(0)
+  useEffect(() => {
+    const _force = force + 1
+    if (_force > 2 ) return;
+    setForce(_force)
+  }, [force])
 
   return (
     <Card>
       <CardBody>
-        <div className="haulroad-summary-title text-start">
-          Truck Payload Profile Management
+        <div className="haulroad-summary-title text-start" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div>{props.title || 'Truck Payload Profile Management'}</div>
+          <div className="export-csv">
+            <Button color="primary">
+              Export CSV
+              <UploadOutlined />
+            </Button>
+          </div>
+        </div>
+        <div className="visual-legend-container" style={{marginTop: '1rem'}}>
+          <div className="visual-legend">Legend:</div>
+          {legendData &&
+            legendData.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "left",
+                }}
+              >
+                <span
+                  style={{
+                    height: "8px",
+                    width: "8px",
+                    color: "transparent",
+                    backgroundColor: item.color,
+                    borderRadius: "50%",
+                    fontSize: "1px",
+                  }}
+                ></span>
+                <span className="text-center px-2 legend-label">
+                  {item.label}
+                </span>
+              </div>
+            ))}
         </div>
         <div
           className="position-relative chart-container"
@@ -53,98 +164,78 @@ const GraphCard = () => {
             height: "300px",
           }}
         >
-          <div>
-          </div>
-          <p
-            className="chart-names position-absolute d-block rounded-circle"
-            style={{
-              top: "4px",
-              left: "4px",
-              height: "18px",
-              width: "18px",
-              backgroundColor: "#D9D9D9",
-            }}
-          >
-          </p>
-          <p
-            className="chart-names position-absolute fw-bold"
-            style={{
-              color: "#fff",
-              fontSize: "14px",
-              top: "20px",
-              left: "16px",
-            }}
-          >
-            Productivity
-          </p>
-          <p
-            className="chart-names position-absolute fw-bold"
-            style={{
-              color: "#fff",
-              fontSize: "14px",
-              top: "20px",
-              left: "51%",
-            }}
-          >
-            Durability
-          </p>
-          <p className="chart-names position-absolute fw-bold"
-            style={{
-              color: "#fff",
-              fontSize: "14px",
-              bottom: "100px",
-              left: "22%",
-              zIndex: "1",
-              background: "linear-gradient(90deg, rgb(0 143 0 / 0%) 0%, rgb(42 114 42) 50%, rgb(0 95 0 / 12%) 100%)",
-              padding: "15px"
-            }}>90% of Loads</p>
-          <p className="chart-names position-absolute fw-bold"
-            style={{
-              color: "#fff",
-              fontSize: "14px",
-              bottom: "100px",
-              left: "59%",
-            }}>10% of Loads</p>
-          <p
-            className="chart-names position-absolute fw-bold"
-            style={{
-              color: "#CF1322",
-              fontSize: "14px",
-              bottom: "100px",
-              left: "85%",
-            }}
-          >
-            No loads
-          </p>
+          
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
-              <CartesianGrid
-                horizontal={true}
-                vertical={true}
-                horizontalPoints={[5]}
-              />
+          <AreaChart data={chartdata}>
+            <CartesianGrid horizontal={false} vertical={false} />
+            
+            <defs>
+              <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="50%" stopColor="green" stopOpacity={0.7} />
+                <stop offset="100%" stopColor="red" stopOpacity={0.3} />
+              </linearGradient>
+            </defs>
 
-              <defs>
-                <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="20%" stopColor="green" stopOpacity={1} />
-                  <stop offset="100%" stopColor="red" stopOpacity={1} />
-                </linearGradient>
-              </defs>
+            <XAxis
+              dataKey="x"
+              type="number"
+              scale="linear"  // Ensure the axis is linear
+              allowDecimals={true}
+              domain={[props.loads * 90 / 100, props.loads * 130 / 100]}  // Start at 90%, end at 130%
+              ticks={[props.loads * 90 / 100, props.loads, props.loads * 110 / 100, props.loads * 120 / 100]}  // Define ticks from 90% to 120%
+              tickFormatter={(load) => {
+                let percent = chartdata.find((d: any) => d.x === load)?.percent;
+                if (!percent) {
+                  percent = Math.floor(load / props.loads * 100).toString();
+                }
+                percent = parseFloat(percent) + '%';
+                return `${percent} (${load}t)`;  // Display percentage and load in tonnes
+              }}
+              padding={{ left: 0, right: 0 }}  // Remove extra padding for a snug fit
+            />
 
-              <XAxis dataKey="percent" domain={[80, 130]} />
-              <YAxis hide={true} />
+            <YAxis
+              dataKey="y" 
+              type="number"
+              unit="min"
+              domain={[0, 10]}  // Define the Y-axis domain based on loading time
+              label={{ value: "Loading Time (min)", angle: -90, position: 'insideLeft' }}
+            />
 
-              <Area
-                type="monotone"
-                dataKey="load"
-                stroke="none"
-                fillOpacity={1}
-                fill="url(#colorGradient)"
-              />
+            <Area
+              type="monotone"
+              dataKey="y"
+              stroke="none"
+              fillOpacity={1}
+              fill="url(#colorGradient)"  // Apply the gradient fill
+            />
 
-              <Tooltip content={<CustomTooltip />} />
-            </AreaChart>
+            {/* Reference Lines for max and min loading times */}
+            <ReferenceLine y={5} stroke="white" strokeDasharray="3 3" label={{ value: "max loading time", fill: "white", fontSize: '11px' }} />
+            <ReferenceLine y={2} stroke="white" strokeDasharray="3 3" label={{ value: "min loading time", fill: "white", fontSize: '11px' }} />
+            
+            {/* Reference Lines for min and max tonnes */}
+            <ReferenceLine x={props.loads * 96 / 100} stroke="white" strokeDasharray="3 3" label={{ value: "min tonnes", fill: "white", fontSize: '11px' }} />
+            <ReferenceLine x={props.loads * 105 / 100} stroke="white" strokeDasharray="3 3" label={{ value: "max tonnes", fill: "white", fontSize: '11px' }} />
+
+          </AreaChart>
+
           </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart
+                width={1050}
+                height={300}
+                className="grap-scatter-chat"
+                style={{position: 'absolute'}}
+              >
+                <XAxis dataKey="x" type="number" name="Loads" hide={false} domain={[props.loads * 90 / 100, props.loads * 130 / 100]} tickFormatter={(load) => {
+                  return ``; // Display percent and load
+                }} />
+                <YAxis dataKey="y" type="number" name="Loading time" unit="min"  hide={false} domain={[0, 10]} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }}  content={<CustomTooltip />} />
+                <Scatter name="A school" data={scatter} fill="#8884d8" />
+              </ScatterChart>
+            </ResponsiveContainer>
         </div>
       </CardBody>
     </Card>

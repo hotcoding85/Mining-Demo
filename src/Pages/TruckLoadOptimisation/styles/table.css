@@ -1,0 +1,46 @@
+body[data-layout-mode="light"] {
+    .profile-table-view {
+        thead, tbody, th, tr, td {
+            background-color: white;
+            color: #283655 !important;
+            font-weight: bold;
+        }
+        span.font-color-red {
+          color: red !important;
+        }
+      }
+  }
+  body[data-layout-mode="dark"] {
+    & .profile-table-view {
+      thead, tbody, th, tr, td {
+          background-color: #283655;
+          color: white;
+          font-weight: bold;
+      }
+      th{
+        text-align: center;
+      }
+    }
+    & .profile-table-view {
+      td.ant-table-cell-row-hover {
+        background: #28365590 !important;
+      }
+      td{
+        text-align: center;
+      }
+      .ant-table-row-expand-icon {
+        background-color: #283655;
+      }
+    }
+  }
+  & .profile-table-view{
+    & tr:hover {
+      background-color: grey !important;
+    }
+    & td.ant-table-cell-with-append {
+      white-space: nowrap;
+    }
+    & span{
+      background-color: transparent;
+    }
+  }

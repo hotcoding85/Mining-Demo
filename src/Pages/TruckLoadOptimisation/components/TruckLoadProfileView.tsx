@@ -1,69 +1,57 @@
-import React from "react";
-import eqImgae from "../../../assets/images/equipment/truck-top-view.png";
-import CardTruckLoadProfile, {
-  TruckLoadProfileData,
-} from "./CardTruckLoadProfile";
+import React, { useEffect, useState } from "react";
 import GraphCard from "./GraphCard";
+import ProfileTableView from "./ProfileTableView";
+import _ from "lodash";
+import {data} from "../data/sampleData";
 
-const TruckLoadProfileView = () => {
-  const legendData = [
-    {
-      label: "Load Plan",
-      color: "#1890FF",
-    },
-    {
-      label: "Actual Loading",
-      color: "#CF1322",
-    },
-  ];
+const TruckLoadProfileView = (props) => {
+  
+  const [models, setModels] = useState<any>(null);
+  useEffect(() => {    
 
-  const truckLoadProfileData: TruckLoadProfileData = {
-    id: "DT102",
-    status: "Healthy",
-    loadTime: 54,
-    passes: 5,
-    fuelRate: 8.92,
-    lastUpdated: 90,
-    sync: "active",
-  };
+    const _models: any = []
+    if (props.selectedValues['model'] && props.selectedValues['model'].length !== 0) {
+      props.selectedValues['model'].map(model => {
+        _models.push(model);
+      })
+      setModels(_models)
+      return
+    }
 
+    if (!props.selectedValues || !props.selectedValues['fleet'] ||  props.selectedValues['fleet'].length === 0) {
+      setModels(null)
+      return
+    }
+
+    if (!props.selectedValues['model'] || props.selectedValues['model'].length === 0){
+      
+      const _models = _.uniq(
+          _.flatMap(props.selectedValues['fleet'], equipmentName => 
+            // Find matching equipment in data and return its models
+          _.flatMap(data[0], item => 
+            item.equipmentName === equipmentName ? item.model : []
+          )
+        )
+      );
+      setModels(_models)
+    }
+    else{
+      setModels(null)
+    }
+  }, [props.selectedValues])
   return (
     <div>
-      <GraphCard />
-      <div className="visual-legend-container">
-        <p className="visual-legend">Legend:</p>
-        {legendData &&
-          legendData.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "left",
-              }}
-            >
-              <span
-                style={{
-                  height: "8px",
-                  width: "8px",
-                  color: "transparent",
-                  backgroundColor: item.color,
-                  borderRadius: "50%",
-                  fontSize: "1px",
-                }}
-              ></span>
-              <span className="text-center px-2 legend-label">
-                {item.label}
-              </span>
-            </div>
-          ))}
-      </div>
-      <div className="d-flex align-items-center justify-content-between gap-4">
-        <CardTruckLoadProfile {...truckLoadProfileData} />
-
-        <div id="imageContainer" className="truck-image">
-          <img style={{ height: "420px" }} src={eqImgae} alt="truck" />
-        </div>
+      {
+        models ?
+        models.map((item, index) => {
+          const title = "Payload Profile Window (" + item + ")";
+          return <GraphCard title={title} type={item} loads={85 + 15 * (index)} />
+        })
+        : 
+        <></>
+      }
+      <div className="d-flex align-items-center justify-content-between">
+        <ProfileTableView selectedValues={props.selectedValues}/>
       </div>
     </div>
   );
