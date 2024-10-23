@@ -170,7 +170,6 @@ const DiggingOptimisationVisualView = () => {
       const zoomLevel = mapRef.current.getZoom();
       const center = mapRef.current.getCenter(); // Get the current center of the map
       const markerLngLat: any = { lng, lat }; // Use the marker's original coordinates
-      console.log(center, markerLngLat)
       // Calculate the distance in meters between the center of the map and the marker
       const distance = turf.distance([center.lng, center.lat], [markerLngLat.lng, markerLngLat.lat], { units: 'meters' }); // Distance in kilometers
       const maxDistance = 1000; // Maximum distance where scaling is applied (e.g., 1000 meters)
@@ -199,7 +198,6 @@ const DiggingOptimisationVisualView = () => {
         updateMarkerAndScaleBar(el)
       });
       mapRef.current.on('move', (e) => {
-        console.log(e)
         updateMarkerAndScaleBar(el)
       });
 
@@ -220,11 +218,27 @@ const DiggingOptimisationVisualView = () => {
           for (let i = 0 ; i < 20 ; i ++) {
             let sourceId = "buffered-geofence-" + i
             let layerId = 'buffered-layer-' + i
+            let clusterLayerId = 'cluster-count-' + i
+            let clusterId = 'clustered-count-' + i
+            let clusterMarkerId = 'clustered-markers-' + i
+            let clusterMarkerLayerId = 'clusters-' + i
+            if (mapRef.current?.getLayer(layerId)) {
+              mapRef.current?.removeLayer(layerId);
+            }
             if (mapRef.current?.getSource(sourceId)) {
-              if (mapRef.current?.getLayer(layerId)) {
-                mapRef.current?.removeLayer(layerId);
-              }
               mapRef.current?.removeSource(sourceId);
+            }
+            if (mapRef.current?.getLayer(clusterLayerId)) {
+              mapRef.current?.removeLayer(clusterLayerId);
+            }
+            if (mapRef.current?.getSource(clusterId)) {
+              mapRef.current?.removeSource(clusterId);
+            }
+            if (mapRef.current?.getLayer(clusterMarkerLayerId)) {
+              mapRef.current?.removeLayer(clusterMarkerLayerId);
+            }
+            if (mapRef.current?.getSource(clusterMarkerId)) {
+              mapRef.current?.removeSource(clusterMarkerId);
             }
           }
           drawBufferedPolygon(coordinates.current)
@@ -263,93 +277,179 @@ const DiggingOptimisationVisualView = () => {
 
   const drawBufferedPolygon = useCallback((coordinates) => {
     if (!coordinates || coordinates.length === 0) return;
-    // remove existing markers
-    markers.current.map(_marker => {
-      _marker.remove()
-    })
-    // Find geofences that include the circle coordinates
+  
+    // Remove existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = []; // Clear markers array for new markers
+  
     const geofencesWithCircle = geofences.features.filter((geofence) => {
       const polygon: any = geofence.geometry;
-      if (geofence.properties.grade < 1) return false
-      // Check if any point in the circle is within this geofence polygon
+      if (geofence.properties.grade < 1) return false;
       return coordinates.some((coordinate) => {
         const point = turf.point(coordinate);
         return turf.booleanPointInPolygon(point, polygon);
       });
     });
+  
+    const allMarkers: any = [];
+  
     geofencesWithCircle.forEach((geofence: any, index) => {
-      // Buffer the polygon by 5 meters
+      // Buffer the polygon by the selected interval
       const bufferedPolygon: any = turf.buffer(geofence, selectedInterval, { units: 'meters' });
-    
+  
       // Create a new GeoJSON source for the buffered polygon
       const bufferSourceId = `buffered-geofence-${index}`;
       mapRef.current?.addSource(bufferSourceId, {
         type: 'geojson',
         data: bufferedPolygon,
       });
-
-    
-      // Add a new layer to draw the buffered polygon with a specific style
+  
+      // Add a new layer to draw the buffered polygon
       mapRef.current?.addLayer({
         id: `buffered-layer-${index}`,
         type: 'fill',
         source: bufferSourceId,
         paint: {
-          'fill-color': geofence.properties.fillColor, // Change to your preferred color
+          'fill-color': geofence.properties.fillColor,
           'fill-opacity': 0.6,
         },
       });
-
-
-      // draw random markers
-      const markersInPolygon: any = [];
-
+  
       // Generate random points within the buffered polygon
+      const markersInPolygon: any = [];
       while (markersInPolygon.length < totalMarkers / geofencesWithCircle.length) {
-        // Create a random point
-        const randomPoint: any = turf.randomPoint(1, {
+        const randomPoint = turf.randomPoint(1, {
           bbox: turf.bbox(bufferedPolygon),
         }).features[0];
-        
-        // Check if the random point is inside the buffered polygon
+  
         if (turf.booleanPointInPolygon(randomPoint, bufferedPolygon)) {
           markersInPolygon.push(randomPoint);
         }
       }
-      // Add the markers to the map
-      markersInPolygon.forEach((markerPoint, markerIndex) => {
+  
+      // Store all markers to later process for grouping
+      markersInPolygon.forEach(markerPoint => {
         const lngLat = {
-          lng: markerPoint.geometry.coordinates[0], // longitude
-          lat: markerPoint.geometry.coordinates[1]  // latitude
+          lng: markerPoint.geometry.coordinates[0],
+          lat: markerPoint.geometry.coordinates[1]
         };
-        const marker = new mapboxgl.Marker({color: 'green', scale: 0.5})
-            .setLngLat(lngLat) // Set the longitude and latitude
-            .addTo(mapRef.current); // Add the marker to the map
-
-        const _digpoint: DigPoint = {
-          TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
-          TonnesLoaded: Math.ceil(Math.random() * 100),
-          Destination: Math.random() > 0.5 ? 'Haul Truck' : 'Dozer'
-        }
-        marker.getElement().addEventListener('click', (e) => {setSelectedPoint(_digpoint)});
-        // If you want to store the index in the marker, you can do it like this
-        marker.getElement().dataset.index = (markerIndex + 1).toString(); // Store index in a data attribute
-
-        markers.current.push(marker)
+        allMarkers.push(lngLat);
       });
     });
-  }, [selectedInterval])
+  
+    // Function to group markers by distance
+    const groupedMarkers: any = [];
+    const markerRadius = 0.0000045; // Approx 0.5 meters in degrees (change based on your map scale)
+  
+    allMarkers.forEach((marker, index) => {
+      const group = { markers: [marker], count: 1 };
+  
+      allMarkers.forEach((otherMarker, otherIndex) => {
+        if (index !== otherIndex) {
+          const distance = turf.distance(
+            turf.point([marker.lng, marker.lat]), 
+            turf.point([otherMarker.lng, otherMarker.lat]), 
+            { units: 'meters' }
+          );
+          if (distance <= 0.5) {
+            group.markers.push(otherMarker);
+            group.count += 1;
+          }
+        }
+      });
+  
+      // Only add if it's not already grouped
+      if (!groupedMarkers.find((g: any) => g.markers.includes(marker))) {
+        groupedMarkers.push(group);
+      }
+    });
+  
+    // Draw grouped markers
+    let popup;
+    groupedMarkers.forEach((group) => {
+      if (group.count > 1) {
+        // Create a grouped marker for the cluster
+        const avgLng = group.markers.reduce((sum, m) => sum + m.lng, 0) / group.count;
+        const avgLat = group.markers.reduce((sum, m) => sum + m.lat, 0) / group.count;
+        const marker = new mapboxgl.Marker({ color: 'red', scale: 0.5 + (group.count * 0.1) }) // Scale based on count
+          .setLngLat({ lng: avgLng, lat: avgLat })
+          .addTo(mapRef.current);
+  
+        // Tooltip for grouped markers
+        marker.getElement().addEventListener('mouseenter', () => {
+          marker.getElement().style.cursor = 'pointer';
+          popup = new mapboxgl.Popup()
+            .setLngLat({ lng: avgLng, lat: avgLat })
+            .setHTML(`${group.count} dig points`)
+            .addTo(mapRef.current);
+        });
+  
+        marker.getElement().addEventListener('mouseleave', () => {
+          if (popup) popup.remove(); // Remove the popup on mouse leave
+        });
+  
+        markers.current.push(marker);
+      } else {
+        const _digpoint = {
+          TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
+          TonnesLoaded: Math.ceil(Math.random() * 100),
+          Destination: Math.random() > 0.5 ? 'Haul Truck' : 'Dozer',
+        };
+        // Count is 1, so draw individual marker
+        const marker = new mapboxgl.Marker({ color: 'green', scale: 0.5 })
+          .setLngLat(group.markers[0]) // Use the original marker's coordinates
+          .addTo(mapRef.current);
+  
+        marker.getElement().addEventListener('click', () => {
+          setSelectedPoint(_digpoint);
+        });
+        // Tooltip for individual markers
+        marker.getElement().addEventListener('mouseenter', () => {
+          marker.getElement().style.cursor = 'pointer';
+          popup = new mapboxgl.Popup()
+            .setLngLat(group.markers[0])
+            .setHTML(`<strong>Truck Name:</strong> ${_digpoint.TruckName}<br />
+                      <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
+                      <strong>Destination:</strong> ${_digpoint.Destination}`) // Replace with actual info if needed
+            .addTo(mapRef.current);
+        });
+  
+        marker.getElement().addEventListener('mouseleave', () => {
+          if (popup) popup.remove(); // Remove the popup on mouse leave
+        });
+  
+        markers.current.push(marker);
+      }
+    });
+  }, [selectedInterval]);
+  
 
   useEffect(() => {
     if (!mapRef.current) return
     for (let i = 0 ; i < 20 ; i ++) {
       let sourceId = "buffered-geofence-" + i
       let layerId = 'buffered-layer-' + i
+      let clusterLayerId = 'cluster-count-' + i
+      let clusterId = 'clustered-count-' + i
+      let clusterMarkerId = 'clustered-markers-' + i
+      let clusterMarkerLayerId = 'clusters-' + i
       if (mapRef.current?.getLayer(layerId)) {
         mapRef.current?.removeLayer(layerId);
       }
       if (mapRef.current?.getSource(sourceId)) {
         mapRef.current?.removeSource(sourceId);
+      }
+      if (mapRef.current?.getLayer(clusterLayerId)) {
+        mapRef.current?.removeLayer(clusterLayerId);
+      }
+      if (mapRef.current?.getSource(clusterId)) {
+        mapRef.current?.removeSource(clusterId);
+      }
+      if (mapRef.current?.getLayer(clusterMarkerLayerId)) {
+        mapRef.current?.removeLayer(clusterMarkerLayerId);
+      }
+      if (mapRef.current?.getSource(clusterMarkerId)) {
+        mapRef.current?.removeSource(clusterMarkerId);
       }
     }
     drawBufferedPolygon(coordinates.current)
