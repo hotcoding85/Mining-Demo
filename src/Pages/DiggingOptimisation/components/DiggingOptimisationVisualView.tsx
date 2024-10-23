@@ -403,6 +403,19 @@ const DiggingOptimisationVisualView = () => {
         marker.getElement().addEventListener('click', () => {
           setSelectedPoint(_digpoint);
         });
+
+        const formatTimestamp = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = Math.floor(Math.random() * 24);
+          const minutes = Math.floor(Math.random() * 60);
+        
+          return `${year}-${month}-${day} ${hours}:${minutes}`;
+        };
+        
+        // Create a new Date object and format it
+        const timestamp = formatTimestamp(new Date());
         // Tooltip for individual markers
         marker.getElement().addEventListener('mouseenter', () => {
           marker.getElement().style.cursor = 'pointer';
@@ -410,7 +423,8 @@ const DiggingOptimisationVisualView = () => {
             .setLngLat(group.markers[0])
             .setHTML(`<strong>Truck Name:</strong> ${_digpoint.TruckName}<br />
                       <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
-                      <strong>Destination:</strong> ${_digpoint.Destination}`) // Replace with actual info if needed
+                      <strong>Destination:</strong> ${_digpoint.Destination}<br />
+                      <strong>Timestamp:</strong> ${timestamp}`) // Replace with actual info if needed
             .addTo(mapRef.current);
         });
   
