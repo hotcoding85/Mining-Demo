@@ -66,7 +66,7 @@ const DiggingOptimisationHeader = () => {
   };
   return (
     <HeaderContainer>
-      <HeaderTitle>Digging Optimization</HeaderTitle>
+      <HeaderTitle>Digging Ore Tracking</HeaderTitle>
       <HeaderTools>
         <SearchDropdown itemsGroup={filters} />
         <Segmented

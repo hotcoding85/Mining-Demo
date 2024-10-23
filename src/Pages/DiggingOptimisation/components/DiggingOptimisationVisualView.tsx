@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import eqImgae from "../../../assets/images/equipment/digger-top-view.png";
 import { dotData } from "../data/sampleData";
-
+import { Slider } from "antd";
+import geofences from '../../Geofences/output.json'
+import * as turf from '@turf/turf' 
 interface Dot {
   type: "Feature";
   geometry: {
@@ -12,6 +14,12 @@ interface Dot {
   properties: Record<string, unknown>;
 }
 
+interface DigPoint {
+  TruckName: string;
+  TonnesLoaded: number;
+  Destination: string;
+}
+const totalMarkers = 520;
 function generateCircleCoordinates(
   center: [number, number],
   radiusInMeters: number
@@ -19,7 +27,6 @@ function generateCircleCoordinates(
   const coordinates: [number, number][] = [];
   const numPoints = 128;
   const angleStep = (2 * Math.PI) / numPoints;
-
   const earthRadius = 6371000;
 
   const [centerLon, centerLat] = center;
@@ -55,16 +62,25 @@ const DiggingOptimisationVisualView = () => {
       color: "#CF1322",
     },
   ];
+  const [selectedPoint, setSelectedPoint] = useState<DigPoint | null>(null)
 
-  const mapContainer = useRef(null);
+  const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
-
+  const coordinates = useRef<any>()
+  const markers = useRef<any>([])
   const [lng] = useState(120.44477292688124);
   const [lat] = useState(-29.147190282051838);
-
+  const marks = {
+    1: '1m',
+    2: '2m',
+    3: '3m',
+    4: '4m',
+    5: '5m'
+  };
+  const [selectedInterval, setSelectedInterval] = useState<number>(1);
   const rippleIcon = () => {
-    const standardIconTemplate = `<div id="imageContainer" style="position:relative; transform: translate(-40px, -80px);">
-                  <img style="height:400px;" src=${eqImgae} alt="Description of the image">
+    const standardIconTemplate = `<div id="imageContainer" style="position:relative; ">
+                  <img id="rippleImage" style="height:300px; object-fit:contain;" src=${eqImgae} alt="Description of the image">
                 </div>`;
 
     const icon = document.createElement("div");
@@ -86,18 +102,152 @@ const DiggingOptimisationVisualView = () => {
       pitch: 0,
     });
 
+    const getScaleForZoom = (zoomLevel) => {
+      const minZoom = 5;  // Define minimum zoom level
+      const maxZoom = 20; // Define maximum zoom level
+      const minScale = 0.5; // Scale factor at minimum zoom
+      const maxScale = 2;   // Scale factor at maximum zoom
+      
+      // Calculate scale based on zoom level, clamped between minScale and maxScale
+      return Math.max(minScale, Math.min(maxScale, (zoomLevel - minZoom) / (maxZoom - minZoom) * (maxScale - minScale) + minScale));
+    };
+
+    // Add the scale bar
+    const addScaleBar = () => {
+      // Create a white div for the scale bar
+      const scaleBar = document.createElement("div");
+      scaleBar.id = "scaleBar";
+      scaleBar.style.position = "absolute";
+      scaleBar.style.bottom = "10px";
+      scaleBar.style.left = "10px";
+      scaleBar.style.width = "270px";  // Initial width, will be updated
+      scaleBar.style.height = "12px";
+      scaleBar.style.color = "red";
+      scaleBar.style.fontWeight = "600";
+      scaleBar.style.backgroundColor = "white";
+      scaleBar.style.border = "1px solid grey";
+      scaleBar.style.textAlign = "center";
+      scaleBar.style.fontSize = "12px";
+      scaleBar.style.lineHeight = "10px";  // Vertically center the text
+      scaleBar.innerHTML = "100m";  // Initial scale value
+      
+      mapContainer.current && mapContainer.current.appendChild(scaleBar);  // Append scale bar to the body
+    };
+
+    // Function to update the scale bar based on zoom level
+    const updateScaleBar = () => {
+      const zoomLevel = mapRef.current?.getZoom() || 10;
+      const centerLat = mapRef.current?.getCenter().lat || 0;
+      
+      // Calculate meters per pixel at current zoom and latitude
+      const metersPerPixel = getMetersPerPixelAtLat(zoomLevel, centerLat);
+      // Set a fixed width for the scale bar (e.g., 100 pixels) and calculate the corresponding distance in meters
+      const scaleBarWidth = 122.71; // 100 pixels wide
+      const distanceInMeters = metersPerPixel * scaleBarWidth; // Calculate the real-world distance represented by 100px
+  
+      // Update the scale bar's width and text to reflect the current scale
+      const scaleBar = document.getElementById('scaleBar');
+      if (scaleBar) {
+        scaleBar.style.width = `${scaleBarWidth}px`;
+        scaleBar.innerHTML = `${Math.round(distanceInMeters) / 2} m`;
+      }
+    };
+
+    // Utility function to get the meters per pixel at a specific latitude
+    const getMetersPerPixelAtLat = (zoom, lat) => {
+      const earthCircumference = 40075017;  // Earth's circumference in meters
+      const scale = Math.cos(lat * Math.PI / 180) * earthCircumference / Math.pow(2, zoom + 8);
+      return scale;  // Meters per pixel
+    };
+
+    const getScaleForWidth = (desiredWidthInMeters, zoomLevel, latitude) => {
+      const metersPerPixel = getMetersPerPixelAtLat(zoomLevel, latitude);
+      const currentWidthInPixels = desiredWidthInMeters / metersPerPixel; // Convert desired width to pixels
+      return currentWidthInPixels / 300; // Scale based on the current marker image width (300px)
+    };
+
+    const updateMarkerAndScaleBar = (el) => {
+      const zoomLevel = mapRef.current.getZoom();
+      const center = mapRef.current.getCenter(); // Get the current center of the map
+      const markerLngLat: any = { lng, lat }; // Use the marker's original coordinates
+      // Calculate the distance in meters between the center of the map and the marker
+      const distance = turf.distance([center.lng, center.lat], [markerLngLat.lng, markerLngLat.lat], { units: 'meters' }); // Distance in kilometers
+      const maxDistance = 1000; // Maximum distance where scaling is applied (e.g., 1000 meters)
+      const scaleFactor = Math.max(0.1, 1 - (distance / maxDistance)); // Shrink marker as distance increases
+
+
+      // Calculate the new height for the ripple image based on scale factor
+      const rippleImage = el.querySelector('#rippleImage');
+      if (rippleImage) {
+        const desiredWidthInMeters = 35; // Desired width in meters
+        const metersPerPixel = getMetersPerPixelAtLat(zoomLevel, center.lat);
+        const newHeight = Math.floor((desiredWidthInMeters) / metersPerPixel) + 'px';
+        rippleImage.style.height = newHeight;
+
+
+        // Optionally adjust the translation based on new height
+        const heightAdjustment = parseInt(newHeight, 10) / 2; // Center the image vertically
+        // el.style.transform = `translate(-40px, -${heightAdjustment}px)`;
+      }
+      updateScaleBar()
+    }
+    
     mapRef.current.on("load", () => {
       const el = rippleIcon();
-      const marker = new mapboxgl.Marker(el)
+      mapRef.current.on('zoom', () => {
+        updateMarkerAndScaleBar(el)
+      });
+      mapRef.current.on('move', (e) => {
+        updateMarkerAndScaleBar(el)
+      });
+
+      // Add the scale bar to the map view
+      addScaleBar();
+      updateScaleBar();
+      updateMarkerAndScaleBar(el)
+      const marker = new mapboxgl.Marker(el, {
+          rotationAlignment: 'map',  // Ensures the icon stays flat on the map
+          pitchAlignment: 'map'      // Prevents the icon from tilting with the map
+        })
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
 
       const createDashedCircleLayer = (sourceId, layerId, radius) => {
+        coordinates.current = generateCircleCoordinates([lng, lat], radius)
+        if (radius === 10) {
+          for (let i = 0 ; i < 20 ; i ++) {
+            let sourceId = "buffered-geofence-" + i
+            let layerId = 'buffered-layer-' + i
+            let clusterLayerId = 'cluster-count-' + i
+            let clusterId = 'clustered-count-' + i
+            let clusterMarkerId = 'clustered-markers-' + i
+            let clusterMarkerLayerId = 'clusters-' + i
+            if (mapRef.current?.getLayer(layerId)) {
+              mapRef.current?.removeLayer(layerId);
+            }
+            if (mapRef.current?.getSource(sourceId)) {
+              mapRef.current?.removeSource(sourceId);
+            }
+            if (mapRef.current?.getLayer(clusterLayerId)) {
+              mapRef.current?.removeLayer(clusterLayerId);
+            }
+            if (mapRef.current?.getSource(clusterId)) {
+              mapRef.current?.removeSource(clusterId);
+            }
+            if (mapRef.current?.getLayer(clusterMarkerLayerId)) {
+              mapRef.current?.removeLayer(clusterMarkerLayerId);
+            }
+            if (mapRef.current?.getSource(clusterMarkerId)) {
+              mapRef.current?.removeSource(clusterMarkerId);
+            }
+          }
+          drawBufferedPolygon(coordinates.current)
+        }
         const geoJson = {
           type: "Feature",
           geometry: {
             type: "Polygon",
-            coordinates: [generateCircleCoordinates([lng, lat], radius)],
+            coordinates: [coordinates.current],
           },
         };
         mapRef.current?.addSource(sourceId, {
@@ -122,75 +272,243 @@ const DiggingOptimisationVisualView = () => {
         "inner-dashed-line-layer",
         8
       );
+    });
+  }, [lat, lng, selectedInterval]);
 
-      mapRef.current?.addSource("circle", {
-        type: "geojson",
-        data: dotData,
-      });
-
-      mapRef.current?.addLayer({
-        id: "circle",
-        type: "line",
-        source: "circle",
-        layout: {},
-        paint: {
-          "line-color": "#FF0000",
-          "line-width": 3,
-        },
-      });
-
-      mapRef.current?.addLayer({
-        id: "circle-number",
-        type: "symbol",
-        source: "circle",
-        layout: {
-          "text-field": "{number}",
-          "text-size": 15,
-          "text-anchor": "center",
-          "text-offset": [0, 0],
-        },
-        paint: {
-          "text-color": "#FF0000",
-        },
+  const drawBufferedPolygon = useCallback((coordinates) => {
+    if (!coordinates || coordinates.length === 0) return;
+  
+    // Remove existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = []; // Clear markers array for new markers
+  
+    const geofencesWithCircle = geofences.features.filter((geofence) => {
+      const polygon: any = geofence.geometry;
+      if (geofence.properties.grade < 1) return false;
+      return coordinates.some((coordinate) => {
+        const point = turf.point(coordinate);
+        return turf.booleanPointInPolygon(point, polygon);
       });
     });
-  }, [lat, lng]);
+  
+    const allMarkers: any = [];
+  
+    geofencesWithCircle.forEach((geofence: any, index) => {
+      // Buffer the polygon by the selected interval
+      const bufferedPolygon: any = turf.buffer(geofence, selectedInterval, { units: 'meters' });
+  
+      // Create a new GeoJSON source for the buffered polygon
+      const bufferSourceId = `buffered-geofence-${index}`;
+      mapRef.current?.addSource(bufferSourceId, {
+        type: 'geojson',
+        data: bufferedPolygon,
+      });
+  
+      // Add a new layer to draw the buffered polygon
+      mapRef.current?.addLayer({
+        id: `buffered-layer-${index}`,
+        type: 'fill',
+        source: bufferSourceId,
+        paint: {
+          'fill-color': geofence.properties.fillColor,
+          'fill-opacity': 0.6,
+        },
+      });
+  
+      // Generate random points within the buffered polygon
+      const markersInPolygon: any = [];
+      while (markersInPolygon.length < totalMarkers / geofencesWithCircle.length) {
+        const randomPoint = turf.randomPoint(1, {
+          bbox: turf.bbox(bufferedPolygon),
+        }).features[0];
+  
+        if (turf.booleanPointInPolygon(randomPoint, bufferedPolygon)) {
+          markersInPolygon.push(randomPoint);
+        }
+      }
+  
+      // Store all markers to later process for grouping
+      markersInPolygon.forEach(markerPoint => {
+        const lngLat = {
+          lng: markerPoint.geometry.coordinates[0],
+          lat: markerPoint.geometry.coordinates[1]
+        };
+        allMarkers.push(lngLat);
+      });
+    });
+  
+    // Function to group markers by distance
+    const groupedMarkers: any = [];
+    const markerRadius = 0.0000045; // Approx 0.5 meters in degrees (change based on your map scale)
+  
+    allMarkers.forEach((marker, index) => {
+      const group = { markers: [marker], count: 1 };
+  
+      allMarkers.forEach((otherMarker, otherIndex) => {
+        if (index !== otherIndex) {
+          const distance = turf.distance(
+            turf.point([marker.lng, marker.lat]), 
+            turf.point([otherMarker.lng, otherMarker.lat]), 
+            { units: 'meters' }
+          );
+          if (distance <= 0.5) {
+            group.markers.push(otherMarker);
+            group.count += 1;
+          }
+        }
+      });
+  
+      // Only add if it's not already grouped
+      if (!groupedMarkers.find((g: any) => g.markers.includes(marker))) {
+        groupedMarkers.push(group);
+      }
+    });
+  
+    // Draw grouped markers
+    let popup;
+    groupedMarkers.forEach((group) => {
+      if (group.count > 1) {
+        // Create a grouped marker for the cluster
+        const avgLng = group.markers.reduce((sum, m) => sum + m.lng, 0) / group.count;
+        const avgLat = group.markers.reduce((sum, m) => sum + m.lat, 0) / group.count;
+        const marker = new mapboxgl.Marker({ color: 'red', scale: 0.5 + (group.count * 0.1) }) // Scale based on count
+          .setLngLat({ lng: avgLng, lat: avgLat })
+          .addTo(mapRef.current);
+  
+        // Tooltip for grouped markers
+        marker.getElement().addEventListener('mouseenter', () => {
+          marker.getElement().style.cursor = 'pointer';
+          popup = new mapboxgl.Popup()
+            .setLngLat({ lng: avgLng, lat: avgLat })
+            .setHTML(`${group.count} dig points`)
+            .addTo(mapRef.current);
+        });
+  
+        marker.getElement().addEventListener('mouseleave', () => {
+          if (popup) popup.remove(); // Remove the popup on mouse leave
+        });
+  
+        markers.current.push(marker);
+      } else {
+        const _digpoint = {
+          TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
+          TonnesLoaded: Math.ceil(Math.random() * 100),
+          Destination: Math.random() > 0.5 ? 'Haul Truck' : 'Dozer',
+        };
+        // Count is 1, so draw individual marker
+        const marker = new mapboxgl.Marker({ color: 'green', scale: 0.5 })
+          .setLngLat(group.markers[0]) // Use the original marker's coordinates
+          .addTo(mapRef.current);
+  
+        marker.getElement().addEventListener('click', () => {
+          setSelectedPoint(_digpoint);
+        });
 
+        const formatTimestamp = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = Math.floor(Math.random() * 24);
+          const minutes = Math.floor(Math.random() * 60);
+        
+          return `${year}-${month}-${day} ${hours}:${minutes}`;
+        };
+        
+        // Create a new Date object and format it
+        const timestamp = formatTimestamp(new Date());
+        // Tooltip for individual markers
+        marker.getElement().addEventListener('mouseenter', () => {
+          marker.getElement().style.cursor = 'pointer';
+          popup = new mapboxgl.Popup()
+            .setLngLat(group.markers[0])
+            .setHTML(`<strong>Truck Name:</strong> ${_digpoint.TruckName}<br />
+                      <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
+                      <strong>Destination:</strong> ${_digpoint.Destination}<br />
+                      <strong>Timestamp:</strong> ${timestamp}`) // Replace with actual info if needed
+            .addTo(mapRef.current);
+        });
+  
+        marker.getElement().addEventListener('mouseleave', () => {
+          if (popup) popup.remove(); // Remove the popup on mouse leave
+        });
+  
+        markers.current.push(marker);
+      }
+    });
+  }, [selectedInterval]);
+  
+
+  useEffect(() => {
+    if (!mapRef.current) return
+    for (let i = 0 ; i < 20 ; i ++) {
+      let sourceId = "buffered-geofence-" + i
+      let layerId = 'buffered-layer-' + i
+      let clusterLayerId = 'cluster-count-' + i
+      let clusterId = 'clustered-count-' + i
+      let clusterMarkerId = 'clustered-markers-' + i
+      let clusterMarkerLayerId = 'clusters-' + i
+      if (mapRef.current?.getLayer(layerId)) {
+        mapRef.current?.removeLayer(layerId);
+      }
+      if (mapRef.current?.getSource(sourceId)) {
+        mapRef.current?.removeSource(sourceId);
+      }
+      if (mapRef.current?.getLayer(clusterLayerId)) {
+        mapRef.current?.removeLayer(clusterLayerId);
+      }
+      if (mapRef.current?.getSource(clusterId)) {
+        mapRef.current?.removeSource(clusterId);
+      }
+      if (mapRef.current?.getLayer(clusterMarkerLayerId)) {
+        mapRef.current?.removeLayer(clusterMarkerLayerId);
+      }
+      if (mapRef.current?.getSource(clusterMarkerId)) {
+        mapRef.current?.removeSource(clusterMarkerId);
+      }
+    }
+    drawBufferedPolygon(coordinates.current)
+  }, [selectedInterval, coordinates.current])
   return (
     <div>
       <div className="visual-legend-container">
-        <p className="visual-legend">Legend:</p>
-        {legendData &&
-          legendData.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "left",
-              }}
-            >
-              <span
-                style={{
-                  height: "8px",
-                  width: "8px",
-                  color: "transparent",
-                  backgroundColor: item.color,
-                  borderRadius: "50%",
-                  fontSize: "1px",
-                }}
-              ></span>
-              <span className="text-center px-2 legend-label">
-                {item.label}
-              </span>
-            </div>
-          ))}
+        <div style={{ width: '250px' }}>
+          <Slider
+            marks={marks}
+            step={1}  // Allow only the marks (1, 2, 3, 4, 5)
+            defaultValue={1}
+            value={selectedInterval}
+            onChange={setSelectedInterval}
+            min={1}
+            max={5}
+            tooltipVisible
+          />
+        </div>
       </div>
       <div
         id="map"
         ref={mapContainer}
         className="digging-optimisation-map"
       ></div>
+      {
+        selectedPoint && <>
+          <table className="table-responsive w-full table-bordered" style={{width: '100%', marginTop: '1rem'}}>
+            <thead>
+              <tr>
+                <th>Truck Name</th>
+                <th>Tonnes Loaded</th>
+                <th>Destination it dumped</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{selectedPoint.TruckName}</td>
+                <td>{selectedPoint.TonnesLoaded}t</td>
+                <td>{selectedPoint.Destination}</td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      }
     </div>
   );
 };
