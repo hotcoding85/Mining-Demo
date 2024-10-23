@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Col, Container, Row } from "reactstrap";
-import { Tabs, TabsProps } from "antd";
+import { Segmented, Tabs, TabsProps } from "antd";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import TruckLoadOptimisationMapView from "./components/TruckLoadOptimisationMapView";
 import TruckLoadOptimisationTableView from "./components/TruckLoadOptimisationTableView";
 import "./styles/index.scss";
 import { TextColor } from "Components/Charts/interfaces/general";
 import TruckLoadProfileView from "./components/TruckLoadProfileView";
+import SearchDropdown from "./components/SearchDropdown";
 
 const TruckLoadOptimisation = (props: any) => {
   document.title = "Truck Load Optimisation | FMS Live";
 
   const [displayType, setDisplayType] = useState("TABLE");
-
+  const [fleetMode, setFleetMode] = useState<string>("CURRENT_SHIFT");
   const tabItems: TabsProps["items"] = [
     {
       key: "table",
@@ -28,97 +29,36 @@ const TruckLoadOptimisation = (props: any) => {
     },
   ];
 
-  const barData = {
-    labels: [
-      "200",
-      "220",
-      "240",
-      "260",
-      "280",
-      "300",
-      "320",
-      "340",
-      "360",
-      "380",
-      "400",
-      "420",
-      "440",
-      "460",
-      "480",
-      "500",
-    ],
-    datasets: [
+  const filters = {
+    model: [
       {
-        label: "Ton Target",
-        data: [1, 1, 2, 4, 10, 16, 20, 18, 13, 7, 3, 2, 1, 0, 0, 0],
-        backgroundColor: "#FAAD14",
-        barPercentage: 1,
-        categoryPercentage: 0.4,
-        barThickness: 33,
-        borderRadius: {
-          topLeft: 3,
-          topRight: 3,
-        },
+        label: "HD1500",
+        value: "HD1500",
+      },
+      {
+        label: "HD785",
+        value: "HD785",
       },
     ],
-  };
-  
-  const barOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        display: false,
+    fleet: [
+      {
+        label: "Fleet1",
+        value: "EX201",
       },
-      datalabels: {
-        anchor: "end" as const,
-        align: "top" as const,
-        color: "#fff",
-        font: {
-          size: 10,
-          weight: "bold" as const,
-        },
-        formatter: (value: string | number) => {
-          return value + "%"; 
-        },
+      {
+        label: "Fleet2",
+        value: "EX202",
       },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: 'red',
-          font: {
-            size: 14,
-          },
-        },
+      {
+        label: "Fleet3",
+        value: "EX205",
       },
-      y: {
-        beginAtZero: true, 
-        grid: {
-          display: true,
-          color: "#9CA3B1",
-          lineWidth: 0.2,
-        },
-        ticks: {
-          color: 'red',
-          font: {
-            size: 14,
-          },
-          stepSize: 5,
-          callback: function (value: string | number) {
-            return value + "%"; 
-          },
-        },
-      },
-    },
+    ],
   };
 
-  const textColor: TextColor[] = [
-    { text: "Ton Target", color: "#9CA3B1" },
-  ];
+  const [selectedValues, setSelectedValues] = useState<{
+    [key: string]: string[];
+  }>({});
 
   const onTabChange = (key: string) => {
     if (key === "table") {
@@ -130,6 +70,10 @@ const TruckLoadOptimisation = (props: any) => {
     }
   };
 
+  const onApply = useCallback(() => {
+    if (Object.keys(selectedValues).length === 0) return
+  }, [selectedValues])
+
   return (
     <React.Fragment>
       <div className="page-content col-lg-12">
@@ -139,12 +83,32 @@ const TruckLoadOptimisation = (props: any) => {
             breadcrumbItem="Truck Load Optimisation"
           />
           <Row>
-            <Col lg="12">
+            <Col lg="6" md="6" sx="12">
               <Tabs
                 className="truck-optimisation-tabs"
                 defaultActiveKey="1"
                 items={tabItems}
                 onChange={onTabChange}
+              />
+            </Col>
+            <Col lg="6" md="6" xs="12" className="mb-3 truck-load-optimisation-filter">
+              <Segmented
+                className="customSegmentLabel customSegmentBackground pr-3"
+                value={fleetMode}
+                onChange={(e) => setFleetMode(e)}
+                options={[
+                  { label: "Previous Shift", value: "PREVIOUS_SHIFT" },
+                  { label: "Current Shift", value: "CURRENT_SHIFT" },
+                ]}
+              />
+
+              <SearchDropdown
+                itemsGroup={filters}
+                disableTitle={false}
+                disableDivider={false}
+                onApply={onApply}
+                selectedValues={selectedValues}
+                setSelectedValues={setSelectedValues}
               />
             </Col>
           </Row>
@@ -154,7 +118,7 @@ const TruckLoadOptimisation = (props: any) => {
           ) : displayType === "MAP" ? (
             <TruckLoadOptimisationMapView />
           ) : (
-            <TruckLoadProfileView />
+            <TruckLoadProfileView selectedValues={selectedValues} />
           )}
         </Container>
       </div>
