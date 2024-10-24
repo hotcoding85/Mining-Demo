@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Input } from "antd";
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Divider, Input, Space, Button } from "antd";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { Select } from "antd";
 import { useMaterials } from "Hooks/useMaterials";
+import { PlusOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 const { Option } = Select;
 
@@ -32,7 +34,6 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
   benches,
   wasteData,
 }) => {
-
   const { materials, findMaterialsById } = useMaterials();
 
   const [newName, setNewName] = useState<string>("");
@@ -41,6 +42,8 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
   const [selectedMaterialId, setSelectedMaterialId] = useState<string>("");
   const [benchName, setBenchName] = useState<string>();
   const [isValidation, setIsValdation] = useState<boolean>(false);
+  const [savedBenches, setSavedBenches] = useState<any[]>(benches);
+  const [showMaterial, setShowMaterial] = useState<boolean>(false);
 
   const filteredMaterials = useMemo(() => {
     return materials.filter((item) => item.category === category);
@@ -49,10 +52,12 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
   useEffect(() => {
     setNewName(wasteData?.name || "");
     setNewColor(wasteData.color);
-    setSelectedBenchId(wasteData?.benchId || null);
+    setSelectedBenchId(wasteData?.benchId);
     setBenchName(undefined);
     setSelectedMaterialId("");
-  }, [wasteData, benches]);
+    setShowMaterial(false);
+    setSavedBenches(benches);
+  }, [wasteData]);
 
   const handleInputChange = (e) => {
     setNewName(e.target.value);
@@ -66,13 +71,49 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
     setBenchName(e.target.value);
   };
 
+  const confirmBench = () => {
+    const result = savedBenches.some((item) => !item.id);
+    return result;
+  };
+
+  const findBenchName = (benchId) => {
+    const filteredBench = savedBenches.find((item) => item?.id === benchId);
+    return filteredBench?.name || benchName;
+  };
+
+  const addItem = (
+    e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
+  ) => {
+    e.preventDefault();
+    const isExist = confirmBench();
+    if (!benchName) {
+      toast.warning("Add bench name!", { autoClose: 2000 });
+    } else if (isExist) {
+      const result = savedBenches.map((item) =>
+        item?.id ? item : { ...item, name: benchName }
+      );
+      setSavedBenches(result);
+    } else {
+      const isBenchExisting = savedBenches.some(
+        (item) => item?.name === benchName
+      );
+
+      if (isBenchExisting) {
+        toast.warning("Bench already exists!", { autoClose: 2000 });
+      } else {
+        setSavedBenches([...savedBenches, { name: benchName }]);
+        setShowMaterial(true);
+      }
+    }
+  };
+
   const handleSave = () => {
     if (selectedMaterialId === "" && !selectedBenchId) {
       setIsValdation(true);
       return;
     }
     onClose();
-    
+
     if (newName && onSave) {
       onSave(
         benches.find((bench) => bench.id === selectedBenchId),
@@ -109,48 +150,54 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
           onChange={handleInputChange}
           style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
         />
-        <label>{benches.length ? "Associate bench:" : "Add new bench:"}</label>
-        {benches.length ? (
-          <Select
-            showSearch
-            style={{ width: "100%", marginBottom: "10px", height: "44px" }}
-            placeholder="Select a bench"
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              option?.name?.toLowerCase().includes(input.toLowerCase())
-            }
-            filterSort={(optionA, optionB) =>
-              optionA?.name
-                ?.toLowerCase()
-                .localeCompare(optionB?.name?.toLowerCase())
-            }
-            value={selectedBenchId}
-            onChange={(option) => {
-              setSelectedBenchId(option);
-            }}
-          >
-            {benches?.map((option) => (
-              <Option key={option.id} value={option.id} name={option.name}>
-                {option.name} - {option.blockId}
-              </Option>
-            ))}
-          </Select>
-        ) : (
-          <Input
-            type="text"
-            placeholder="Bench Name"
-            value={benchName}
-            onChange={handleBenchNameChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              height: "44px",
-            }}
-          />
-        )}
-        <label>{benchName?.length && `${category} material :`}</label>
-        {benchName?.length && (
+        <label>Associate bench</label>
+        <Select
+          showSearch
+          style={{ width: "100%", marginBottom: "10px", height: "44px" }}
+          placeholder="Select a bench"
+          optionFilterProp="children"
+          filterOption={(input, option: any) =>
+            option?.name?.toLowerCase().includes(input.toLowerCase())
+          }
+          filterSort={(optionA, optionB) =>
+            optionA?.name
+              ?.toLowerCase()
+              .localeCompare(optionB?.name?.toLowerCase())
+          }
+          value={findBenchName(selectedBenchId)}
+          onChange={(option, e) => {
+            setSelectedBenchId(e?.key);
+            setShowMaterial(true);
+          }}
+          dropdownRender={(menu) => (
+            <>
+              {menu}
+              <Divider style={{ margin: "8px 0" }} />
+              <div className="d-flex justify-content-between align-items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Please enter bench name"
+                  value={benchName}
+                  onChange={handleBenchNameChange}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+                <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
+                  {confirmBench() ? "Edit bench name" : "Add bench name"}
+                </Button>
+              </div>
+            </>
+          )}
+          options={savedBenches.map((item) => ({
+            key: item.id,
+            // value: `${item.name} - ${item?.blockId ? item?.blockId : ""}`,
+            value: item.name + (item?.blockId ? `-${item?.blockId}` : ""),
+            name: item.name,
+          }))}
+        />
+        <label>
+          {!selectedBenchId && showMaterial && `${category} material :`}
+        </label>
+        {!selectedBenchId && showMaterial && (
           <Select
             showSearch
             style={{ width: "100%", marginBottom: "10px", height: "44px" }}
