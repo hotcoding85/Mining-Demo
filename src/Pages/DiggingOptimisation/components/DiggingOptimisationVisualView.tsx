@@ -473,7 +473,7 @@ const DiggingOptimisationVisualView = () => {
   
         markers.current.push(marker);
       } else {
-        let popup
+        let _popup
         const _digpoint = {
           TruckName: Math.random() > 0.5 ? 'DT101' : 'DT202',
           TonnesLoaded: Math.floor(Math.random() * (18 - 5 + 1)) + 5,
@@ -503,7 +503,11 @@ const DiggingOptimisationVisualView = () => {
         // Tooltip for individual markers
         marker.getElement().addEventListener('mouseenter', () => {
           marker.getElement().style.cursor = 'pointer';
-          popup = new mapboxgl.Popup()
+          if (popup.current) {
+            popup.current.remove();
+            popup.current = null
+          }
+          _popup = new mapboxgl.Popup()
             .setLngLat(group.markers[0])
             .setHTML(`<strong>${_digpoint.TruckName}</strong> <strong>(${timestamp})</strong><br />
                       <strong>Tonnes Loaded:</strong> ${_digpoint.TonnesLoaded}t<br />
@@ -513,7 +517,7 @@ const DiggingOptimisationVisualView = () => {
         });
   
         marker.getElement().addEventListener('mouseleave', () => {
-          if (popup) popup.remove(); // Remove the popup on mouse leave
+          if (_popup) _popup.remove(); // Remove the popup on mouse leave
         });
   
         markers.current.push(marker);
