@@ -17,7 +17,12 @@ import { Button, Card, Col, Container, Row } from "reactstrap";
 import { Tooltip } from "antd";
 // redux
 import { useSelector, useDispatch } from "react-redux";
-import { getAllBenches, getGeoFences, removeGeoFence } from "slices/thunk";
+import {
+  getAllBenches,
+  getAllMaterials,
+  getGeoFences,
+  removeGeoFence,
+} from "slices/thunk";
 // import modals
 import BoundingBoxModal from "Pages/AutoRouting/BoundingBoxModal";
 import FenceSidebarItem from "./components/FenceSidebarItem";
@@ -90,6 +95,7 @@ const ROMManagement = () => {
     if (!mapRef) return;
     dispatch(getGeoFences());
     dispatch(getAllBenches(1, 100));
+    dispatch(getAllMaterials(1, 100));
   }, [dispatch]);
 
   const {
