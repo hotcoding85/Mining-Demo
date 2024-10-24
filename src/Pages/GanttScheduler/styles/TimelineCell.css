@@ -14,3 +14,10 @@
     box-sizing: border-box;
     border-radius: 0;
   }
+
+  body[data-layout-mode="dark"] .plan-item {
+    border: 1px solid white;
+  }
+  body[data-layout-mode="light"] .plan-item {
+    border: 1px solid gray;
+  }
