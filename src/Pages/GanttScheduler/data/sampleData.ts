@@ -60,3 +60,19 @@ export const dummyPlans = [
   },
   
 ];
+
+
+export const colors = [
+  "#4FC3F7",
+  "#4FC3F7",
+  "#FFEB3B",
+  "#FFCDD2",
+  "#4CAF50",
+  "#37474F",
+  "#7E57C2",
+  "#5C6BC0",
+  "#1DE9B6",
+  "#00E676",
+  "#43A047",
+  "#F8BBD0"
+]
