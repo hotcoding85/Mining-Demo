@@ -133,7 +133,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
               }}
               className="timeline-grid-row-cell"
             >
-              <Badge.Ribbon placement="start" text={resource.name} color={resource.state === 'ACTIVE' ? 'green' : 'gold'} style={{fontWeight: 600, fontSize: '12px', marginLeft: '-9px'}}>
+              <Badge.Ribbon placement="start" text={resource.name} color={resource.state === 'ACTIVE' ? 'green' : resource.state !== 'STANDBY' ? 'red' : 'gold'} style={{fontWeight: 600, fontSize: '12px', marginLeft: '-9px'}}>
               <img style={{width: '45px', height: '45px', marginLeft: '40px'}} src={getImage(resource.model)}></img>
               </Badge.Ribbon>
             </div>
@@ -182,19 +182,20 @@ const TableComponent: React.FC<TableComponentProps> = ({
               style={{ height: 50 }}
             ></div>
             {data.map((resource, index) => (
-              <TimeLineRow
-                key={index}
-                excavator={resource}
-                excavatorId={resource.id}
-                plans={plans}
-                updatePlan={updatePlan}
-                addPlan={addPlan}
-                zoomSize={zoomSize}
-                endSlotTime={endSlotDateTime}
-                startSlotTime={startSlotDateTime}
-                rowHeight={heights[index].height}
-                openModal={openModal}
-              />
+              <>
+                <TimeLineRow
+                  key={index}
+                  excavator={resource}
+                  excavatorId={resource.id}
+                  plans={plans}
+                  updatePlan={updatePlan}
+                  addPlan={addPlan}
+                  zoomSize={zoomSize}
+                  endSlotTime={endSlotDateTime}
+                  startSlotTime={startSlotDateTime}
+                  rowHeight={heights[index].height}
+                  openModal={openModal} />
+              </>
             ))}
           </div>
         </div>

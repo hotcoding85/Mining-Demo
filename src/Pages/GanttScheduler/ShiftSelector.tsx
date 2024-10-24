@@ -27,7 +27,7 @@ const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }
   return (
     <div className="shift-selector">
       <Space>
-        <Segmented className="customSegmentLabel customSegmentBackground" size='large' value={activeShift} options={shifts} onChange={(e) => handleShiftClick(e)} />
+        <Segmented className="customSegmentLabel customSegmentBackground" size='middle' value={activeShift} options={shifts} onChange={(e) => handleShiftClick(e)} />
       </Space>
       {/* {shifts.map((shift) => (
         <button

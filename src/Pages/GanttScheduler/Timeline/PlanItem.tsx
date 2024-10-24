@@ -177,8 +177,9 @@ const PlanItem: React.FC<PlanItemProps> = ({
       style={{
         backgroundColor: plan.color || "#ff6247",
         width: elementWidth,
-        height: "45px",
+        height: "40px",
         position: "absolute",
+        borderRadius: '50px',
         left: elementPos,
         display: "flex",
         alignItems: "center",
@@ -194,14 +195,14 @@ const PlanItem: React.FC<PlanItemProps> = ({
                   <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
                 </div> */}
           <div style={{ textAlign: "center" }}>
-            <p className="list-item-span bold">
+            <div className="list-item-span bold" style={{marginTop: '2px', fontSize: '12px'}}>
               {plan.name} ({plan?.blockId})
-            </p>
-            <span className="list-item-span">
+            </div>
+            <div className="list-item-span" style={{marginTop: '-2px', fontSize: '12px'}}>
               {" "}
               Est. Remainder{" "}
               <span style={{ fontWeight: "bold" }}>2,456.23</span>
-            </span>
+            </div>
           </div>
         </Space>
         <div

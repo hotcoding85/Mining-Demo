@@ -116,7 +116,7 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
   return (
     <div
       ref={drop}
-      className="chat-timeline-items-row"
+      className={`chat-timeline-items-row ${excavator.state === "ACTIVE" || excavator?.state === "STANDBY" ? '' : 'inactive-row'}`}
       style={{ height: rowHeight }}
     >
       <div ref={rowRef} className="row-inner">
