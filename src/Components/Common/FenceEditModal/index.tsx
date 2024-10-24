@@ -57,7 +57,7 @@ const FenceEditModal: React.FC<FenceEditModalProps> = ({
     setSelectedMaterialId("");
     setShowMaterial(false);
     setSavedBenches(benches);
-  }, [wasteData]);
+  }, [wasteData, benches]);
 
   const handleInputChange = (e) => {
     setNewName(e.target.value);
