@@ -16,7 +16,9 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { ShiftType, Plan, resourceHeight } from "./interfaces/type";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+
 import { DatePicker, DatePickerProps, Space, Avatar, Tooltip, Badge } from "antd";
+
 import dayjs from "dayjs";
 import "./styles/GanttScheduler.scss";
 import "../../App.css";
@@ -47,7 +49,9 @@ import { toast } from "react-toastify";
 import { usePlans } from "Hooks/usePlans";
 import { FleetSelector } from "selectors";
 import { colors } from './data/sampleData'
+
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
+
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
