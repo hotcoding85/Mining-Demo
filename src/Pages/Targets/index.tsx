@@ -708,7 +708,7 @@ const Target = (props: any) => {
       const allData = _.flattenDeep(Object.values(data));
       const allTargets = allData.map((target: any) => { return target.subRows });
 
-      _.flattenDeep(allTargets).map((targetData: any) => {
+      _.flattenDeep(allTargets).filter((item) => item.truckCategory ==="DUMP_TRUCK" || item.truckCategory ==="EXCAVATOR").map((targetData: any) => {
 
         var target: any = {};
 
