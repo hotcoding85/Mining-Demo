@@ -66,8 +66,8 @@ const GanttScheduler: React.FC = () => {
 
   const [roster, setRoster] = useState<string>(
     format(selectedDate, "yyyy-MM-dd") +
-      ":" +
-      (shiftType === "DAY_SHIFT" ? "DS" : "NS")
+    ":" +
+    (shiftType === "DAY_SHIFT" ? "DS" : "NS")
   );
 
   const addRequestCount = useCallback(
@@ -138,11 +138,11 @@ const GanttScheduler: React.FC = () => {
   }, [mergedPlans]);
 
   const activeBenches = useMemo(
-    () => benches.filter((item) => item.status === "ACTIVE"),
+    () => benches.filter((item) => item.status === "ACTIVE" && item.category === 'SOURCE'),
     [benches]
   );
   const archiveBenches = useMemo(
-    () => benches.filter((item) => item.status === "ARCHIVE"),
+    () => benches.filter((item) => item.status === "ARCHIVE" && item.category === 'SOURCE'),
     [benches]
   );
 
