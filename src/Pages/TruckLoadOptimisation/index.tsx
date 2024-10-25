@@ -58,7 +58,7 @@ const TruckLoadOptimisation = (props: any) => {
 
   const [selectedValues, setSelectedValues] = useState<{
     [key: string]: string[];
-  }>({});
+  }>({"model": ['HD1500', 'HD785']});
 
   const onTabChange = (key: string) => {
     if (key === "table") {

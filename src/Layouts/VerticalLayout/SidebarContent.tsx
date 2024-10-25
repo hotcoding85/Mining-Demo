@@ -196,7 +196,7 @@ const SidebarContent = (props: any) => {
                         </Link>
                       </li>
                     ))}
-                    {
+                    {/* {
                       menu.title == 'Mine Control' && 
                       <li>
                         <Link to="/roster-scheduler">
@@ -211,7 +211,7 @@ const SidebarContent = (props: any) => {
                           {props.t("Trucking Trip Summary")}
                         </Link>
                       </li>
-                    }
+                    } */}
                   </ul>
                 )}
               </li>

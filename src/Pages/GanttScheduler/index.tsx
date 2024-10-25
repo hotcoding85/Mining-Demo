@@ -78,8 +78,8 @@ const GanttScheduler: React.FC = () => {
 
   const [roster, setRoster] = useState<string>(
     format(selectedDate, "yyyy-MM-dd") +
-      ":" +
-      (shiftType === "DAY_SHIFT" ? "DS" : "NS")
+    ":" +
+    (shiftType === "DAY_SHIFT" ? "DS" : "NS")
   );
 
   const addRequestCount = useCallback(
@@ -156,7 +156,7 @@ const GanttScheduler: React.FC = () => {
   const activeBenches = useMemo(
     () => {
       return benches
-        .filter((item) => item.status === "ACTIVE")
+        .filter((item) => item.status === "ACTIVE" && item.category === 'SOURCE')
         .map((bench) => ({
           ...bench,
           color: colors[Math.floor(Math.random() * colors.length)] // Assign random color
@@ -167,7 +167,7 @@ const GanttScheduler: React.FC = () => {
   const archiveBenches = useMemo(
     () => {
       return benches
-        .filter((item) => item.status === "ARCHIVE")
+        .filter((item) => item.status === "ARCHIVE" && item.category === 'SOURCE')
         .map((bench) => ({
           ...bench,
           color: colors[Math.floor(Math.random() * colors.length)] // Assign random color
