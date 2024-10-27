@@ -14,7 +14,8 @@ import {
   d375,
   t45,
 } from "assets/images/equipment";
-import { Badge } from "antd";
+import { Avatar, Badge, Card, Tooltip } from "antd";
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 interface TableComponentProps {
   data: any[];
   plans: any[];
@@ -105,11 +106,12 @@ const TableComponent: React.FC<TableComponentProps> = ({
     <div className="gantt-container">
       <div className="gantt-resource">
         <div className="timeline-row header">
-          <Badge.Ribbon placement="start" text="Equipment" color="Orange" style={{fontWeight: 600, fontSize: '16px'}}>
+          <Badge.Ribbon placement="start" text="Equipment" color={shiftType == 'DAY_SHIFT' ? "cyan" : 'cyan-inverse'} style={{fontWeight: 600, fontSize: '16px', paddingTop: '5px', paddingBottom: '5px'}}>
             <div
               style={{ width: 100, height: 50, color: "white" }}
               className="timeline-grid-row-cell"
             >
+              {shiftType == 'NIGHT_SHIFT' ? <MoonOutlined></MoonOutlined> : <SunOutlined />}
             </div>
           </Badge.Ribbon>
           {/* <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div> */}
@@ -133,9 +135,10 @@ const TableComponent: React.FC<TableComponentProps> = ({
               }}
               className="timeline-grid-row-cell"
             >
-              <Badge.Ribbon placement="start" text={resource.name} color={resource.state === 'ACTIVE' ? 'green' : resource.state !== 'STANDBY' ? 'red' : 'gold'} style={{fontWeight: 600, fontSize: '12px', marginLeft: '-9px'}}>
-              <img style={{width: '45px', height: '45px', marginLeft: '40px'}} src={getImage(resource.model)}></img>
-              </Badge.Ribbon>
+              {/* <Badge.Ribbon placement="start" text={resource.name} color={resource.state === 'ACTIVE' ? 'green' : resource.state !== 'STANDBY' ? 'red' : 'gold'} style={{fontWeight: 600, fontSize: '12px', marginLeft: '-9px'}}> */}
+              {/* <img style={{width: '30px', height: '30px'}} src={getImage(resource.model)}></img> */}
+              <span style={{fontWeight: '800'}}>{resource.name}</span>
+              {/* </Badge.Ribbon> */}
             </div>
             {/* <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.progress}</div> */}
           </div>
@@ -197,7 +200,27 @@ const TableComponent: React.FC<TableComponentProps> = ({
                   openModal={openModal} />
               </>
             ))}
+
           </div>
+          {/* <div>
+            {data.map((equipment) => (
+              <Card key={equipment.id} className="p-4 flex items-center space-x-4">
+                <Avatar style={{ backgroundColor: '#f0f0f0' }} size={48}>
+                  <img style={{width: '30px', height: '30px'}} src={getImage(equipment.model)}></img>
+                </Avatar>
+                <div className="flex-grow">
+                  <h3 className="font-bold">{equipment.name}</h3>
+                  <p className="text-sm text-gray-500">{equipment.id}</p>
+                </div>
+                <Tooltip title={equipment.status}>
+                  <Badge 
+                    status={equipment.state === 'ACTIVE' ? 'success' : equipment.state !== 'STANDBY' ? 'error' : 'warning'} 
+                    style={{ width: '12px', height: '12px', borderRadius: '50%' }} 
+                  />
+                </Tooltip>
+              </Card>
+            ))}
+          </div> */}
         </div>
       </div>
     </div>

@@ -47,6 +47,7 @@ import { toast } from "react-toastify";
 import { usePlans } from "Hooks/usePlans";
 import { FleetSelector } from "selectors";
 import { colors } from './data/sampleData'
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
@@ -459,7 +460,7 @@ const GanttScheduler: React.FC = () => {
                                 </Avatar>
                                 <div className="flex-grow ml-1" style={{marginLeft: '5px'}}>
                                   <h4 className="font-bold" style={{ marginBottom: '0px' }}>{equipment.name}</h4>
-                                  <h5 style={{marginBottom: '0px'}}>{duration}</h5> 
+                                  <h5 style={{marginBottom: '0px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration}</h5> 
                                 </div>
                               </div>
                               <Tooltip title={equipment.state}>
