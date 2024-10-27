@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useDrag } from "react-dnd";
 import { Plan } from "../interfaces/type";
 import "../styles/TimelineCell.css";
-import { Space } from "antd";
+import { Space, Tooltip } from "antd";
 
 interface PlanItemProps {
   plan: any;
@@ -177,9 +177,9 @@ const PlanItem: React.FC<PlanItemProps> = ({
       style={{
         backgroundColor: plan.color || "#ff6247",
         width: elementWidth,
-        height: "40px",
+        height: "48px",
         position: "absolute",
-        borderRadius: '50px',
+        borderRadius: '0px',
         left: elementPos,
         display: "flex",
         alignItems: "center",
@@ -189,27 +189,42 @@ const PlanItem: React.FC<PlanItemProps> = ({
         zIndex: 1,
       }}
     >
-      <div className="plan-item-inner">
-        <Space>
-          {/* <div>
-                  <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
-                </div> */}
-          <div style={{ textAlign: "center" }}>
-            <div className="list-item-span bold" style={{marginTop: '2px', fontSize: '12px'}}>
-              {plan.name} ({plan?.blockId})
-            </div>
-            <div className="list-item-span" style={{marginTop: '-2px', fontSize: '12px'}}>
-              {" "}
-              Est. Remainder{" "}
-              <span style={{ fontWeight: "bold" }}>2,456.23</span>
-            </div>
+      <Tooltip title={(
+        <div className="plan-item-tooltip-content">
+          <div><strong>Plan:</strong> {plan.name}</div>
+          <div><strong>Time:</strong> 
+            {new Date(plan.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ~ ' +
+              new Date(plan.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
-        </Space>
+          <div><strong>Block ID:</strong> {plan?.blockId}</div>
+          <div><strong>Est. Density:</strong> {plan?.density}</div>
+          <div><strong>Est. Grade:</strong> {plan?.grade}</div>
+          <div><strong>Est. Tonnes:</strong> {plan?.tonnes}</div>
+          <div><strong>Est. Reminder:</strong> {plan?.reminder || '---'}</div>
+        </div>
+      )}>
+      <div className="plan-item-inner">
+          <Space>
+            {/* <div>
+                    <Avatar src={<img src={pc1250} alt="avatar" style={{width:'80%', height:'60%'}} />} size={36} style={{ backgroundColor: 'white' }}/>
+                  </div> */}
+            <div style={{ textAlign: "center" }}>
+              <div className="list-item-span bold" style={{marginTop: '2px', fontSize: '12px'}}>
+                {plan.name} ({plan?.blockId})
+              </div>
+              {/* <div className="list-item-span" style={{marginTop: '-2px', fontSize: '12px'}}>
+                {" "}
+                Est. Remainder{" "}
+                <span style={{ fontWeight: "bold" }}>2,456.23</span>
+              </div> */}
+            </div>
+          </Space>  
         <div
           className="plan-item-progress-bar"
           style={{ width: progressbarWidth }}
         ></div>
       </div>
+      </Tooltip>
     </div>
   );
 };
