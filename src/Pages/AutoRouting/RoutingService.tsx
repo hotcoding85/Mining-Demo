@@ -1,17 +1,42 @@
 import { RouteDataType } from "./type";
 import _ from 'lodash';
 
+// Modify your getRoutes function to handle retry logic
 export const getRoutes = (data: RouteDataType[], startPoint: [number, number], endPoint: any) => {
     if (!data || !startPoint || !endPoint) return;
+
     const roadData: RouteDataType[] = data;
-    startPoint = findNearestPoint(startPoint, roadData);
-    endPoint = findNearestPoint(endPoint, roadData);
-    const graph = buildGraph(roadData);
-    const { path, distance } = dijkstra(graph, startPoint, endPoint);
+    const maxRetries = 10; // You can set a maximum retry limit
+    let excludedStartPoints = new Set();
+    let excludedEndPoints = new Set();
+    let pathResult: any = null;
+    let distanceResult: any = null;
 
-    return { route: path, status: true, distance: distance };
-}
+    // Attempt to find a valid route by retrying with different nearest points
+    for (let i = 0; i < maxRetries; i++) {
+        let _startPoint = findNearestPoint(startPoint, roadData, excludedStartPoints);
+        let _endPoint = findNearestPoint(endPoint, roadData, excludedEndPoints);
 
+        const graph = buildGraph(roadData);
+        const { path, distance } = dijkstra(graph, _startPoint, _endPoint);
+
+        if (path && path.length > 0) {
+            pathResult = path;
+            distanceResult = distance;
+            break;
+        }
+
+        // Add the current nearest points to the excluded sets so they're not selected again
+        excludedStartPoints.add(JSON.stringify(_startPoint));
+        excludedEndPoints.add(JSON.stringify(_endPoint));
+    }
+    console.log(pathResult)
+    if (pathResult) {
+        return { route: pathResult, status: true, distance: distanceResult };
+    } else {
+        return { route: null, status: false, distance: 0 }; // No valid path found after retries
+    }
+};
 function calculateDistance(point1, point2) {
     const [lng1, lat1] = point1;
     const [lng2, lat2] = point2;
@@ -46,12 +71,32 @@ function buildGraph(roadData) {
     return graph;
 }
 // Find the nearest point in the dataset to a given point
-function findNearestPoint(givenPoint, roadData) {
+// function findNearestPoint(givenPoint, roadData) {
+//     let nearestPoint: any = null;
+//     let minDistance = Infinity;
+  
+//     _.map(roadData, route => {
+//         _.map(route.geoJson.geometry.coordinates, point => {
+//             const distance = calculateDistance(givenPoint, point);
+//             if (distance < minDistance) {
+//                 minDistance = distance;
+//                 nearestPoint = point;
+//             }
+//         });
+//     });
+  
+//     return nearestPoint;
+// }
+
+function findNearestPoint(givenPoint, roadData, excludedPoints = new Set()) {
     let nearestPoint: any = null;
     let minDistance = Infinity;
-  
+
+    // Iterate through all points and find the nearest one that isn't in excludedPoints
     _.map(roadData, route => {
         _.map(route.geoJson.geometry.coordinates, point => {
+            if (excludedPoints.has(JSON.stringify(point))) return; // Skip excluded points
+
             const distance = calculateDistance(givenPoint, point);
             if (distance < minDistance) {
                 minDistance = distance;
@@ -59,7 +104,7 @@ function findNearestPoint(givenPoint, roadData) {
             }
         });
     });
-  
+
     return nearestPoint;
 }
 // Dijkstra's algorithm
@@ -103,15 +148,27 @@ function dijkstra(graph, start: any, end: any) {
   
     while (previousVertices.get(currentVertex) !== null) {
         const prevVertex = previousVertices.get(currentVertex);
-        const {color, speedLimit} = previousEdges.get(currentVertex);
+
+        // Ensure previousEdges has a valid entry before destructuring
+        const edgeInfo = previousEdges.get(currentVertex);
+        if (!edgeInfo) {
+            console.error(`No edge information found for vertex: ${currentVertex}`);
+            break; // Stop if no valid edge info
+        }
+
+        const { color, speedLimit } = edgeInfo;
         path.unshift(JSON.parse(currentVertex));
         pathWithColors.unshift({ point: JSON.parse(currentVertex), color, speedLimit });
         currentVertex = prevVertex;
     }
+    
     if (path.length) {
         path.unshift(start);
-        const {color, speedLimit} = previousEdges.get(JSON.stringify(start));
-        pathWithColors.unshift({ point: start, color: color, speedLimit });
+        const startEdgeInfo = previousEdges.get(JSON.stringify(start));
+        if (startEdgeInfo) {
+            const { color, speedLimit } = startEdgeInfo;
+            pathWithColors.unshift({ point: start, color: color, speedLimit });
+        }
     }
   
     return { path: pathWithColors, distance: distances.get(JSON.stringify(end)) };
