@@ -615,7 +615,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     const [showToolTip, setShowToolTip] = useState<boolean>(false)
     const [properties, setProperties] = useState<Propertytype | null>(null)
     const onDocumentMouseMove = useCallback((event) => {
-        if (isAutoRouting) return;
         if (!localMapContainerRef.current || !window.map) return
         // Normalize mouse position to -1 to 1 range
         const rect = localMapContainerRef.current.getBoundingClientRect();
@@ -632,6 +631,23 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const intersects = raycaster.intersectObjects(window.map.scene.children, true);
         // Change cursor style based on intersection
         if (intersects.length > 0) {
+            // Filter the intersects array for objects with userData.isStopSign, isRoute, or isPointer
+            const validIntersects = intersects.filter(intersect => {
+                const userData = intersect.object.userData;
+                return userData && (userData.isStopSign || userData.isRoute || userData.isPointer);
+            });
+        
+            // If there is exactly one valid intersect, change the cursor to 'pointer'
+            if (validIntersects.length === 1) {
+                document.body.style.cursor = 'pointer';
+            } else {
+                document.body.style.cursor = 'auto'; // Default cursor style
+            }
+        } else {
+            document.body.style.cursor = 'auto'; // Default cursor style
+        }
+        if (intersects.length > 0) {
+            if (isAutoRouting) return;
             const intersectedObject = intersects[0].object;
             if (intersectedObject.userData && intersectedObject.userData.isGeoFence) {
                 document.body.style.cursor = 'pointer'; // Change to desired cursor style
@@ -651,22 +667,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         } else {
             document.body.style.cursor = 'auto'; // Default cursor style
             setShowToolTip(false)
-        }
-        if (intersects.length > 0) {
-            // Filter the intersects array for objects with userData.isStopSign, isRoute, or isPointer
-            const validIntersects = intersects.filter(intersect => {
-                const userData = intersect.object.userData;
-                return userData && (userData.isStopSign || userData.isRoute || userData.isPointer);
-            });
-        
-            // If there is exactly one valid intersect, change the cursor to 'pointer'
-            if (validIntersects.length === 1) {
-                document.body.style.cursor = 'pointer';
-            } else {
-                document.body.style.cursor = 'auto'; // Default cursor style
-            }
-        } else {
-            document.body.style.cursor = 'auto'; // Default cursor style
         }
     }, [showToolTip])
 
