@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles/ShiftSelector.css'
 import { ShiftType } from './interfaces/type';
 import { Segmented, Space } from 'antd';
@@ -10,7 +10,9 @@ interface ShiftSelectorProps {
 
 const ShiftSelector: React.FC<ShiftSelectorProps> = ({ shiftType, setShiftType }) => {
   const [activeShift, setActiveShift] = useState<string>(shiftType);
-
+  useEffect(() => {
+    setActiveShift(shiftType)
+  }, [shiftType])
   // TODO: WORK WEEK - Show a week view
   const shifts = [
     // { id: 'WORK_DAY', label: 'CURRENT DAY', value: 'WORK_DAY' },
