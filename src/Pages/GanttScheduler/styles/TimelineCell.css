@@ -21,3 +21,10 @@
   body[data-layout-mode="light"] .plan-item {
     border: 1px solid gray;
   }
+
+  body[data-layout-mode="dark"] .plan-item-tooltip-content{
+    /* background-color: var(--dark-bg-color);
+    color: white;
+    margin: -6px -8px;
+    padding: 6px 8px; */
+  }
