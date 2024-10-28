@@ -196,11 +196,11 @@ const PlanItem: React.FC<PlanItemProps> = ({
             {new Date(plan.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ~ ' +
               new Date(plan.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
-          <div><strong>Block ID:</strong> {plan?.blockId}</div>
-          <div><strong>Est. Density:</strong> {plan?.density}</div>
-          <div><strong>Est. Grade:</strong> {plan?.grade}</div>
-          <div><strong>Est. Tonnes:</strong> {plan?.tonnes}</div>
-          <div><strong>Est. Reminder:</strong> {plan?.reminder || '---'}</div>
+          <div><strong>Block ID:</strong> {plan?.source?.blockId}</div>
+          <div><strong>Est. Density:</strong> {plan?.source?.density}</div>
+          <div><strong>Est. Grade:</strong> {plan?.source?.grade}</div>
+          <div><strong>Est. Tonnes:</strong> {plan?.source?.tonnes}</div>
+          <div><strong>Est. Reminder:</strong> {plan?.source?.reminder || '---'}</div>
         </div>
       )}>
       <div className="plan-item-inner">
