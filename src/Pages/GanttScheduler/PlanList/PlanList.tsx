@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useDrag } from "react-dnd";
 import "../styles/PlanList.scss";
 import { Input } from "antd";
@@ -9,16 +9,22 @@ interface PlanListProps {
 }
 
 const PlanList: React.FC<PlanListProps> = ({ plans, title }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredPlans = useMemo(() => {
+    return plans.filter((plan) => {
+      const searchString = `${plan.name} ${plan.blockId}`.toLowerCase();
+      return searchString.includes(searchTerm.toLowerCase());
+    });
+  }, [plans, searchTerm]);
   return (
     <div className="plan-list">
-      <span className="gantt-plan-list-title">{title}</span>
       <Input
         placeholder="Search..."
-        onChange={(e) => {}}
+        onChange={(e) => setSearchTerm(e.target.value)}
         style={{ marginBottom: 16 }}
         allowClear
       />
-      {plans.map((plan) => (
+      {filteredPlans.map((plan) => (
         <PlanListItem key={plan.id} plan={plan} />
       ))}
     </div>

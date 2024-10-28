@@ -5,6 +5,7 @@ import { Plan } from "../interfaces/type";
 import "../styles/TimelineCell.css";
 
 interface TimeLineRowProps {
+  excavator: any;
   excavatorId: string;
   plans: any[];
   updatePlan: (updatedPlan: Plan, flag: string) => void;
@@ -17,6 +18,7 @@ interface TimeLineRowProps {
 }
 
 const TimeLineRow: React.FC<TimeLineRowProps> = ({
+  excavator,
   excavatorId,
   plans,
   updatePlan,
@@ -76,6 +78,7 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "PLAN",
+    canDrop: () => excavator?.state === "ACTIVE" || excavator?.state === "STANDBY",  // Allow drop only if state is ACTIVE
     drop: (draggedPlan: Plan & { fromList?: boolean }) => {
       const deltaMinutes = Math.round(
         (mousePosition.current.x / 100) * zoomSize
@@ -113,7 +116,7 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
   return (
     <div
       ref={drop}
-      className="chat-timeline-items-row"
+      className={`chat-timeline-items-row ${excavator.state === "ACTIVE" || excavator?.state === "STANDBY" ? '' : 'inactive-row'}`}
       style={{ height: rowHeight }}
     >
       <div ref={rowRef} className="row-inner">

@@ -16,10 +16,22 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { ShiftType, Plan, resourceHeight } from "./interfaces/type";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { DatePicker, DatePickerProps, Space } from "antd";
+
+import { DatePicker, DatePickerProps, Space, Avatar, Tooltip, Badge } from "antd";
+
 import dayjs from "dayjs";
 import "./styles/GanttScheduler.scss";
 import "../../App.css";
+import {
+  hd1500,
+  hd785,
+  pc1250,
+  pc2000,
+  placeHolder,
+  wa600,
+  d375,
+  t45,
+} from "assets/images/equipment";
 import {
   getAllBenches,
   getAllFleet,
@@ -35,11 +47,15 @@ import { debounce } from "lodash";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { usePlans } from "Hooks/usePlans";
+import { FleetSelector } from "selectors";
+import { colors } from './data/sampleData'
+
+import { MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
-
+  const { fleet } = useSelector(FleetSelector);
   const { benches, fleets } = useSelector(
     createSelector(
       (state: any) => state,
@@ -82,8 +98,10 @@ const GanttScheduler: React.FC = () => {
 
   const excavatorFilter = useCallback(
     (vehicle) =>
-      vehicle?.category === "EXCAVATOR" &&
-      (vehicle?.state === "ACTIVE" || vehicle?.state === "STANDBY"),
+      vehicle?.category !== "DUMP_TRUCK" 
+      &&
+      (vehicle?.status === "ACTIVE" || vehicle?.status === "STANDBY")
+      ,
     []
   );
 
@@ -93,8 +111,10 @@ const GanttScheduler: React.FC = () => {
 
   const [heights, setHeights] = useState<any[]>(
     excavators.map((excavator) => ({
-      excavatorId: excavator.excavatorId,
+      excavatorId: excavator.id,
       height: 50,
+      category: excavator.category,
+      capacity: excavator.capacity
     }))
   );
 
@@ -138,11 +158,25 @@ const GanttScheduler: React.FC = () => {
   }, [mergedPlans]);
 
   const activeBenches = useMemo(
-    () => benches.filter((item) => item.status === "ACTIVE" && item.category === 'SOURCE'),
+    () => {
+      return benches
+        .filter((item) => item.status === "ACTIVE" && item.category === 'SOURCE')
+        .map((bench) => ({
+          ...bench,
+          color: colors[Math.floor(Math.random() * colors.length)] // Assign random color
+        }));
+    },
     [benches]
   );
   const archiveBenches = useMemo(
-    () => benches.filter((item) => item.status === "ARCHIVE" && item.category === 'SOURCE'),
+    () => {
+      return benches
+        .filter((item) => item.status === "ARCHIVE" && item.category === 'SOURCE')
+        .map((bench) => ({
+          ...bench,
+          color: colors[Math.floor(Math.random() * colors.length)] // Assign random color
+        }));
+    },
     [benches]
   );
 
@@ -319,13 +353,45 @@ const GanttScheduler: React.FC = () => {
     setZoomSize(nearestZoom);
   };
 
+  function containsCaseInsensitive(str: string, substr: string): boolean {
+    return str.toLowerCase().includes(substr.toLowerCase());
+  }
+
+  const getImage = (category: string) => {
+    if (!category) {
+      return placeHolder;
+    }
+
+    if (containsCaseInsensitive(category, "hd785")) {
+      return hd785;
+    } else if (containsCaseInsensitive(category, "hd1500")) {
+      return hd1500;
+    } else if (containsCaseInsensitive(category, "pc1250")) {
+      return pc1250;
+    } else if (containsCaseInsensitive(category, "pc2000")) {
+      return pc2000;
+    } else if (containsCaseInsensitive(category, "wa600")) {
+      return wa600;
+    } else if (containsCaseInsensitive(category, "d375")) {
+      return d375;
+    } else if (containsCaseInsensitive(category, "t45")) {
+      return t45;
+    } else {
+      return placeHolder;
+    }
+  };
+
+  useEffect(() => {
+    console.log(plans)
+  },[ plans ])
+
   return (
     <React.Fragment>
-      <div className="page-content">
+      <div className="page-content" style={{paddingBottom: '0rem'}}>
         <Container fluid>
           <DndProvider backend={HTML5Backend}>
             <Row className="mb-3">
-              <Col xs={10} className="plan-left">
+              <Col xs={12}>
                 <Breadcrumb
                   breadcrumbItem="Gantt Scheduler"
                   title="Operations"
@@ -343,7 +409,7 @@ const GanttScheduler: React.FC = () => {
                         />
                       </div>
                       <DatePicker
-                        size="large"
+                        size="middle"
                         allowClear={false}
                         value={dayjs(selectedDate)}
                         onChange={onDateChange}
@@ -355,38 +421,88 @@ const GanttScheduler: React.FC = () => {
                     </Space>
                   </Col>
                 </Row>
-                <Card>
-                  <TableComponent
-                    data={excavators}
-                    plans={plans}
-                    setPlans={setPlans}
-                    selectedDate={selectedDate}
-                    shiftType={shiftType}
-                    zoomSize={zoomSize}
-                    addPlan={addPlan}
-                    updatePlan={updatePlan}
-                    heights={heights}
-                    openModal={openModal}
-                  />
-                </Card>
-              </Col>
+                <Row>
+                  <Col md={9} sm={8} xs={12} className="plan-left">
+                    <Card style={{marginBottom: '0px'}}>
+                      <TableComponent
+                        data={excavators}
+                        plans={plans}
+                        setPlans={setPlans}
+                        selectedDate={selectedDate}
+                        shiftType={shiftType}
+                        zoomSize={zoomSize}
+                        addPlan={addPlan}
+                        updatePlan={updatePlan}
+                        heights={heights}
+                        openModal={openModal}
+                      />
+                    </Card>
+                    <div className="row mt-2">
+                      {excavators.map((equipment) => {
+                        // Filter out all plans for the specific equipment
+                        const equipmentPlans = plans.filter(plan => plan.excavatorId === equipment.id);
+                        
+                        // Calculate total duration in milliseconds
+                        const totalDurationMs = equipmentPlans.reduce((total, plan) => {
+                          const start = new Date(plan.startTime).getTime();
+                          const end = new Date(plan.endTime).getTime();
+                          return total + (end - start);
+                        }, 0);
 
-              <Col xs={2} className="plan-right">
-                <Card>
-                  <NoAssignPlanList
-                    plans={noAssignedPlans}
-                    title={"NO TIME ASSIGNED"}
-                  />
-                </Card>
-                <Card>
-                  <PlanList plans={activeBenches} title={"ACTIVE BENCHES"} />
-                </Card>
-                <Card>
-                  <PlanList
-                    plans={archiveBenches}
-                    title={"ARCHIVED BENCHES (in last 7 days)"}
-                  />
-                </Card>
+                        // Convert milliseconds to hours and minutes
+                        const hours = Math.floor(totalDurationMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((totalDurationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                        // Format as hh:mm
+                        const duration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                        return (
+                          <Col sm={6} xs={6} lg={4} key={equipment.id}>
+                            <Card className="p-4 flex items-center space-x-4 aggregate-item">
+                              <div style={{ flexDirection: 'row', display: 'flex', alignItems: 'center' }}>
+                                <Avatar style={{ backgroundColor: '#00000080' }} size={48}>
+                                  <img style={{ width: '30px', height: '30px' }} src={getImage(equipment.model)} alt="equipment" />
+                                </Avatar>
+                                <div className="flex-grow ml-1" style={{marginLeft: '5px'}}>
+                                  <h4 className="font-bold" style={{ marginBottom: '0px' }}>{equipment.name}</h4>
+                                  <h5 style={{marginBottom: '0px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration}</h5> 
+                                </div>
+                              </div>
+                              <Tooltip title={equipment.state}>
+                                <Badge 
+                                  status={equipment.state === 'ACTIVE' ? 'success' : equipment.state !== 'STANDBY' ? 'error' : 'warning'} 
+                                  className="aggregate-item-badge" 
+                                />
+                              </Tooltip>
+                            </Card>
+                          </Col>
+                        );
+                      })}
+                    </div>
+                  </Col>
+                  <Col md={3} sm={4} xs={12} className="plan-right">
+                    <Badge.Ribbon placement="start" text="NO TIME ASSIGNED" color="Orange" style={{fontWeight: 600, fontSize: '14px'}}>
+                      <Card>
+                        <NoAssignPlanList
+                          plans={noAssignedPlans}
+                          title={"NO TIME ASSIGNED"}
+                        />
+                      </Card>
+                    </Badge.Ribbon>
+                    <Badge.Ribbon text="ACTIVE BENCHES" color="green" style={{fontWeight: 600, fontSize: '14px'}}>
+                      <Card>
+                        <PlanList plans={activeBenches} title={"ACTIVE BENCHES"} />
+                      </Card>
+                    </Badge.Ribbon>
+                    <Badge.Ribbon placement="start" text="ARCHIVED BENCHES (in last 7 days)" color="Purple" style={{fontWeight: 600, fontSize: '14px'}}>
+                      <Card>
+                        <PlanList
+                          plans={archiveBenches}
+                          title={"ARCHIVED BENCHES (in last 7 days)"}
+                        />
+                      </Card>
+                    </Badge.Ribbon>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </DndProvider>
