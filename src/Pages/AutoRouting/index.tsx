@@ -26,6 +26,9 @@ import { LineString, Point } from 'interfaces/GeoJson';
 import { LayoutSelector, VehicleRouteSelector } from 'selectors';
 import { THREEJSMap } from 'Pages/3DMap';
 import FloatingActionButton from 'Pages/Replay/components/FloatingActionButton';
+import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import FONT from 'three/examples/fonts/gentilis_bold.typeface.json'
 // default route's speed limit 40km/h
 const defaultSpeedLimit = 40;
 // default route's line color - 'green'
@@ -82,6 +85,7 @@ const AutoRouting = () => {
 
     const isDragging = useRef<boolean>(false)
     const tubeMeshes = useRef<any>([])
+    const tubeCurves = useRef<any>([])
     const stopSignSprites = useRef<any>([])
     const tempStopSign = useRef<any>(null)
     const tempTube = useRef<any>([])
@@ -99,7 +103,7 @@ const AutoRouting = () => {
     
     const { layoutModeType } = useSelector(LayoutSelector );
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
-    
+    const eqMarkers = useRef<any>([])
 
     const dispatch: any = useDispatch()
 
@@ -115,7 +119,39 @@ const AutoRouting = () => {
     ]
     
     const [currentCategory, setCurrentCategory] = useState<DropdownType>(layerOptions[0]);
-
+    const geoFences = useRef<any>([])
+    const fetchGeofences = async () => {
+        const _fetchGeofences = async () => {
+            const retrievedData = await getDataByKey('geoFences');
+            if (retrievedData && retrievedData.length > 0) {
+                geoFences.current = retrievedData
+            }
+            else{
+                const fences = await fetch('/SWK_S01_422.geojson')
+                    .then(response => response.json())  // Parse it as JSON
+                    .then(data => {
+                        return data;  // Return the parsed GeoJSON data
+                    })
+                    .catch(error => {
+                        console.error('Error fetching GeoJSON:', error);
+                    });
+        
+                if (fences) {
+                    const features = fences.features;
+                    
+                    // Iterate over the features to access polygons or other geometry types
+                    const _fences: any = []
+                    _.map(features, feature => {
+                        _fences.push(feature)
+                    });
+                    geoFences.current = _fences
+                    await addOrUpdateData('geoFences', _fences);
+                }
+            }
+        }
+        await _fetchGeofences()
+    }
+    
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
     useEffect(() => {
         if (vehicleRoutes && !isLoading && window.map){
@@ -160,6 +196,8 @@ const AutoRouting = () => {
             setAllCoordinates([..._coordinates])
             currentRoute.current = realRoutes.length + 1
             currentStopSignCount.current = stopSignRoutes.length + 1
+
+            drawInitalRoutes()
         }
     }, [vehicleRoutes, isLoading])
 
@@ -168,7 +206,9 @@ const AutoRouting = () => {
         dispatch(getAllVehicleRoutes())
     }, [dispatch])
 
-    useEffect(() => {        
+    useEffect(() => {   
+        font.current = new THREE.Font(FONT);
+        fetchGeofences()     
         // Clean up on component unmount
         return () => {
             map && map.clean()
@@ -303,8 +343,11 @@ const AutoRouting = () => {
         }
     }, [isLight])
 
+    const font = useRef<any>(null)
     useEffect(() => {
         if (!window.map || isLoading) return;
+        const labelRenderer = new CSS2DRenderer();
+        document.body.appendChild(labelRenderer.domElement);
         drawInitalRoutes()
     }, [isLoading])
 
@@ -331,9 +374,18 @@ const AutoRouting = () => {
                 _stop.material.dispose()
             })
         }
+        if (routeNameTubes.current.length > 0) {
+            _.map(routeNameTubes.current, _marker => {
+                window.map.scene.remove(_marker.tube)
+                _marker.tube.geometry.dispose()
+                _marker.tube.material.dispose()
+            })
+        }
+        routeNameTubes.current = []
         tubeMeshes.current = [] 
         stopSignSprites.current = []
         tempMarkers.current = []
+        tubeCurves.current = []
         // Get the top-left corner's tile coordinates (view's origin)
         const center = {
             tileX: window.map.center.x,
@@ -393,10 +445,65 @@ const AutoRouting = () => {
                     // Get the elevation for this point and set the Z coordinate
                     points.push(point);
                 }
+                // Create text geometry
+                const textGeometry = new THREE.TextGeometry(_route.name || 'Route Name', {
+                    font: font.current,
+                    size: 8,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: false,
+                });
+
+                for (let i = 0; i < points.length - 1; i++) {
+                    const start = new THREE.Vector3(points[i].x, points[i].y, points[i].z);
+                    const end = new THREE.Vector3(points[i + 1].x, points[i + 1].y, points[i + 1].z);
+                
+                    // Calculate the distance between the start and end points
+                    const distance = start.distanceTo(end);
+                    
+                    // Skip this segment if the distance is less than 100
+                    if (distance < 100) {
+                        continue;
+                    }
+                    
+                    const textMaterial = new THREE.MeshBasicMaterial({ 
+                        color: '#212529', 
+                        transparent: true, 
+                        depthTest: false,
+                        side: THREE.DoubleSide // Make text visible from both sides
+                    })
+                    const textMesh = new THREE.Mesh(textGeometry, textMaterial)
+
+                    // Calculate direction vector
+                    const direction = new THREE.Vector3().subVectors(end, start).normalize()
+
+                    // Position text at the middle of the segment
+                    const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5)
+                    textMesh.position.copy(midpoint)
+
+                    // Orient text to align with the camera's up vector
+                    const cameraUp = new THREE.Vector3(0, 0, 1) // Matches the camera.up setting
+                    textMesh.up.copy(cameraUp)
+
+                    // Make text face the camera position
+                    // textMesh.lookAt(window.map.camera.position)
+
+                    // Rotate text to align with route direction
+                    textMesh.rotateOnAxis(cameraUp, Math.atan2(direction.y, direction.x))
+
+                    // Center the text on the line
+                    // textGeometry.computeBoundingBox()
+                    // const textWidth = textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x
+                    // textMesh.position.add(new THREE.Vector3(0, 0, textWidth / 2))
+
+                    // Add to the scene
+                    window.map.scene.add(textMesh)
+                    routeNameTubes.current.push({tube: textMesh, route_id: _route.id})
+                }
 
                 // Create a curve from the points for TubeGeometry
                 const curve = new THREE.CatmullRomCurve3(points);
-
+                tubeCurves.current.push({curve: curve, name: _route.name})
                 // Tube Geometry parameters: path, tubular segments, radius, radial segments, closed
                 const tubeGeometry = new THREE.TubeGeometry(curve, 100, 3, 3, false);
 
@@ -951,6 +1058,7 @@ const AutoRouting = () => {
     }, [stopSignData.current])
 
     const replayArrowTubes = useRef<any>([])
+    const routeNameTubes = useRef<any>([])
     const replayTubes = useRef<any>([])
 
     const clearAnimation = () => {
@@ -1796,7 +1904,7 @@ const AutoRouting = () => {
         setEditingRouteId(null);
         setIsStopSignModalOpen(false);
         setIsStopSign(false)
-    }, [editingRouteId, stopSignDuration, newTitle, newColor, stopSignPoint, stopSignData, routeData])
+    }, [editingRouteId, stopSignDuration, newTitle, newColor, stopSignPoint, stopSignData, routeData, dispatch])
 
     useEffect(() => {
         if (!isStopSign) {
@@ -1812,6 +1920,128 @@ const AutoRouting = () => {
         }
     }, [isStopSign])
 
+    const isPointInGeofence = (longitude: number, latitude: number): boolean => {
+        // Create a turf point for the given coordinate
+        const point = turf.point([longitude, latitude]);
+        // Loop through each geofence and check if the point is within any of them
+        for (const feature of geoFences.current) {
+            const polygon = turf.polygon(feature.geometry.coordinates);
+            if (turf.booleanPointInPolygon(point, polygon)) {
+                    return true; // Point is inside this polygon
+            }
+        }
+        return false; // Point is not inside any polygons
+    };
+
+    const isLastPointInGeofence = (longitude: number, latitude: number): boolean => {
+        // Create a turf point for the given coordinate
+        const point = turf.point([longitude, latitude]);
+        // Loop through each geofence and check if the point is within any of them
+        for (const feature of geoFences.current) {
+            const polygon = turf.polygon(feature.geometry.coordinates);
+            if (turf.booleanPointInPolygon(point, polygon)) {
+                    return true; // Point is inside this polygon
+            }
+        }
+        return false; // Point is not inside any polygons
+    };
+
+    function getLabelInterval(cameraZ) {
+        if (cameraZ < 300) return 20; // Closer camera -> more labels
+        if (cameraZ < 500) return 50;
+        if (cameraZ < 700) return 100;
+        return 200; // Further camera -> fewer labels
+    }
+    
+    function addRouteLabels(routeName, curve, cameraZ) {
+        // Remove existing labels for this route to avoid duplicates
+        window.map.scene.children.forEach(child => {
+            if (child.isCSS2DObject && child.userData.routeName === routeName) {
+                window.map.scene.remove(child);
+            }
+        });
+    
+        // Determine interval based on the camera's z position
+        const interval = getLabelInterval(cameraZ);
+        const points = curve.getPoints(100); // Divide the curve into 100 points
+    
+        // Place labels at the calculated interval
+        for (let i = 0; i < points.length; i += interval) {
+            const position = points[i];
+            // Create a label div
+            const div = document.createElement('div');
+            div.className = 'label';
+            div.textContent = routeName;
+            div.style.marginTop = '-1em';
+    
+            // Create CSS2DObject for the label and set its position
+            const label = new CSS2DObject(div);
+            label.position.set(position.x, position.y, position.z);
+            label.userData = { routeName: routeName };
+    
+            // Add the label to the scene
+            window.map.scene.add(label);
+        }
+    }
+      
+    const updateAnnotations = useCallback(() => {
+        if (!mapContainer.current || !window.map) return;
+    
+        const cameraZ = window.map.camera.position.z;
+        const scaleFactor = Math.max(0.2, Math.min(cameraZ / 500, 10)); // Recalculate scale based on camera Z
+
+        // Create a map to count occurrences of each route_id
+        const routeCount = {};
+
+        // First pass: Count annotations and group them by route_id
+        routeNameTubes.current.forEach(item => {
+            const routeId = item.route_id; // Assuming each item has a route_id property
+
+            // Initialize the count for this route_id if it doesn't exist
+            if (!routeCount[routeId]) {
+                routeCount[routeId] = [];
+            }
+            routeCount[routeId].push(item); // Store item in the count array
+        });
+
+        // Determine the maximum visible count based on the camera's Z position
+        let maxVisibleCount = Infinity; // Start with an infinite count
+
+        if (cameraZ <= 300) {
+            maxVisibleCount = Infinity; // Show all annotations
+        } else if (cameraZ < 500) {
+            maxVisibleCount = 3; // Show 3 annotations
+        } else if (cameraZ < 1500) {
+            maxVisibleCount = 2; // Show 2 annotations
+        } else if (cameraZ < 2000) {
+            maxVisibleCount = 2; // Show 2 annotations
+        } else if (cameraZ < 3000) {
+            maxVisibleCount = 2; // Show 2 annotations
+        } else {
+            maxVisibleCount = 1; // Show 1 annotation
+        }
+
+        // Second pass: Update visibility based on the calculated maxVisibleCount
+        Object.values(routeCount).forEach((routeItems: any) => {
+            const totalCount = routeItems.length;
+
+            // Calculate the step size to determine which items to show
+            const stepSize = Math.floor(totalCount / Math.max(maxVisibleCount, 1)); // Avoid division by zero
+            
+            routeItems.forEach((item, index) => {
+                // Determine if the current index should be visible
+                const shouldBeVisible = cameraZ <= 300 || (index % stepSize === 0 && Math.floor(index / stepSize) < maxVisibleCount);
+                item.visible = shouldBeVisible;
+                item.tube.visible = shouldBeVisible; // Show or hide the corresponding tube
+
+                // Update scale only for visible items
+                if (shouldBeVisible) {
+                    item.tube.scale.set(scaleFactor, scaleFactor, scaleFactor); // Update scale
+                }
+            });
+        });
+    
+    }, []);
     return (
         <React.Fragment>
             <div className="page-content" style={{paddingBottom: '0px'}}>
@@ -1819,7 +2049,7 @@ const AutoRouting = () => {
                     <Breadcrumb title="Mine Dynamics" breadcrumbItem="Auto Routing" />
                     <Row>
                         <Col md="12" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <THREEJSMap ref={mapContainer} defaultLayers={[]} drawMarkers={() => {}} updateAnnotations={() => {}} isLoading={isLoading} setIsLoading={setIsLoading} height='calc(100vh - 165px)' onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseDblClick={onDocumentMouseDblClick} isAutoRouting={true}>
+                            <THREEJSMap ref={mapContainer} defaultLayers={[]} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} height='calc(100vh - 165px)' onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseDblClick={onDocumentMouseDblClick} isAutoRouting={true}>
                             {
                                 duringAnimation && <FloatingActionButton _viewType={viewType} setViewType={setViewType} />
                             }
@@ -1917,32 +2147,34 @@ const AutoRouting = () => {
                                     </Button>
                                 </div>
                                 <div style={{ height: 'calc(100% - 100px)', overflow: 'auto', marginTop:'16px' }}>
-                                    {routeData && _.map(routeData, (route: RouteDataType, key) =>  
+                                    {routeData && _.map(routeData, (route: any, key) =>  
                                         <div className={'route-item ' + (isLight ? 'light-mode' : 'dark-mode')} key={key} style={{ display: 'flex', alignItems: 'center', fontSize: '14px', padding: '6px' }}>
-                                            <div style={{ flex: '1' }} onClick={() => handleTitleClick(route)}>
-                                                <div style={{ color: route.color, display:'block' }}>{route.name}</div>
+                                            <div style={{ flex: '1' }}>
+                                                <div style={{ color: route.color, display:'block', cursor: 'none' }}>{route.name}</div>
                                                 {
                                                     route.category !== 'STOP_SIGNS' ?
                                                     <>
                                                     <div style={{ fontSize: '12px', display: 'block', color: isLight ? 'black' : 'white' }}>
                                                         Distance: {route.distance}(m)
                                                     </div>
-                                                    <div style={{border: '1px dashed gray', padding: '.3rem'}}>
+                                                    <div>
                                                         <div style={{ fontSize: '12px', display: 'block', color: isLight ? 'black' : 'white' }}>
-                                                            Loaded Speed: {route.speedLimits}(km/h)
+                                                            {
+                                                            isPointInGeofence(route.geoJson.geometry?.coordinates[0][0], route.geoJson.geometry?.coordinates[0][1]) ? 'Loaded' : isLastPointInGeofence(route.geoJson.geometry?.coordinates[route.geoJson.geometry?.coordinates.length - 1][0], route.geoJson.geometry?.coordinates[route.geoJson.geometry?.coordinates.length - 1][1]) ? 'Unloaded' : 'Loaded'} Speed: {route.speedLimits}(km/h)
                                                         </div>
                                                         <div style={{ fontSize: '12px', display: 'block', color: isLight ? 'black' : 'white' }}>
-                                                            Loaded Duration: {route.duration}(s)
+                                                            {
+                                                            isPointInGeofence(route.geoJson.geometry?.coordinates[0][0], route.geoJson.geometry?.coordinates[0][1]) ? 'Loaded' : isLastPointInGeofence(route.geoJson.geometry?.coordinates[route.geoJson.geometry?.coordinates.length - 1][0], route.geoJson.geometry?.coordinates[route.geoJson.geometry?.coordinates.length - 1][1]) ? 'Unloaded' : 'Loaded'}  Duration: {route.duration}(s)
                                                         </div>
                                                     </div>
-                                                    <div style={{border: '1px dashed gray', padding: '.3rem', borderTop: '0px'}}>
+                                                    {/* <div style={{border: '1px dashed gray', padding: '.3rem', borderTop: '0px'}}>
                                                         <div style={{ fontSize: '12px', display: 'block', color: isLight ? 'black' : 'white' }}>
                                                             Unloaded Speed: {route.speedLimits}(km/h)
                                                         </div>
                                                         <div style={{ fontSize: '12px', display: 'block', color: isLight ? 'black' : 'white' }}>
                                                             Unloaded Duration: {route.duration}(s)
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                     </>
                                                     :
                                                     <div style={{ fontSize: '12px', display:'block', color: isLight ? 'black' : 'white' }}>Duration: {route.duration}(s)</div>
@@ -1954,6 +2186,7 @@ const AutoRouting = () => {
                                                 </div>
                                             </div>
                                             <div style={{ flex: '0.1' }}>
+                                                <i className='bx bx-edit' onClick={() => handleTitleClick(route)}></i>
                                                 <i className="bx bx-trash" onClick={() => fnRemoveRoute(route)}></i>
                                             </div>
                                         </div>
@@ -1982,7 +2215,7 @@ const AutoRouting = () => {
                     Edit Route
                 </ModalHeader>
                 <ModalBody>
-                    <Row style={{justifyContent: 'center'}}>
+                    <Row style={{justifyContent: 'center', alignItems: 'center'}}>
                         <Col md={5}>
                             <label>Route Name</label>
                         </Col>
@@ -1998,21 +2231,21 @@ const AutoRouting = () => {
                     </Row>
 
                     
-                    <Row style={{justifyContent: 'center'}}>
+                    <Row style={{justifyContent: 'center', alignItems: 'center'}}>
                         <Col md={5}>
-                            <label>Loaded Speed Limit</label>
+                            <label>Speed Limit</label>
                         </Col>
                         <Col md={7}>
                             <Input
                                 type="number"
                                 value={speedLimit}
-                                placeholder="Loaded Speed Limit"
+                                placeholder="Speed Limit"
                                 onChange={handleSpeedLimitChange}
                                 style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
                             />
                         </Col>
                     </Row>
-
+{/* 
                     <Row style={{justifyContent: 'center'}}>
                         <Col md={5}>
                             <label>Unloaded Speed Limit</label>
@@ -2026,10 +2259,10 @@ const AutoRouting = () => {
                                 style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
                             />
                         </Col>
-                    </Row>
+                    </Row> */}
 
 
-                    <Row style={{justifyContent: 'center'}}>
+                    <Row style={{justifyContent: 'center', alignItems: 'center'}}>
                         <Col md={5}>
                             <label>Route Color</label>
                         </Col>
