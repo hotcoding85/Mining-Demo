@@ -708,7 +708,7 @@ const Target = (props: any) => {
       const allData = _.flattenDeep(Object.values(data));
       const allTargets = allData.map((target: any) => { return target.subRows });
 
-      _.flattenDeep(allTargets).map((targetData: any) => {
+      _.flattenDeep(allTargets).filter((item) => item.truckCategory ==="DUMP_TRUCK" || item.truckCategory ==="EXCAVATOR").map((targetData: any) => {
 
         var target: any = {};
 
@@ -723,7 +723,7 @@ const Target = (props: any) => {
         delete target.updatedAt;
         delete target._id;
         delete target.vehicle;
-        delete target.id;
+        // delete target.id;
         target.vehicleId = _.cloneDeep(targetData.truckId);
 
         productionData.push(target);
