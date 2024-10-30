@@ -112,6 +112,11 @@ const GanttScheduler: React.FC = () => {
     return fleets.filter((fleet) => excavatorFilter(fleet));
   }, [fleets, excavatorFilter]);
 
+  const [orderedData, setOrderedData] = useState(excavators)
+  useEffect(() => {
+    setOrderedData(excavators)
+  }, [excavators])
+
   const [heights, setHeights] = useState<any[]>(
     excavators.map((excavator) => ({
       excavatorId: excavator.id,
@@ -447,6 +452,7 @@ const GanttScheduler: React.FC = () => {
                         updatePlan={updatePlan}
                         heights={heights}
                         openModal={openModal}
+                        _setOrderedData={setOrderedData}
                       />
                     </Card>
                     <div className="row mt-2">
@@ -476,15 +482,15 @@ const GanttScheduler: React.FC = () => {
                                 </Avatar>
                                 <div className="flex-grow ml-1" style={{marginLeft: '5px'}}>
                                   <h4 className="font-bold" style={{ marginBottom: '0px' }}>{equipment.name}</h4>
-                                  <h5 style={{marginBottom: '0px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration}</h5> 
+                                  <h6 style={{marginBottom: '0px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration + ' / 12:00'}</h6> 
                                 </div>
                               </div>
-                              <Tooltip title={equipment.state}>
-                                <Badge 
-                                  status={equipment.state === 'ACTIVE' ? 'success' : equipment.state !== 'STANDBY' ? 'error' : 'warning'} 
-                                  className="aggregate-item-badge" 
-                                />
-                              </Tooltip>
+                              <span
+                                className="card-status"
+                                style={{ backgroundColor: equipment.state === 'ACTIVE' ? '#0f9d58' : equipment.state !== 'STANDBY' ? '#db4437' : '#F7B31A' }}
+                              >
+                                  {equipment.state}
+                              </span>
                             </Card>
                           </Col>
                         );
