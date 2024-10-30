@@ -7,13 +7,16 @@ import { Space, Tooltip } from "antd";
 interface PlanItemProps {
   plan: any;
   zoomSize: number;
+  depth: number;
+  maxDepth: number;
+  overlapIndex: number;
   endSlotTime: Date;
   startSlotTime: Date;
   updatePlan: (updatedPlan: Plan, flag: string) => void;
   addPlan: (excavatorId: string, startTime: Date, plan?: Plan) => void;
   openModal: (plan?: Plan) => void;
 }
-
+const rowHeight = 49
 const PlanItem: React.FC<PlanItemProps> = ({
   plan,
   zoomSize,
@@ -21,6 +24,9 @@ const PlanItem: React.FC<PlanItemProps> = ({
   startSlotTime,
   updatePlan,
   openModal,
+  overlapIndex,
+  depth,
+  maxDepth
 }) => {
   const elementPos =
     (100 * (plan.startTime.getTime() - startSlotTime.getTime())) /
@@ -167,6 +173,17 @@ const PlanItem: React.FC<PlanItemProps> = ({
     drag(node);
   };
 
+  const fullHeight = 50;
+
+  const itemHeight = useRef<number>(fullHeight / depth);
+  const topOffset = useRef<number>(0);
+  useEffect(() => {
+    itemHeight.current = fullHeight / maxDepth
+  }, [maxDepth])
+  useEffect(() => {
+    topOffset.current = itemHeight.current * overlapIndex
+    console.log(topOffset.current)
+  }, [overlapIndex])
   return (
     <div
       ref={setRefs}
@@ -177,10 +194,11 @@ const PlanItem: React.FC<PlanItemProps> = ({
       style={{
         backgroundColor: plan.color || "#ff6247",
         width: elementWidth,
-        height: "48px",
+        height: `${itemHeight.current}px`, // Dynamic height based on overlap count
         position: "absolute",
         borderRadius: '0px',
         left: elementPos,
+        top: overlapIndex * itemHeight.current, // Dynamic offset for stacking overlaps
         display: "flex",
         alignItems: "center",
         opacity: isDragging ? 0.5 : 1,

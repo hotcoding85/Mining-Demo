@@ -32,9 +32,9 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
   const assignedPlans = plans.filter(
     (plan, index) =>
       plan.excavatorId == excavatorId 
-    // &&
-    //   plan.startTime >= Number(startSlotTime) &&
-    //   plan.startTime <= Number(endSlotTime)
+    &&
+      plan.startTime >= Number(startSlotTime) &&
+      plan.startTime <= Number(endSlotTime)
   );
 
   const mousePosition = useRef({ x: 0, y: 0 });
@@ -113,6 +113,35 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
     }),
   });
 
+  const calculateOverlapIndicesAndDepth = (plans) => {
+    const overlapData: any = [];
+    let maxOverlap = 1;
+  
+    plans.forEach((plan, index) => {
+      let overlapIndex = 0;
+      let currentDepth = 1;
+  
+      // Check overlap with previous tasks
+      for (let i = 0; i < index; i++) {
+        const otherPlan = plans[i];
+        const isOverlapping =
+          (otherPlan.startTime <= plan.endTime && otherPlan.endTime >= plan.startTime) ||
+          (plan.startTime <= otherPlan.endTime && plan.endTime >= otherPlan.startTime);
+  
+        if (isOverlapping) {
+          overlapIndex = Math.max(overlapIndex, overlapData[i].overlapIndex + 1);
+          currentDepth = Math.max(currentDepth, overlapData[i].overlapIndex + 2); // +2 to count both current and overlapping task
+        }
+      }
+  
+      overlapData.push({ overlapIndex, depth: currentDepth });
+      maxOverlap = Math.max(maxOverlap, currentDepth); // Track max depth for resizing
+    });
+  
+    return { overlapData, maxDepth: maxOverlap };
+  };
+  
+
   return (
     <div
       ref={drop}
@@ -120,17 +149,24 @@ const TimeLineRow: React.FC<TimeLineRowProps> = ({
       style={{ height: rowHeight }}
     >
       <div ref={rowRef} className="row-inner">
-        {assignedPlans.map((plan, index) => (
-          <PlanItem
-            plan={plan}
-            startSlotTime={startSlotTime}
-            endSlotTime={endSlotTime}
-            zoomSize={zoomSize}
-            updatePlan={updatePlan}
-            addPlan={addPlan}
-            openModal={openModal}
-          />
-        ))}
+        {assignedPlans.map((plan, index) => {
+          const { overlapData, maxDepth } = calculateOverlapIndicesAndDepth(assignedPlans);
+          return (
+            <PlanItem
+              key={index}
+              plan={plan}
+              depth={overlapData[index].depth}
+              overlapIndex={overlapData[index].overlapIndex}
+              maxDepth={maxDepth} // Pass the maximum depth to calculate sub-row height
+              startSlotTime={startSlotTime}
+              endSlotTime={endSlotTime}
+              zoomSize={zoomSize}
+              updatePlan={updatePlan}
+              addPlan={addPlan}
+              openModal={openModal}
+            />
+          );
+        })}
       </div>
     </div>
   );
