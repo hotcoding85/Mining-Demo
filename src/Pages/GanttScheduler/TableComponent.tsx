@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Resource, Plan, ShiftType, resourceHeight } from "./interfaces/type";
 import { calculateTimelineSlots, TimelineSlot } from "utils/dateUtils";
 import TimeLineRow from "./Timeline/TimeLineRow";
 import "./styles/TableComponent.scss";
-import { wrap } from "module";
+import { useDrag, useDrop } from "react-dnd";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import {
   hd1500,
   hd785,
@@ -27,7 +29,69 @@ interface TableComponentProps {
   updatePlan: (updatedPlan: Plan, flag: string) => void;
   heights: resourceHeight[];
   openModal: (plan?: Plan) => void;
+  _setOrderedData: (orderedData) => void;
 }
+
+// DraggableRow Component
+const DraggableRow = ({ resource, index, moveRow, height }) => {
+  const ref = useRef(null);
+
+  const [, drop] = useDrop({
+    accept: "ROW",
+    hover(item: any) {
+      if (!ref.current) return;
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) return;
+
+      // Move the row
+      moveRow(dragIndex, hoverIndex);
+
+      // Update the dragged item's index
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "ROW",
+    item: { type: "ROW", index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
+
+  return (
+    <div
+      ref={ref}
+      className="timeline-row header"
+      style={{
+        height,
+        opacity: isDragging ? 0.5 : 1,
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: 100,
+          fontSize: "14px",
+          paddingLeft: "4px",
+          textAlign: "left",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-around",
+        }}
+        className="timeline-grid-row-cell"
+      >
+        <span style={{ fontWeight: "800" }}>{resource.name}</span>
+      </div>
+    </div>
+  );
+};
 
 const TableComponent: React.FC<TableComponentProps> = ({
   data,
@@ -40,7 +104,19 @@ const TableComponent: React.FC<TableComponentProps> = ({
   updatePlan,
   heights,
   openModal,
+  _setOrderedData
 }) => {
+  const [orderedData, setOrderedData] = useState(data);
+
+  // Function to move a row from one index to another
+  const moveRow = useCallback((dragIndex, hoverIndex) => {
+    const updatedData = [...orderedData];
+    const [removed] = updatedData.splice(dragIndex, 1);
+    updatedData.splice(hoverIndex, 0, removed);
+    setOrderedData(updatedData);
+    _setOrderedData(updatedData)
+  }, [orderedData]);
+  
   const timelineSlots: TimelineSlot[] = calculateTimelineSlots(
     selectedDate,
     shiftType,
@@ -103,127 +179,92 @@ const TableComponent: React.FC<TableComponentProps> = ({
   };
 
   return (
-    <div className="gantt-container">
-      <div className="gantt-resource">
-        <div className="timeline-row header">
-          <Badge.Ribbon placement="start" text="Equipment" color={shiftType == 'DAY_SHIFT' ? "cyan" : 'cyan-inverse'} style={{fontWeight: 600, fontSize: '16px', paddingTop: '5px', paddingBottom: '5px'}}>
-            <div
-              style={{ width: 100, height: 50, color: "white" }}
-              className="timeline-grid-row-cell"
-            >
-              {shiftType == 'NIGHT_SHIFT' ? <MoonOutlined></MoonOutlined> : <SunOutlined />}
-            </div>
-          </Badge.Ribbon>
-          {/* <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div> */}
-        </div>
-        {data.map((resource, index) => (
-          <div
-            className="timeline-row header"
-            key={index}
-            style={{ height: heights[index]?.height }}
-          >
-            <div
-              style={{
-                width: 100,
-                fontSize: "14px",
-                paddingLeft: "4px",
-                textAlign: "left",
-                alignItems: "center",
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-              }}
-              className="timeline-grid-row-cell"
-            >
-              {/* <Badge.Ribbon placement="start" text={resource.name} color={resource.state === 'ACTIVE' ? 'green' : resource.state !== 'STANDBY' ? 'red' : 'gold'} style={{fontWeight: 600, fontSize: '12px', marginLeft: '-9px'}}> */}
-              {/* <img style={{width: '30px', height: '30px'}} src={getImage(resource.model)}></img> */}
-              <span style={{fontWeight: '800'}}>{resource.name}</span>
-              {/* </Badge.Ribbon> */}
-            </div>
-            {/* <div style={{width : 70}} className='timeline-grid-row-cell'>{resource.progress}</div> */}
+    <DndProvider backend={HTML5Backend}>
+      <div className="gantt-container">
+        <div className="gantt-resource">
+          <div className="timeline-row header">
+            <Badge.Ribbon placement="start" text="Equipment" color={shiftType == 'DAY_SHIFT' ? "cyan" : 'cyan-inverse'} style={{fontWeight: 600, fontSize: '16px', paddingTop: '5px', paddingBottom: '5px'}}>
+              <div
+                style={{ width: 100, height: 50, color: "white" }}
+                className="timeline-grid-row-cell"
+              >
+                {shiftType == 'NIGHT_SHIFT' ? <MoonOutlined></MoonOutlined> : <SunOutlined />}
+              </div>
+            </Badge.Ribbon>
+            {/* <div style={{width : 70, height: 50}} className='timeline-grid-row-cell'>Progress</div> */}
           </div>
-        ))}
-      </div>
-      <div className="gantt-chart">
-        <div className="chart-inner">
-          <div className="chat-timeline-grid">
-            <div className="timeline-row header">
-              {timelineSlots.map((slot, index) => (
-                <div
-                  key={index}
-                  style={{ width: 100, height: 50 }}
-                  className="timeline-grid-row-cell"
-                >
-                  {slot.isNewDay ? (
-                    <>
-                      <div>{slot.date}</div>
+          {orderedData.map((resource, index) => (
+            <DraggableRow
+              key={resource.id}
+              resource={resource}
+              index={index}
+              moveRow={moveRow}
+              height={heights[index]?.height}
+            />
+          ))}
+        </div>
+        <div className="gantt-chart">
+          <div className="chart-inner">
+            <div className="chat-timeline-grid">
+              <div className="timeline-row header">
+                {timelineSlots.map((slot, index) => (
+                  <div
+                    key={index}
+                    style={{ width: 100, height: 50 }}
+                    className="timeline-grid-row-cell"
+                  >
+                    {slot.isNewDay ? (
+                      <>
+                        <div>{slot.date}</div>
+                        <div>{slot.time}</div>
+                      </>
+                    ) : (
                       <div>{slot.time}</div>
-                    </>
-                  ) : (
-                    <div>{slot.time}</div>
-                  )}
+                    )}
+                  </div>
+                ))}
+              </div>
+              {orderedData.map((resource, index) => (
+                <div
+                  className="timeline-row"
+                  style={{ height: heights[index].height }}
+                >
+                  {timelineSlots.map((slot, index) => (
+                    <div className="timeline-grid-row-cell"></div>
+                  ))}
                 </div>
               ))}
             </div>
-            {data.map((resource, index) => (
-              <div
-                className="timeline-row"
-                style={{ height: heights[index].height }}
-              >
-                {timelineSlots.map((slot, index) => (
-                  <div className="timeline-grid-row-cell"></div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div
-            className="chat-timelime-items"
-            style={{ width: timelineSlots.length * 100 }}
-          >
             <div
-              className="chat-timeline-items-row"
-              style={{ height: 50 }}
-            ></div>
-            {data.map((resource, index) => (
-              <>
-                <TimeLineRow
-                  key={index}
-                  excavator={resource}
-                  excavatorId={resource.id}
-                  plans={plans}
-                  updatePlan={updatePlan}
-                  addPlan={addPlan}
-                  zoomSize={zoomSize}
-                  endSlotTime={endSlotDateTime}
-                  startSlotTime={startSlotDateTime}
-                  rowHeight={heights[index].height}
-                  openModal={openModal} />
-              </>
-            ))}
+              className="chat-timelime-items"
+              style={{ width: timelineSlots.length * 100 }}
+            >
+              <div
+                className="chat-timeline-items-row"
+                style={{ height: 50 }}
+              ></div>
+              {orderedData.map((resource, index) => (
+                <>
+                  <TimeLineRow
+                    key={index}
+                    excavator={resource}
+                    excavatorId={resource.id}
+                    plans={plans}
+                    updatePlan={updatePlan}
+                    addPlan={addPlan}
+                    zoomSize={zoomSize}
+                    endSlotTime={endSlotDateTime}
+                    startSlotTime={startSlotDateTime}
+                    rowHeight={heights[index].height}
+                    openModal={openModal} />
+                </>
+              ))}
 
+            </div>
           </div>
-          {/* <div>
-            {data.map((equipment) => (
-              <Card key={equipment.id} className="p-4 flex items-center space-x-4">
-                <Avatar style={{ backgroundColor: '#f0f0f0' }} size={48}>
-                  <img style={{width: '30px', height: '30px'}} src={getImage(equipment.model)}></img>
-                </Avatar>
-                <div className="flex-grow">
-                  <h3 className="font-bold">{equipment.name}</h3>
-                  <p className="text-sm text-gray-500">{equipment.id}</p>
-                </div>
-                <Tooltip title={equipment.status}>
-                  <Badge 
-                    status={equipment.state === 'ACTIVE' ? 'success' : equipment.state !== 'STANDBY' ? 'error' : 'warning'} 
-                    style={{ width: '12px', height: '12px', borderRadius: '50%' }} 
-                  />
-                </Tooltip>
-              </Card>
-            ))}
-          </div> */}
         </div>
       </div>
-    </div>
+    </DndProvider>
   );
 };
 
