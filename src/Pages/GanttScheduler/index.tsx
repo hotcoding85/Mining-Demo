@@ -39,6 +39,7 @@ import {
   addDispatch,
   updateDispatch,
   removeDispatch,
+  getAllMaterials,
 } from "slices/thunk";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -47,7 +48,7 @@ import { debounce } from "lodash";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { usePlans } from "Hooks/usePlans";
-import { FleetSelector } from "selectors";
+import { FleetSelector, MaterialSelector } from "selectors";
 import { colors } from './data/sampleData'
 
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
@@ -56,13 +57,15 @@ const GanttScheduler: React.FC = () => {
   document.title = "Gantt Scheduler | FMS Live";
   const dispatch: any = useDispatch();
   const { fleet } = useSelector(FleetSelector);
-  const { benches, fleets } = useSelector(
+  const { materials } = useSelector(MaterialSelector)
+  const { benches, fleets, fences } = useSelector(
     createSelector(
       (state: any) => state,
       (state) => {
         return {
           benches: state.Benches.data,
           fleets: state.Fleet.data,
+          fences: state.GeoFences.fences
         };
       }
     )
@@ -142,7 +145,8 @@ const GanttScheduler: React.FC = () => {
   useEffect(() => {
     dispatch(getAllBenches(1, 200));
     dispatch(getAllFleet(1, 200));
-  }, []);
+    dispatch(getAllMaterials(1, 100)); // Dispatch action to fetch data on component mount
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getDispatchs(roster)); //set roster
@@ -160,13 +164,22 @@ const GanttScheduler: React.FC = () => {
   const activeBenches = useMemo(
     () => {
       return benches
-        .filter((item) => item.status === "ACTIVE" && item.category === 'SOURCE')
-        .map((bench) => ({
+      .filter((bench) => bench.status === "ACTIVE" && bench.category === "SOURCE")
+      .map((bench) => {
+        // Find the material associated with this bench
+        const material = materials.find((mat) => mat.id === bench.materialId);
+
+        // Use material color if it exists and is defined, otherwise assign random color
+        const color = material?.color || colors[Math.floor(Math.random() * colors.length)];
+
+        return {
           ...bench,
-          color: colors[Math.floor(Math.random() * colors.length)] // Assign random color
-        }));
+          color,
+          materialName: material?.name || "Unknown", // Optionally add material name or other fields
+        };
+      });
     },
-    [benches]
+    [benches, materials]
   );
   const archiveBenches = useMemo(
     () => {
@@ -382,7 +395,6 @@ const GanttScheduler: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log(plans)
   },[ plans ])
 
   return (
