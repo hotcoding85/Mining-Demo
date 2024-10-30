@@ -6,6 +6,7 @@ import "./styles/TableComponent.scss";
 import { useDrag, useDrop } from "react-dnd";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { DragOutlined, HolderOutlined } from '@ant-design/icons';
 import {
   hd1500,
   hd785,
@@ -87,6 +88,7 @@ const DraggableRow = ({ resource, index, moveRow, height }) => {
         }}
         className="timeline-grid-row-cell"
       >
+        <HolderOutlined style={{ cursor: "grab" }} /> {/* Dragging icon */}
         <span style={{ fontWeight: "800" }}>{resource.name}</span>
       </div>
     </div>

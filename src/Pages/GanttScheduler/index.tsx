@@ -457,16 +457,40 @@ const GanttScheduler: React.FC = () => {
                     </Card>
                     <div className="row mt-2">
                       {excavators.map((equipment) => {
-                        // Filter out all plans for the specific equipment
-                        const equipmentPlans = plans.filter(plan => plan.excavatorId === equipment.id);
+                        const equipmentPlans = plans.filter(plan => {
+                          if (plan.excavatorId !== equipment.id) return false;
                         
+                          // Parse the selectedDate to create Date objects for shift boundaries
+                          const startOfDay = new Date(`${selectedDate.toISOString().split('T')[0]}T00:00:00`);
+                          
+                          // Set shift boundaries
+                          let shiftStart, shiftEnd;
+                          
+                          if (shiftType === "DAY_SHIFT") {
+                            shiftStart = new Date(startOfDay);
+                            shiftStart.setHours(6, 0, 0, 0); // 06:00 of selectedDate
+                        
+                            shiftEnd = new Date(startOfDay);
+                            shiftEnd.setHours(18, 0, 0, 0); // 18:00 of selectedDate
+                          } else if (shiftType === "NIGHT_SHIFT") {
+                            shiftStart = new Date(startOfDay);
+                            shiftStart.setHours(18, 0, 0, 0); // 18:00 of selectedDate
+                        
+                            shiftEnd = new Date(startOfDay);
+                            shiftEnd.setDate(shiftEnd.getDate() + 1); // Move to the next day
+                            shiftEnd.setHours(6, 0, 0, 0); // 06:00 of the next date
+                          }
+                        
+                          // Check if the plan's start time is within the shift boundaries
+                          const planStartTime = new Date(plan.startTime);
+                          return planStartTime >= shiftStart && planStartTime < shiftEnd;
+                        });
                         // Calculate total duration in milliseconds
                         const totalDurationMs = equipmentPlans.reduce((total, plan) => {
                           const start = new Date(plan.startTime).getTime();
                           const end = new Date(plan.endTime).getTime();
                           return total + (end - start);
                         }, 0);
-
                         // Convert milliseconds to hours and minutes
                         const hours = Math.floor(totalDurationMs / (1000 * 60 * 60));
                         const minutes = Math.floor((totalDurationMs % (1000 * 60 * 60)) / (1000 * 60));
