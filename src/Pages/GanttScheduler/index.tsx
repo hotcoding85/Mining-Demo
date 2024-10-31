@@ -459,9 +459,9 @@ const GanttScheduler: React.FC = () => {
                       {excavators.map((equipment) => {
                         const equipmentPlans = plans.filter(plan => {
                           if (plan.excavatorId !== equipment.id) return false;
-                        
                           // Parse the selectedDate to create Date objects for shift boundaries
-                          const startOfDay = new Date(`${selectedDate.toISOString().split('T')[0]}T00:00:00`);
+                          const startOfDay = new Date(selectedDate);
+                          startOfDay.setHours(0, 0, 0, 0);
                           
                           // Set shift boundaries
                           let shiftStart, shiftEnd;
@@ -484,7 +484,7 @@ const GanttScheduler: React.FC = () => {
                           // Check if the plan's start time is within the shift boundaries
                           const planStartTime = new Date(plan.startTime);
                           return planStartTime >= shiftStart && planStartTime < shiftEnd;
-                        });
+                        }).sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
                         // Calculate total duration in milliseconds
                         const totalDurationMs = equipmentPlans.reduce((total, plan) => {
                           const start = new Date(plan.startTime).getTime();
@@ -494,23 +494,42 @@ const GanttScheduler: React.FC = () => {
                         // Convert milliseconds to hours and minutes
                         const hours = Math.floor(totalDurationMs / (1000 * 60 * 60));
                         const minutes = Math.floor((totalDurationMs % (1000 * 60 * 60)) / (1000 * 60));
-
+                        const firstPlan = equipmentPlans ? equipmentPlans[0] : null
                         // Format as hh:mm
                         const duration = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
                         return (
                           <Col sm={6} xs={6} lg={4} key={equipment.id}>
-                            <Card className="p-4 flex items-center space-x-4 aggregate-item">
-                              <div style={{ flexDirection: 'row', display: 'flex', alignItems: 'center' }}>
-                                <Avatar style={{ backgroundColor: '#00000080' }} size={48}>
-                                  <img style={{ width: '30px', height: '30px' }} src={getImage(equipment.model)} alt="equipment" />
-                                </Avatar>
-                                <div className="flex-grow ml-1" style={{marginLeft: '5px'}}>
-                                  <h4 className="font-bold" style={{ marginBottom: '0px' }}>{equipment.name}</h4>
-                                  <h6 style={{marginBottom: '0px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration + ' / 12:00'}</h6> 
+                            <Card className="p-2 flex items-center space-x-4 aggregate-item">
+                              <div className="d-flex items-center" style={{flexDirection: 'row', height: '150px', alignItems: 'center'}}>
+                                <div style={{ flexDirection: 'column', display: 'flex', alignItems: 'center', marginRight: '2rem' }}>
+                                  <Avatar style={{ backgroundColor: '#00000080' }} size={48}>
+                                    <img style={{ width: '30px', height: '30px' }} src={getImage(equipment.model)} alt="equipment" />
+                                  </Avatar>
+                                  <h5 className="font-bold" style={{ marginBottom: '0px', fontSize:"16px" }}>{equipment.name}</h5>
+                                  <h6 style={{marginBottom: '0px', marginTop: '1rem', fontSize: '12px'}}>{shiftType == 'NIGHT_SHIFT' ? <MoonOutlined style={{marginRight: '5px'}} /> : <SunOutlined style={{color: "gold", marginRight: '5px'}} />}{duration + ' / 12:00'}</h6> 
+                                </div>
+                                <div style={{ flexDirection: 'column', display: 'flex', alignItems: 'center' }}>
+                                  {firstPlan ?
+                                    <div className="plan-item-tooltip-content" style={{fontSize: '11px'}}>
+                                      <div><strong>Plan: </strong> {firstPlan.name}</div>
+                                      <div><strong>Time: </strong> 
+                                        {new Date(firstPlan.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ~ ' +
+                                          new Date(firstPlan.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                      </div>
+                                      <div><strong>Block ID: </strong> {firstPlan?.source?.blockId}</div>
+                                      <div><strong>Density: </strong> {firstPlan?.source?.density}</div>
+                                      <div><strong>Grade: </strong> {firstPlan?.source?.grade}</div>
+                                      <div><strong>Tonnes: </strong> {firstPlan?.source?.tonnes}</div>
+                                      <div><strong>Reminder: </strong> {firstPlan?.source?.reminder || '---'}</div>
+                                    </div> :
+                                    <div>
+                                      <strong>No assigned plan</strong>
+                                    </div>
+                                  }
                                 </div>
                               </div>
                               <span
-                                className="card-status"
+                                className="equipment-status"
                                 style={{ backgroundColor: equipment.state === 'ACTIVE' ? '#0f9d58' : equipment.state !== 'STANDBY' ? '#db4437' : '#F7B31A' }}
                               >
                                   {equipment.state}

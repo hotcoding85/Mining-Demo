@@ -6,11 +6,23 @@
 }
 
 .aggregate-item{
-  // min-width: 250px;
-  // width: 250px;
+  min-height: 150px;
+  height: 150px;
   display: flex !important;
   flex-direction: column !important;
   align-items: center;
+
+  .equipment-status{
+    position: absolute;
+    left: 0;
+    top: 1px;
+    padding: 2px 16px;
+    margin-right: 0;
+    color: #ffffff;
+    border-radius: 0px 20px 20px 0px;
+    font-weight: 700;
+    font-size: 12px;
+  }
 }
 .aggregate-item-badge{
   width: 80% !important;
