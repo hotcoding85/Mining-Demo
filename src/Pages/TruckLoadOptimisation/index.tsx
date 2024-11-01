@@ -17,16 +17,16 @@ const TruckLoadOptimisation = (props: any) => {
   const tabItems: TabsProps["items"] = [
     {
       key: "table",
-      label: "Table View",
+      label: "Analysis",
     },
     {
       key: "map",
       label: "Map View",
     },
-    {
-      key: "profile",
-      label: "Truck Load Profile",
-    },
+    // {
+    //   key: "profile",
+    //   label: "Truck Load Profile",
+    // },
   ];
 
   const filters = {
@@ -58,7 +58,7 @@ const TruckLoadOptimisation = (props: any) => {
 
   const [selectedValues, setSelectedValues] = useState<{
     [key: string]: string[];
-  }>({"model": ['HD1500', 'HD785']});
+  }>({ "model": ['HD1500', 'HD785'] });
 
   const onTabChange = (key: string) => {
     if (key === "table") {
@@ -114,12 +114,11 @@ const TruckLoadOptimisation = (props: any) => {
           </Row>
 
           {displayType === "TABLE" ? (
-            <TruckLoadOptimisationTableView />
-          ) : displayType === "MAP" ? (
-            <TruckLoadOptimisationMapView />
+            <TruckLoadOptimisationTableView selectedValues={selectedValues} />
           ) : (
-            <TruckLoadProfileView selectedValues={selectedValues} />
-          )}
+            <TruckLoadOptimisationMapView />
+          )
+          }
         </Container>
       </div>
     </React.Fragment>

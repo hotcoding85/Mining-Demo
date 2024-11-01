@@ -32,7 +32,6 @@ ChartJS.register(
 interface BarGraphProps {
   data: CustomBarChartData;
   options: ChartOptions<"bar">;
-  textColor: TextColor[];
   widthVal?: string;
   backgroundCol?: string;
 }
@@ -40,21 +39,21 @@ interface BarGraphProps {
 export const BarGraph: React.FC<BarGraphProps> = ({
   data,
   options,
-  textColor,
   widthVal,
   backgroundCol,
 }) => {
 
+  const labels = data.datasets.map(item => {return {'title': item.label, 'color':item.backgroundColor}})
   return (
     <div className="BarGraphContainer">
       <div className="LegendContainer">
-        {textColor.map((item, index) => (
+        {labels.map((item, index) => (
           <div className="LegendItem" key={index}>
             <div
               className="LegendCircle"
               style={{ backgroundColor: item.color }}
             />
-            <div className="LegendText">{item.text}</div>
+            <div className="LegendText">{item.title}</div>
           </div>
         ))}
       </div>

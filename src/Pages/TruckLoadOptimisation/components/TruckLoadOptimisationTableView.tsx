@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getRandomInt } from "utils/random";
 import {
   Card,
@@ -16,9 +16,12 @@ import "../styles/tableView.css";
 import LoadHaulCycleTimeBreakdown from "./LoadHaulCycleTimeBreakdown";
 import { BarGraph } from "Components/Charts/BarChart";
 import { TextColor } from "Components/Charts/interfaces/general";
-import { PayloadBeforeData, PayloadWithData } from "../data/sampleData";
+import { data, PayloadWithData } from "../data/sampleData";
 import { getContentByState } from "utils/common";
 import Table from "Components/Common/Table";
+import GraphCard from "./GraphCard";
+import _ from "lodash";
+import ProfileTableView from "./ProfileTableView";
 
 const columns = [
   {
@@ -266,13 +269,45 @@ const barOptions = {
   },
 };
 
-const textColor: TextColor[] = [{ text: "Ton Target", color: "#9CA3B1" }];
-
-const TruckLoadOptimisationTableView = () => {
+const TruckLoadOptimisationTableView = (props) => {
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const statusOptions = ["Active", "Standby", "Delayed", "Down"];
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [models, setModels] = useState<any>(null);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
+
+  useEffect(() => {
+
+    const _models: any = []
+    if (props.selectedValues['model'] && props.selectedValues['model'].length !== 0) {
+      props.selectedValues['model'].map(model => {
+        _models.push(model);
+      })
+      setModels(_models)
+      return
+    }
+
+    if (!props.selectedValues || !props.selectedValues['fleet'] || props.selectedValues['fleet'].length === 0) {
+      setModels(null)
+      return
+    }
+
+    if (!props.selectedValues['model'] || props.selectedValues['model'].length === 0) {
+
+      const _models = _.uniq(
+        _.flatMap(props.selectedValues['fleet'], equipmentName =>
+          // Find matching equipment in data and return its models
+          _.flatMap(data[0], item =>
+            item.equipmentName === equipmentName ? item.model : []
+          )
+        )
+      );
+      setModels(_models)
+    }
+    else {
+      setModels(null)
+    }
+  }, [props.selectedValues])
 
   const tableData = useMemo(
     () => [
@@ -467,20 +502,29 @@ const TruckLoadOptimisationTableView = () => {
               />
             </div>
           </div>
-          <div className="mt-3">
-            <Table
-              columns={columns}
-              data={tableData}
-              paginationPageSize={5}
-              scroll={{ x: "max-content" }}
-            />
-          </div>
         </CardBody>
       </Card>
+
+      <div className="mt-3" >
+        {
+          models ?
+            models.map((item, index) => {
+              const title = "Payload Profile Window (" + item + ")";
+              return <GraphCard title={title} type={item} loads={item === 'HD1500' ? 150 : 85} />
+            })
+            :
+            <></>
+        }
+      </div>
+
+      <div className="d-flex align-items-center justify-content-between">
+        <ProfileTableView selectedValues={props.selectedValues}/>
+      </div>
+
       <div>
         <LoadHaulCycleTimeBreakdown />
       </div>
-      <div className="payload-chart">
+      {/* <div className="payload-chart">
         <Card style={{ width: "100%" }}>
           <CardBody>
             <div className="haulroad-summary-title text-start">
@@ -493,7 +537,7 @@ const TruckLoadOptimisationTableView = () => {
             />
           </CardBody>
         </Card>
-      </div>
+      </div> */}
       <div className="payload-chart">
         <Card style={{ width: "100%" }}>
           <CardBody>
@@ -503,11 +547,20 @@ const TruckLoadOptimisationTableView = () => {
             <BarGraph
               data={PayloadWithData}
               options={barOptions}
-              textColor={textColor}
+              // textColor={textColor}
             />
           </CardBody>
         </Card>
       </div>
+
+      <div className="mt-3">
+            <Table
+              columns={columns}
+              data={tableData}
+              paginationPageSize={5}
+              scroll={{ x: "max-content" }}
+            />
+          </div>
     </>
   );
 };

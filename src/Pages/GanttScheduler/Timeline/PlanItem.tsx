@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useDrag } from "react-dnd";
 import { Plan } from "../interfaces/type";
 import "../styles/TimelineCell.css";
 import { Space, Tooltip } from "antd";
+import { Color } from "antd/es/color-picker";
+import { useSelector } from "react-redux";
+import { MaterialSelector } from "selectors";
 
 interface PlanItemProps {
   plan: any;
@@ -45,6 +48,15 @@ const PlanItem: React.FC<PlanItemProps> = ({
   const [resizeDirection, setResizeDirection] = useState<
     "left" | "right" | null
   >(null);
+  const { materials } = useSelector(MaterialSelector)
+  const color = useMemo(() => {
+    const material = materials.find((mat) => mat.id === plan.source.materialId);
+
+    // Use material color if it exists and is defined, otherwise assign random color
+    const color = material?.color || "#ff6247";
+
+    return color;
+  }, [plan])
 
   const planElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -182,7 +194,6 @@ const PlanItem: React.FC<PlanItemProps> = ({
   }, [maxDepth])
   useEffect(() => {
     topOffset.current = itemHeight.current * overlapIndex
-    console.log(topOffset.current)
   }, [overlapIndex])
   return (
     <div
@@ -192,7 +203,7 @@ const PlanItem: React.FC<PlanItemProps> = ({
       onMouseMove={handleMouseOver}
       onMouseUp={handleEditPlan}
       style={{
-        backgroundColor: plan.color || "#ff6247",
+        backgroundColor: color,
         width: elementWidth,
         height: `${itemHeight.current}px`, // Dynamic height based on overlap count
         position: "absolute",

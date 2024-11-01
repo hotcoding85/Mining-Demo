@@ -113,9 +113,9 @@ const PlanModal: React.FC<PlanModalProps> = ({
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="color" label="Dump color">
+        {/* <Form.Item name="color" label="Dump color">
           <Input onChange={(e) => {setNewColor(e.target.value)}} type="color" style={{ width: "100%", height: "32px" }} />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item>
           <Space className="d-flex" style={{justifyContent: 'space-between'}}>
             <Button icon={<SaveOutlined />} onClick={handleSave}>

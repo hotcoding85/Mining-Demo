@@ -161,11 +161,6 @@ const TruckingPerformance = () => {
     },
   };
 
-  const textColor: TextColor[] = [
-    { text: "Plan", color: "#9CA3B1" },
-    { text: "Actual", color: "#535E77" },
-  ];
-
   return (
     <div className="page-content">
       <div className="DashboardContainer">
@@ -200,7 +195,6 @@ const TruckingPerformance = () => {
                 <BarGraph
                   data={barData}
                   options={barOptions}
-                  textColor={textColor}
                 />
               </Card>
             </div>
