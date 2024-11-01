@@ -98,7 +98,7 @@ const GanttScheduler: React.FC = () => {
     () => setRequestCount((prev) => prev - 1),
     [setRequestCount]
   );
-
+  const categoryOrder = ["EXCAVATOR", "LOADER", "DOZER", "DRILLER"];
   const excavatorFilter = useCallback(
     (vehicle) =>
       vehicle?.category !== "DUMP_TRUCK" 
@@ -109,7 +109,21 @@ const GanttScheduler: React.FC = () => {
   );
 
   const excavators = useMemo(() => {
-    return fleets.filter((fleet) => excavatorFilter(fleet));
+    // First filter the fleets
+    const filteredFleets = fleets.filter((fleet) => excavatorFilter(fleet));
+  
+    // Then sort by category and name
+    return filteredFleets.sort((a, b) => {
+      // Sort by category using the predefined order
+      const categoryAIndex = categoryOrder.indexOf(a.category);
+      const categoryBIndex = categoryOrder.indexOf(b.category);
+      if (categoryAIndex !== categoryBIndex) {
+        return categoryAIndex - categoryBIndex;
+      }
+  
+      // If categories are the same, sort by name alphabetically
+      return a.name.localeCompare(b.name);
+    });
   }, [fleets, excavatorFilter]);
 
   const [orderedData, setOrderedData] = useState(excavators)
