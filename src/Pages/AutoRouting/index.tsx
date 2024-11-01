@@ -956,13 +956,16 @@ const AutoRouting = () => {
                     name: 'New Route ' + Date.now(),
                     category: "CURRENT_HAUL_ROUTES"
                 };
-                dispatch(addRoute(saving_data))
+
+                setCurrentCategory(layerOptions[0])
+                setEditingRouteId(null);
+                setNewTitle('New Route ' + Date.now());
+                setSpeedLimit(defaultSpeedLimit);
+                setNewColor(color)
+                setIsModalOpen(true);
                 
-                clearRoute()
-                setDrawing(false);
-                currentRoute.current++
-                setNotificationType('success')
-                setErrorMessage('New Route saved successfully!')
+                // setNotificationType('success')
+                // setErrorMessage('New Route saved successfully!')
             } catch (error) {
                 console.error(error);
             }
@@ -1686,6 +1689,45 @@ const AutoRouting = () => {
                 setErrorMessage(newTitle + ' saved successfully!')
                 changeTubeColor(editingRouteId, _saving_data.color)
             }
+            if (currentCategory.value === 'Empty') {
+                setNotificationType('warning')
+                setErrorMessage("Please input all value correctly!")
+                return
+            }
+            if (!editingRouteId) {
+                if (coordinates.length > 1) {
+                    let distance = Math.floor(turf.length(turf.lineString(coordinates), { units: 'meters' }))
+                    let duration = Math.floor(distance / (speedLimit / 3.6))
+                    try {
+                        let saving_data: any = {
+                            geoJson: {
+                                geometry: {
+                                    type: 'LineString',
+                                    coordinates: coordinates as [number, number][],
+                                },
+                                type: "Feature",
+                                properties: {}
+                            },
+                            distance: distance,
+                            duration: duration,
+                            speedLimits: speedLimit,
+                            color: newColor,
+                            name: newTitle,
+                            category: currentCategory.value
+                        };
+                        dispatch(addRoute(saving_data))
+                        clearRoute()
+                        setDrawing(false);
+                        setIsModalOpen(false);
+                        currentRoute.current++
+                        setNotificationType('success')
+                        setErrorMessage('New Route saved successfully!')
+                    } catch (error) {
+                        console.error(error);
+                    }
+        
+                }
+            }
         } catch (error) {
             console.log(error)
         }
@@ -1946,44 +1988,6 @@ const AutoRouting = () => {
         return false; // Point is not inside any polygons
     };
 
-    function getLabelInterval(cameraZ) {
-        if (cameraZ < 300) return 20; // Closer camera -> more labels
-        if (cameraZ < 500) return 50;
-        if (cameraZ < 700) return 100;
-        return 200; // Further camera -> fewer labels
-    }
-    
-    function addRouteLabels(routeName, curve, cameraZ) {
-        // Remove existing labels for this route to avoid duplicates
-        window.map.scene.children.forEach(child => {
-            if (child.isCSS2DObject && child.userData.routeName === routeName) {
-                window.map.scene.remove(child);
-            }
-        });
-    
-        // Determine interval based on the camera's z position
-        const interval = getLabelInterval(cameraZ);
-        const points = curve.getPoints(100); // Divide the curve into 100 points
-    
-        // Place labels at the calculated interval
-        for (let i = 0; i < points.length; i += interval) {
-            const position = points[i];
-            // Create a label div
-            const div = document.createElement('div');
-            div.className = 'label';
-            div.textContent = routeName;
-            div.style.marginTop = '-1em';
-    
-            // Create CSS2DObject for the label and set its position
-            const label = new CSS2DObject(div);
-            label.position.set(position.x, position.y, position.z);
-            label.userData = { routeName: routeName };
-    
-            // Add the label to the scene
-            window.map.scene.add(label);
-        }
-    }
-      
     const updateAnnotations = useCallback(() => {
         if (!mapContainer.current || !window.map) return;
     
