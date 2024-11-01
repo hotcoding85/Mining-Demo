@@ -140,11 +140,6 @@ const DailyProductionDashboard = () => {
     },
   };
 
-  const textColor: TextColor[] = [
-    { text: "Plan", color: "#9CA3B1" },
-    { text: "Actual", color: "#535E77" },
-  ];
-
   const lineData = {
     labels: [
       "07:00",
@@ -271,7 +266,6 @@ const DailyProductionDashboard = () => {
             <BarGraph
               data={diggerBarData}
               options={barOptions}
-              textColor={textColor}
               widthVal={'100%'}
               backgroundCol={"#24314D"}
             />
@@ -282,7 +276,6 @@ const DailyProductionDashboard = () => {
               data={barData}
               options={barOptions}
               widthVal={'100%'}
-              textColor={textColor}
               backgroundCol={"#24314D"}
             />
           </div>

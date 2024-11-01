@@ -174,11 +174,6 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
     },
   };
 
-  const textColor: TextColor[] = [
-    { text: "Plan", color: "#9CA3B1" },
-    { text: "Actual", color: "#535E77" },
-  ];
-
   const { layoutModeType } = useSelector(LayoutSelector);
 
   const isLight = useMemo(
@@ -285,7 +280,6 @@ function DiggingExecutionCard({ imgSrc, altText, title, cardTitle, progressValue
                 <BarGraph
                   data={barData}
                   options={barOptions}
-                  textColor={textColor}
                 />
               </div>
             </Col>
