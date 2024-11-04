@@ -29,6 +29,8 @@ import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
 import COMPASS from 'assets/images/compass.png'
 import COMPASS_VECTOR from 'assets/images/compass-vector.png'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 const index = new RBush();
 
 declare global {
@@ -38,6 +40,7 @@ declare global {
         controls: any;
         renderer: any;
         TruckObject: any;
+        DiggerObject: any;
         savedCameraPosition: any;
         savedCameraQuaternion: any;
         isAnimation: any;
@@ -77,14 +80,16 @@ interface THREEJSMapProps {
     width?: string;
     isAnimation?: boolean;
     isAutoRouting?: boolean;
+    diggerImport?: boolean;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, isAutoRouting = false}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, isAutoRouting = false, diggerImport = false}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
     const localMapContainerRef = useRef<HTMLDivElement | null>(null);
-
+    const mixer = useRef<any>(null)
+    const clock = useRef<any>(null)
     // This exposes the localMapContainerRef to the parent component using localMapContainerRef
     useImperativeHandle(ref, () => ({
         getMapContainer: () => localMapContainerRef.current,
@@ -259,99 +264,166 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         // await _processZipFile();
     }
 
-    // const fetch3DTruck = async () => {
-    //     if (!window.map) return
-    //     try {
-    //         const mtlLoader = new MTLLoader();
-    //         const materials = await new Promise<MTLLoader.MaterialCreator>((resolve, reject) => {
-    //             mtlLoader.load(
-    //                 '/Truck/3D_Truck.mtl',
-    //                 (materials) => resolve(materials),
-    //                 undefined,
-    //                 (error) => reject(error)
-    //             );
-    //         });
+    const createExcavatorDiggingAnimation = (excavator: any) => {
+        const mixer = new THREE.AnimationMixer(excavator.group);
+      
+        // Boom rotation (up and down motion)
+        const boomTrack = new THREE.QuaternionKeyframeTrack(
+          `${excavator.boom.uuid}.quaternion`,  // Unique path to the boom's quaternion
+          [0, 3, 6],
+          [
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),  // Initial position
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.2, 0, 0)).toArray(),  // Down position
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray()  // Back to initial
+          ]
+        );
+      
+        // Arm rotation (inward and outward motion)
+        const armTrack = new THREE.QuaternionKeyframeTrack(
+          `${excavator.arm.uuid}.quaternion`,  // Unique path to the arm's quaternion
+          [0, 3, 6],
+          [
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.5, 0, 0)).toArray(),
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.5, 0, 0)).toArray()
+          ]
+        );
+      
+        // Bucket rotation (scooping motion)
+        const bucketTrack = new THREE.QuaternionKeyframeTrack(
+          `${excavator.bucket.uuid}.quaternion`,  // Unique path to the bucket's quaternion
+          [0, 3, 6],
+          [
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray(),
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0, 0)).toArray(),
+            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray()
+          ]
+        );
+      
+        // Create AnimationClip
+        const clip = new THREE.AnimationClip('DiggingAnimation', -1, [boomTrack, armTrack, bucketTrack]);
+        const action = mixer.clipAction(clip);
+        action.play();
+      
+        // Return mixer for use in render loop
+        return mixer;
+    };
 
-    //         materials.preload();
-
-    //         const response = await fetch('/Truck/3D_Truck.zip');
-    //         const arrayBuffer = await response.arrayBuffer();
-    //         const zip = await JSZip.loadAsync(arrayBuffer);
-
-    //         const objFile = await zip.file('3D_Truck.fbx')?.async("string");
-
-    //         if (!objFile) {
-    //             throw new Error("OBJ file not found in the zip archive");
-    //         }
-    //         const goldMaterial = new THREE.MeshStandardMaterial({
-    //             color: 0xffff00, // Gold color in hex
-    //             metalness: 1,  // Fully metallic
-    //             roughness: 0.6,  // Adjust roughness for shiny effect
-    //             depthTest: true,
-    //             depthWrite: true,
-    //             side: THREE.FrontSide,
-
-    //         });
-    //         const object = new OBJLoader()
-    //             .setMaterials(materials)
-    //             .parse(objFile);
+    const fetch3DExcavator = async () => {
+        if (!window.map) return;
+        const loader = new FBXLoader();
+        let boom: THREE.Object3D | null = null;
+        let arm: THREE.Object3D | null = null;
+        let bucket: THREE.Object3D | null = null;
+        loader.load('/Excavator/excavator.fbx', (object) => {
+            // Set up the AnimationMixer
+            window.mixer = new THREE.AnimationMixer(object);
+            // Traverse the loaded object to find and play animations
+            object.traverse((child: any) => {
+                if (!child.material) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 0xFFB43B, // Default color if no material found
+                        roughness: 0.5,
+                        metalness: 0.5
+                    });
+                }
+                
+                if (child.isMesh) {
+                    // Set depthTest to false
+                    if (isArray(child.material)) {
+                        child.material.map((_child) => {
+                            if (child.material && child.material.color && !(child.material.color.r < 0.1 && child.material.color.g < 0.1 && child.material.color.b < 0.1)) {
+                                child.material = new THREE.MeshStandardMaterial({
+                                    color: 0xFFB43B, // Default color if no material found
+                                    roughness: 0.5,
+                                    metalness: 0.5
+                                });
+                            }
+                            if (!child.material.color) {
+                                child.material.color = 0xFFB43B
+                            }
+                            _child.depthTest = true
+                            _child.depthWrite = true
+                            _child.transparent = false
+                        })
+                        child.renderOrder = 9998
+                    }
+                    else{
+                        if (child.material && child.material.color && !(child.material.color.r < 0.1 && child.material.color.g < 0.1 && child.material.color.b < 0.1)) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0xFFB43B, // Default color if no material found
+                                roughness: 0.5,
+                                metalness: 0.5
+                            });
+                        }
+                        if (!child.material.color) {
+                            child.material.color = 0xFFB43B
+                        }
+                        child.material.depthTest = true
+                        child.material.depthWrite = true
+                        child.material.transparent = false
+                        child.renderOrder = 10000
+                    }
+                }
+                if (child.name == 'Plane018') {
+                    boom = child;
+                }
+                else if (child.name == 'Plane019') {
+                    arm = child;
+                    console.log(arm)
+                }
+                else if (child.name == "Armature"){
+                    bucket = child;
+                }
+            });
+            // Store references to the parts in the DiggerObject
+            window.DiggerObject = {
+                group: new THREE.Group(),
+                boom,
+                arm,
+                bucket
+            };
+        
+            // Add the entire excavator object to the group and scene
+            window.DiggerObject.group.add(object);
+            window.DiggerObject.group.scale.set(0.1, 0.1, 0.1);
+            window.DiggerObject.group.rotation.x = Math.PI / 2; // Adjust rotation
+            window.DiggerObject.group.rotation.y = Math.PI / 2; // Adjust orientation
+            window.DiggerObject.group.position.z += 10;
+            window.DiggerObject.group.visible = true;
+        
+            window.map.scene.add(window.DiggerObject.group);
+            window.DiggerObject.group.position.set(-1551, 933, 55);
             
-    //         wheels.current = [];
-
-    //         const _wheels: any = {
-    //             frontLeft: null,
-    //             frontRight: null,
-    //             backLeft: null,
-    //             backRight: null
-    //         };
-    //         object.traverse((child: any) => {
-    //             if (child.isMesh) {
-    //                 console.log(child)
-    //                 child.material = goldMaterial;  // Apply gold material to all mesh parts
-    //                 child.material.needsUpdate = true;  // Ensure material is updated
-    //                 child.renderOrder = 9999; // Render this object on top
-    //                 if (child.name === '3D_Truck_Front' || child.name === "3D_Truck_Back" ) {
-    //                     const pivot = new THREE.Object3D();
-
-    //                     // Add the wheel as a child of the pivot
-    //                     pivot.add(child);
-
-    //                     // Add the pivot to the parent object (or scene)
-    //                     object.add(pivot);
-
-    //                     // Store the original position of the wheel
-    //                     const originalPosition = child.position.clone();
-
-    //                     // Update pivot position to match the wheel's original position
-    //                     pivot.position.copy(originalPosition);
-
-    //                     // Move the wheel to the origin of the pivot
-    //                     child.position.set(0, 0, 0); 
-
-    //                     // Push the pivot (not the wheel) to the wheels array for animation
-    //                     wheels.current.push(pivot);
-    //                 }
-    //             }
-    //         });
-
-    //         object.scale.set(30, 30 , 30);
-    //         // newObject.position.set(0, 0, -5)
-    //         object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
-    //         object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
-    //         object.rotation.z = 0;           // Z-axis correction if needed
-    //         object.position.z += 20
-
-    //         // object.rotation.z += 0.5
-    //         const group = new THREE.Group();
-    //         group.add(object)
-    //         group.visible = false
-    //         group.renderOrder = 9999; // Ensure the whole group renders on top
-    //         window.TruckObject = group
-    //         window.map.scene.add(group);
-    //     } catch (error) {
-    //         console.error('An error happened:', error);
-    //     }
-    // }
+            window.TruckObject.rotation.z += Math.PI / 4
+            window.TruckObject.visible = true
+            window.TruckObject.traverse((child: any) => {
+                if (child.isMesh) {
+                    if (isArray(child.material)) {
+                        child.material.map((_child) => {
+                            _child.depthTest = true
+                            _child.depthWrite = true
+                            _child.transparent = false
+                        })
+                        child.renderOrder = 9998
+                    }
+                    else{
+                        child.material.depthTest = true
+                        child.material.depthWrite = true
+                        child.material.transparent = false
+                        child.renderOrder = 10000
+                    }
+                }
+            });
+            window.TruckObject.position.set(-1500, 1033, 50);
+            clock.current = new THREE.Clock();
+            mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+        }, (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, (error) => {
+            console.error('An error occurred:', error);
+        });
+    }
 
     const fetch3DTruck = async () => {
         if (!window.map) return;
@@ -401,7 +473,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         }, (error) => {
             console.error('An error occurred:', error);
         });
-        
     }
 
     const isAnimationRef = useRef(isAnimation);
@@ -529,12 +600,17 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         let drawed = true
 
         await fetch3DTruck()
+        diggerImport && await fetch3DExcavator()
         const cubeview: any = document.getElementById('obit-controls-gizmo')
         const compass: any = document.getElementById('compass')
         // Main render loop
+
         const mainLoop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(mainLoop);
-
+            if (mixer.current) {
+                const delta = clock.current.getDelta();
+                mixer.current.update(delta);
+            }
             if (map.progress >= nTiles * nTiles) {
                 if (drawed) {
                     setIsLoading(false);
@@ -647,7 +723,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             document.body.style.cursor = 'auto'; // Default cursor style
         }
         if (intersects.length > 0) {
-            if (isAutoRouting) return;
+            if (isAutoRouting || diggerImport) return;
             const intersectedObject = intersects[0].object;
             if (intersectedObject.userData && intersectedObject.userData.isGeoFence) {
                 document.body.style.cursor = 'pointer'; // Change to desired cursor style
