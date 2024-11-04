@@ -37,7 +37,7 @@ const FMS = () => {
         const targetInfo = targets?.filter((target) => { return target.vehicleId === id });
         if (targetInfo && targetInfo[0]) {
             loads = targetInfo[0].data && targetInfo[0].data.loads ? targetInfo[0].data.loads : 0;
-            tonnes = targetInfo[0].data && targetInfo[0].data.loads ? targetInfo[0].data.loads : 0;
+            tonnes = targetInfo[0].data && targetInfo[0].data.tonnes ? targetInfo[0].data.tonnes : 0;
         }
 
         if (!loads || !tonnes) {
