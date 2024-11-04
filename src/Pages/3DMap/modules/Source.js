@@ -241,11 +241,6 @@ class Tile {
     ]
   }
 
-  // buildMaterial() {
-  //   const urls = this.childrens().map(tile => tile.mapUrl())
-  //   return QuadTextureMaterial(urls)
-  // }
-
   async buildMaterial() {
     const urls = await Promise.all(this.childrens().map(tile => tile.mapUrl()));
     return QuadTextureMaterial(urls)
@@ -499,7 +494,6 @@ export class Map {
     this.zoom = zoom
     this.options = options
     this.tileSize = baseTileSize
-    this.geojson = geojson
     this.tileCache = {};
     this.progress = 1;
     this.routes = []
@@ -732,23 +726,11 @@ export class Map {
           this.tileCache[_tile.key()] = _tile
           _tile.setElevation(tile.elevation)
           _tile.setConstants(tile.size, tile.shape)
-          // _tile.setMesh(tile.material)
           _tile.buildGeometry()
-          await _tile.buildmesh()
+          _tile.buildmesh()
           return _tile
         })
 
-        // const promises = retrievedData.map(tile =>
-        //   {
-        //     const _tile = new Tile(this, tile.z, tile.x, tile.y, baseTileSize)
-        //     _tile.cachedFetch(tile.elevation).then(t => {
-        //       t.setPosition(this.center)
-        //       this.scene.add(tile.mesh)
-        //       return t
-        //     })
-        //   }
-        // )
-        
         Promise.all(promises).then(tiles => {
           tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
             tile.setPosition(this.center)
@@ -782,10 +764,6 @@ export class Map {
           const storedData = {}
           _.map(this.tileCache, tile => {
             const _tile = tile;
-            
-            // Clone the rotation to a plain array
-            const rotationArray = _tile.mesh.rotation.toArray();
-            
             // Store the tile data without modifying the original mesh
             storedData[tile.key()] = {
               elevation: _tile.elevation,

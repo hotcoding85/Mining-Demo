@@ -599,12 +599,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         // draw the routes only one time
         let drawed = true
 
-        await fetch3DTruck()
-        diggerImport && await fetch3DExcavator()
+        fetch3DTruck()
+        diggerImport && fetch3DExcavator()
         const cubeview: any = document.getElementById('obit-controls-gizmo')
         const compass: any = document.getElementById('compass')
         // Main render loop
-
         const mainLoop = (timestamp: number) => {
             animationFrameId = requestAnimationFrame(mainLoop);
             if (mixer.current) {
