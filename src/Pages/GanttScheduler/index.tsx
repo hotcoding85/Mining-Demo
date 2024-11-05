@@ -414,6 +414,7 @@ const GanttScheduler: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log(plans)
   },[ plans ])
 
   return (
@@ -533,8 +534,8 @@ const GanttScheduler: React.FC = () => {
                                       <div><strong>Block ID: </strong> {firstPlan?.source?.blockId}</div>
                                       <div><strong>Density: </strong> {firstPlan?.source?.density}</div>
                                       <div><strong>Grade: </strong> {firstPlan?.source?.grade}</div>
-                                      <div><strong>Tonnes: </strong> {firstPlan?.source?.tonnes}</div>
-                                      <div><strong>Reminder: </strong> {firstPlan?.source?.reminder || '---'}</div>
+                                      <div><strong>Tonnes: </strong> {firstPlan?.source?.volume - firstPlan?.source?.tonnes}</div>
+                                      <div><strong>Remainder: </strong> {firstPlan?.source?.tonnes || '---'}</div>
                                     </div> :
                                     <div>
                                       <strong>No assigned plan</strong>

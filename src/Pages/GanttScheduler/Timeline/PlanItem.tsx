@@ -228,8 +228,8 @@ const PlanItem: React.FC<PlanItemProps> = ({
           <div><strong>Block ID:</strong> {plan?.source?.blockId}</div>
           <div><strong>Est. Density:</strong> {plan?.source?.density}</div>
           <div><strong>Est. Grade:</strong> {plan?.source?.grade}</div>
-          <div><strong>Est. Tonnes:</strong> {plan?.source?.tonnes}</div>
-          <div><strong>Est. Reminder:</strong> {plan?.source?.reminder || '---'}</div>
+          <div><strong>Tonnes: </strong> {plan?.source?.volume - plan?.source?.tonnes}</div>
+          <div><strong>Remainder: </strong> {plan?.source?.tonnes || '---'}</div>
         </div>
       )}>
       <div className="plan-item-inner">
