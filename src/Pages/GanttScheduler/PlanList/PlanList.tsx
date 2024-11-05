@@ -11,6 +11,7 @@ interface PlanListProps {
 const PlanList: React.FC<PlanListProps> = ({ plans, title }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const filteredPlans = useMemo(() => {
+    console.log(plans)
     return plans.filter((plan) => {
       const searchString = `${plan.name} ${plan.blockId}`.toLowerCase();
       return searchString.includes(searchTerm.toLowerCase());
@@ -56,9 +57,9 @@ const PlanListItem: React.FC<PlanListItemProps> = ({ plan }) => {
       <p className="list-item-span">
         Density : {plan?.density ? plan?.density : "-"}
       </p>
-      <p className="list-item-span">Est. Tonnes {plan?.tonnes}</p>
-      <p className="list-item-span">Extracted 2,402.23</p>
-      <p className="list-item-span">Est Remainder : -</p>
+      <p className="list-item-span">Est. Tonnes : {plan?.volume}</p>
+      <p className="list-item-span">Extracted : {!isNaN(plan?.volume - plan?.tonnes) ? plan?.volume - plan?.tonnes : ''}</p>
+      <p className="list-item-span">Est Remainder : {plan?.tonnes}</p>
     </div>
   );
 };
