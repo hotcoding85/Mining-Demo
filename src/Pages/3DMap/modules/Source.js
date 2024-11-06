@@ -732,12 +732,33 @@ export class Map {
         })
 
         Promise.all(promises).then(tiles => {
-          tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
-            tile.setPosition(this.center)
-            this.scene.add(tile.mesh)
-            tile.resolveSeams(this.tileCache)
-          })
-        })
+          // Reverse the tiles array to avoid seam artifacts
+          // tiles.reverse();
+      
+          // Define a batch size for adding tiles incrementally
+          const batchSize = 512; // You can adjust this size based on performance
+          let currentIndex = 0;
+      
+          // Define the batch addition function
+          const addBatch = () => {
+              // Add tiles in the current batch
+              for (let i = 0; i < batchSize && currentIndex < tiles.length; i++, currentIndex++) {
+                  const tile = tiles[currentIndex];
+                  tile.setPosition(this.center);
+                  this.scene.add(tile.mesh);
+                  tile.resolveSeams(this.tileCache);
+              }
+      
+              // If there are more tiles to add, schedule the next batch
+              if (currentIndex < tiles.length) {
+                  requestAnimationFrame(addBatch);
+              }
+          };
+      
+          // Start the first batch addition
+          addBatch();
+      });
+      
 
         this.progress = this.nTiles * this.nTiles
       }
@@ -802,24 +823,53 @@ export class Map {
 
   clean() {
     Object.values(this.tileCache).forEach(tile => {
-      this.scene.remove(tile.mesh)
       tile.mesh.geometry.dispose();
-      ['mapSW', 'mapNW', 'mapSE', 'mapNE'].forEach(key => tile.mesh.material.uniforms[key].value.dispose())
+      ['mapSW', 'mapNW', 'mapSE', 'mapNE'].forEach(key => {
+        tile.mesh.material.uniforms[key].value.dispose()
+        tile.mesh.material.uniforms[key].value = null;
+      })
       tile.mesh.material.dispose()
+      this.scene.remove(tile.mesh)
     })
 
     this.scene.traverse((object) => {
       if (object.isMesh) {
-        console.log(object)
         object.geometry.dispose();
         if (Array.isArray(object.material)) {
           object.material.forEach(material => material.dispose());
         } else {
           object.material.dispose();
         }
+        this.scene.remove(object.mesh)
       }
     });
+
+    // Dispose of all tube meshes
+    this.tubeMeshes.forEach(tube => {
+      if (tube.value) {
+          tube.value.geometry.dispose();
+          if (tube.value.material) {
+              if (Array.isArray(tube.value.material)) {
+                  tube.value.material.forEach(material => material.dispose());
+              } else {
+                  tube.value.material.dispose();
+              }
+          }
+          this.scene.remove(tube.value); // Remove tube mesh from the scene
+      }
+    });
+
+    // Dispose of all stop sign sprites
+    this.stopSignSprites.forEach(sprite => {
+        if (sprite) {
+            sprite.material.map.dispose(); // Dispose of the texture
+            sprite.material.dispose(); // Dispose of the sprite material
+            this.scene.remove(sprite); // Remove sprite from the scene
+        }
+    });
     this.tileCache = {}
+    this.tubeMeshes = [];
+    this.stopSignSprites = [];
     this.progress = 1;
   }
 
