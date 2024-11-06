@@ -163,3 +163,9 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     pointer-events: none;
     background-color: #FFF0  !important;
 }
+
+#compassContainer > img{
+    user-select: none; /* Prevents selection */
+    -webkit-user-drag: none; /* Prevents dragging in WebKit browsers */
+    pointer-events: none; /* Optional: makes the image non-interactive */
+}

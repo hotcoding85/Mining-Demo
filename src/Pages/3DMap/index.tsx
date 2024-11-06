@@ -76,14 +76,16 @@ interface THREEJSMapProps {
     updateMarkerTooltip?: () => void;
     onDocumentMouseClick?: (event: any) => void;
     onDocumentMouseDblClick?: (event: any) => void;
+    onDocumentMouseMove?: (event: any) => void;
     height?: string;
     width?: string;
     isAnimation?: boolean;
     isAutoRouting?: boolean;
     diggerImport?: boolean;
+    isPitView?: boolean;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, isAutoRouting = false, diggerImport = false}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -120,7 +122,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     // state for Map loading status
     const [progress, setProgress] = useState(0); // Progress state
-    let animationFrameId: number;
+    const animationFrameId = useRef<number | null>(null);
     let map: any;
     const wheels = useRef<any>([])
     useEffect(() => {
@@ -135,9 +137,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         fetchZipFile()
         // Clean up on component unmount
         return () => {
-            map && map.clean()
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            window.map && window.map.clean()
+            if (animationFrameId.current) {
+                cancelAnimationFrame(animationFrameId.current);
             }
     
             // Dispose Three.js objects
@@ -152,16 +154,37 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             if (window.map) {
                 window.map = null;
             }
+            if (window.camera) {
+                window.camera = null
+            }
             if (window.controls) {
                 window.controls.dispose();
-            }
-            if (window.renderer) {
-                window.renderer.renderLists && window.renderer.renderLists.dispose();
-                window.renderer.dispose();
+                window.controls = null
             }
             // Clean up Three.js objects
             if (localMapContainerRef.current && localMapContainerRef.current.firstChild) {
+                const { domElement } = window.renderer;
+                if (isPitView && onDocumentMouseMove) {
+                    domElement.removeEventListener('mousemove', onDocumentMouseMove, false);
+                }
+                else{
+                    domElement.removeEventListener('mousemove', _onDocumentMouseMove, false);
+                }
+                
+                domElement.removeEventListener('wheel', onDocumentMouseWheel, false);
+                if (onDocumentMouseClick) domElement.removeEventListener('click', onDocumentMouseClick, false);
+                if (onDocumentMouseDblClick) domElement.removeEventListener('dblclick', onDocumentMouseDblClick, false);
                 localMapContainerRef.current.removeChild(localMapContainerRef.current.firstChild);
+            }
+            if (window.renderer) {
+                window.renderer.renderLists && window.renderer.renderLists.dispose();
+                window.renderer.renderLists && (window.renderer.renderLists = null)
+                window.renderer.dispose();
+                window.renderer = null
+            }
+            if (mixer.current) {
+                mixer.current.stopAllAction();
+                mixer.current = null
             }
         };
     }, []); // Added dependencies to reinitialize map if lat/lng changes
@@ -513,7 +536,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         if (localMapContainerRef.current) {
             renderer.domElement.className = "threejs-view";
             localMapContainerRef.current.appendChild(renderer.domElement);
-            renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
+            if (isPitView && onDocumentMouseMove) {
+                renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
+            }
+            else{
+                renderer.domElement.addEventListener('mousemove', _onDocumentMouseMove , false);
+            }
             renderer.domElement.addEventListener('wheel', onDocumentMouseWheel, false);
             onDocumentMouseClick && renderer.domElement.addEventListener('click', onDocumentMouseClick, false)
             onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', (e) => {onDocumentMouseDblClick(e)}, false)
@@ -534,11 +562,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         
         // Load the background image using THREE.TextureLoader
         if (isLight) {
-            if (!window.map.scene) return;
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND_LIGHT, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
+            if (window.map) {
+                const loader = new THREE.TextureLoader();
+                loader.load(BACKGROUND_LIGHT, (texture) => {
+                    window.map.scene.background = texture;  // Set the loaded texture as the background
+                });
+            }
         }
         else{
             const loader = new THREE.TextureLoader();
@@ -555,7 +584,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const ambientLight = new THREE.AmbientLight(0x404040, 2);
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
         dirLight.castShadow = true;
-        dirLight.position.set(10000, 10000, 10000);
+        dirLight.position.set(-10000, -10000, 10000);
         scene.add(ambientLight);
         scene.add(dirLight);
 
@@ -599,14 +628,13 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         // draw the routes only one time
         let drawed = true
 
-        await fetch3DTruck()
-        diggerImport && await fetch3DExcavator()
+        fetch3DTruck()
+        diggerImport && fetch3DExcavator()
         const cubeview: any = document.getElementById('obit-controls-gizmo')
         const compass: any = document.getElementById('compass')
         // Main render loop
-
         const mainLoop = (timestamp: number) => {
-            animationFrameId = requestAnimationFrame(mainLoop);
+            animationFrameId.current = requestAnimationFrame(mainLoop);
             if (mixer.current) {
                 const delta = clock.current.getDelta();
                 mixer.current.update(delta);
@@ -617,7 +645,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     drawMarkers && drawMarkers()
                     window.map.drawRoutes()
                     drawed = false
-                    drawGeofences()
+                    !isPitView && drawGeofences()
                 }
             } else {
                 let _progress: number = (Math.min(Math.floor(map.progress / (nTiles * nTiles) * 100), 100))
@@ -690,7 +718,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     const mouse = new THREE.Vector2();
     const [showToolTip, setShowToolTip] = useState<boolean>(false)
     const [properties, setProperties] = useState<Propertytype | null>(null)
-    const onDocumentMouseMove = useCallback((event) => {
+    const _onDocumentMouseMove = useCallback((event) => {
         if (!localMapContainerRef.current || !window.map) return
         // Normalize mouse position to -1 to 1 range
         const rect = localMapContainerRef.current.getBoundingClientRect();
