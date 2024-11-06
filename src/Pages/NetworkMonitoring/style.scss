@@ -1,0 +1,25 @@
+.unit-item-avatar{
+    width: 50px;
+    height: 50px;
+    margin-right: 0px;
+}
+
+.unit-item{
+    & .ant-list-item-meta-title{
+        white-space: nowrap;
+    } 
+}
+body[data-layout-mode="dark"]{
+    .unit-item{
+        & .ant-list-item-meta-title{
+            color: white !important;
+        } 
+    }
+}
+body[data-layout-mode="light"]{
+    .unit-item{
+        & .ant-list-item-meta-title{
+            color: rgba(0, 0, 0, 0.88) !important;
+        } 
+    }
+}
