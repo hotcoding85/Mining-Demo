@@ -850,7 +850,15 @@ export class Map {
           tube.value.geometry.dispose();
           if (tube.value.material) {
               if (Array.isArray(tube.value.material)) {
-                  tube.value.material.forEach(material => material.dispose());
+                  tube.value.material.forEach(material => {
+                    material.dispose()
+                    for (const key in material) {
+                      const value = (material)[key];
+                      if (value && typeof value === 'object' && value.isTexture) {
+                        value.dispose(); // Dispose the texture
+                      }
+                    }
+                  });
               } else {
                   tube.value.material.dispose();
               }

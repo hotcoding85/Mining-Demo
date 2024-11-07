@@ -30,7 +30,6 @@ import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGi
 import COMPASS from 'assets/images/compass.png'
 import COMPASS_VECTOR from 'assets/images/compass-vector.png'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
 const index = new RBush();
 
 declare global {
@@ -175,6 +174,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 if (onDocumentMouseClick) domElement.removeEventListener('click', onDocumentMouseClick, false);
                 if (onDocumentMouseDblClick) domElement.removeEventListener('dblclick', onDocumentMouseDblClick, false);
                 localMapContainerRef.current.removeChild(localMapContainerRef.current.firstChild);
+
+                if (domElement.parentElement) {
+                    domElement.parentElement.removeChild(domElement);
+                }
             }
             if (window.renderer) {
                 window.renderer.renderLists && window.renderer.renderLists.dispose();
@@ -183,9 +186,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 window.renderer = null
             }
             if (mixer.current) {
+                mixer.current.uncacheRoot(window.DiggerObject.group);
                 mixer.current.stopAllAction();
                 mixer.current = null
             }
+            geoFences.current = null
         };
     }, []); // Added dependencies to reinitialize map if lat/lng changes
     
@@ -253,7 +258,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
                 
                 // Initialize an object to hold image data
-                const image_data = {};
+                let image_data = {};
                 
                 // Load the ZIP file using JSZip
                 const zip = await JSZip.loadAsync(zipBuffer);
@@ -280,62 +285,163 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 await Promise.all(promises);
             
                 loadMapView(geojsonData, image_data);
+                geojsonData = null
+                image_data = {}
         //         await addOrUpdateData('imageData', image_data);
         //     }
         // }
 
         // await _processZipFile();
     }
-
+    const mixerRef = useRef<THREE.AnimationMixer | null>(null);
     const createExcavatorDiggingAnimation = (excavator: any) => {
-        const mixer = new THREE.AnimationMixer(excavator.group);
-      
+        mixerRef.current = new THREE.AnimationMixer(excavator.group);
+        const initialQuaternion = new THREE.Quaternion(0, -0.00034019315841246704, 0, 0.9999999355799913);
+        // Invert the quaternion to get the corrective rotation
+        const correctiveQuaternion = initialQuaternion.clone().invert();
+        
+        // Apply this corrective rotation to the body
+        const rotation = excavator.body.rotation
+
+        // Time offsets for each part of the animation sequence
+        const boomStart = 0;
+        const armStart = 0; // start arm after boom
+        const bucketStart = 0; // bucket moves together with arm
+        const boomAfterStart = 5;
+        const bodyStart = 8; // start body after arm and bucket
+        const dumpingStart = 11;
+        const loopDuration = 22; // total time before loop
+
         // Boom rotation (up and down motion)
         const boomTrack = new THREE.QuaternionKeyframeTrack(
-          `${excavator.boom.uuid}.quaternion`,  // Unique path to the boom's quaternion
-          [0, 3, 6],
-          [
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),  // Initial position
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.2, 0, 0)).toArray(),  // Down position
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray()  // Back to initial
-          ]
+            `${excavator.boom.uuid}.quaternion`,
+            [boomStart, boomStart + 5, ],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.7, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.15, 0, 0)).toArray(),
+            ]
         );
-      
+
         // Arm rotation (inward and outward motion)
         const armTrack = new THREE.QuaternionKeyframeTrack(
-          `${excavator.arm.uuid}.quaternion`,  // Unique path to the arm's quaternion
-          [0, 3, 6],
-          [
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.5, 0, 0)).toArray(),
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.5, 0, 0)).toArray()
-          ]
+            `${excavator.arm.uuid}.quaternion`,
+            [armStart, armStart + 2.5, armStart + 5],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.5, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray()
+            ]
         );
-      
+
         // Bucket rotation (scooping motion)
         const bucketTrack = new THREE.QuaternionKeyframeTrack(
-          `${excavator.bucket.uuid}.quaternion`,  // Unique path to the bucket's quaternion
-          [0, 3, 6],
-          [
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray(),
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0, 0)).toArray(),
-            ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray()
-          ]
+            `${excavator.bucket.uuid}.quaternion`,
+            [bucketStart, bucketStart + 2.5, bucketStart + 5],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3, 0, 0)).toArray()
+            ]
         );
+
+        // Boom rotation (up and down motion)
+        const boomAfterTrack = new THREE.QuaternionKeyframeTrack(
+            `${excavator.boom.uuid}.quaternion`,
+            [boomAfterStart, boomAfterStart + 3, boomAfterStart + 6, boomAfterStart + 15, boomAfterStart + 17],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.15, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.7, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.7, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.7, 0, 0)).toArray(),
+            ]
+        );
+
+        // Body rotation (swinging motion)
+        const bodyTrack = new THREE.QuaternionKeyframeTrack(
+            `${excavator.body.uuid}.quaternion`,
+            [bodyStart, bodyStart + 3, bodyStart + 9, bodyStart + 12],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(rotation.x, rotation.y, rotation.z + Math.PI / 2 - 0.5)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(rotation.x, rotation.y, rotation.z + Math.PI / 2 + 0.3)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(rotation.x, rotation.y, rotation.z + Math.PI / 2 + 0.3)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(rotation.x, rotation.y, rotation.z + Math.PI / 2 - 0.5)).toArray(),
+            ]
+        );
+
+        // Boom rotation (up and down motion)
+        const armDumpingTrack = new THREE.QuaternionKeyframeTrack(
+            `${excavator.arm.uuid}.quaternion`,
+            [dumpingStart, dumpingStart + 2, dumpingStart + 9, dumpingStart + 11],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),
+            ]
+        );
+
+        const bucketDumpingTrack = new THREE.QuaternionKeyframeTrack(
+            `${excavator.bucket.uuid}.quaternion`,
+            [dumpingStart, dumpingStart + 2, dumpingStart + 4, dumpingStart + 6],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.3, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(10, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0.5, 0, 0)).toArray(),
+            ]
+        );
+
+        // Dump Truck rotation (example motion)
+        // const dumpTruckTrack = new THREE.QuaternionKeyframeTrack(
+        //     `${excavator.dumpTruck.uuid}.quaternion`,  // Adjust path to match your model structure
+        //     [dumpTruckStart, dumpTruckStart + 2.5, dumpTruckStart + 5],
+        //     [
+        //         ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0.3, 0)).toArray(),  // Tilting motion
+        //         ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -0.3, 0)).toArray(),
+        //         ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0.3, 0)).toArray()
+        //     ]
+        // );
       
+        // Hydraulic movement (keep aligned with boom and arm)
+        const hydraulicCylinderTrack = new THREE.VectorKeyframeTrack(
+            `${excavator.hydraulicCylinder.uuid}.position`,
+            [8, 13, 18],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(), 
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(), 
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray() 
+            ]
+        );
+
+        const hydraulicPistonTrack = new THREE.VectorKeyframeTrack(
+            `${excavator.hydraulicPiston.uuid}.position`,
+            [8, 13, 18],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(), 
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(), 
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray() 
+            ]
+        );
         // Create AnimationClip
-        const clip = new THREE.AnimationClip('DiggingAnimation', -1, [boomTrack, armTrack, bucketTrack]);
-        const action = mixer.clipAction(clip);
+        const clip = new THREE.AnimationClip('DiggingAnimation', loopDuration, [boomTrack, armTrack, bucketTrack, boomAfterTrack, bodyTrack, armDumpingTrack, bucketDumpingTrack, hydraulicCylinderTrack]);
+
+        // Play the animation
+        const action = mixerRef.current.clipAction(clip);
+        action.setLoop(THREE.LoopRepeat, Infinity);
         action.play();
       
         // Return mixer for use in render loop
-        return mixer;
+        return mixerRef.current;
     };
 
     const fetch3DExcavator = async () => {
         if (!window.map) return;
         const loader = new FBXLoader();
+        let hydraulicCylinder: THREE.Object3D | null = null;
+        let hydraulicPiston: THREE.Object3D | null = null;
         let boom: THREE.Object3D | null = null;
+        let body: THREE.Object3D | null = null;
         let arm: THREE.Object3D | null = null;
         let bucket: THREE.Object3D | null = null;
         loader.load('/Excavator/excavator.fbx', (object) => {
@@ -388,12 +494,20 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         child.renderOrder = 10000
                     }
                 }
-                if (child.name == 'Plane018') {
+                if (child.name == 'Cylinder020') {
+                    body = child;
+                }
+                else if (child.name == 'Cylinder007') {
+                    hydraulicCylinder = child;
+                }
+                else if (child.name == 'Cylinder005') {
+                    hydraulicPiston = child;
+                }
+                else if (child.name == 'Plane018') {
                     boom = child;
                 }
                 else if (child.name == 'Plane019') {
                     arm = child;
-                    console.log(arm)
                 }
                 else if (child.name == "Armature"){
                     bucket = child;
@@ -402,9 +516,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             // Store references to the parts in the DiggerObject
             window.DiggerObject = {
                 group: new THREE.Group(),
+                body,
                 boom,
                 arm,
-                bucket
+                bucket,
+                hydraulicCylinder,
+                hydraulicPiston
             };
         
             // Add the entire excavator object to the group and scene
@@ -416,9 +533,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.DiggerObject.group.visible = true;
         
             window.map.scene.add(window.DiggerObject.group);
-            window.DiggerObject.group.position.set(-1551, 933, 55);
+            window.DiggerObject.group.position.set(-1380, 430, 65);
             
-            window.TruckObject.rotation.z += Math.PI / 4
+            window.TruckObject.rotation.z += Math.PI
             window.TruckObject.visible = true
             window.TruckObject.traverse((child: any) => {
                 if (child.isMesh) {
@@ -438,7 +555,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     }
                 }
             });
-            window.TruckObject.position.set(-1500, 1033, 50);
+            window.TruckObject.position.set(-1395, 490, 50);
             clock.current = new THREE.Clock();
             mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
         }, (xhr) => {
@@ -679,7 +796,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     renderer.render(scene, window.camera);
                 }
             }
-
             updateAnnotations && updateAnnotations();
             updateMarkerTooltip && updateMarkerTooltip();
         };
