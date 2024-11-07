@@ -79,7 +79,7 @@ export const ThreeJS = () => {
         if (!isLoading && window.map) {
             let animationCameraId = 0
             const startPosition = window.map.camera.position.clone();
-            const point = new THREE.Vector3(-1551, 933, 55); // Zoom offset
+            const point = new THREE.Vector3(-1420, 440, 70); // Zoom offset
             const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
             // Animate the camera movement
             const zoomDuration = 1000; // 1 second
