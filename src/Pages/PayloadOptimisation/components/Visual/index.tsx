@@ -1,0 +1,274 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Card, CardBody, Col, Container, Row } from "reactstrap";
+import Breadcrumb from "Components/Common/Breadcrumb";
+import { TabsProps } from "antd";
+import './index.scss'
+import ExcavatorItem from "./ExcavatorItem";
+import {trucks, excavators} from './sampleData';
+import { ThreeJS } from "Pages/ThreeJS";
+import { THREEJSMap } from "Pages/3DMap";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import * as THREE from "three";
+import { isArray } from "lodash";
+import FONT from 'three/examples/fonts/gentilis_bold.typeface.json'
+const Visual
+ = (props: any) => {
+
+    const mixer = useRef<any>(null)
+    const clock = useRef<any>(null)
+    const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+    const mapContainer = useRef<any>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const font = useRef<any>(null)
+    function generateCircleCoordinates(
+        center: [number, number],
+        radiusInMeters: number
+      ): THREE.Vector3[] {
+        const coordinates: [number, number][] = [];
+        const points: THREE.Vector3[] = [];
+        const numPoints = 128;
+        const angleStep = (2 * Math.PI) / numPoints;
+        const earthRadius = 6371000;
+      
+        const _center = {
+            tileX: window.map.center.x,
+            tileY: window.map.center.y
+        }
+        const [centerLon, centerLat] = center;
+      
+        const centerLatInRad = (centerLat * Math.PI) / 180;
+      
+        for (let i = 0; i <= numPoints; i++) {
+          const angle = i * angleStep;
+      
+          const dx = radiusInMeters * Math.cos(angle);
+          const dy = radiusInMeters * Math.sin(angle);
+      
+          const newLatitude = centerLat + (dy / earthRadius) * (180 / Math.PI);
+      
+          const newLongitude =
+            centerLon +
+            ((dx / earthRadius) * (180 / Math.PI)) / Math.cos(centerLatInRad);
+      
+          coordinates.push([newLongitude, newLatitude]);
+
+          const tileData = window.map.convertGeoToPixel(newLatitude, newLongitude)
+          const tileX = tileData.tileX;          // tile X coordinate of the point
+          const tileY = tileData.tileY;          // tile Y coordinate of the point
+          const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
+          const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
+          
+          const worldPos = window.map.calculateWorldPosition(_center, tileX, tileY, tilePixelX, tilePixelY, 512);
+          let elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+          const realWorldPosition = new THREE.Vector3(worldPos.x, worldPos.y, 0);
+          realWorldPosition.z = elevationValue * 2 + 3
+
+          points.push(realWorldPosition);
+        }
+
+      
+        return points;
+    }
+    const [lng, setLng] = useState(120.44477292688124);
+    const [lat, setLat] = useState(-29.147190282051838);
+
+    function flattenPositions(positions, offset = 0) {
+                
+        // Case 1: positions is an array of THREE.Vector3
+        if (Array.isArray(positions) && positions[0] instanceof THREE.Vector3) {
+            return positions.reduce((acc, vector) => {
+                acc.push(vector.x + offset, vector.y + offset, vector.z);
+                return acc;
+            }, []);
+        }
+        
+        // Case 2: positions is a THREE.BufferAttribute
+        else if (positions instanceof THREE.BufferAttribute) {
+            return Array.from(positions.array); // Already flat, just convert to a regular array if needed
+        }
+        
+        // Case 3: positions is something else (e.g., an empty object or undefined)
+        else {
+            throw new Error("Unsupported format for positions");
+        }
+    }
+
+    useEffect(() => {
+        if (!isLoading && window.map) {
+            let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(-1500, 730)
+            let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY)
+            const points = generateCircleCoordinates([longitude, latitude], 16)
+            const geometry = new THREE.BufferGeometry();
+            const vertices = new Float32Array(flattenPositions(points, 0.1));
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            
+            const material = new THREE.LineDashedMaterial({
+                color: '#ffffff',
+                linewidth: 4, // Only works in WebGL1
+                scale: 1, // Scale of the dashes
+                dashSize: 2, // Length of the dashes
+                gapSize: 1, // Length of the gaps
+                depthWrite: false,
+                transparent: true
+            });
+            
+            // Use THREE.Line for continuous lines, not LineSegments
+            const line = new THREE.Line(geometry, material);
+            line.computeLineDistances(); // Required for dashed lines
+            window.map.scene.add(line);
+
+            // draw numbered circles (1, 2, 3, 4, 5)
+            drawNumberedCircles(5)
+
+            // focusing initial excavator position
+            animateZoom()
+        }
+    }, [isLoading, lng, lat])
+
+    const drawNumberedCircles = (count: number) => {
+        const statusColors = ["#4CAF50", "#FF5252", "#FFC107", "#FF5252", "#FF5252"];
+        const center = new THREE.Vector3(-1500, 730, 45)
+        const angleStep = (2 * Math.PI) / 20; // Angle between each text
+        const radius = 54
+        for (let i = 1 ; i <= count ; i ++) {
+            const textGeometry = new THREE.TextGeometry(i.toString() || 'Route Name', {
+                font: font.current,
+                size: 5,
+                height: 0.1,
+                curveSegments: 12,
+                bevelEnabled: false,
+            });
+            const textMaterial = new THREE.MeshBasicMaterial({ 
+                color: '#ffffff', 
+                transparent: true, 
+                depthWrite: false,
+                side: THREE.DoubleSide // Make text visible from both sides
+            })
+            const textMesh = new THREE.Mesh(textGeometry, textMaterial)
+
+            const angle = i * angleStep;
+
+            // Calculate x and y positions using polar coordinates
+            const x = center.x + radius * Math.cos(angle);
+            const y = center.y + radius * Math.sin(angle);
+            // Position the text mesh
+            textMesh.position.set(x, y, center.z); // Use center.z to keep the z-coordinate consistent
+
+            // Make text face the camera by orienting it appropriately
+            const cameraUp = new THREE.Vector3(0, 0, 1); // Matches the camera.up setting
+            textMesh.up.copy(cameraUp);
+            textMesh.rotation.z = Math.PI / 2;
+            const direction = new THREE.Vector3().subVectors(new THREE.Vector3(0, 0, 35), center).normalize()
+            // textMesh.rotateOnAxis(cameraUp, Math.atan2(direction.y, direction.x))
+            // Rotate text to align with the outward direction
+            // textMesh.lookAt(center); // Make the text face the center point
+            // Add to the scene
+            window.map.scene.add(textMesh)
+
+            const circleGeometry = new THREE.CircleGeometry(5, 18); // Adjust the radius of the circle as needed
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: statusColors[i % statusColors.length], depthWrite: false, transparent: true });
+            const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
+        
+            // Position the circle at the same location as the text
+            circleMesh.position.set(x - 2, y + 2, center.z - 1); // Set z below text to avoid overlap
+            // circleMesh.lookAt(center); // Rotate the circle to face the same direction as the text
+
+            window.map.scene.add(circleMesh)
+        }
+    }
+
+    const animateZoom = () => {
+        let animationCameraId = 0
+        const startPosition = window.map.camera.position.clone();
+        const point = new THREE.Vector3(-1500, 730, 70); // Zoom offset
+        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
+        // Animate the camera movement
+        const zoomDuration = 1000; // 1 second
+        let startTime: number | null = null;
+        window.isAnimation = true
+        window.controls && (window.controls.enabled = false)
+        // Initial rotation of the camera
+        const animateZoom = (time: number) => {
+            if (startTime === null) startTime = time;
+            const _elapsed = time - startTime;
+            const progress = Math.min(_elapsed / zoomDuration, 1);
+
+            window.camera.position.lerpVectors(startPosition, targetPosition, progress);
+            // THREE.Quaternion.slerp(startQuaternion, targetQuaternion, window.camera.quaternion, progress);
+            window.controls.target.lerpVectors(startPosition, point, progress);
+            window.savedCameraPosition = window.camera.position.clone();
+            window.savedCameraQuaternion = window.camera.quaternion.clone();
+            window.camera.updateProjectionMatrix();
+            window.camera.updateMatrixWorld();
+            if (progress < 1) {
+                animationCameraId = requestAnimationFrame(animateZoom);
+            } 
+            else{
+                window.isAnimation = false
+                setTimeout(() => {
+                    window.controls.update()
+                    window.renderer.render(window.map.scene, window.camera)
+                    window.controls && (window.controls.enabled = true)
+                }, 100);
+            }
+        };
+
+        animationCameraId = requestAnimationFrame(animateZoom);
+    }
+    const onDocumentMouseClick = (event) => {
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        if (!mapContainer.current || !window.map) return;
+        const mapContainerElement = mapContainer.current.getMapContainer();
+        // Make sure mapContainerElement is not null
+        if (!mapContainerElement) return;
+        const containerBounds = mapContainerElement.getBoundingClientRect(); // Use getBoundingClientRect
+        mouse.x = ((event.clientX - containerBounds.left) / containerBounds.width) * 2 - 1;
+        mouse.y = -((event.clientY - containerBounds.top) / containerBounds.height) * 2 + 1;
+
+        // Update the raycaster with the camera and mouse position
+        raycaster.setFromCamera(mouse, window.map.camera);
+
+        // Intersect the objects in the scene (you can also specify specific objects)
+        const intersects = raycaster.intersectObjects(window.map.scene.children, true);
+
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+            const position = intersectedObject.position.clone();
+            // Do something with the 3D coordinates, e.g., highlight the object
+        }
+    }
+
+    useEffect(() => {
+        font.current = new THREE.Font(FONT);
+        return () => {
+        };
+    }, [])
+    return (
+        <>
+            <Row>
+                <THREEJSMap ref={mapContainer} isAutoRouting={true} height="calc(100vh - 400px)" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={new THREE.Vector3(-1500, 730, 40)} truckInitPoint={new THREE.Vector3(-1500, 850, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
+            </Row>
+            <Row style={{marginTop: '1rem'}}>
+                {
+                    excavators.map((excavator, index) => (
+                        <Col lg={6} md={6} sm={12}>
+                            <Card key={index} style={{borderRadius: '15px'}}>
+                                    <ExcavatorItem
+                                        excavatorId={excavator.id}
+                                        syncStatus={`Synced ${excavator.synced}m ago`}
+                                        avgHangTime={excavator.hangTime}
+                                        trucks={trucks}
+                                        syncTimeColor={excavator.syncTimeColor}
+                                        avgHangTimeColor={excavator.avgHangTimeColor}
+                                    />
+                            </Card>
+                        </Col>
+                    ))
+                }
+            </Row>
+        </>
+    )
+}
+
+export default Visual;
