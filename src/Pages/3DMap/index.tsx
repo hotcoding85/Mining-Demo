@@ -82,9 +82,11 @@ interface THREEJSMapProps {
     isAutoRouting?: boolean;
     diggerImport?: boolean;
     isPitView?: boolean;
+    diggerInitPoint?: any;
+    truckInitPoint?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null}, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -533,7 +535,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.DiggerObject.group.visible = true;
         
             window.map.scene.add(window.DiggerObject.group);
-            window.DiggerObject.group.position.set(-1380, 430, 65);
+            window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
             
             window.TruckObject.rotation.z += Math.PI
             window.TruckObject.visible = true
@@ -555,7 +557,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     }
                 }
             });
-            window.TruckObject.position.set(-1395, 490, 50);
+            window.TruckObject.position.copy(truckInitPoint ? truckInitPoint : new THREE.Vector3(-1395, 490, 50));
             clock.current = new THREE.Clock();
             mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
         }, (xhr) => {
