@@ -1,0 +1,40 @@
+.top-menu {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    & .language-switch {
+        height: 32px !important;
+        & .dropdown-btn{
+            height: 32px !important;
+            & div{
+                margin-top: -6px;
+                & span {
+                    font-size: 14px !important;
+                }
+            }
+        }
+    }
+}
+
+.payload-optimization-reports {
+    & .language-switch {
+        height: 40px !important;
+        & .dropdown-btn{
+            min-width: 300px;
+            height: 40px !important;
+            & div{
+                margin-top: -2px;
+                & span {
+                    font-size: 14px !important;
+                }
+            }
+        }
+    } 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+body[data-layout-mode="dark"] .payload-optimization-reports .customSegmentLabel {
+    border: 1px solid white;
+}
