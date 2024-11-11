@@ -1072,7 +1072,7 @@ const Replay = () => {
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     
         
-        const tubeMaterial = new THREE.MeshStandardMaterial({ color: 'grey', depthWrite: false, transparent: true, opacity: 0.6 });
+        const tubeMaterial = new THREE.MeshStandardMaterial({ color: 'black', depthWrite: false, transparent: true, opacity: 0.3 });
         const ellipticalTubeMesh = new THREE.Mesh(geometry, tubeMaterial);
         return ellipticalTubeMesh;
     }
@@ -1131,7 +1131,6 @@ const Replay = () => {
         // Create a tube geometry along the curve
         const segmentTube = createTubeWithFootprint(curve, points, saving_data.color || 0x00ff00, 'normal');
         const segmentBufferTube = createTubeBuffer(points, 0xe2e2e2);
-        segmentTube.renderOrder = 3;
         segmentTube.renderOrder = 2;
         window.map.scene.add(segmentTube);
         window.map.scene.add(segmentBufferTube);
