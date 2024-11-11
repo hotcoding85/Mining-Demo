@@ -823,30 +823,31 @@ export class Map {
 
   clean() {
     Object.values(this.tileCache).forEach(tile => {
+      this.scene.remove(tile.mesh)
       tile.mesh.geometry.dispose();
       ['mapSW', 'mapNW', 'mapSE', 'mapNE'].forEach(key => {
         tile.mesh.material.uniforms[key].value.dispose()
         tile.mesh.material.uniforms[key].value = null;
       })
       tile.mesh.material.dispose()
-      this.scene.remove(tile.mesh)
     })
 
     this.scene.traverse((object) => {
       if (object.isMesh) {
+        this.scene.remove(object.mesh)
         object.geometry.dispose();
         if (Array.isArray(object.material)) {
           object.material.forEach(material => material.dispose());
         } else {
           object.material.dispose();
         }
-        this.scene.remove(object.mesh)
       }
     });
 
     // Dispose of all tube meshes
     this.tubeMeshes.forEach(tube => {
       if (tube.value) {
+          this.scene.remove(tube.value); // Remove tube mesh from the scene
           tube.value.geometry.dispose();
           if (tube.value.material) {
               if (Array.isArray(tube.value.material)) {
@@ -863,16 +864,15 @@ export class Map {
                   tube.value.material.dispose();
               }
           }
-          this.scene.remove(tube.value); // Remove tube mesh from the scene
       }
     });
 
     // Dispose of all stop sign sprites
     this.stopSignSprites.forEach(sprite => {
         if (sprite) {
-            sprite.material.map.dispose(); // Dispose of the texture
-            sprite.material.dispose(); // Dispose of the sprite material
-            this.scene.remove(sprite); // Remove sprite from the scene
+          this.scene.remove(sprite); // Remove sprite from the scene
+          sprite.material.map.dispose(); // Dispose of the texture
+          sprite.material.dispose(); // Dispose of the sprite material
         }
     });
     this.tileCache = {}
