@@ -32,6 +32,10 @@ import RIGHTTruck from '../../assets/images/Truck/RIGHT.png'
 import FRONTTruck from '../../assets/images/Truck/FRONT.png'
 import BACKTruck from '../../assets/images/Truck/BACK.png'
 import FloatingActionButton from "./components/FloatingActionButton";
+import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+
 export type TripRoutesDataType = {
     id: string,
     routes: RouteDataType[]
@@ -41,7 +45,10 @@ type ActiveObjectType = {
     tube: any
     marker: any
     animationId: any
-    arrow: any
+    arrow: any;
+    bufferTube: any;
+    curve: any;
+    points: any;
 }
 
 const VIEWTYPE = [
@@ -194,6 +201,43 @@ const Replay = () => {
     useEffect(() => {
         if (!isLoading && window.renderer) {
             window.renderer.domElement.addEventListener('mouseclick', onDocumentMouseClick , false);
+            window.controls && window.controls.addEventListener('change', () => {
+                const cameraPositionZ = window.map.camera.position.z;
+                if (activeObjects.current.tube) {
+                    const tube = activeObjects.current.tube;
+                    const distance = window.map.camera.position.distanceTo(tube.position);
+            
+                    // Camera Z value range (400 -> 1000)
+                    const minZ = 350;
+                    const maxZ = 1000;
+            
+                    // Tube width range (8 -> 36)
+                    const minWidth = 8;
+                    const maxWidth = 36;
+                    let normalizedWidth;
+                    // Linearly interpolate camera's Z position to adjust tube width
+                    if (cameraPositionZ <= minZ) {
+                        normalizedWidth = minWidth;
+                    }
+                    // If the camera's Z is greater than or equal to 1000, set the width to 36
+                    else if (cameraPositionZ >= maxZ) {
+                        normalizedWidth = maxWidth;
+                    } 
+                    // Otherwise, interpolate the width based on the camera's Z position
+                    else {
+                        normalizedWidth = THREE.MathUtils.mapLinear(cameraPositionZ, minZ, maxZ, minWidth, maxWidth);
+                    }
+            
+                    // Update the tube's geometry with the new width
+                    tube.geometry = new THREE.TubeGeometry(
+                        activeObjects.current.curve, 
+                        activeObjects.current.points.length * 10, 
+                        normalizedWidth, 
+                        4, 
+                        false
+                    );
+                }
+            });
         }
     }, [isLoading])
 
@@ -913,7 +957,7 @@ const Replay = () => {
         return [distanceArray, elevationArray];
     };
 
-    const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
+    const activeObjects = useRef<ActiveObjectType>({tube: null, bufferTube: null, marker: null, animationId: null, arrow: null, curve: null, points: null});  // Store active objects like tube, marker, animation ID
     const clearAnimation = () => {
         setIsAnimation(false)
         window.isAnimation = false
@@ -924,6 +968,12 @@ const Replay = () => {
             activeObjects.current.tube.geometry.dispose();  // Clean up resources
             activeObjects.current.tube.material.dispose();
             activeObjects.current.tube = null;
+        }
+        if (activeObjects.current && activeObjects.current.bufferTube) {
+            window.map.scene.remove(activeObjects.current.bufferTube);
+            activeObjects.current.bufferTube.geometry.dispose();  // Clean up resources
+            activeObjects.current.bufferTube.material.dispose();
+            activeObjects.current.bufferTube = null;
         }
         if ( activeObjects.current && activeObjects.current.marker) {
             window.TruckObject.visible = false
@@ -948,8 +998,12 @@ const Replay = () => {
     }
 
     // Function to create a tube with custom shader to control visibility
-    function createTubeWithFootprint(curve, accumulatedPoints, color, tubularSegments) {
-        const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, 4, 4, false);
+    function createTubeWithFootprint(curve, accumulatedPoints, color, type) {
+        let width = 8
+        if (type === 'buffer') {
+            width = 36
+        }
+        const tubeGeometry = new THREE.TubeGeometry(curve, accumulatedPoints.length * 10, width, 10, false);
     
         // Calculate the length of the tube curve
         const tubeLength = curve.getLength();
@@ -959,6 +1013,7 @@ const Replay = () => {
             uniforms: {
                 progress: { value: 0.0 },  // Controls how much of the tube is revealed
                 tubeColor: { value: new THREE.Color(color) },  // Uniform for tube color
+                opacity: {value: type === 'buffer' ? 0.6 : 1}
             },
             vertexShader: `
                 varying float vProgressAlongTube;
@@ -984,16 +1039,43 @@ const Replay = () => {
                     }
                 }
             `,
-            transparent: true,
+            transparent: type === 'buffer' ? false : true,
             depthWrite: false,
-            depthTest: false,
         });
     
         const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
         tube.renderOrder = 1000;
+        if (type === 'buffer') {
+            tube.scale.set(1, 1, 1);
+            tube.position.set(0, 0, 0);
+        }
         return tube;
     }
 
+    function createTubeBuffer(points, color) {
+        points.map(point => {
+            point.z = point.z + 4
+        })
+        const curve = new THREE.CatmullRomCurve3(points);
+        const extrudeSettings = {
+            steps: 100,
+            extrudePath: curve,
+            color: 'grey',
+        };
+        const roadWidth = 36 / 100;
+        const shape = new THREE.Shape([
+            new THREE.Vector2(-roadWidth / 2, -36),
+            new THREE.Vector2(roadWidth / 2, -36),
+            new THREE.Vector2(roadWidth / 2, 36), // Extend forward
+            new THREE.Vector2(-roadWidth / 2, 36),
+        ]);
+        const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+        
+        const tubeMaterial = new THREE.MeshStandardMaterial({ color: 'grey', depthWrite: false, transparent: true, opacity: 0.6 });
+        const ellipticalTubeMesh = new THREE.Mesh(geometry, tubeMaterial);
+        return ellipticalTubeMesh;
+    }
     const isStopSignPoint = useCallback((coord) => { //check the point is STOP_SIGNS, if so return stopSignDuration
         let stopsign: any = null
         _.map(stopSignData.current, _stopsign => {
@@ -1047,12 +1129,18 @@ const Replay = () => {
         // Create a CatmullRomCurve3 from the points
         const curve = new THREE.CatmullRomCurve3(points);
         // Create a tube geometry along the curve
-        const segmentTube = createTubeWithFootprint(curve, points, saving_data.color || 0x00ff00, 100);
+        const segmentTube = createTubeWithFootprint(curve, points, saving_data.color || 0x00ff00, 'normal');
+        const segmentBufferTube = createTubeBuffer(points, 0xe2e2e2);
+        segmentTube.renderOrder = 3;
         segmentTube.renderOrder = 2;
         window.map.scene.add(segmentTube);
+        window.map.scene.add(segmentBufferTube);
 
         // Store the tube reference
         activeObjects.current.tube = segmentTube;
+        activeObjects.current.curve = curve;
+        activeObjects.current.points = points;
+        activeObjects.current.bufferTube = segmentBufferTube;
         
         // Manually calculate the direction vector between the last two points
         const dirVector = new THREE.Vector3().subVectors(points[1], points[0]).normalize();
@@ -1067,6 +1155,7 @@ const Replay = () => {
         // Store the marker reference
         window.TruckObject.renderOrder = activeObjects.current.tube.renderOrder + 1
         activeObjects.current.tube.layers.set(0);
+        activeObjects.current.bufferTube.layers.set(0);
         window.TruckObject.layers.set(1);
         activeObjects.current.marker = window.TruckObject;
         const marker = window.TruckObject
@@ -1178,6 +1267,7 @@ const Replay = () => {
                     NextCameraPoistion.current = nextPoint
                     marker.position.set(point.x, point.y, point.z);
                     activeObjects.current.tube.material.uniforms.progress.value = _progress;
+                    // activeObjects.current.bufferTube.material.uniforms.progress.value = _progress;
                     // Calculate the forward direction (from point to nextPoint)
                     forwardDirection.current = new THREE.Vector3().subVectors(nextPoint, point).normalize();
 
