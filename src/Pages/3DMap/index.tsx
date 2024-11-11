@@ -438,7 +438,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     };
 
     const fetch3DExcavator = async () => {
-        if (!window.map) return;
+        if (!window.map || !window.map.scene) return;
         const loader = new FBXLoader();
         let hydraulicCylinder: THREE.Object3D | null = null;
         let hydraulicPiston: THREE.Object3D | null = null;
@@ -533,7 +533,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.DiggerObject.group.rotation.y = Math.PI / 2; // Adjust orientation
             window.DiggerObject.group.position.z += 10;
             window.DiggerObject.group.visible = true;
-        
+            if (!window.map || !window.map.scene) return;
             window.map.scene.add(window.DiggerObject.group);
             window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
             
@@ -568,7 +568,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     }
 
     const fetch3DTruck = async () => {
-        if (!window.map) return;
+        if (!window.map || !window.map.scene) return;
         const loader = new FBXLoader();
         loader.load('/Truck/3D_Truck.fbx', (object) => {
             // Set up the AnimationMixer
@@ -607,7 +607,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             const group = new THREE.Group();
             group.add(object)
             group.visible = false
-
+            if (!window.map || !window.map.scene) return;
             window.TruckObject = group
             window.map.scene.add(window.TruckObject);
         }, (xhr) => {
