@@ -101,11 +101,11 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
                 </Row>
                 <Row style={{marginTop: '.5rem'}}>
                     <Col xs="6">Avg Loading Time</Col>
-                    <Col xs="6" className="text-end">{truck.avgLoadingTime}</Col>
+                    <Col xs="6" className="text-end" style={{color: !isLight ? 'white' : ''}}>{truck.avgLoadingTime}</Col>
                 </Row>
                 <Row>
                     <Col xs="6">Total Tonnes</Col>
-                    <Col xs="6" className="text-end">{truck.totalTonnes}</Col>
+                    <Col xs="6" className="text-end" style={{color: !isLight ? 'white' : ''}}>{truck.totalTonnes}</Col>
                 </Row>
                 </CardBody>
             </div>
