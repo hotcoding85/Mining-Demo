@@ -11,6 +11,7 @@ type TruckData = {
   weights: string[];
   avgLoadingTime: string;
   totalTonnes: string;
+  index: string;
 };
 
 type ExcavatorProps = {
@@ -20,6 +21,8 @@ type ExcavatorProps = {
   trucks: TruckData[];
   syncTimeColor: string;
   avgHangTimeColor: string;
+  selectedTrip: any;
+  setSelectedTrip: (index: string) => void;
 };
 
 const ExcavatorItem: React.FC<ExcavatorProps> = ({
@@ -29,6 +32,8 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
   trucks,
   syncTimeColor,
   avgHangTimeColor,
+  selectedTrip,
+  setSelectedTrip
 }) => {
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
@@ -51,7 +56,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
             </Col>
             </Row>
             {trucks.map((truck) => (
-            <div key={truck.id} className="mb-2 mt-2 excavator-truck" style={{ backgroundColor: !isLight ? '#374667' : '#00000014', margin: '5px -5px', padding: '5px 15px', borderRadius: '10px'}}>
+            <div key={truck.id} className="mb-2 mt-2 excavator-truck" style={{ backgroundColor: !isLight ? selectedTrip === truck.index ? '#374667' : '#37466750' : selectedTrip === truck.index ? '#00000030' : '#00000014', margin: '5px -5px', padding: '5px 15px', borderRadius: '10px', cursor: 'pointer'}} onClick={() => setSelectedTrip(truck.index)}>
                 <CardBody style={{padding: 0}}>
                 <Row>
                     <Col xs="8">

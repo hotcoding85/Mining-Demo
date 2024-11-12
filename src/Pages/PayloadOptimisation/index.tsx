@@ -86,6 +86,7 @@ const PayloadOptimsation
     const [locations, setLocaltions] = useState<DropdownType>({
         label: "",
     });
+    const [visualComponent] = useState(<Visual />);
     return (
         <React.Fragment>
             <div className="page-content" style={{paddingBottom: '0px'}}>
@@ -139,7 +140,7 @@ const PayloadOptimsation
                         </Col>
                         <Col lg="12">
                             {displayType === "reports" ?
-                                <Reports />  : <Visual />
+                                <Reports />  : visualComponent
                             }
                         </Col>
                     </Row>
