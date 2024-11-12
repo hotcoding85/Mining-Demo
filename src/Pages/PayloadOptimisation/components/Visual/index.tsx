@@ -20,6 +20,9 @@ const Visual
     const mapContainer = useRef<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const font = useRef<any>(null)
+
+    const [selectedTrip, setSelectedTrip] = useState<any>('1')
+    const selectedTripRef = useRef<string>('1')
     function generateCircleCoordinates(
         center: [number, number],
         radiusInMeters: number
@@ -117,21 +120,47 @@ const Visual
             line.computeLineDistances(); // Required for dashed lines
             window.map.scene.add(line);
 
-            // draw numbered circles (1, 2, 3, 4, 5)
-            drawNumberedCircles(5)
+            if (selectedTripRef.current) {
+                const truck = trucks.find(truck => truck.index === selectedTripRef.current)
+                // draw numbered circles (1, 2, 3, 4, 5)
+                truck && drawNumberedCircles(truck.weights.length)
+            }
 
             // focusing initial excavator position
             animateZoom()
         }
     }, [isLoading, lng, lat])
 
+    useEffect(() => {
+        if (!window.map || !window.map.scene) return
+        // remove old meshes
+        textMeshes.current.map(textmesh => {
+            textmesh.geometry.dispose()
+            textmesh.material.dispose();
+            window.map.scene.remove(textmesh)
+        })
+        textMeshes.current = []
+        circleMeshs.current.map(circlemesh => {
+            circlemesh.geometry.dispose()
+            circlemesh.material.dispose();
+            window.map.scene.remove(circlemesh)
+        })
+        circleMeshs.current = []
+
+        const truck = trucks.find(truck => truck.index === selectedTrip)
+        // draw numbered circles (1, 2, 3, 4, 5)
+        truck && drawNumberedCircles(truck.weights.length)
+    }, [selectedTrip])
+
+    const textMeshes = useRef<any[]>([])
+    const circleMeshs = useRef<any[]>([])
     const drawNumberedCircles = (count: number) => {
         const statusColors = ["#4CAF50", "#FF5252", "#FFC107", "#FF5252", "#FF5252"];
         const center = new THREE.Vector3(-1500, 730, 45)
-        const angleStep = (2 * Math.PI) / 20; // Angle between each text
+        const angleStep = (2 * Math.PI) / (count * 4); // Angle between each text
         const radius = 54
         for (let i = 1 ; i <= count ; i ++) {
-            const textGeometry = new THREE.TextGeometry(i.toString() || 'Route Name', {
+            const textGeometry = new THREE.TextGeometry(i.toString() || 'X', {
                 font: font.current,
                 size: 5,
                 height: 0.1,
@@ -164,9 +193,9 @@ const Visual
             // textMesh.lookAt(center); // Make the text face the center point
             // Add to the scene
             window.map.scene.add(textMesh)
-
+            textMeshes.current.push(textMesh)
             const circleGeometry = new THREE.CircleGeometry(5, 18); // Adjust the radius of the circle as needed
-            const circleMaterial = new THREE.MeshBasicMaterial({ color: statusColors[i % statusColors.length], depthWrite: false, transparent: true });
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: statusColors[(i - 1) % statusColors.length], depthWrite: false, transparent: true });
             const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
         
             // Position the circle at the same location as the text
@@ -174,6 +203,7 @@ const Visual
             // circleMesh.lookAt(center); // Rotate the circle to face the same direction as the text
 
             window.map.scene.add(circleMesh)
+            circleMeshs.current.push(circleMesh)
         }
     }
 
@@ -247,7 +277,7 @@ const Visual
     return (
         <>
             <Row>
-                <THREEJSMap ref={mapContainer} isAutoRouting={true} height="calc(100vh - 400px)" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={new THREE.Vector3(-1500, 730, 40)} truckInitPoint={new THREE.Vector3(-1500, 850, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
+                <THREEJSMap ref={mapContainer} isAutoRouting={true} height="calc(100vh - 400px)" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={new THREE.Vector3(-1500, 730, 40)} truckInitPoint={new THREE.Vector3(-1550, 760, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
             </Row>
             <Row style={{marginTop: '1rem'}}>
                 {
@@ -258,9 +288,11 @@ const Visual
                                         excavatorId={excavator.id}
                                         syncStatus={`Synced ${excavator.synced}m ago`}
                                         avgHangTime={excavator.hangTime}
-                                        trucks={trucks}
+                                        trucks={trucks.filter(truck => truck.excavator === excavator.id)}
                                         syncTimeColor={excavator.syncTimeColor}
                                         avgHangTimeColor={excavator.avgHangTimeColor}
+                                        selectedTrip={selectedTrip}
+                                        setSelectedTrip={setSelectedTrip}
                                     />
                             </Card>
                         </Col>
