@@ -39,8 +39,12 @@ type ActiveObjectType = {
     tube: any
     marker: any
     animationId: any
-    arrow: any
+    arrow: any;
+    bufferTube: any;
+    curve: any;
+    points: any;
 }
+
 const AutoRouting = () => {
     // Set Page Title as a 'Auto Routing'
     document.title = "Auto Routing | FMS Live";
@@ -85,6 +89,9 @@ const AutoRouting = () => {
 
     const isDragging = useRef<boolean>(false)
     const tubeMeshes = useRef<any>([])
+    const tubePoints = useRef<any>([])
+    const curves = useRef<any>([])
+    const tubeBufferMeshes = useRef<any>([])
     const tubeCurves = useRef<any>([])
     const stopSignSprites = useRef<any>([])
     const tempStopSign = useRef<any>(null)
@@ -98,7 +105,7 @@ const AutoRouting = () => {
     const currentSpeed = useRef<number>(1)
     const [isAnimation, setIsAnimation] = useState<boolean>(false)
     const [markerToolTipContent, setMarkerToolTipContent] = useState<string>('')
-    const activeObjects = useRef<ActiveObjectType>({tube: null, marker: null, animationId: null, arrow: null});  // Store active objects like tube, marker, animation ID
+    const activeObjects = useRef<ActiveObjectType>({tube: null, bufferTube: null, marker: null, animationId: null, arrow: null, curve: null, points: null});  // Store active objects like tube, marker, animation ID
     const animationRef = useRef<{startTime: number | null, elapsedTime: number, animationFrameId: number | null, animationCameraId: number | null}>({ startTime: null, elapsedTime: 0, animationFrameId: null, animationCameraId: null });
     
     const { layoutModeType } = useSelector(LayoutSelector );
@@ -154,7 +161,7 @@ const AutoRouting = () => {
     
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
     useEffect(() => {
-        if (vehicleRoutes && !isLoading && window.map){
+        if (vehicleRoutes && window.map){
             while(stopMarkers.current.length > 0) {
                 stopMarkers.current.pop()?.remove()
             }
@@ -199,7 +206,7 @@ const AutoRouting = () => {
 
             drawInitalRoutes()
         }
-    }, [vehicleRoutes, isLoading])
+    }, [vehicleRoutes])
 
     useEffect(() => {
         if (!mapContainer) return
@@ -349,12 +356,56 @@ const AutoRouting = () => {
         const labelRenderer = new CSS2DRenderer();
         document.body.appendChild(labelRenderer.domElement);
         drawInitalRoutes()
+
+        window.controls && window.controls.addEventListener('change', () => {
+            const cameraPositionZ = window.map.camera.position.z;
+            tubeMeshes.current.map(_tube => {
+                const tube = _tube.value
+                const index = _tube.index
+                // Camera Z value range (400 -> 1000)
+                const minZ = 600;
+                const maxZ = 2500;
+        
+                // Tube width range (8 -> 36)
+                const minWidth = 4;
+                const maxWidth = 27;
+                let normalizedWidth;
+                // Linearly interpolate camera's Z position to adjust tube width
+                if (cameraPositionZ <= minZ) {
+                    normalizedWidth = minWidth;
+                }
+                // If the camera's Z is greater than or equal to 1000, set the width to 36
+                else if (cameraPositionZ >= maxZ) {
+                    normalizedWidth = maxWidth;
+                } 
+                // Otherwise, interpolate the width based on the camera's Z position
+                else {
+                    normalizedWidth = THREE.MathUtils.mapLinear(cameraPositionZ, minZ, maxZ, minWidth, maxWidth);
+                }
+        
+                // Update the tube's geometry with the new width
+                tube.geometry = new THREE.TubeGeometry(
+                    curves.current.find(curve => curve.index === index).value, 
+                    tubePoints.current.find(points => points.index === index).value.length * 10, 
+                    normalizedWidth, 
+                    4, 
+                    false
+                );
+            })
+        });
     }, [isLoading])
 
     const drawInitalRoutes = useCallback(() => {
         // remove exsiting routes and markers
         if (tubeMeshes.current.length > 0) {
             _.map(tubeMeshes.current, _tube => {
+                window.map.scene.remove(_tube.value)
+                _tube.value.geometry.dispose()
+                _tube.value.material.dispose()
+            })
+        }
+        if (tubeBufferMeshes.current.length > 0) {
+            _.map(tubeBufferMeshes.current, _tube => {
                 window.map.scene.remove(_tube.value)
                 _tube.value.geometry.dispose()
                 _tube.value.material.dispose()
@@ -383,9 +434,12 @@ const AutoRouting = () => {
         }
         routeNameTubes.current = []
         tubeMeshes.current = [] 
+        tubeBufferMeshes.current = []
         stopSignSprites.current = []
         tempMarkers.current = []
         tubeCurves.current = []
+        curves.current = []
+        tubePoints.current = []
         // Get the top-left corner's tile coordinates (view's origin)
         const center = {
             tileX: window.map.center.x,
@@ -470,6 +524,7 @@ const AutoRouting = () => {
                         color: '#212529', 
                         transparent: true, 
                         depthTest: false,
+                        depthWrite: false,
                         side: THREE.DoubleSide // Make text visible from both sides
                     })
                     const textMesh = new THREE.Mesh(textGeometry, textMaterial)
@@ -497,6 +552,7 @@ const AutoRouting = () => {
                     // textMesh.position.add(new THREE.Vector3(0, 0, textWidth / 2))
 
                     // Add to the scene
+                    textMesh.renderOrder = 9999
                     window.map.scene.add(textMesh)
                     routeNameTubes.current.push({tube: textMesh, route_id: _route.id})
                 }
@@ -504,8 +560,29 @@ const AutoRouting = () => {
                 // Create a curve from the points for TubeGeometry
                 const curve = new THREE.CatmullRomCurve3(points);
                 tubeCurves.current.push({curve: curve, name: _route.name})
+                let normalizedWidth;
+                const cameraPositionZ = window.map.camera.position.z;
+                // Camera Z value range (400 -> 1000)
+                const minZ = 600;
+                const maxZ = 2500;
+        
+                // Tube width range (8 -> 36)
+                const minWidth = 4;
+                const maxWidth = 27;
+                // Linearly interpolate camera's Z position to adjust tube width
+                if (cameraPositionZ <= minZ) {
+                    normalizedWidth = minWidth;
+                }
+                // If the camera's Z is greater than or equal to 1000, set the width to 36
+                else if (cameraPositionZ >= maxZ) {
+                    normalizedWidth = maxWidth;
+                } 
+                // Otherwise, interpolate the width based on the camera's Z position
+                else {
+                    normalizedWidth = THREE.MathUtils.mapLinear(cameraPositionZ, minZ, maxZ, minWidth, maxWidth);
+                }
                 // Tube Geometry parameters: path, tubular segments, radius, radial segments, closed
-                const tubeGeometry = new THREE.TubeGeometry(curve, 100, 3, 3, false);
+                const tubeGeometry = new THREE.TubeGeometry(curve, 100, normalizedWidth, 4, false);
 
                 // Create the tube material with color from _route.color
                 const tubeMaterial = new THREE.MeshBasicMaterial({ color: _route.color, opacity: 0.8, transparent: true, depthTest: false, depthWrite: true });
@@ -513,12 +590,31 @@ const AutoRouting = () => {
                 const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
                 
                 tubeMesh.userData = { isRoute: true, id: _route.id };
+
+                const tubeBufferMesh = createTubeBuffer(points, 'black');
+                
                 // Add the tube mesh to the scene
                 tubeMeshes.current.push({
-                    index: _route.category,
+                    index: _route.id,
                     value: tubeMesh
                 })
+                tubeBufferMeshes.current.push({
+                    index: _route.id,
+                    value: tubeBufferMesh
+                })
+                tubeMesh.renderOrder = 2
+                tubeBufferMesh.renderOrder = 1
                 window.map.scene.add(tubeMesh);
+                window.map.scene.add(tubeBufferMesh);
+
+                curves.current.push({
+                    index: _route.id,
+                    value: curve
+                })
+                tubePoints.current.push({
+                    index: _route.id,
+                    value: points
+                })
             } else {
                 // Handle the STOP_SIGNS category by showing an image at the point
                 const coordinates = (_route.geoJson.geometry as LineString).coordinates
@@ -1153,6 +1249,31 @@ const AutoRouting = () => {
         return tube;
     }
 
+    function createTubeBuffer(points, color) {
+        points.map(point => {
+            point.z = point.z + 4
+        })
+        const curve = new THREE.CatmullRomCurve3(points);
+        const extrudeSettings = {
+            steps: 100,
+            extrudePath: curve,
+            color: 'grey',
+        };
+        const roadWidth = 36 / 100;
+        const shape = new THREE.Shape([
+            new THREE.Vector2(-roadWidth / 2, -27),
+            new THREE.Vector2(roadWidth / 2, -27),
+            new THREE.Vector2(roadWidth / 2, 27), // Extend forward
+            new THREE.Vector2(-roadWidth / 2, 27),
+        ]);
+        const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+        
+        const tubeMaterial = new THREE.MeshStandardMaterial({ color: 'grey', depthWrite: false, transparent: true, opacity: 0.7, depthTest: false });
+        const ellipticalTubeMesh = new THREE.Mesh(geometry, tubeMaterial);
+        return ellipticalTubeMesh;
+    }
+
     const drawRoute = useCallback((_saving_data, totalTime, distance, animation = true, stopSignDuration = 0): RouteDataType => {
         if (!mapContainer.current) return _saving_data;
         setShowRoads(false)
@@ -1253,15 +1374,15 @@ const AutoRouting = () => {
                 }
                 // Create a curve from the accumulated points
                 const segmentCurve = new THREE.CatmullRomCurve3(accumulatedPoints);
-
+                const curve = new THREE.CatmullRomCurve3(points);
                 // Calculate the average speed limit for this segment
                 const averageSpeedLimit = accumulatedSpeedLimits.reduce((a, b) => a + b, 0) / accumulatedSpeedLimits.length;
                 
                 const segmentTube = createTubeWithFootprint(segmentCurve, accumulatedPoints, currentColor, 100);
-                // const segmentTube = new THREE.Mesh(segmentGeometry, segmentMaterial);
                 segmentTube.renderOrder = 2;
-                tempTube.current.push(segmentTube);
                 window.map.scene.add(segmentTube);
+
+                activeObjects.current.tube = segmentTube;
                 // Add this tube's data to the tubes array
                 let totalDistance = turf.length(turf.lineString(accumulatedCoords), { units: 'meters' })
                 tubes.push({
