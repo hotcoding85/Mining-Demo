@@ -54,9 +54,10 @@ export const ThreeJS = () => {
                 text: 'DT101',
                 status: 'Waiting',
                 model: 'HD785',
-                time: '01:20',
+                time: '00:48',
                 tonnes: '0',
-                operator: 'Bain Chloe'
+                operator: 'Bain Chloe',
+                lastTime: '24:45'
         }
         const loadingAnnotation ={
             type: 'truck',
@@ -66,6 +67,7 @@ export const ThreeJS = () => {
             time: '01:20',
             model: 'HD1500',
             tonnes: '45.6',
+            lastTime: '02:12',
             operator: 'Arlene McCoy'
         }
         const excavatorAnnotation ={
@@ -76,7 +78,8 @@ export const ThreeJS = () => {
             time: '01:20',
             tonnes: '45.6',
             operator: 'Cody Fisher',
-            passes: '6'
+            passes: '6',
+            totalTime: '16:24:45'
         }
         setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation])
         annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation]
@@ -308,21 +311,23 @@ export const ThreeJS = () => {
                                     <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                         <div style={{padding: 5, background: '#080808', textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                             <h2 style={{color: 'gold', fontWeight: 800, marginBottom: 0}}>{annotation.text}</h2>
-                                            <div style={{width: '20px', height: '20px', borderRadius: '50%', background: annotation.status === 'Loading' ? 'green' : 'gold', marginLeft: '1rem'}}></div>
+                                            <div style={{width: '20px', height: '20px', borderRadius: '50%', background: 'green', marginLeft: '1rem'}}></div>
                                         </div>
-                                        <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '1rem'}}>
+                                        <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                                             {
                                                 annotation.type === 'truck' ? 
                                                 <>
                                                     <h3 style={{textTransform: 'uppercase'}}>{annotation.status}</h3>
-                                                    <h4>{annotation.operator}</h4>
-                                                    <h4>{annotation.tonnes !== '0' ? annotation.tonnes + 'T' : '---'} - {annotation.time}</h4>
+                                                    <h5>{annotation.operator}</h5>
+                                                    <h5 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}>{annotation.tonnes !== '0' ? 'Loading ' + annotation.tonnes + 'T' : 'Waiting'} - {annotation.time}</h5>
+                                                    <h5>{annotation.status === 'Waiting' ? 'Last Trip' : 'Time'}: {annotation.lastTime}</h5>
                                                 </> :
                                                 <>
-                                                    <h4>Unit: {"DT201"}</h4>
-                                                    <h4>{annotation.operator}</h4>
-                                                    <h4>Payload: {annotation.tonnes}T</h4>
-                                                    <h4>Passes: {annotation.passes}</h4>
+                                                    <h5>Unit: {"DT201"}</h5>
+                                                    <h5>{annotation.operator}</h5>
+                                                    <h5>Payload: {annotation.tonnes}T</h5>
+                                                    <h5>Passes: {annotation.passes}</h5>
+                                                    <h5>Time: {annotation.totalTime}</h5>
                                                 </>
                                             }
                                         </div>
