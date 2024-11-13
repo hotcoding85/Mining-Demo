@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import { TabsProps } from "antd";
 import './index.scss'
 import ExcavatorItem from "./ExcavatorItem";
-import {trucks, excavators} from './sampleData';
+import {excavators, generateTruckData} from './sampleData';
 import { ThreeJS } from "Pages/ThreeJS";
 import { THREEJSMap } from "Pages/3DMap";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
@@ -20,9 +20,11 @@ const Visual
     const mapContainer = useRef<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const font = useRef<any>(null)
-
-    const [selectedTrip, setSelectedTrip] = useState<any>('1')
-    const selectedTripRef = useRef<string>('1')
+    const [selectedTrip, setSelectedTrip] = useState<any>(props.trucks[0].index)
+    const selectedTripRef = useRef<string>(props.trucks[0].index)
+    useEffect(() => {
+        selectedTripRef.current = selectedTrip
+    }, [selectedTrip])
     function generateCircleCoordinates(
         center: [number, number],
         radiusInMeters: number
@@ -68,12 +70,15 @@ const Visual
 
           points.push(realWorldPosition);
         }
-
-      
         return points;
     }
-    const [lng, setLng] = useState(120.44477292688124);
-    const [lat, setLat] = useState(-29.147190282051838);
+    const trucks = useMemo(() => {
+        return props.trucks
+    }, [props.trucks])
+
+    useEffect(() => {
+        setSelectedTrip(props.trucks[0].index)
+    }, [props.excavator])
 
     function flattenPositions(positions, offset = 0) {
                 
@@ -96,9 +101,20 @@ const Visual
         }
     }
 
+    const [centerPos, setCenterPos] = useState<THREE.Vector3>(new THREE.Vector3(-1500, 730, 40))
+    const circleLine = useRef<any>(null)
+    const textMeshes = useRef<any[]>([])
+    const circleMeshs = useRef<any[]>([])
+    useEffect(() => {
+        const excav = excavators.find(exc => exc.id === props.excavator.value)
+        if (!excav) return
+        setCenterPos(new THREE.Vector3(excav.position[0], excav.position[1], excav.position[2]))
+    }, [props.excavator])
+
     useEffect(() => {
         if (!isLoading && window.map) {
-            let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(-1500, 730)
+            cleanPrev()
+            let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(centerPos.x, centerPos.y)
             let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY)
             const points = generateCircleCoordinates([longitude, latitude], 16)
             const geometry = new THREE.BufferGeometry();
@@ -119,17 +135,17 @@ const Visual
             const line = new THREE.Line(geometry, material);
             line.computeLineDistances(); // Required for dashed lines
             window.map.scene.add(line);
-
+            circleLine.current = line
             if (selectedTripRef.current) {
                 const truck = trucks.find(truck => truck.index === selectedTripRef.current)
                 // draw numbered circles (1, 2, 3, 4, 5)
-                truck && drawNumberedCircles(truck.weights.length)
+                truck && drawNumberedCircles(truck, truck.weights.length)
             }
-
+            moveEquipments(centerPos)
             // focusing initial excavator position
             animateZoom()
         }
-    }, [isLoading, lng, lat])
+    }, [isLoading, centerPos])
 
     useEffect(() => {
         if (!window.map || !window.map.scene) return
@@ -149,14 +165,21 @@ const Visual
 
         const truck = trucks.find(truck => truck.index === selectedTrip)
         // draw numbered circles (1, 2, 3, 4, 5)
-        truck && drawNumberedCircles(truck.weights.length)
+        truck && drawNumberedCircles(truck, truck.weights.length)
     }, [selectedTrip])
 
-    const textMeshes = useRef<any[]>([])
-    const circleMeshs = useRef<any[]>([])
-    const drawNumberedCircles = (count: number) => {
-        const statusColors = ["#4CAF50", "#FF5252", "#FFC107", "#FF5252", "#FF5252"];
-        const center = new THREE.Vector3(-1500, 730, 45)
+    const moveEquipments = useCallback((pos) => {
+        if (!window.map || !window.map.scene) return
+        if (window.DiggerObject && window.DiggerObject.group) {
+            window.DiggerObject.group.position.copy(new THREE.Vector3(pos.x, pos.y, pos.z - 5))
+        }
+        if (window.TruckObject) {
+            window.TruckObject.position.copy(new THREE.Vector3(pos.x - 50, pos.y + 30, pos.z - 5))
+        }
+    }, [centerPos])
+
+    const drawNumberedCircles = useCallback((truck: any, count: number) => {
+        const center = centerPos
         const angleStep = (2 * Math.PI) / (count * 4); // Angle between each text
         const radius = 54
         for (let i = 1 ; i <= count ; i ++) {
@@ -195,7 +218,8 @@ const Visual
             window.map.scene.add(textMesh)
             textMeshes.current.push(textMesh)
             const circleGeometry = new THREE.CircleGeometry(5, 18); // Adjust the radius of the circle as needed
-            const circleMaterial = new THREE.MeshBasicMaterial({ color: statusColors[(i - 1) % statusColors.length], depthWrite: false, transparent: true });
+            const excav = excavators.find(exc => exc.id === props.excavator.value)
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: truck.colors[i - 1], depthWrite: false, transparent: true });
             const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
         
             // Position the circle at the same location as the text
@@ -205,16 +229,41 @@ const Visual
             window.map.scene.add(circleMesh)
             circleMeshs.current.push(circleMesh)
         }
+    }, [centerPos])
+
+    const cleanPrev = () => {
+        if (!window.map || !window.map.scene) return
+        // remove old meshes
+        textMeshes.current.map(textmesh => {
+            textmesh.geometry.dispose()
+            textmesh.material.dispose();
+            window.map.scene.remove(textmesh)
+        })
+        textMeshes.current = []
+        circleMeshs.current.map(circlemesh => {
+            circlemesh.geometry.dispose()
+            circlemesh.material.dispose();
+            window.map.scene.remove(circlemesh)
+        })
+        circleMeshs.current = []
+        if (circleLine.current) {
+            circleLine.current.geometry.dispose()
+            circleLine.current.material.dispose();
+            window.map.scene.remove(circleLine.current)
+        }
     }
 
     const animateZoom = () => {
         let animationCameraId = 0
         const startPosition = window.map.camera.position.clone();
-        const point = new THREE.Vector3(-1500, 730, 70); // Zoom offset
-        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
+        const point = centerPos; // Zoom offset
+        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 120)
         // Animate the camera movement
-        const zoomDuration = 1000; // 1 second
+        const startFov = window.camera.fov;
+        const targetFov = 50;
+        const zoomDuration = 2000; // 1 second
         let startTime: number | null = null;
+
         window.isAnimation = true
         window.controls && (window.controls.enabled = false)
         // Initial rotation of the camera
@@ -277,27 +326,29 @@ const Visual
     return (
         <>
             <Row>
-                <THREEJSMap ref={mapContainer} isAutoRouting={true} height="calc(100vh - 400px)" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={new THREE.Vector3(-1500, 730, 40)} truckInitPoint={new THREE.Vector3(-1550, 760, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
-            </Row>
-            <Row style={{marginTop: '1rem'}}>
-                {
-                    excavators.map((excavator, index) => (
-                        <Col lg={6} md={6} sm={12}>
-                            <Card key={index} style={{borderRadius: '15px'}}>
-                                    <ExcavatorItem
-                                        excavatorId={excavator.id}
-                                        syncStatus={`Synced ${excavator.synced}m ago`}
-                                        avgHangTime={excavator.hangTime}
-                                        trucks={trucks.filter(truck => truck.excavator === excavator.id)}
-                                        syncTimeColor={excavator.syncTimeColor}
-                                        avgHangTimeColor={excavator.avgHangTimeColor}
-                                        selectedTrip={selectedTrip}
-                                        setSelectedTrip={setSelectedTrip}
-                                    />
-                            </Card>
-                        </Col>
-                    ))
-                }
+                <Col lg={6} sm={12} style={{marginTop: '1rem'}}>
+                    <THREEJSMap ref={mapContainer} isAutoRouting={true} height="583px" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={centerPos} truckInitPoint={new THREE.Vector3(-1550, 760, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
+                </Col>
+                <Col lg={6} sm={12}  className="scrollable-row row" style={{ marginTop: '1rem', display: 'flex', overflowX: 'auto', flexWrap: 'nowrap', padding: 0 }}>
+                    {
+                        excavators.filter(exc => exc.id === props.excavator.value).map((excavator, index) => (
+                            <Col sm={12} style={{paddingRight: 0}}>
+                                <Card key={index} style={{borderRadius: '15px'}}>
+                                        <ExcavatorItem
+                                            excavatorId={excavator.id}
+                                            syncStatus={`Synced ${excavator.synced}m ago`}
+                                            avgHangTime={excavator.hangTime}
+                                            trucks={props.trucks}
+                                            syncTimeColor={excavator.syncTimeColor}
+                                            avgHangTimeColor={excavator.avgHangTimeColor}
+                                            selectedTrip={selectedTrip}
+                                            setSelectedTrip={setSelectedTrip}
+                                        />
+                                </Card>
+                            </Col>
+                        ))
+                    }
+                </Col>
             </Row>
         </>
     )

@@ -1,40 +1,39 @@
-.top-menu {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    & .language-switch {
-        height: 32px !important;
-        & .dropdown-btn{
-            height: 32px !important;
-            & div{
-                margin-top: -6px;
-                & span {
-                    font-size: 14px !important;
-                }
-            }
-        }
+.reports-summary-container {
+    margin-top: 1rem;
+    color: white;
+    & div.reports-summary-card {
+        height: 65px !important;
+        background: transparent !important;
+        color: white;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 0px !important;
+        display: flex;
+        align-items: flex-start;
+        padding-left: 2rem;
+        margin-bottom: 0px !important;
+        flex-direction: column;
     }
 }
 
-.payload-optimization-reports {
-    & .language-switch {
-        height: 40px !important;
-        & .dropdown-btn{
-            min-width: 300px;
-            height: 40px !important;
-            & div{
-                margin-top: -2px;
-                & span {
-                    font-size: 14px !important;
-                }
-            }
-        }
-    } 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+body[data-layout-mode="dark"] .reports-summary-card {
+    border-left: 1px solid white;
+}
+body[data-layout-mode="light"] .reports-summary-card {
+    border-left: 1px solid #495057;
+}
+.reports-summary-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: bold;
 }
 
-body[data-layout-mode="dark"] .payload-optimization-reports .customSegmentLabel {
-    border: 1px solid white;
+.reports-summary-time {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.reports-summary-value {
+    font-size: 18px;
+    font-weight: bold;
 }

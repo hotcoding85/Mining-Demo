@@ -18,7 +18,7 @@ const TripSelector: React.FC = () => {
   );
 
   return (
-    <div style={{ minWidth: 200 }}>
+    <div style={{ minWidth: 200, marginLeft: '1rem' }}>
       <Select
         mode="multiple"
         style={{ width: '100%' }}

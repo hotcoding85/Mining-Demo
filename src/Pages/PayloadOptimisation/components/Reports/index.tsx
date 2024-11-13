@@ -13,42 +13,6 @@ const Reports
         setDisplayType(displayInfo);
     };
 
-    const excavator = [
-        {
-            label: "EX201 (EMU_S04_465_004)",
-            value: "EX201",
-        },
-        {
-            label: "EX202 (EMU_S04_465_004)",
-            value: "EX202",
-        },
-        {
-            label: "EX203 (EMU_S04_465_004)",
-            value: "EX203",
-        },
-        {
-            label: "EX204 (EMU_S04_465_004)",
-            value: "EX204",
-        },
-        {
-            label: "EX205 (EMU_S04_465_004)",
-            value: "EX205",
-        },
-    ]
-    const [excavators, setExcavator] = useState<DropdownType>({
-        label: "",
-    });
-    const [currentDigger, setCurrentDigger] = useState('')
-
-    const data = [
-        { label: 'Best Load', time: '01:35', value: '149t', color: 'green' },
-        { label: 'Worst Load', time: '03:35', value: '78t', color: 'red' },
-        { label: 'Avg Tonnes', value: '83.4t' },
-        { label: 'Total Tonnes', value: '156.43t' },
-        { label: 'Avg Time', value: '01:44' },
-        { label: 'Total Time', value: '2:34' },
-    ];
-
     const legendData = [
         {
           label: "Swinging",
@@ -95,53 +59,18 @@ const Reports
         },
     ]
 
-    const tripOptions = ["Trip 1", "Trip 2", "Trip 3", "Trip 4", "Trip 5"];
+    const groupedTrucks = props.trucks.reduce((acc: { [key: string]: any[] }, truck: any) => {
+        if (!acc[truck.id]) {
+            acc[truck.id] = [];
+        }
+        acc[truck.id].push(truck);
+        return acc;
+    }, {});
 
     return (
-        <Row>
+        <Row style={{marginLeft: 0, marginRight: 0}}>
             <Card className="p-4">
                 <Col lg="12">
-                        <div className="payload-optimization-reports"> 
-                            <Dropdown
-                                label="Choose Excavator"
-                                items={excavator}
-                                value={excavators}
-                                onChange={setExcavator}
-                                />
-                            <Segmented
-                                className="customSegmentLabel customSegmentBackground"
-                                value={displayType}
-                                onChange={onDisplayTypeChange}
-                                options={[
-                                { value: "HD785", label: "HD785" },
-                                { value: "HD1500", label: "HD1500" },
-                                ]}
-                            />
-                        </div>
-                </Col>
-                <Col lg="12">
-                    <div className="reports-summary-container">
-                        <h2>Summary</h2>
-                        <Row gutter={[16, 16]} justify="space-between" style={{padding: '0px'}}>
-                            {data.map((item, index) => (
-                                <Col key={index} xs={12} sm={6} md={4} lg={2}>
-                                    <Card className="reports-summary-card" bordered={false}>
-                                        <div className="reports-summary-label">{item.label}</div>
-                                        <div className="d-flex align-center" style={{alignItems: 'center', justifyContent: 'space-between'}}>
-                                            <div className="reports-summary-time" style={{ color: item.color }}>
-                                                {item.time && <span>{item.time}</span>}
-                                            </div>
-                                            <div className="reports-summary-value" style={{ color: item.color, paddingLeft: item.time ? '1rem' : '0' }}>
-                                                {item.value}
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </Col>
-                            ))}
-                        </Row>
-                    </div>
-                </Col>
-                <Col lg="12" style={{marginTop: '2rem'}}>
                     <div className="d-flex" style={{justifyContent: 'space-between'}}>
                         <div className="visual-legend-container d-flex">
                             {legendData &&
@@ -170,18 +99,32 @@ const Reports
                                 </div>
                             ))}
                         </div>
-                        <div>
+                        <div className="d-flex">
+                            <Segmented
+                                className="customSegmentLabel customSegmentBackground"
+                                value={displayType}
+                                style={{marginLeft: '1rem'}}
+                                onChange={onDisplayTypeChange}
+                                options={[
+                                { value: "HD785", label: "HD785" },
+                                { value: "HD1500", label: "HD1500" },
+                                ]}
+                            />
                             <TripFilter />
                         </div>
                     </div>
                     <Row style={{marginTop: '2rem'}}>
                         {
-                            Trucks.filter(truck => truck.type === displayType).map(truck => {
-                                return <Col md={6} xs={12}>
+                            [...new Map(props.trucks.filter(t => t.model === displayType).map(truck => [truck.id, truck])).values()]
+                                .map((truck: any) => {
+                                    return (
+                                        <Col md={6} xs={12} key={truck.id}>
                                             <LineChart truck={truck} />
                                         </Col>
-                            })
+                                    );
+                                })
                         }
+
                     </Row>
                 </Col>
             </Card>

@@ -56,7 +56,7 @@ const LineChart = (props) => {
             theme: 'light',
             x: { show: true,
                 formatter: (value: number) => {
-                    return `Pass ${value} - ${props.truck.name}`;
+                    return `Pass ${value} - ${props.truck.id}`;
                 }
             },
             y: {
@@ -90,7 +90,7 @@ const LineChart = (props) => {
 
     return (
         <div style={{ padding: '20px',  borderRadius: '8px' }}>
-            <h3>{props.truck.name + `(${props.truck.type})`}</h3>
+            <h3>{props.truck.id + `(${props.truck.model})`}</h3>
             <Chart options={chartOptions} series={series} type="line" height={320} />
         </div>
     );

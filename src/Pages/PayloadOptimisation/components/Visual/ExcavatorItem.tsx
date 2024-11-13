@@ -5,13 +5,15 @@ import { Card, CardBody, CardTitle, CardText, Row, Col, Badge } from 'reactstrap
 import { LayoutSelector } from 'selectors';
 
 type TruckData = {
-  id: string;
-  model: string;
-  times: string[];
-  weights: string[];
-  avgLoadingTime: string;
-  totalTonnes: string;
-  index: string;
+    index: string;
+    id: string;
+    model: string;
+    excavator: string;
+    times: string[];
+    weights: string[];
+    avgLoadingTime: string;
+    totalTonnes: string;
+    colors: string[];
 };
 
 type ExcavatorProps = {
@@ -38,21 +40,21 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
-    const statusColors = ["#4CAF50", "#FF5252", "#FFC107", "#FF5252", "#FF5252"];
+    const statusColors = ["#4CAF50", "#FF5252", "#FFC107", "#4CAF50", "#4CAF50"];
     
     return (
         <Card className="excavator-summary-card" style={{ minHeight: '500px', borderRadius: '15px' }}>
         <CardBody style={{borderRadius: '15px'}}>
             <Row>
-            <Col xs="8">
+            {/* <Col xs="8">
                 <CardTitle tag="h3" style={{fontSize: '22px'}}>{excavatorId}</CardTitle>
                 <CardText>
                 <Badge color="success" style={{ backgroundColor: '#4CAF50' }}>{syncStatus}</Badge>
                 </CardText>
-            </Col>
-            <Col xs="4" className="text-end">
-                <CardTitle tag="h5" style={{ color: avgHangTimeColor, fontSize: '20px' }}>{avgHangTime}</CardTitle>
-                <CardText>Avg Hang Time</CardText>
+            </Col> */}
+            <Col xs="12" className="text-center" style={{display: 'flex', justifyContent: 'center'}}>
+                <CardText style={{fontSize: '16px'}}>Avg Hang Time</CardText>
+                <CardTitle tag="h4" style={{ color: avgHangTimeColor, fontSize: '20px', marginLeft: '1rem' }}>{avgHangTime}</CardTitle>
             </Col>
             </Row>
             {trucks.map((truck) => (
@@ -69,7 +71,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
                 </Row>
                 <Row className='d-flex' style={{justifyContent: 'space-around', flexDirection: 'row', marginLeft: (50 / truck.weights.length / 2 + '%'), marginRight: (50 / truck.weights.length / 2 * 2 + '%'), marginTop: '.5rem'}}>
                     {truck.times.map((time, index) => (
-                    <Col key={index} xs="2" className="text-center">
+                    <Col key={index} className="text-center">
                         {<Badge color="secondary">{time}</Badge>}
                     </Col>
                     ))}
@@ -82,7 +84,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
                                 style={{
                                 width: '20px',
                                 height: '20px',
-                                backgroundColor: statusColors[index % 5],
+                                backgroundColor: truck.colors[index],
                                 borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -96,7 +98,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
                                 {index + 1}
                             </Badge>
                             <Col key={index} className="text-center">
-                                <p style={{ margin: 0, color: statusColors[index % 5] }}>{weight}</p>
+                                <p style={{ margin: 0, color: truck.colors[index] }}>{weight}</p>
                             </Col>
                         </div>
                     ))}
