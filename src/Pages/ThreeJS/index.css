@@ -81,13 +81,16 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
 }
 .eq-annotation {
     position: absolute;
-    background: #333333d1;
+    background: #1C263C80;
     pointer-events: none;
     display: none;
     flex-direction: column;
-    min-width: 200px;
+    min-width: 150px;
     min-height: 100px;
     align-items: center;
+    height: 103px;
+    padding: 5px 10px;
+    border-radius: 10px;
 }
 
 .annotation-line {
@@ -95,4 +98,21 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     width: 2px; /* Adjust the thickness */
     background-color: gold;
     transform-origin: top left;
+}
+
+.annotation-content > h6 {
+    font-size: 9px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.annotation-content > h4 {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.annotation-content > h3 {
+    font-size: 14px;
+    margin-bottom: 4px;
 }

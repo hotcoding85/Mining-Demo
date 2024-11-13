@@ -218,15 +218,15 @@ export const ThreeJS = () => {
                 minOffsetX = index == 1 ? -20 : index == 2 ? 20 : 0
             }
             if (cameraPositionZ <= 150) {
-                scale = 0.7;
+                scale = 1.3;
                 offsetY = maxOffsetY
                 offsetX = maxOffsetX
             } else if (cameraPositionZ >= 1000) {
-                scale = 0.1;
+                scale = 0.3;
                 offsetY = minOffsetY
                 offsetX = minOffsetX
             } else {
-                scale = 0.7 - ((cameraPositionZ - 150) / (1000 - 150)) * (0.7 - 0.1);
+                scale = 1.3 - ((cameraPositionZ - 150) / (1000 - 150)) * (1.3 - 0.3);
                 offsetY = maxOffsetY - ((cameraPositionZ - 150) / (1000 - 150)) * (maxOffsetY - minOffsetY)
                 offsetX = maxOffsetX - ((cameraPositionZ - 150) / (1000 - 150)) * (maxOffsetX - minOffsetX)
             }
@@ -309,29 +309,44 @@ export const ThreeJS = () => {
                             <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)'>
                                 {annotations.map((annotation: any, index) => (
                                     <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
-                                        <div style={{padding: 5, background: '#080808', textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                            <h2 style={{color: 'gold', fontWeight: 800, marginBottom: 0}}>{annotation.text}</h2>
-                                            <div style={{width: '20px', height: '20px', borderRadius: '50%', background: 'green', marginLeft: '1rem'}}></div>
+                                        <div style={{padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', borderBottom: '1px solid white'}}>
+                                            <h3 style={{color: 'gold', fontWeight: 800, marginBottom: 0, fontSize: '18px'}}>{annotation.text}</h3>
+                                            {/* <div style={{width: '20px', height: '20px', borderRadius: '50%', background: 'green', marginLeft: '1rem'}}></div> */}
                                         </div>
-                                        <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                                        <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '0rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%'}}>
                                             {
                                                 annotation.type === 'truck' ? 
                                                 <>
-                                                    <h3 style={{textTransform: 'uppercase'}}>{annotation.status}</h3>
-                                                    <h5>{annotation.operator}</h5>
-                                                    <h5 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}>{annotation.tonnes !== '0' ? 'Loading ' + annotation.tonnes + 'T' : 'Waiting'} - {annotation.time}</h5>
-                                                    <h5>{annotation.status === 'Waiting' ? 'Last Trip' : 'Time'}: {annotation.lastTime}</h5>
+                                                    <h4 style={{textTransform: 'uppercase'}}>{annotation.status}</h4>
+                                                    <h6><div>Operator:</div><div>{annotation.operator}</div></h6>
+                                                    <h6 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}><div>Payload</div><div>{annotation.tonnes !== '0' ? annotation.tonnes + 'T' : 'Waiting'} - {annotation.time}</div></h6>
+                                                    <h6><div>{annotation.status === 'Waiting' ? 'Last Trip' : 'Time'}:</div> <div>{annotation.lastTime}</div></h6>
                                                 </> :
                                                 <>
-                                                    <h5>Unit: {"DT201"}</h5>
-                                                    <h5>{annotation.operator}</h5>
-                                                    <h5>Payload: {annotation.tonnes}T</h5>
-                                                    <h5>Passes: {annotation.passes}</h5>
-                                                    <h5>Time: {annotation.totalTime}</h5>
+                                                    <h6 style={{fontSize: '14px'}}>Loading</h6>
+                                                    <h6><div>Operator:</div><div>{annotation.operator}</div></h6>
+                                                    <h6><div>Payload:</div> <div>{annotation.tonnes}T</div></h6>
+                                                    <h6><div>Passes:</div> <div>{annotation.passes}</div></h6>
                                                 </>
                                             }
                                         </div>
                                         <div className="annotation-line" id={`eq-annotation-line-${index}`} />
+                                        <svg width="120" height="6" viewBox="0 0 120 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '-3px'}}>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.64 0.0267208L20.2514 1.69232L42.0494 1.68044L43.4244 0.0237518H76.2596L77.6407 1.68044L99.4326 1.68935L101.044 0.0237518L117.474 0L119.26 1.89124L116.516 5.79842H89.3746L88.4108 4.61973H31.2731L30.3094 5.79842H3.16776L0.423828 1.89124L2.21015 0L18.64 0.0237518V0.0267208Z" fill="#535E77"/>
+                                        </svg>
+                                        <svg width="21" height="104" viewBox="0 0 21 104" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '0px', right: '0px'}}>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M17.3124 38.6429L18.4327 37.102L18.4542 19.4247L17.2971 18.6557L17.2848 9.38658L10.3943 2.89045H0.560303L2.23613 0.52417H14.3383L20.4676 6.23649V97.3486L14.3383 103.058H2.23613L0.560303 100.692H10.3943L17.2848 94.1955L17.2971 84.9264L18.4542 84.1574L18.4327 66.4771L17.3124 64.9362C17.3063 56.1718 17.3063 47.4103 17.3124 38.6459V38.6429Z" fill="#535E77"/>
+                                        </svg>
+                                        <svg width="120" height="7" viewBox="0 0 120 7" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', bottom: '-3px'}}>
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M18.6275 6.46335L20.2389 4.79776L42.0369 4.80963L43.412 6.46632H76.2471L77.6283 4.80963L99.4202 4.80072L101.032 6.46632L117.461 6.49007L119.248 4.59883L116.504 0.69165H89.3621L88.3984 1.87034H31.2607L30.2969 0.69165H3.15531L0.411377 4.59883L2.1977 6.49007L18.6275 6.46632V6.46335Z" fill="#535E77"/>
+                                        </svg>
+                                        <svg width="21" height="104" viewBox="0 0 21 104" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '0px', left: '0px'}}>
+                                            <path d="M2.52427 37.0634L3.62 38.5717L3.64455 38.6043V38.6459C3.64762 43.5596 3.65069 47.9418 3.65069 51.7925C3.65069 55.6433 3.65069 60.0255 3.64762 64.9392V64.9808L3.62307 65.0134L2.52733 66.5217L2.50585 84.0861L3.60772 84.8165L3.66297 84.8551V84.9264L3.67525 94.1391L10.489 100.564H20.2739H20.5164L20.3721 100.769L18.6963 103.138L18.6595 103.192H6.49284L6.44373 103.189L6.40997 103.156L0.280623 97.4436L0.240723 97.405V6.18008L0.280623 6.14148L6.40997 0.435103L6.44373 0.402444H6.49284L18.595 0.399475H18.6595L18.6963 0.452917L20.3721 2.82216L20.5164 3.02702H10.486L3.67218 9.4519L3.6599 18.6646V18.7359L3.60158 18.7745L2.49971 19.5049L2.5212 37.0694L2.52427 37.0634Z" fill="#535E77"/>
+                                        </svg>
+
+
+
+
                                     </div>
                                 ))}
                             </THREEJSMap>
