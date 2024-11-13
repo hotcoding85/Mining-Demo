@@ -79,3 +79,20 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     border-style: solid;
     border-color: #33333380 transparent transparent transparent; /* Tooltip arrow */
 }
+.eq-annotation {
+    position: absolute;
+    background: #333333d1;
+    pointer-events: none;
+    display: none;
+    flex-direction: column;
+    min-width: 200px;
+    min-height: 100px;
+    align-items: center;
+}
+
+.annotation-line {
+    position: absolute;
+    width: 2px; /* Adjust the thickness */
+    background-color: gold;
+    transform-origin: top left;
+}

@@ -36,6 +36,8 @@ export const ThreeJS = () => {
     const [lat, setLat] = useState(-29.1506602184213);
     const geojsonData = useRef<any>();
 
+    const [annotations, setAnnotations] = useState<any>([]);
+    const annotationsRef = useRef<any[]>([])
     // state for Map loading status
     let animationFrameId: number;
     let map: any;
@@ -46,6 +48,38 @@ export const ThreeJS = () => {
     }, [dispatch]);
 
     useEffect(() => {
+        const waitingAnnotation ={
+                type: 'truck',
+                position: new THREE.Vector3(-1430, 640, 45),
+                text: 'DT101',
+                status: 'Waiting',
+                model: 'HD785',
+                time: '01:20',
+                tonnes: '0',
+                operator: 'Bain Chloe'
+        }
+        const loadingAnnotation ={
+            type: 'truck',
+            position: new THREE.Vector3(-1395, 490, 50),
+            text: 'DT201',
+            status: 'Loading',
+            time: '01:20',
+            model: 'HD1500',
+            tonnes: '45.6',
+            operator: 'Arlene McCoy'
+        }
+        const excavatorAnnotation ={
+            type: 'excavator',
+            position: new THREE.Vector3(-1380, 430, 65),
+            text: 'EX201',
+            status: 'Loading',
+            time: '01:20',
+            tonnes: '45.6',
+            operator: 'Cody Fisher',
+            passes: '6'
+        }
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation]
         // Clean up on component unmount
         return () => {
             map && map.clean()
@@ -113,8 +147,81 @@ export const ThreeJS = () => {
             };
 
             animationCameraId = requestAnimationFrame(animateZoom);
+
+            // add waiting truck
+            const copyModel = window.TruckObject.clone();
+            if (copyModel) {
+                copyModel.position.set(-1430, 640, 45)
+                copyModel.rotation.z += Math.PI
+
+                window.map.scene.add(copyModel)
+            }
         }
     }, [isLoading])
+
+    const updateAnnotations = useCallback(() => {
+        annotationsRef.current.forEach((annotation, index) => {
+            if (!mapContainer.current || !window.map) return;
+            const mapContainerElement = mapContainer.current.getMapContainer();
+
+            // Make sure mapContainerElement is not null
+            if (!mapContainerElement) return;
+
+            const cameraPositionZ = window.map.camera.position.z;
+            let scale;
+            let offsetY, offsetX
+            if (cameraPositionZ <= 150) {
+                scale = 0.7;
+                offsetY = 100
+                offsetX = 80
+            } else if (cameraPositionZ >= 1000) {
+                scale = 0.1;
+                offsetY = 0
+                offsetX = 0
+            } else {
+                scale = 0.7 - ((cameraPositionZ - 150) / (1000 - 150)) * (0.7 - 0.1);
+                offsetY = 100 - ((cameraPositionZ - 150) / (1000 - 150)) * (100 - 0)
+                offsetX = 80 - ((cameraPositionZ - 150) / (1000 - 150)) * (80 - 0)
+            }
+            
+            const containerBounds = mapContainerElement.getBoundingClientRect(); // Use getBoundingClientRect
+            const screenPosition = annotation.position.clone();
+            screenPosition.project(window.camera); // Project to screen space
+            
+            const x = (screenPosition.x * 0.5 + 0.5) * containerBounds.width;
+            const y = -(screenPosition.y * 0.5 - 0.5) * containerBounds.height;
+            
+            const annotationDiv = document.getElementById(`eq-annotation-${index}`);
+            if (annotationDiv) {
+                annotationDiv.style.left = `${x - offsetX}px`;
+                annotationDiv.style.top = `${y - offsetY}px`;
+    
+                // Check if the annotation is inside the viewport
+                const isInViewport = (
+                    x >= (105 + offsetX) && x <= containerBounds.width &&
+                    y >= (offsetY + 40) && y <= containerBounds.height
+                );
+                annotationDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                annotationDiv.style.display = isInViewport ? 'flex' : 'none';
+            }
+            const lineElement = document.getElementById(`eq-annotation-line-${index}`);
+            if (lineElement) {
+                const startX = 30
+                const endX = 100
+                const startY = 0
+                const endY = 100
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
+                const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                lineElement.style.width = `${length}px`;
+                lineElement.style.transform = `rotate(${Math.atan2(deltaY, deltaX)}rad)`;
+    
+                // Position the line
+                lineElement.style.left = `${startX}px`;
+                lineElement.style.top = `${startY}px`;
+            }
+        });
+    }, []);
     const checkAll = layerOptions.length === checkedList.length;
     const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
     const CheckboxGroup = Checkbox.Group;
@@ -168,7 +275,33 @@ export const ThreeJS = () => {
                             </Checkbox>
                             <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                         </div>
-                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={() => {}} isLoading={isLoading} setIsLoading={setIsLoading} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)' />
+                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)'>
+                                {annotations.map((annotation: any, index) => (
+                                    <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
+                                        <div style={{padding: 5, background: '#080808', textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                            <h2 style={{color: 'gold', fontWeight: 800, marginBottom: 0}}>{annotation.text}</h2>
+                                            <div style={{width: '20px', height: '20px', borderRadius: '50%', background: annotation.status === 'Loading' ? 'green' : 'gold', marginLeft: '1rem'}}></div>
+                                        </div>
+                                        <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '1rem'}}>
+                                            {
+                                                annotation.type === 'truck' ? 
+                                                <>
+                                                    <h3 style={{textTransform: 'uppercase'}}>{annotation.status}</h3>
+                                                    <h4>{annotation.operator}</h4>
+                                                    <h4>{annotation.tonnes !== '0' ? annotation.tonnes + 'T' : '---'} - {annotation.time}</h4>
+                                                </> :
+                                                <>
+                                                    <h4>Unit: {"DT201"}</h4>
+                                                    <h4>{annotation.operator}</h4>
+                                                    <h4>Payload: {annotation.tonnes}T</h4>
+                                                    <h4>Passes: {annotation.passes}</h4>
+                                                </>
+                                            }
+                                        </div>
+                                        <div className="annotation-line" id={`eq-annotation-line-${index}`} />
+                                    </div>
+                                ))}
+                            </THREEJSMap>
                         </Col>
                     </Row>
                     </Container>

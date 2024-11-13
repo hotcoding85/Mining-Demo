@@ -753,6 +753,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const compass: any = document.getElementById('compass')
         // Main render loop
         const mainLoop = (timestamp: number) => {
+            if (!window.map) {
+                if (animationFrameId.current) {
+                    cancelAnimationFrame(animationFrameId.current)
+                }
+                return;
+            }
             animationFrameId.current = requestAnimationFrame(mainLoop);
             if (mixer.current) {
                 const delta = clock.current.getDelta();

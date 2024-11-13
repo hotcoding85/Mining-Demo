@@ -826,8 +826,8 @@ export class Map {
       this.scene.remove(tile.mesh)
       tile.mesh.geometry.dispose();
       ['mapSW', 'mapNW', 'mapSE', 'mapNE'].forEach(key => {
-        tile.mesh.material.uniforms[key].value.dispose()
-        tile.mesh.material.uniforms[key].value = null;
+        tile.mesh.material.uniforms && tile.mesh.material.uniforms[key] && tile.mesh.material.uniforms[key].value.dispose()
+        tile.mesh.material.uniforms && tile.mesh.material.uniforms[key] && (tile.mesh.material.uniforms[key].value = null)
       })
       tile.mesh.material.dispose()
     })
