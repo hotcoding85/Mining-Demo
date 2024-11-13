@@ -113,35 +113,59 @@ export const ThreeJS = () => {
         if (!isLoading && window.map) {
             let animationCameraId = 0
             const startPosition = window.map.camera.position.clone();
-            const point = new THREE.Vector3(-1420, 440, 70); // Zoom offset
-            const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
+            const point = new THREE.Vector3(-1400, 470, 70); // Zoom offset
             // Animate the camera movement
             const zoomDuration = 1000; // 1 second
             let startTime: number | null = null;
             window.isAnimation = true
             window.controls && (window.controls.enabled = false)
-            // Initial rotation of the camera
-            const animateZoom = (time: number) => {
+
+            const sph = new THREE.Spherical();
+            sph.radius = 150; // Distance from the point (increase if needed)
+            sph.theta = 1.2; // Set theta to 1.21 radians
+            sph.phi = -2; // Adjust phi as needed, usually between 0 and Math.PI
+
+            // Calculate the offset position from spherical coordinates
+            const sphericalOffset = new THREE.Vector3();
+            sphericalOffset.setFromSpherical(sph);
+
+            // Define the target position based on the point with spherical offset
+            const targetPosition = point.clone().add(sphericalOffset);
+
+            // Set the final position in animateZoom
+            const animateZoom = (time) => {
                 if (startTime === null) startTime = time;
-                const _elapsed = time - startTime;
+                const _elapsed = time - (startTime ? startTime : time);
                 const progress = Math.min(_elapsed / zoomDuration, 1);
 
+                // Interpolate the camera position
                 window.camera.position.lerpVectors(startPosition, targetPosition, progress);
-                // THREE.Quaternion.slerp(startQuaternion, targetQuaternion, window.camera.quaternion, progress);
+
+                // Animate the controls target
                 window.controls.target.lerpVectors(startPosition, point, progress);
+
+                // Save the current camera position and orientation for reference
                 window.savedCameraPosition = window.camera.position.clone();
                 window.savedCameraQuaternion = window.camera.quaternion.clone();
+
+                // Update the camera matrix and projection
                 window.camera.updateProjectionMatrix();
                 window.camera.updateMatrixWorld();
+
+                // Continue animation or finalize
                 if (progress < 1) {
                     animationCameraId = requestAnimationFrame(animateZoom);
-                } 
-                else{
-                    window.isAnimation = false
+                } else {
+                    // Finalize camera position
+                    window.camera.position.copy(targetPosition);
+                    window.controls.target.copy(point);
+
+                    
+                    window.isAnimation = false;
                     setTimeout(() => {
-                        window.controls.update()
-                        window.renderer.render(window.map.scene, window.camera)
-                        window.controls && (window.controls.enabled = true)
+                        window.controls.update();
+                        window.renderer.render(window.map.scene, window.camera);
+                        if (window.controls) window.controls.enabled = true;
                     }, 100);
                 }
             };
@@ -149,12 +173,14 @@ export const ThreeJS = () => {
             animationCameraId = requestAnimationFrame(animateZoom);
 
             // add waiting truck
-            const copyModel = window.TruckObject.clone();
-            if (copyModel) {
-                copyModel.position.set(-1430, 640, 45)
-                copyModel.rotation.z += Math.PI
-
-                window.map.scene.add(copyModel)
+            if (window.TruckObject) {
+                const copyModel = window.TruckObject.clone();
+                if (copyModel) {
+                    copyModel.position.set(-1430, 640, 45)
+                    copyModel.rotation.z += Math.PI
+    
+                    window.map.scene.add(copyModel)
+                }
             }
         }
     }, [isLoading])
@@ -167,21 +193,39 @@ export const ThreeJS = () => {
             // Make sure mapContainerElement is not null
             if (!mapContainerElement) return;
 
+            var dir = new THREE.Vector3();
+            var sph = new THREE.Spherical();
+            window.camera.getWorldDirection(dir);
+            const adjustedDir = new THREE.Vector3(dir.x, dir.z, dir.y);  // Swap Y and Z
+
+            // Set spherical coordinates based on the adjusted direction
+            sph.setFromVector3(adjustedDir);
+            let normalizedTheta = -sph.theta;
+
             const cameraPositionZ = window.map.camera.position.z;
             let scale;
             let offsetY, offsetX
+            let maxOffsetY = index == 2 ? 200 : 140
+            let minOffsetY = 20
+            let maxOffsetX = index == 1 ? 100 : index == 2 ? -50 : 0
+            let minOffsetX = index == 1 ? 20 : index == 2 ? -80 : 0
+
+            if (normalizedTheta > 0) {
+                maxOffsetX = index == 1 ? -100 : index == 2 ? 70 : 0
+                minOffsetX = index == 1 ? -20 : index == 2 ? 20 : 0
+            }
             if (cameraPositionZ <= 150) {
                 scale = 0.7;
-                offsetY = 100
-                offsetX = 80
+                offsetY = maxOffsetY
+                offsetX = maxOffsetX
             } else if (cameraPositionZ >= 1000) {
                 scale = 0.1;
-                offsetY = 0
-                offsetX = 0
+                offsetY = minOffsetY
+                offsetX = minOffsetX
             } else {
                 scale = 0.7 - ((cameraPositionZ - 150) / (1000 - 150)) * (0.7 - 0.1);
-                offsetY = 100 - ((cameraPositionZ - 150) / (1000 - 150)) * (100 - 0)
-                offsetX = 80 - ((cameraPositionZ - 150) / (1000 - 150)) * (80 - 0)
+                offsetY = maxOffsetY - ((cameraPositionZ - 150) / (1000 - 150)) * (maxOffsetY - minOffsetY)
+                offsetX = maxOffsetX - ((cameraPositionZ - 150) / (1000 - 150)) * (maxOffsetX - minOffsetX)
             }
             
             const containerBounds = mapContainerElement.getBoundingClientRect(); // Use getBoundingClientRect
@@ -202,23 +246,7 @@ export const ThreeJS = () => {
                     y >= (offsetY + 40) && y <= containerBounds.height
                 );
                 annotationDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
-                annotationDiv.style.display = isInViewport ? 'flex' : 'none';
-            }
-            const lineElement = document.getElementById(`eq-annotation-line-${index}`);
-            if (lineElement) {
-                const startX = 30
-                const endX = 100
-                const startY = 0
-                const endY = 100
-                const deltaX = endX - startX;
-                const deltaY = endY - startY;
-                const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                lineElement.style.width = `${length}px`;
-                lineElement.style.transform = `rotate(${Math.atan2(deltaY, deltaX)}rad)`;
-    
-                // Position the line
-                lineElement.style.left = `${startX}px`;
-                lineElement.style.top = `${startY}px`;
+                annotationDiv.style.display = isInViewport && cameraPositionZ < 500 ? 'flex' : 'none';
             }
         });
     }, []);
