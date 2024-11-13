@@ -37,3 +37,9 @@ body[data-layout-mode="light"] .reports-summary-card {
     font-size: 18px;
     font-weight: bold;
 }
+
+.payload-optimization-reports{
+    & .notify-item{
+        padding-left: 2rem !important;
+    }
+}
