@@ -32,8 +32,8 @@ const PayloadOptimsation
         { label: 'Worst Load', time: '03:35', value: '78t', color: '#FF5252' },
         { label: 'Avg Tonnes', value: '83.4t' },
         { label: 'Total Tonnes', value: '156.43t' },
-        { label: 'Avg Load Time', value: formatTime(avgTimeInSeconds) },
-        { label: 'Avg Hang Time', value: formatTime(avgTimeInSeconds) },
+        { label: 'Avg Load Time', value: '30:01' },
+        { label: 'Avg Hang Time', value: '30:21' },
         { label: 'Total Time', value: '02:34' },
     ]
     const [data, setData] = useState(_initData)
@@ -51,6 +51,10 @@ const PayloadOptimsation
             const [mins, secs] = truck.avgLoadingTime.split(':').map(Number);
             return mins * 60 + secs;
         });
+        const avgHangTimesInSeconds = filteredTrucks.map(truck => {
+            const [mins, secs] = truck.avgHangTime.split(':').map(Number);
+            return mins * 60 + secs;
+        });
 
         // Calculate metrics
         const bestLoadIndex = totalTonnesArray.indexOf(Math.max(...totalTonnesArray));
@@ -59,7 +63,9 @@ const PayloadOptimsation
         const totalTonnes = totalTonnesArray.reduce((sum, value) => sum + value, 0);
         const avgTonnes = (totalTonnes / filteredTrucks.length).toFixed(2);
         const totalTimeInSeconds = avgTimesInSeconds.reduce((sum, time) => sum + time, 0);
+        const totalHangTimeInSeconds = avgHangTimesInSeconds.reduce((sum, time) => sum + time, 0);
         const avgTimeInSeconds = Math.ceil(totalTimeInSeconds / filteredTrucks.length);
+        const avgHangTimeInSeconds = Math.ceil(totalHangTimeInSeconds / filteredTrucks.length);
 
         // Helper function to format time in mm:ss
         const formatTime = (seconds: number): string => {
@@ -73,7 +79,8 @@ const PayloadOptimsation
             { label: 'Worst Load', time: filteredTrucks[worstLoadIndex].avgLoadingTime, value: `${totalTonnesArray[worstLoadIndex]}t`, color: '#FF5252' },
             { label: 'Avg Tonnes', value: `${avgTonnes}t` },
             { label: 'Total Tonnes', value: `${totalTonnes.toFixed(2)}t` },
-            { label: 'Avg Time', value: formatTime(avgTimeInSeconds) },
+            { label: 'Avg Load Time', value: formatTime(avgTimeInSeconds) },
+            { label: 'Avg Hang Time', value: formatTime(avgHangTimeInSeconds) },
             { label: 'Total Time', value: formatTime(totalTimeInSeconds) },
         ])
     }, [excavator])
@@ -96,9 +103,12 @@ const PayloadOptimsation
                         </Col>
                         <Col lg="12">
                             <div className="reports-summary-container">
+                                <Row>
+                                    <h2>Summary</h2>
+                                </Row>
                                 <Row gutter={[16, 16]} justify="space-between" style={{padding: '0px'}}>
                                     {data.map((item, index) => (
-                                        <Col key={index} xs={12}>
+                                        <Col key={index}>
                                             <div className="reports-summary-card" >
                                                 <div className="reports-summary-label">{item.label}</div>
                                                 <div className="d-flex" style={{alignItems: 'center', justifyContent: 'space-between', width: '100%', height: 40}}>

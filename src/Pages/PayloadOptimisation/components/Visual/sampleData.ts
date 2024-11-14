@@ -259,7 +259,7 @@ export const generateTruckData = (excavators: { id: string }[]): Truck[] => {
         Math.floor(times.reduce((sum, time) => sum + time, 0))
       );
       const avgHangTime = formatTime(
-        Math.floor(times.reduce((sum, time) => sum + time, 0))
+        randomTime(10, 40)
       );
       const totalTonnes = `${weights.reduce((sum, weight) => sum + weight, 0).toFixed(2)} t`;
 
