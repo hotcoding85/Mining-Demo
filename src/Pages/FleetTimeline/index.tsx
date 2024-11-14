@@ -206,7 +206,7 @@ const FleetTimeline = (props: any) => {
           </Row>
           <Row
             className="d-flex justify-content-center align-items-center"
-            style={{ marginTop: "120px" }}
+            style={{ marginTop: "60px" }}
           >
             {StateTimes.map((el) => (
               <Col xs={2}>

@@ -25,7 +25,7 @@ const StatusLabel = styled.div<{ bgColor: string; color?: string }>`
   border-radius: 2px;
   color: ${(props) => props.color || "#FFF"};
   text-align: center;
-  font-size: 32px;
+  font-size: 24px;
   font-style: normal;
   font-weight: 400;
   line-height: 36px;
@@ -53,18 +53,17 @@ const StateTime: React.FC<StateTimeProps> = ({ time, state, color, bgColor, text
   const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
 
   return (
-    <div className="d-flex flex-column align-items-start justify-content-start  gap-3">
+    <div className="d-flex flex-column align-items-start justify-content-start ">
       <ChartWrapper>
         <CenteredChart>
-          <ProgressPieChart width={410} color={color} bgColor={bgColor} textColor={textColor} pctValue={pctValue} />
+          <ProgressPieChart width={360} color={color} bgColor={bgColor} textColor={textColor} pctValue={pctValue} />
         </CenteredChart>
       </ChartWrapper>
-      <div className="d-flex flex-column align-items-start justify-content-start mt-5">
+      <div className="d-flex flex-column align-items-start justify-content-start">
         <StatusLabel bgColor={color}>{state}</StatusLabel>
         <StatusLabel
           bgColor={isLight ? "#fff" : "var(--bg-color)"}
-          color={isLight ? "#2A2A2A" : "#fff"}
-        >
+          color={isLight ? "#2A2A2A" : "#fff"}>
           {time}
         </StatusLabel>
       </div>

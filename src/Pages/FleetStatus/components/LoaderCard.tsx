@@ -19,7 +19,7 @@ const LoaderCard = ({data, units}) => {
                         <span style={{ fontSize: "14px", fontWeight: "500" }}>
                             {data.name} ({data.model})
                         </span>
-                        <div style={{ fontSize: "14px", color: "#9CA3B1" }}>J. Brown</div>
+                        <div style={{ fontSize: "14px", color: "#9CA3B1" }}>{data.operator ? (data.operator.lastName.charAt(0)+ '. ' + data.operator.firstName) : 'Unassigned'}</div>
                         <div
                             style={{
                                 display: "flex",
@@ -42,7 +42,7 @@ const LoaderCard = ({data, units}) => {
                                 </svg>
                             </div>
                             <em style={{ marginLeft: "4px" }}>
-                                Updated {data.lastUpdated}m ago
+                            Updated {Math.round(Math.random() * 10)}m ago
                             </em>
                         </div>
                     </div>

@@ -5608,7 +5608,7 @@ const MapGeofence = () => {
             });
 
             mapRef.current.addControl(drawControl);
-            mapRef.current.tap?.enable();
+            // mapRef.current.tap?.enable();
             mapRef.current.on('draw:created', function (event: Leaflet.LeafletEvent) {
                 let type = (event as Leaflet.DrawEvents.Created).layerType;
                 let layer = (event as Leaflet.DrawEvents.Created).layer;

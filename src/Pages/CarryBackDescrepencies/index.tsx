@@ -5,6 +5,7 @@ import { TextColor } from "Components/Charts/interfaces/general";
 import { LineGraph } from "Components/Charts/LineGraph";
 import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
 import { data } from "./sampleData";
+import _ from "lodash";
 const CarryBackDescrepencies = (props: any) => {
 
   const [bench, setBench] = useState<any>();
@@ -152,25 +153,11 @@ const CarryBackDescrepencies = (props: any) => {
         footer: "Total"
       },
       {
-        header: "Equipment Name",
-        accessorKey: "equipmentName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        footer: calculateSum('equipmentName')
-      },
-      {
         header: "Loads Completed",
         accessorKey: "loadsCompleted",
         enableColumnFilter: false,
         enableSorting: true,
         footer: calculateSum("loadsCompleted")
-      },
-      {
-        header: "Trips",
-        accessorKey: "trips",
-        enableColumnFilter: false,
-        enableSorting: true,
-        footer: calculateSum("trips")
       },
       {
         header: "Material Type",

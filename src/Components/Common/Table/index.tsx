@@ -83,6 +83,7 @@ const Table: React.FC<TableProps> = ({
   return (
     <ConfigProvider theme={{ components: { Table: theme } }}>
       <AntTable
+        defaultExpandAllRows={true}
         className="common-table-component"
         rowClassName={"common-table-row"}
         columns={enhancedColumns}

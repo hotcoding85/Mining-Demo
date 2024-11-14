@@ -9,7 +9,7 @@ interface CreateResponse {
   data: ShiftRoster;
 }
 
-interface ShiftRoster {
+export interface ShiftRoster {
   id?: string;
   _id?: string;
   createdAt?: string;
