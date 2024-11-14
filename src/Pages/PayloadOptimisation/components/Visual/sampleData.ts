@@ -145,7 +145,7 @@ export const trucks = [
 export const excavators = [
   {
     id: 'EX201',
-    souroce: 'EMU_S04_465_004',
+    souroce: 'SWK_S01_420_002',
     synced: '6',
     hangTime: '00:23',
     avgHangTimeColor: '#FAAD14',
@@ -154,7 +154,7 @@ export const excavators = [
   },
   {
     id: 'EX202',
-    souroce: 'EMU_S04_465_004',
+    souroce: 'SWK_S01_420_003',
     synced: '3',
     hangTime: '00:40',
     avgHangTimeColor: '#CF1322',
@@ -163,7 +163,7 @@ export const excavators = [
   },
   {
     id: 'EX203',
-    souroce: 'EMU_S04_465_004',
+    souroce: 'SWK_S01_420_001',
     synced: '5',
     hangTime: '00:38',
     avgHangTimeColor: '#CF1322',
@@ -172,7 +172,7 @@ export const excavators = [
   },
   {
     id: 'EX204',
-    souroce: 'EMU_S04_465_004',
+    souroce: 'SWK_S01_420_004',
     synced: '10',
     hangTime: '00:37',
     avgHangTimeColor: '#389E0D',
@@ -181,7 +181,7 @@ export const excavators = [
   },
   {
     id: 'EX205',
-    souroce: 'EMU_S04_465_004',
+    souroce: 'SWK_S01_420_003',
     synced: '10',
     hangTime: '00:19',
     avgHangTimeColor: '#389E0D',
