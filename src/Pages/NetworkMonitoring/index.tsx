@@ -236,7 +236,7 @@ const NetworkMonitoring = (props: any) => {
         const startPosition = window.map.camera.position.clone();
         const point = new THREE.Vector3(-1400, 470, 70); // Zoom offset
         // Animate the camera movement
-        const zoomDuration = 100; // 0.1 second
+        const zoomDuration = 400; // 0.1 second
         let startTime: number | null = null;
         window.isAnimation = true
         window.controls && (window.controls.enabled = false)
@@ -413,7 +413,7 @@ const NetworkMonitoring = (props: any) => {
                     const object = objectsRef.current.find(obj => obj.userData.id === id)
                     const radians = object.rotation ? -object.rotation.z : 0; // Example value in radians (e.g., 45 degrees)
                     const degrees = THREE.MathUtils.radToDeg(radians);
-                    originalZ.current = Math.floor(degrees)
+                    originalZ.current = 0
                     originalId.current = equipment.id
                     originalPos.current = firstIntersect.object.parent?.position.clone()
                     originalOffset.current = equipment.offset
@@ -822,9 +822,24 @@ const NetworkMonitoring = (props: any) => {
     }
 
     const save = () => {
-        if (selectedEquipment && window.map) {
-            if (selectedEquipment.rotation) {
+        if (selectedEquipment && window.map && newPos.current) {
+            let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(newPos.current.x, newPos.current.y);
+            let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY);
+            if (newPos.current) {
                 selectedEquipment.position.copy(newPos.current)
+
+                setEquipments((prev: any) => 
+                    prev.map((equipment: any) => {
+                        if (equipment.id === originalId.current) {
+                            return {
+                                ...equipment,
+                                lng: longitude, // Replace with the new longitude value
+                                lat: latitude,  // Replace with the new latitude value
+                            };
+                        }
+                        return equipment; // Keep other equipment unchanged
+                    })
+                );
             }
 
             if (originalType.current === 'antenna') {
@@ -837,9 +852,6 @@ const NetworkMonitoring = (props: any) => {
                     }
                     return true; // Keep other lines
                 });
-
-                let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(newPos.current.x, newPos.current.y);
-                let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY);
                 
                 // Generate points using your existing function
                 for (let i = 1 ; i <= 5 ; i ++) {
