@@ -32,7 +32,8 @@ const PayloadOptimsation
         { label: 'Worst Load', time: '03:35', value: '78t', color: '#FF5252' },
         { label: 'Avg Tonnes', value: '83.4t' },
         { label: 'Total Tonnes', value: '156.43t' },
-        { label: 'Avg Time', value: '01:44' },
+        { label: 'Avg Load Time', value: formatTime(avgTimeInSeconds) },
+        { label: 'Avg Hang Time', value: formatTime(avgTimeInSeconds) },
         { label: 'Total Time', value: '02:34' },
     ]
     const [data, setData] = useState(_initData)
@@ -97,7 +98,7 @@ const PayloadOptimsation
                             <div className="reports-summary-container">
                                 <Row gutter={[16, 16]} justify="space-between" style={{padding: '0px'}}>
                                     {data.map((item, index) => (
-                                        <Col key={index} xs={12} sm={6} md={4} lg={2}>
+                                        <Col key={index} xs={12}>
                                             <div className="reports-summary-card" >
                                                 <div className="reports-summary-label">{item.label}</div>
                                                 <div className="d-flex" style={{alignItems: 'center', justifyContent: 'space-between', width: '100%', height: 40}}>

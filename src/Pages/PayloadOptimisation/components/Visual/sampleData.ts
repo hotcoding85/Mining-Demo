@@ -199,6 +199,7 @@ type Truck = {
   weights: string[];
   avgLoadingTime: string;
   totalTonnes: string;
+  avgHangTime: string;
   colors: string[];
 };
 
@@ -257,6 +258,9 @@ export const generateTruckData = (excavators: { id: string }[]): Truck[] => {
       const avgLoadingTime = formatTime(
         Math.floor(times.reduce((sum, time) => sum + time, 0))
       );
+      const avgHangTime = formatTime(
+        Math.floor(times.reduce((sum, time) => sum + time, 0))
+      );
       const totalTonnes = `${weights.reduce((sum, weight) => sum + weight, 0).toFixed(2)} t`;
 
       // Add to trucks array
@@ -268,6 +272,7 @@ export const generateTruckData = (excavators: { id: string }[]): Truck[] => {
         times: times.map(formatTime),
         weights: weights.map(w => `${w}t`),
         avgLoadingTime,
+        avgHangTime,
         totalTonnes,
         colors: colorsArray,
       });
