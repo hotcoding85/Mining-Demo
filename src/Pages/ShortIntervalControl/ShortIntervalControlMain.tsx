@@ -65,7 +65,7 @@ function DropTarget({ id, children }) {
     );
 }
 
-const ShortIntervalControl = () => {
+const ShortIntervalControlMain = () => {
     document.title = "SIC | FMS Live";
 
     const dispatch: any = useDispatch();
@@ -452,105 +452,81 @@ const ShortIntervalControl = () => {
     }
 
     return (
-        < React.Fragment >
-            <div className="page-content">
-                <Container fluid>
-                    <Breadcrumb breadcrumbItem="Short Interval Control" title="Mine Dynamics" />
-                    <Row className='mb-3'>
-                        <Col className='d-flex flex-row-reverse'>
-                            <Space>
-                                <Select
-                                    className="basic-single"
-                                    id="Crew"
-                                    showSearch
-                                    allowClear
-                                    placeholder="Crew"
-                                    style={{ width: '100px' }}
-                                    options={getCrews()}
-                                    value={selectedCrew}
-                                    onChange={onCrewChange}
-                                />
-                                <DatePicker allowClear={false} value={dayjs(startDate)} onChange={onDateChange} />
-                                <Segmented className="customSegmentLabel customSegmentBackground" value={shift} onChange={onShiftChange} options={shiftsInFormat(shifts)} />
-                            </Space>
-                        </Col>
-                    </Row>
-                    <DndContext onDragEnd={handleDragEnd}>
-                        <Row className='d-flex' style={{ justifyContent: 'space-evenly' }}>
-                            <Card className='col-9'>
-                                <CardBody>
-                                    <div>
-                                        <img src={ExcavatorIcon} width={32} />
-                                        <span style={{ fontSize: '16px', fontWeight: '500' }}>Excavators</span>
-                                    </div>
-                                    <div style={{ marginTop: '10px', overflow: 'scroll', height: '100vh' }}>
-                                        {diggers.map(excavator => (
-                                            <DropTarget key={excavator.id} id={excavator.id}>
-                                                <span style={{ fontSize: '22px', fontWeight: '500' }}>{excavator.name}<span style={{ fontSize: '16px' }}>({excavator.model})</span></span>
-                                                <div style={{
-                                                    width: '100%', backgroundColor: '', padding: '10px',
-                                                    margin: '4px',
-                                                    // border: '1px solid #ddd',
-                                                    borderRadius: '4px',
-                                                }}>
-                                                    <Row style={{ justifyContent: 'space-around' }}>
-                                                        <Col xs={11}>
-                                                            <span style={{ fontWeight: '500' }}>Assigned Trucks</span>
-                                                            <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
-                                                                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                                                                    {getTrucks(excavator.id).map(truck => (
-                                                                        <div style={{ justifyContent: 'space-between', padding: '10px', width: 'fit-content', }}>
-                                                                            <Card style={{ marginBottom: '0px', border: '1px solid var(--dark-text-color)' }}>
-                                                                                <CardBody style={{ padding: '8px 8px' }}>
-                                                                                    <img width={36} src={truckIcon} />
-                                                                                    <span style={{ fontSize: '18px' }}>{truck.name}</span>
-                                                                                    <span style={{ fontSize: '10px', marginLeft: '6px' }}>({truck.model})</span>
-                                                                                    <Button id={excavator.id + '::' + truck.id} style={{ marginLeft: '10px' }} shape="circle" icon={<DeleteOutlined />} onClick={removeTruck} />
-                                                                                </CardBody>
-                                                                            </Card>
-                                                                        </div>
-                                                                    ))}
+        <>
+            <DndContext onDragEnd={handleDragEnd}>
+                <Row className='d-flex' style={{ justifyContent: 'space-evenly' }}>
+                    <Card className='col-9'>
+                        <CardBody>
+                            <div>
+                                <img src={ExcavatorIcon} width={32} />
+                                <span style={{ fontSize: '16px', fontWeight: '500' }}>Excavators</span>
+                            </div>
+                            <div style={{ marginTop: '10px', overflow: 'scroll', height: '100vh' }}>
+                                {diggers.map(excavator => (
+                                    <DropTarget key={excavator.id} id={excavator.id}>
+                                        <span style={{ fontSize: '22px', fontWeight: '500' }}>{excavator.name}<span style={{ fontSize: '16px' }}>({excavator.model})</span></span>
+                                        <div style={{
+                                            width: '100%', backgroundColor: '', padding: '10px',
+                                            margin: '4px',
+                                            // border: '1px solid #ddd',
+                                            borderRadius: '4px',
+                                        }}>
+                                            <Row style={{ justifyContent: 'space-around' }}>
+                                                <Col xs={11}>
+                                                    <span style={{ fontWeight: '500' }}>Assigned Trucks</span>
+                                                    <DropTarget key={excavator.id} id={excavator.id + '::truck'}>
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                                                            {getTrucks(excavator.id).map(truck => (
+                                                                <div style={{ justifyContent: 'space-between', padding: '10px', width: 'fit-content', }}>
+                                                                    <Card style={{ marginBottom: '0px', border: '1px solid var(--dark-text-color)' }}>
+                                                                        <CardBody style={{ padding: '8px 8px' }}>
+                                                                            <img width={36} src={truckIcon} />
+                                                                            <span style={{ fontSize: '18px' }}>{truck.name}</span>
+                                                                            <span style={{ fontSize: '10px', marginLeft: '6px' }}>({truck.model})</span>
+                                                                            <Button id={excavator.id + '::' + truck.id} style={{ marginLeft: '10px' }} shape="circle" icon={<DeleteOutlined />} onClick={removeTruck} />
+                                                                        </CardBody>
+                                                                    </Card>
                                                                 </div>
-                                                            </DropTarget>
-                                                        </Col>
-                                                    </Row>
-                                                </div>
-                                            </DropTarget>
-                                        ))}
-                                    </div>
-                                </CardBody>
-                            </Card>
-                            <Card className='col-2 trucks-draggable'>
-                                <CardBody>
-                                    <span className='heading'>Trucks</span>
-                                    <div className='mt-3'>
-                                        {trucks.map(truck => (
-                                            < Draggable
-                                                type="trucks"
-                                                key={truck.id}
-                                                id={truck.id}
-                                                name={truck.name}
-                                                model={truck.model}
-                                                disabled={truck.disabled}
-                                                onDragStart={() => { }}
-                                            />
-                                        ))}
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        </Row>
-                    </DndContext>
-                </Container>
-                <ConfirmModal
-                    isOpen={confirmModal.isOpen}
-                    setIsOpen={setConfirmModal}
-                    title={'Alert'}
-                    text={confirmModal.title}
-                    onOK={handleReplaceDrag}
-                    onCancel={() => { }}
-                />
-            </div>
-        </React.Fragment >
+                                                            ))}
+                                                        </div>
+                                                    </DropTarget>
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    </DropTarget>
+                                ))}
+                            </div>
+                        </CardBody>
+                    </Card>
+                    <Card className='col-2 trucks-draggable'>
+                        <CardBody>
+                            <span className='heading'>Trucks</span>
+                            <div className='mt-3'>
+                                {trucks.map(truck => (
+                                    < Draggable
+                                        type="trucks"
+                                        key={truck.id}
+                                        id={truck.id}
+                                        name={truck.name}
+                                        model={truck.model}
+                                        disabled={truck.disabled}
+                                        onDragStart={() => { }}
+                                    />
+                                ))}
+                            </div>
+                        </CardBody>
+                    </Card>
+                </Row>
+            </DndContext>
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                setIsOpen={setConfirmModal}
+                title={'Alert'}
+                text={confirmModal.title}
+                onOK={handleReplaceDrag}
+                onCancel={() => { }}
+            />
+        </>
     );
 }
-export default ShortIntervalControl;
+export default ShortIntervalControlMain;
