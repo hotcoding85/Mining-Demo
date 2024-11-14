@@ -99,7 +99,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
     }));
 
     const { vehicleRoutes } = useSelector(VehicleRouteSelector);
-
+    const intervalId = useRef<any>(null)
+    const intervalValue = useRef<any>(0)
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
     const views = ["Top", "Front", "Left", "Right", "Back"]
@@ -193,7 +194,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 mixer.current = null
             }
             geoFences.current = null
+
+            intervalId.current &&  clearInterval(intervalId.current);
         };
+
     }, []); // Added dependencies to reinitialize map if lat/lng changes
     
     const fetchGeofences = async () => {
@@ -416,15 +420,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             ]
         );
 
-        const hydraulicPistonTrack = new THREE.VectorKeyframeTrack(
-            `${excavator.hydraulicPiston.uuid}.position`,
-            [8, 13, 18],
-            [
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(), 
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(), 
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray() 
-            ]
-        );
         // Create AnimationClip
         const clip = new THREE.AnimationClip('DiggingAnimation', loopDuration, [boomTrack, armTrack, bucketTrack, boomAfterTrack, bodyTrack, armDumpingTrack, bucketDumpingTrack, hydraulicCylinderTrack]);
 
@@ -432,7 +427,31 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const action = mixerRef.current.clipAction(clip);
         action.setLoop(THREE.LoopRepeat, Infinity);
         action.play();
-      
+
+        const clock = new THREE.Clock();
+        const updateAnimation = () => {
+            const delta = clock.getDelta(); // Time since last frame
+            if (mixerRef.current) {
+                mixerRef.current.update(delta); // Update the animation mixer
+        
+                // Get the current time within the action's play duration
+                const currentTime = action.time % loopDuration; // Real-time playback progress
+        
+                // Implement your time-based logic
+                if (currentTime >= 4 && currentTime <= 15) {
+                    window.DiggerObject.dirt.visible = true;
+                    window.DiggerObject.truckDirt.visible = false;
+                } else {
+                    window.DiggerObject.dirt.visible = false;
+                    window.DiggerObject.truckDirt.visible = true;
+                }
+            }
+        
+            intervalId.current = requestAnimationFrame(updateAnimation); // Continue the render loop
+        };
+        
+        // Start the animation loop
+        updateAnimation();
         // Return mixer for use in render loop
         return mixerRef.current;
     };
@@ -444,6 +463,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         let hydraulicPiston: THREE.Object3D | null = null;
         let boom: THREE.Object3D | null = null;
         let body: THREE.Object3D | null = null;
+        let dirt: THREE.Object3D | null = null;
+        let truckDirt: THREE.Object3D | null = null;
         let arm: THREE.Object3D | null = null;
         let bucket: THREE.Object3D | null = null;
         loader.load('/Excavator/excavator.fbx', (object) => {
@@ -496,8 +517,27 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         child.renderOrder = 10000
                     }
                 }
-                if (child.name == 'Cylinder020') {
-                    body = child;
+                if (child.name === 'Dirt'){
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: 0x8B4513, // Default color if no material found
+                        roughness: 0.5,
+                        metalness: 0.5
+                    });
+                    dirt = child;
+                    if (dirt) {
+                        dirt.visible = true
+                    }
+                    truckDirt = child.clone()
+                    // truckDirt && (truckDirt.visible = false)
+                    if (truckDirt) {
+                        truckDirt.position.copy(new THREE.Vector3(-1386, 473, 47))
+                        truckDirt.rotation.copy(new THREE.Euler(Math.PI * 2, Math.PI, Math.PI))
+                        truckDirt.scale.copy(new THREE.Vector3(5, 5, 5))
+                        window.map.scene.add(truckDirt)
+                    }
+                }
+                else if (child.name == 'Cylinder020') {
+                    body = child
                 }
                 else if (child.name == 'Cylinder007') {
                     hydraulicCylinder = child;
@@ -523,7 +563,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 arm,
                 bucket,
                 hydraulicCylinder,
-                hydraulicPiston
+                hydraulicPiston,
+                dirt,
+                truckDirt
             };
         
             // Add the entire excavator object to the group and scene
