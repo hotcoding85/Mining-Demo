@@ -101,8 +101,8 @@ const PayloadOptimsation
                                             <div className="reports-summary-card" >
                                                 <div className="reports-summary-label">{item.label}</div>
                                                 <div className="d-flex" style={{alignItems: 'center', justifyContent: 'space-between', width: '100%', height: 40}}>
-                                                    {item.time && <div className="reports-summary-time" style={{ color: item.color }}>
-                                                        {item.time && <span>{item.time}</span>}
+                                                    {item.time && <div className="reports-summary-time" style={{ color: item.color, marginBottom: '0' }}>
+                                                        {item.time && <span style={{fontSize: '25px', fontWeight: '600'}}>{item.time}</span>}
                                                     </div>}
                                                     <div className="reports-summary-value" style={{ color: item.color, paddingLeft: item.time ? '1rem' : '0' }}>
                                                         {item.value}
@@ -118,7 +118,7 @@ const PayloadOptimsation
                             <Visual excavator={excavator} trucks={trucks.filter(truck => truck.excavator === excavator.value)} />
                         </Col>
                         <Col lg="12" style={{marginTop: '.5rem'}}>
-                            <Reports trucks={trucks} /> 
+                            <Reports excavator={excavator} trucks={trucks} /> 
                         </Col>
                     </Row>
                 </Container>

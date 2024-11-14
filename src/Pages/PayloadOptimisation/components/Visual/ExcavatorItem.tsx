@@ -54,7 +54,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
             </Col> */}
             <Col xs="12" className="text-center" style={{display: 'flex', justifyContent: 'center'}}>
                 <CardText style={{fontSize: '16px'}}>Avg Hang Time</CardText>
-                <CardTitle tag="h4" style={{ color: avgHangTimeColor, fontSize: '20px', marginLeft: '1rem' }}>{avgHangTime}</CardTitle>
+                <CardTitle tag="h4" style={{ color: avgHangTimeColor, fontSize: '25px', marginLeft: '1rem' }}>{avgHangTime}</CardTitle>
             </Col>
             </Row>
             {trucks.map((truck) => (
@@ -103,7 +103,7 @@ const ExcavatorItem: React.FC<ExcavatorProps> = ({
                         </div>
                     ))}
                 </Row>
-                <Row style={{position: 'relative'}}>
+                <Row style={{position: 'relative', marginLeft: `${14 - truck.times.length}%`, marginRight: `${14 - truck.times.length}%`}}>
                     <Col md={12} style={{height: 0, borderTop: '2px dashed', background: 'transparent', position: 'absolute', top:' -30px', zIndex: '0'}}></Col>
                 </Row>
                 <Row style={{marginTop: '.5rem'}}>

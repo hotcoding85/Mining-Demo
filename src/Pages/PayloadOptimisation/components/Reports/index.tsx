@@ -100,7 +100,7 @@ const Reports
                             ))}
                         </div>
                         <div className="d-flex">
-                            <Segmented
+                            {/* <Segmented
                                 className="customSegmentLabel customSegmentBackground"
                                 value={displayType}
                                 style={{marginLeft: '1rem'}}
@@ -109,13 +109,13 @@ const Reports
                                 { value: "HD785", label: "HD785" },
                                 { value: "HD1500", label: "HD1500" },
                                 ]}
-                            />
+                            /> */}
                             <TripFilter />
                         </div>
                     </div>
                     <Row style={{marginTop: '2rem'}}>
                         {
-                            [...new Map(props.trucks.filter(t => t.model === displayType).map(truck => [truck.id, truck])).values()]
+                            [...new Map(props.trucks.filter(truck => truck.excavator === props.excavator.value).map(truck => [truck.id, truck])).values()]
                                 .map((truck: any) => {
                                     return (
                                         <Col md={6} xs={12} key={truck.id}>

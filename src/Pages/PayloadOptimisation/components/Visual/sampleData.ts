@@ -174,7 +174,7 @@ export const excavators = [
     id: 'EX204',
     souroce: 'EMU_S04_465_004',
     synced: '10',
-    hangTime: '00:07',
+    hangTime: '00:37',
     avgHangTimeColor: '#389E0D',
     syncTimeColor: 'green',
     position: [-2560, -3072, 185]
@@ -183,7 +183,7 @@ export const excavators = [
     id: 'EX205',
     souroce: 'EMU_S04_465_004',
     synced: '10',
-    hangTime: '00:07',
+    hangTime: '00:19',
     avgHangTimeColor: '#389E0D',
     syncTimeColor: 'green',
     position: [4608, -4608, 185]

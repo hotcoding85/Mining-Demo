@@ -122,7 +122,7 @@ const Visual
             geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
             
             const material = new THREE.LineDashedMaterial({
-                color: '#ffffff',
+                color: '#000000',
                 linewidth: 4, // Only works in WebGL1
                 scale: 1, // Scale of the dashes
                 dashSize: 2, // Length of the dashes
@@ -257,11 +257,18 @@ const Visual
         let animationCameraId = 0
         const startPosition = window.map.camera.position.clone();
         const point = centerPos; // Zoom offset
-        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 120)
-        // Animate the camera movement
-        const startFov = window.camera.fov;
-        const targetFov = 50;
-        const zoomDuration = 2000; // 1 second
+        const sph = new THREE.Spherical();
+        sph.radius = 120; // Distance from the point (increase if needed)
+        sph.theta = 1.2; // Set theta to 1.21 radians
+        sph.phi = -2.5; // Adjust phi as needed, usually between 0 and Math.PI
+
+        // Calculate the offset position from spherical coordinates
+        const sphericalOffset = new THREE.Vector3();
+        sphericalOffset.setFromSpherical(sph);
+
+        // Define the target position based on the point with spherical offset
+        const targetPosition = point.clone().add(sphericalOffset);
+        const zoomDuration = 1000; // 1 second
         let startTime: number | null = null;
 
         window.isAnimation = true
