@@ -1,53 +1,118 @@
 .trucks-draggable {
-    .heading {
-      font-size: 16px;
-      font-weight: 500
+  .heading {
+    font-size: 16px;
+    font-weight: 500
+  }
+  [role=button],
+  .draggable-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px;
+    margin: 0 0 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 400;
+    font-size: 20px;
+    img {
+      width: 36px;
     }
+    .anticon svg {
+      font-size: 20px;
+    }
+    span {
+      font-size: 8px;
+      margin-left:4px;
+    }
+  }
+}
+
+@media (max-width: 1700px) {
+  .trucks-draggable {
     [role=button],
     .draggable-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      padding: 8px;
-      margin: 0 0 6px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      color: #fff;
-      font-weight: 400;
-      font-size: 20px;
-      img {
-        width: 36px;
-      }
-      .anticon svg {
-        font-size: 20px;
-      }
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+  }
+}
+
+@media (max-width: 1500px) {
+  .trucks-draggable {
+    [role=button],
+    .draggable-btn {
       span {
-        font-size: 8px;
-        margin-left:4px;
+          display: block;
+          margin-top: 4px;
       }
     }
   }
+}
 
-  @media (max-width: 1700px) {
-    .trucks-draggable {
-      [role=button],
-      .draggable-btn {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-    }
+.sic-content {
+.main-card {
+  span {
+    font-weight: 500;
+    font-size: 20px !important;
   }
-
-  @media (max-width: 1500px) {
-    .trucks-draggable {
-      [role=button],
-      .draggable-btn {
-        span {
-            display: block;
-            margin-top: 4px;
-        }
-      }
-    }
+  .text-2xl{
+    font-size: 24px;
+    font-weight: 600;
+    color: gold;
   }
+  .text-xs{
+    font-size: 13px !important;
+  }
+  .font-color-red{
+    color: red;
+    font-weight: 550;
+  }
+  .font-color-green{
+    color: green;
+    font-weight: 550;
+  }
+}
+.ant-badge-status-dot{
+  width: 10px !important;
+  height: 10px !important;
+}
+.info-text{
+  margin-bottom: 0px;
+}
+.font-medium{
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 0px;
+}
+}
+body[data-layout-mode="dark"] {
+.sic-content {
+  .ant-badge-status-text, .font-medium {
+    color: white !important;
+  }
+  .info-text{
+    color: rgb(170, 169, 169);
+  }
+  .icons {
+    font-size: 20px;
+    color: white !important;
+  }
+}
+}
+body[data-layout-mode="light"] {
+.sic-content {
+  .ant-badge-status-text, .font-medium {
+    color: #2A2A2A !important;
+  }
+  .info-text{
+    color: #2A2A2A90;
+  }
+  .icons {
+    font-size: 20px;
+    color: #2A2A2A !important;
+  }
+}
+}
