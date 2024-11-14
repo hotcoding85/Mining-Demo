@@ -23,3 +23,122 @@ body[data-layout-mode="light"]{
         } 
     }
 }
+
+.network-monitoring-model-filter{
+    & .language-switch{
+        min-width: 300px;
+        float: right;
+        & button {
+            min-width: 300px;
+        }
+        & .dropdown-btn{
+            height: 32px;
+            padding: 8px;
+            & div{
+                margin-top: -3px;
+            }
+        }
+    }
+}
+.network-monitoring-topmenu {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    & .network-mornitoring-checkbox{
+        margin-bottom: 0px !important;
+    }
+}
+
+/* CircularButtonGroup.css */
+.circular-button-group {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .segment {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+  }
+  
+  .segment.rotate {
+    transform: rotate(45deg);
+    top: 15px;
+    left: 10px;
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  .anti-rotate{
+    transform: rotate(-45deg);
+    top: 15px;
+    right: 10px;
+    font-size: 28px;
+    cursor: pointer;
+  }
+  
+  .segment.move {
+    bottom: 10px;
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  .network-monitoring-action-button:hover{
+    color: gold !important;
+  }
+
+#angleSlider {
+    width: 100%; /* Adjust as needed */
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+#angleSlider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+#angleSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+.orientation-slider {
+    text-align: center;
+    display: block;
+    position: absolute;
+    top: 10px;
+    width: 250px;
+    left: calc(50% - 125px);
+    border-radius: 10px;
+    background: #0000008f;
+    padding: 1rem;
+    margin-bottom: 0px;
+    & .network-mornitoring-move-checkbox{
+        margin-bottom: 0px !important;
+        margin-right: 0.5rem;
+        margin-left: 0;
+    }
+}
+
+
+  

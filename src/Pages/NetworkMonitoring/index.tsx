@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Col, Container, Row } from 'reactstrap';
+import { Card, CardBody, Col, Container, FormGroup, Label, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { useDispatch, useSelector } from 'react-redux';
-import { Input, Layout, List, Modal, Typography } from 'antd';
+import { Button, Input, Layout, List, Modal, Typography } from 'antd';
 import { THREEJSMap } from 'Pages/3DMap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -19,6 +19,9 @@ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import * as THREE from 'three';
 import _ from 'lodash';
+import { Dropdown, DropdownType } from "Components/Common/Dropdown";
+import { AppstoreOutlined, CloseOutlined, CloudUploadOutlined, RotateLeftOutlined, RotateRightOutlined, SaveOutlined } from '@ant-design/icons';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 const { Title, Text } = Typography;
 
 const NetworkMonitoring = (props: any) => {
@@ -29,10 +32,37 @@ const NetworkMonitoring = (props: any) => {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const initialTrailers = [
         { name: 'Antenna', id: 'antenna', dataRate: '10 Mbps', avatar:  ANTENNA},
-        { name: 'Solar Trailer', id: 'solor-trailer', dataRate: '8 Mbps', avatar: SOLOR_TRAILER },
-        { name: 'Solar Unit', id: 'solor-unit', dataRate: '12 Mbps', avatar: SOLOR_UNIT },
+        { name: 'Trailer', id: 'solor-trailer', dataRate: '8 Mbps', avatar: SOLOR_TRAILER },
+        { name: 'Solar Panel', id: 'solor-unit', dataRate: '12 Mbps', avatar: SOLOR_UNIT },
         { name: 'Survey Marker', id: 'survey-marker', dataRate: '5 Mbps', avatar: SURVEY_MARKER },
     ];
+
+    const [addStatus, setAddStatus] = useState<boolean>(true)
+    const [removeStatus, setRemoveStatus] = useState<boolean>(false)
+    const addStatusRef = useRef(true)
+    const removeStatusRef = useRef(true)
+
+    const [angle, setAngle] = useState(0);
+
+    const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAngle(Number(event.target.value));
+    };
+
+    const [equipment, setEquipment] = useState<DropdownType>({
+        label: "",
+    });
+
+    const _equipments = useMemo(() => {
+        const results: any = []
+        initialTrailers.map(exc => {
+            const item = {
+                label: `${exc.name}`,
+                value: `${exc.id}`,
+            }
+            results.push(item)
+        })
+        return results
+    }, [initialTrailers])
 
     const { layoutModeType } = useSelector(LayoutSelector);
     const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
@@ -42,6 +72,11 @@ const NetworkMonitoring = (props: any) => {
 
     const [selectedId, setSelectedId] = useState(null);
 
+    useEffect(() => {
+        if (equipment.value) {
+            handleSelect(equipment.value)
+        }
+    }, [equipment])
     const handleSelect = useCallback((id) => {
         if (selectedId === id) {
             setSelectedId(null)
@@ -54,6 +89,7 @@ const NetworkMonitoring = (props: any) => {
 
     const [equipments, setEquipments] = useState<any[]>([])
     const equipmentsRef = useRef<any[]>([])
+    const objectsRef = useRef<any[]>([])
     const removeBtnsRef = useRef<any[]>([])
     let tooltip = document.createElement('div');
 
@@ -66,16 +102,18 @@ const NetworkMonitoring = (props: any) => {
                 position: new THREE.Vector3(0, 0, 280), // Adjust position for this model
                 scale: new THREE.Vector3(100, 100, 100),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation for this model
-                id: 'antenna'
+                id: 'antenna',
+                dataRate: '10 Mbps'
             },
             // Add other models here
             {
                 mtl: "/network-mornitoring/solor-trailer/solor-trailer.mtl",
                 obj: "/network-mornitoring/solor-trailer/solor-trailer.obj",
-                position: new THREE.Vector3(100, 0, 180), // Adjust position
-                scale: new THREE.Vector3(80, 80, 80),
+                position: new THREE.Vector3(100, 0, 280), // Adjust position
+                scale: new THREE.Vector3(70, 70, 70),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
-                id: 'solor-trailer'
+                id: 'solor-trailer',
+                dataRate: '10 Mbps'
             },
             {
                 mtl: "/network-mornitoring/solor-unit/solor-unit.mtl",
@@ -83,7 +121,8 @@ const NetworkMonitoring = (props: any) => {
                 position: new THREE.Vector3(-100, 100, 210), // Adjust position
                 scale: new THREE.Vector3(80, 80, 80),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
-                id: 'solor-unit'
+                id: 'solor-unit',
+                dataRate: '10 Mbps'
             },
             {
                 mtl: "/network-mornitoring/survey-marker/survey-marker.mtl",
@@ -91,7 +130,8 @@ const NetworkMonitoring = (props: any) => {
                 position: new THREE.Vector3(-100, 0, 260), // Adjust position
                 scale: new THREE.Vector3(70, 70, 70),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
-                id: 'survey-marker'
+                id: 'survey-marker',
+                dataRate: '10 Mbps'
             },
             // Add more models as needed
         ];
@@ -103,8 +143,8 @@ const NetworkMonitoring = (props: any) => {
                         const mtlLoader = new MTLLoader();
                         mtlLoader.load(model.mtl, (materials) => {
                             materials.preload();
-
-                            const objLoader = new OBJLoader();
+                            let objLoader: any
+                            objLoader = new OBJLoader();
                             objLoader.setMaterials(materials);
                             objLoader.load(
                                 model.obj,
@@ -160,6 +200,26 @@ const NetworkMonitoring = (props: any) => {
         tooltip.style.borderRadius = '5px';
         tooltip.style.display = 'none';
         document.body.appendChild(tooltip);
+
+
+        let currentIndex = 0;
+
+        // Animation logic to cycle through the lines
+        const intervalId = setInterval(() => {
+            // Hide all lines initially
+            dashedCirclesRef.current.forEach((line, index) => {
+                line.visible = false;
+                (line.userData.index === currentIndex || currentIndex === 0) && (line.visible = true)
+            });
+
+            // Show the current line
+
+            // Move to the next index, cycling back to 0 after 4
+            currentIndex = (currentIndex + 1) % 6;
+        }, 1000); // Change every second
+
+        // Cleanup the interval when the component unmounts
+        return () => clearInterval(intervalId);
     }, [])
 
     useEffect(() => {
@@ -171,6 +231,67 @@ const NetworkMonitoring = (props: any) => {
                 window.map.scene.add(model.object); // Add to scene
             }
         });
+
+        let animationCameraId = 0
+        const startPosition = window.map.camera.position.clone();
+        const point = new THREE.Vector3(-1400, 470, 70); // Zoom offset
+        // Animate the camera movement
+        const zoomDuration = 100; // 0.1 second
+        let startTime: number | null = null;
+        window.isAnimation = true
+        window.controls && (window.controls.enabled = false)
+
+        const sph = new THREE.Spherical();
+        sph.radius = 6000; // Distance from the point (increase if needed)
+        sph.theta = 2; // Set theta to 1.21 radians
+        sph.phi = -1.5; // Adjust phi as needed, usually between 0 and Math.PI
+
+        // Calculate the offset position from spherical coordinates
+        const sphericalOffset = new THREE.Vector3();
+        sphericalOffset.setFromSpherical(sph);
+
+        // Define the target position based on the point with spherical offset
+        const targetPosition = point.clone().add(sphericalOffset);
+
+        // Set the final position in animateZoom
+        window.camera.position.lerpVectors(startPosition, targetPosition, 1);
+
+        // Animate the controls target
+        window.controls.target.lerpVectors(startPosition, point, 1);
+
+        // Save the current camera position and orientation for reference
+        window.savedCameraPosition = window.camera.position.clone();
+        window.savedCameraQuaternion = window.camera.quaternion.clone();
+
+        // Update the camera matrix and projection
+        window.camera.updateProjectionMatrix();
+        window.camera.updateMatrixWorld();
+        // Finalize camera position
+        window.camera.position.copy(targetPosition);
+        window.controls.target.copy(point);
+
+        
+        window.isAnimation = false;
+        setTimeout(() => {
+            window.controls.update();
+            window.renderer.render(window.map.scene, window.camera);
+            if (window.controls) window.controls.enabled = true;
+        }, 100);
+        const animateZoom = (time) => {
+            if (startTime === null) startTime = time;
+            const _elapsed = time - (startTime ? startTime : time);
+            const progress = Math.min(_elapsed / zoomDuration, 1);
+
+            // Interpolate the camera position
+
+            // Continue animation or finalize
+            if (progress < 1) {
+                animationCameraId = requestAnimationFrame(animateZoom);
+            } else {
+            }
+        };
+
+        // animationCameraId = requestAnimationFrame(animateZoom);
     }, [isLoading])
 
     const selectedModelRef = useRef<any>(null)
@@ -190,7 +311,7 @@ const NetworkMonitoring = (props: any) => {
                         selectedOffsetRef.current = 100;
                         break
                     case 'solor-trailer':
-                        selectedOffsetRef.current = 0;
+                        selectedOffsetRef.current = 50;
                         break
                     case 'solor-unit':
                         selectedOffsetRef.current = 30;
@@ -211,9 +332,21 @@ const NetworkMonitoring = (props: any) => {
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-
+    const [selectedEquipment, setSelectedEquipment] = useState<any>(null)
+    const selectedEquipmentRef = useRef<any>(null)
+    const [isMoving, setIsMoving] = useState(false)
+    const isMovingRef = useRef<boolean>(false)
+    const originalPos = useRef<any>(null)
+    const originalZ = useRef<any>(null)
+    const originalOffset = useRef<any>(null)
+    const originalType = useRef<any>(null)
+    const originalId = useRef<any>(null)
+    const newPos = useRef<any>(null)
+    useEffect(() => {
+        isMovingRef.current = isMoving
+    }, [isMoving])
     const onDocumentMouseClick = useCallback((event) => {
-        if (mapContainer.current && window.map && !selectedModelRef.current) {
+        if (mapContainer.current && window.map && removeStatusRef.current) {
             const intersects = raycaster.intersectObjects(removeBtnsRef.current, true);
             const validIntersects = intersects.filter(intersect => {
                 const userData = intersect.object.userData;
@@ -245,6 +378,61 @@ const NetworkMonitoring = (props: any) => {
                 }
             }
         }
+
+        if (mapContainer.current && window.map) {
+            if (isMovingRef.current && selectedEquipmentRef.current) {
+                let intersects = raycaster.intersectObjects(window.map.scene.children, true);
+            
+                if (intersects.length > 0) {
+                    const realWorldPosition = intersects[intersects.length - 1].point;
+                    selectedEquipmentRef.current.position.set(realWorldPosition.x, realWorldPosition.y, Math.min(realWorldPosition.z, 180) + originalOffset.current);
+
+                    newPos.current = new THREE.Vector3(realWorldPosition.x, realWorldPosition.y, Math.min(realWorldPosition.z, 180) + originalOffset.current)
+                    setIsMoving(false)
+                }
+                return;
+            }
+            objectsRef.current.forEach(group => {
+                group.traverse(child => {
+                    child.userData = { ...group.userData };
+                });
+            });
+            const intersects = raycaster.intersectObjects(objectsRef.current, true);
+            const validIntersects = intersects.filter(intersect => {
+                const userData = intersect.object.userData;
+                return userData && userData.equipment;
+            });
+
+            // Get the `id` of the first valid intersected object
+            if (validIntersects.length > 0) {
+                const firstIntersect = validIntersects[0];
+                const id = firstIntersect.object.userData.id; // Access the `id` from `userData`
+                const equipment = equipmentsRef.current.find(eq => eq.id === id);
+                if (equipment) {
+                    document.body.style.cursor = 'pointer';
+                    const object = objectsRef.current.find(obj => obj.userData.id === id)
+                    const radians = object.rotation ? -object.rotation.z : 0; // Example value in radians (e.g., 45 degrees)
+                    const degrees = THREE.MathUtils.radToDeg(radians);
+                    originalZ.current = Math.floor(degrees)
+                    originalId.current = equipment.id
+                    originalPos.current = firstIntersect.object.parent?.position.clone()
+                    originalOffset.current = equipment.offset
+                    originalType.current = equipment.type
+                    setAngle(Math.floor(degrees))
+                    setIsMoving(false)
+                    setSelectedEquipment(object)
+                }
+                else{
+                    document.body.style.cursor = 'auto'; // Default cursor style
+                    setSelectedEquipment(null)
+                }
+            }
+            else{
+                setSelectedEquipment(null)
+            }
+        }
+        if (!addStatusRef.current) return
+
         if (!mapContainer.current || !window.map || !selectedModelRef.current) return;
         // Use the getMapContainer method from the child component to access the div
         const mapContainerElement = mapContainer.current.getMapContainer();
@@ -281,6 +469,8 @@ const NetworkMonitoring = (props: any) => {
                     // Optionally, set a new position, rotation, or scale for the copied model
                     copyModel.position.set(0, 0, 0); // Example position
                     copyModel.scale.set(1, 1, 1); // Example scale
+                    const id = Date.now()
+                    copyModel.userData = {id: id, type: currentEquipmentType.current, equipment: true}
                     setEquipments((prev: any) => [
                         ...prev,
                         {
@@ -289,13 +479,76 @@ const NetworkMonitoring = (props: any) => {
                             object: copyModel,
                             offset: selectedOffsetRef.current,
                             type: currentEquipmentType.current,
-                            id: Date.now()
+                            id: id,
                         }
                     ]);
                 },
             });
         }
     }, [])
+
+    useEffect(() => {
+        if (selectedEquipment) {
+            const angleInRadians = THREE.MathUtils.degToRad(angle);
+            selectedEquipment.rotation.z = -angleInRadians
+        }
+    }, [angle, selectedEquipment])
+
+    useEffect(() => {
+        selectedEquipmentRef.current = selectedEquipment
+        if (!selectedEquipment) setAngle(0)
+    }, [selectedEquipment])
+
+    function generateCircleCoordinates(
+        center: [number, number],
+        radiusInMeters: number
+      ): THREE.Vector3[] {
+        const coordinates: [number, number][] = [];
+        const points: THREE.Vector3[] = [];
+        const numPoints = 256;
+        const angleStep = (2 * Math.PI) / numPoints;
+        const earthRadius = 6371000;
+      
+        const _center = {
+            tileX: window.map.center.x,
+            tileY: window.map.center.y
+        }
+        const [centerLon, centerLat] = center;
+      
+        const centerLatInRad = (centerLat * Math.PI) / 180;
+      
+        for (let i = 0; i <= numPoints; i++) {
+          const angle = i * angleStep;
+      
+          const dx = radiusInMeters * Math.cos(angle);
+          const dy = radiusInMeters * Math.sin(angle);
+      
+          const newLatitude = centerLat + (dy / earthRadius) * (180 / Math.PI);
+      
+          const newLongitude =
+            centerLon +
+            ((dx / earthRadius) * (180 / Math.PI)) / Math.cos(centerLatInRad);
+      
+          coordinates.push([newLongitude, newLatitude]);
+
+          const tileData = window.map.convertGeoToPixel(newLatitude, newLongitude)
+          const tileX = tileData.tileX;          // tile X coordinate of the point
+          const tileY = tileData.tileY;          // tile Y coordinate of the point
+          const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
+          const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
+          
+          const worldPos = window.map.calculateWorldPosition(_center, tileX, tileY, tilePixelX, tilePixelY, 512);
+          let elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+          const realWorldPosition = new THREE.Vector3(worldPos.x, worldPos.y, 0);
+          realWorldPosition.z = elevationValue * 2 + 3
+
+          points.push(realWorldPosition);
+        }
+        return points;
+    }
+
+    const dashedCirclesRef = useRef<any[]>([])
+
     useEffect(() => {
         if (!window.map || isLoading) return;
         const center = {
@@ -305,8 +558,23 @@ const NetworkMonitoring = (props: any) => {
         equipmentsRef.current = equipments
         removeBtnsRef.current.forEach((removeButton: any) => {
             window.map.scene.remove(removeButton);
+            removeButton.material?.dispose()
+            removeButton.geometry?.dispose()
         });
         removeBtnsRef.current = []
+
+        dashedCirclesRef.current.map(line => {
+            window.map.scene.remove(line);
+            line.material.dispose()
+            line.geometry.dispose()
+        })
+        dashedCirclesRef.current = []
+        objectsRef.current.forEach((object: any) => {
+            window.map.scene.remove(object);
+            object.material?.dispose()
+            object.geometry?.dispose()
+        });
+        objectsRef.current = []
         _.map(equipments, eq => {
             const lat = eq.lat; // Latitude
             const lng = eq.lng; // Longitude
@@ -321,6 +589,7 @@ const NetworkMonitoring = (props: any) => {
             elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY) * 2 + eq.offset;
 
             // Add the copied model to the scene
+            eq.object.userData = {id: eq.id, type: eq.type, equipment: true}
             eq.object.position.set(worldPos.x, worldPos.y, elevationValue)
             // eq.object.userData = {isEquipment: true, type: currentEquipmentType.current}
             // Create an "X" remove button using a sprite
@@ -331,21 +600,81 @@ const NetworkMonitoring = (props: any) => {
             // Position the remove button above the model
             removeButtonSprite.position.set(worldPos.x, worldPos.y, elevationValue + 30); // Adjust 10 to position the button
             removeButtonSprite.userData = {isRemove: true, id: eq.id}
-            removeButtonSprite.scale.set(10, 10, 5); // Adjust the scale to make the button a suitable size
+            removeButtonSprite.scale.set(15, 15, 15); // Adjust the scale to make the button a suitable size
+            if (removeStatusRef.current) {
+                removeButtonSprite.visible = true
+            }
+            else{
+                removeButtonSprite.visible = false
+            }
             removeBtnsRef.current.push(removeButtonSprite)
             // Add both model and button to the scene
             window.map.scene.add(eq.object);
+            objectsRef.current.push(eq.object)
             window.map.scene.add(removeButtonSprite);
+
+            // if type is antenna we need to draw dashed cirles for it
+            if (eq.type === 'antenna') {
+                let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(worldPos.x, worldPos.y);
+                let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY);
+                
+                // Generate points using your existing function
+                for (let i = 1 ; i <= 5 ; i ++) {
+                    const points = generateCircleCoordinates([longitude, latitude], 36 * i)
+                
+                    // Create the curve
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    
+                    // Get points along the curve (e.g., 50 segments)
+                    const curvePoints = curve.getPoints(50 * i);
+                
+                    // Create geometry and set vertices
+                    const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                
+                    const material = new THREE.LineDashedMaterial({
+                        color: '#000ecb',
+                        linewidth: 4, // Only works in WebGL1
+                        scale: 1, // Scale of the dashes
+                        dashSize: 20, // Length of the dashes
+                        gapSize: 15, // Length of the gaps
+                        depthWrite: false,
+                        transparent: true
+                    });
+                
+                    // Create the line and compute line distances for dashed effect
+                    const line = new THREE.Line(geometry, material);
+                    line.computeLineDistances(); // Required for dashed lines
+                    line.userData = {index: i, id: eq.id}
+                    window.map.scene.add(line);
+
+                    dashedCirclesRef.current.push(line)
+                }
+            }            
         })
     }, [equipments])
+
+    useEffect(() => {
+        removeStatusRef.current = removeStatus
+        removeBtnsRef.current.map(removeButtonSprite => {
+            if (removeStatus) {
+                removeButtonSprite.visible = true
+            }
+            else{
+                removeButtonSprite.visible = false
+            }
+        })
+    }, [removeStatus])
+    useEffect(() => {
+        addStatusRef.current = addStatus
+    }, [addStatus])
+
     const [hovered, setHovered] = useState(false);
     const onDocumentMouseMove = useCallback(
         ((event) => {
-            if (window.map && !selectedModelRef.current) {
+            if (window.map) {
                 let foundEquipment = false;
                 const mapContainerElement = mapContainer.current.getMapContainer();
                 if (!mapContainerElement) return;
-        
                 const containerBounds = mapContainerElement.getBoundingClientRect();
                 mouse.x = ((event.clientX - containerBounds.left) / containerBounds.width) * 2 - 1;
                 mouse.y = -((event.clientY - containerBounds.top) / containerBounds.height) * 2 + 1;
@@ -377,7 +706,7 @@ const NetworkMonitoring = (props: any) => {
                                 name = "Survey Marker";
                                 break
                         }
-                        tooltip.innerHTML = `
+                        let html = `
                             <div style="display: flex; justify-content: center; align-items: center; color: white; margin-bottom: 4px; text-align: center">
                                 <span style="font-weight: bold;">${name || 'Model'}</span>
                             </div>
@@ -393,14 +722,20 @@ const NetworkMonitoring = (props: any) => {
                                 <tr>
                                     <td style="padding: 4px;">Type</td>
                                     <td style="padding: 4px;">${eq.type || 'N/A'}</td>
-                                </tr>
-                                <tr>
+                                </tr>`
+                            html += eq.type === 'antenna' ? `<tr>
+                                        <td style="padding: 4px;">Data Rate</td>
+                                        <td style="padding: 4px;">${'80MHz'}</td>
+                                    </tr>` : '';
+                            html += `<tr>
                                     <td style="padding: 4px;">[${eq.lng || 'N/A'},</td>
                                     <td style="padding: 4px;">${eq.lat || 'N/A'}]</td>
                                 </tr>
                                 <!-- Add more rows as needed -->
                             </table>
                         `;
+
+                        tooltip.innerHTML = html
                 
                         // Exit the loop once we find the first intersected model
                         return true;
@@ -415,7 +750,7 @@ const NetworkMonitoring = (props: any) => {
                 let intersects = raycaster.intersectObjects(removeBtnsRef.current, true);
                 const validIntersects = intersects.filter(intersect => {
                     const userData = intersect.object.userData;
-                    return userData && userData.isRemove;
+                    return userData && (userData.isRemove || userData.equipment);
                 });
             
                 // If there is exactly one valid intersect, change the cursor to 'pointer'
@@ -424,6 +759,23 @@ const NetworkMonitoring = (props: any) => {
                 } else {
                     document.body.style.cursor = 'auto'; // Default cursor style
                 }
+            }
+            if (isMovingRef.current && selectedEquipmentRef.current) {
+                let intersects = raycaster.intersectObjects(window.map.scene.children, true);
+            
+                if (intersects.length > 0) {
+                    const realWorldPosition = intersects[intersects.length - 1].point;
+                    selectedEquipmentRef.current.position.set(realWorldPosition.x, realWorldPosition.y, Math.min(realWorldPosition.z, 180) + originalOffset.current);
+                }
+
+                return;
+            }
+            if (!addStatusRef.current) {
+                selectedModelRef.current && (selectedModelRef.current.visible = false)
+                return
+            }
+            else{
+                selectedModelRef.current && (selectedModelRef.current.visible = true)
             }
             if (!mapContainer.current || !window.map || !selectedModelRef.current) return;
             
@@ -446,15 +798,144 @@ const NetworkMonitoring = (props: any) => {
         []
     );
 
+    const submitNetworkMornitoring = useCallback(() => {
+        console.log('publish')
+    }, [])
+
+    const reset = () => {
+        if (selectedEquipment && window.map) {
+            if (selectedEquipment.rotation) {
+                const center = {
+                    tileX: window.map.center.x,
+                    tileY: window.map.center.y
+                }
+                selectedEquipment.rotation.z = originalZ.current
+                selectedEquipment.position.copy(originalPos.current)
+            }
+        }
+        setIsMoving(false); 
+        setSelectedEquipment(null)
+        originalZ.current = null
+        originalOffset.current = null
+        originalPos.current = null
+        originalType.current = null
+    }
+
+    const save = () => {
+        if (selectedEquipment && window.map) {
+            if (selectedEquipment.rotation) {
+                selectedEquipment.position.copy(newPos.current)
+            }
+
+            if (originalType.current === 'antenna') {
+                dashedCirclesRef.current = dashedCirclesRef.current.filter(line => {
+                    if (line.userData.id === originalId.current) {
+                        window.map.scene.remove(line);
+                        line.material.dispose();
+                        line.geometry.dispose();
+                        return false; // Exclude this line from the new array
+                    }
+                    return true; // Keep other lines
+                });
+
+                let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(newPos.current.x, newPos.current.y);
+                let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY);
+                
+                // Generate points using your existing function
+                for (let i = 1 ; i <= 5 ; i ++) {
+                    const points = generateCircleCoordinates([longitude, latitude], 36 * i)
+                
+                    // Create the curve
+                    const curve = new THREE.CatmullRomCurve3(points);
+                    
+                    // Get points along the curve (e.g., 50 segments)
+                    const curvePoints = curve.getPoints(50 * i);
+                
+                    // Create geometry and set vertices
+                    const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+                
+                    const material = new THREE.LineDashedMaterial({
+                        color: '#000ecb',
+                        linewidth: 4, // Only works in WebGL1
+                        scale: 1, // Scale of the dashes
+                        dashSize: 20, // Length of the dashes
+                        gapSize: 15, // Length of the gaps
+                        depthWrite: false,
+                        transparent: true
+                    });
+                
+                    // Create the line and compute line distances for dashed effect
+                    const line = new THREE.Line(geometry, material);
+                    line.computeLineDistances(); // Required for dashed lines
+                    line.userData = {index: i, id: originalId.current}
+                    window.map.scene.add(line);
+
+                    dashedCirclesRef.current.push(line)
+                }
+            }
+        }
+        setIsMoving(false); 
+        setSelectedEquipment(null)
+        originalZ.current = null
+        originalOffset.current = null
+        originalPos.current = null
+        originalType.current = null
+    }
+
     return (
         <React.Fragment>
         <div className="page-content" style={{paddingBottom: '1rem'}}>
             <Container fluid>
             <Breadcrumb title="Home" breadcrumbItem="Network Monitoring" />
             <Row>
+                <Col md={12} sm={12} xs={12} className='network-monitoring-topmenu'>
+                    <div className="network-monitoring-model-filter"> 
+                        <Dropdown
+                            label="Choose Model"
+                            items={_equipments}
+                            value={equipment}
+                            onChange={setEquipment}
+                        />
+                    </div>
+                    <FormGroup className='d-flex network-mornitoring-checkbox' style={{ marginLeft: '1rem' }}>
+                        <Input
+                            id="addEquipment"
+                            name="addEquipment"
+                            type="checkbox"
+                            checked={addStatus} // Bind the state to the checkbox
+                            onChange={(e) => {setAddStatus(e.target.checked)}} // Update state on change
+                        />
+                        <Label
+                            style={{ marginLeft: '0.5rem' }}
+                            check
+                            for="addEquipment"
+                        >
+                            Add
+                        </Label>
+                    </FormGroup>
+                    <FormGroup className='d-flex network-mornitoring-checkbox' style={{marginLeft: '1rem'}}>
+                        <Input
+                            id="removeEquipment"
+                            name="removeEquipment"
+                            type="checkbox"
+                            checked={removeStatus} // Bind the state to the checkbox
+                            onChange={(e) => setRemoveStatus(e.target.checked)} // Update state on change
+                        />
+                        <Label
+                            check
+                            style={{marginLeft: '0.5rem'}}
+                            for="removeEquipment"
+                        >
+                        Remove
+                        </Label>
+                    </FormGroup>
+                    <Button icon={<CloudUploadOutlined />} onClick={submitNetworkMornitoring} style={{marginLeft: '5px'}} >Save</Button>
+                </Col>
+            </Row>
+            <Row style={{paddingTop: '0.5rem'}}>
                 <DndProvider backend={HTML5Backend}>
-                    <Col md={9} sm={8} xs={12}>
-                        <THREEJSMap ref={mapContainer} height='calc(100vh - 170px)' defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseMove={onDocumentMouseMove} isPitView={true}>
+                    <Col md={12} sm={12} xs={12}>
+                        <THREEJSMap ref={mapContainer} height='calc(100vh - 200px)' defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseMove={onDocumentMouseMove} isPitView={true}>
                             {hovered && (
                                 <div
                                     ref={tooltipRef}
@@ -471,9 +952,45 @@ const NetworkMonitoring = (props: any) => {
                                     Model Tooltip
                                 </div>
                             )}
+                            <FormGroup className='orientation-slider' style={{display: selectedEquipment ? 'block' : 'none'}}>
+                                <div>Updating...</div>
+                                <Label for="angleSlider" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>0°</span>
+                                    <span>{angle}°</span>
+                                    <span>360°</span>
+                                </Label>
+                                <Input
+                                    type="range"
+                                    id="angleSlider"
+                                    min="0"
+                                    max="360"
+                                    value={angle}
+                                    onChange={handleSliderChange}
+                                />
+                                <div className='d-flex' style={{alignItems: 'center', marginTop: '0.5rem'}}>
+                                    <FormGroup className='d-flex network-mornitoring-move-checkbox' style={{marginLeft: '1rem'}}>
+                                        <Input
+                                            id="moveEquipment"
+                                            name="moveEquipment"
+                                            type="checkbox"
+                                            checked={isMoving} // Bind the state to the checkbox
+                                            onChange={(e) => setIsMoving(e.target.checked)} // Update state on change
+                                        />
+                                        <Label
+                                            check
+                                            style={{marginLeft: '0.5rem'}}
+                                            for="moveEquipment"
+                                        >
+                                        Move
+                                        </Label>
+                                    </FormGroup>
+                                    <Button size='small' style={{width: '60px'}} icon={<SaveOutlined />} onClick={() => save()}>Save</Button>
+                                    <Button size='small' style={{width: '70px', marginLeft: '0.5rem'}} icon={<CloseOutlined />} onClick={() => reset()}>Cancel</Button>
+                                </div>
+                            </FormGroup>
                         </THREEJSMap>
                     </Col>
-                    <Col md={3} sm={4} xs={12}>
+                    {/* <Col md={3} sm={4} xs={12}>
                         <Card className='p-4' style={{height:'calc(100vh - 170px)', marginBottom: '0px'}}>
                             <Title style={{color: isLight ? 'rgba(0, 0, 0, 0.88)' : 'white'}} level={4}>Trailers and Equipments</Title>
                             <List
@@ -490,7 +1007,7 @@ const NetworkMonitoring = (props: any) => {
                             )}
                             />
                         </Card>
-                    </Col>
+                    </Col> */}
                 </DndProvider>
             </Row>
             </Container>
