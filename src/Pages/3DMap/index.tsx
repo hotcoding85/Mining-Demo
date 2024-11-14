@@ -681,19 +681,20 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
         // Load the background image using THREE.TextureLoader
         if (isLight) {
-            if (window.map) {
+            if (window.map && window.map.scene) {
                 const loader = new THREE.TextureLoader();
                 loader.load(BACKGROUND_LIGHT, (texture) => {
                     window.map.scene.background = texture;  // Set the loaded texture as the background
                 });
             }
         }
-        else {
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND, (texture) => {
-                if (window.map != null)
+        else{
+            if (window.map && window.map.scene) {
+                const loader = new THREE.TextureLoader();
+                loader.load(BACKGROUND, (texture) => {
                     window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
+                })
+            }
         }
         var axesHelper = new THREE.AxesHelper(2000)
         // scene.add(axesHelper)
@@ -933,7 +934,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
 
     const drawGeofences = useCallback(() => {
-        if (geoFences.current.length === 0 || !window.map) return
+        if (!geoFences.current || geoFences.current.length === 0 || !window.map) return
 
         const center = {
             tileX: window.map.center.x,
