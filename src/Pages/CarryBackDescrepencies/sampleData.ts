@@ -68,11 +68,11 @@ export function updateDataWithRandomValues(data: any[]): any[] {
 
       return {
         ...entry,
-        actual: generateRandomValue(range[0], range[1]).toString(),
-        planned: generateRandomValue(range[0], range[1]).toString(),
+        actual: generateRandomValue(500, 1500).toString(),
+        planned: generateRandomValue(1500, 2500).toString(),
         tonnesIndicated: generateRandomValue(range[0], range[1]).toString(),
         avgLoadCarriedBack: generateRandomValue(range[0], range[1]).toString(),
-        actualTonnes: generateRandomValue(range[0], range[1]).toString(),
+        actualTonnes: generateRandomValue(500, 1500).toString(),
       };
     });
   });
