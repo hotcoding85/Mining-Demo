@@ -18,10 +18,10 @@ export const data: any = [
       model: "HD785",
       equipmentName: "DT102",
       loadsCompleted: "8",
-      trips: "Trip1",
-      materialType: "Waste",
-      actual: "663",
-      planned: "2975",
+      trips: "Trip2",
+      materialType: "HG01",
+      actual: "10",
+      planned: "10",
       tonnesIndicated: "10",
       avgLoadCarriedBack: "10",
       actualTonnes: "10",
@@ -34,9 +34,9 @@ export const data: any = [
       equipmentName: "DT121",
       loadsCompleted: "10",
       trips: "Trip1",
-      materialType: "Waste",
-      actual: "1452",
-      planned: "5250",
+      materialType: "LG02",
+      actual: "20",
+      planned: "20",
       tonnesIndicated: "20",
       avgLoadCarriedBack: "20",
       actualTonnes: "20",
@@ -46,13 +46,34 @@ export const data: any = [
       model: "HD1500",
       equipmentName: "DT122",
       loadsCompleted: "9",
-      trips: "Trip1",
-      materialType: "Waste",
-      actual: "1332",
-      planned: "5250",
+      trips: "Trip2",
+      materialType: "HG01",
+      actual: "20",
+      planned: "20",
       tonnesIndicated: "20",
       avgLoadCarriedBack: "20",
       actualTonnes: "20",
     },
   ],
 ];
+
+function generateRandomValue(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function updateDataWithRandomValues(data: any[]): any[] {
+  return data.map((dataGroup: any[]) => {
+    return dataGroup.map((entry) => {
+      const range = entry.model === "HD785" ? [60, 80] : entry.model === "HD1500" ? [90, 120] : [0, 0];
+
+      return {
+        ...entry,
+        actual: generateRandomValue(range[0], range[1]).toString(),
+        planned: generateRandomValue(range[0], range[1]).toString(),
+        tonnesIndicated: generateRandomValue(range[0], range[1]).toString(),
+        avgLoadCarriedBack: generateRandomValue(range[0], range[1]).toString(),
+        actualTonnes: generateRandomValue(range[0], range[1]).toString(),
+      };
+    });
+  });
+}
