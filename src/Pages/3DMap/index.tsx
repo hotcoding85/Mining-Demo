@@ -86,7 +86,7 @@ interface THREEJSMapProps {
     truckInitPoint?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null}, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null }, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -114,7 +114,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         { label: 'Stop Signs', value: 'STOP_SIGNS' },
         { label: 'Restricted', value: 'RESTRICTED' },
     ];
-    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
+    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations'];
 
     mapboxgl.accessToken = process.env.MAPBOX_API_KEY || 'pk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTA1MGhtb3YwY3Y0Mm5uY3FzYWExdm93In0.cSDrE0Lq4_PitPdGnEV_6w';
     const [lng, setLng] = useState(120.44871814239025);
@@ -143,12 +143,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             if (animationFrameId.current) {
                 cancelAnimationFrame(animationFrameId.current);
             }
-    
+
             // Dispose Three.js objects
             if (geojsonData.current) {
                 geojsonData.current = null;
             }
-    
+
             // Clean up map and controls
             if (window.mapPicker) {
                 window.mapPicker = null;
@@ -169,10 +169,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 if (isPitView && onDocumentMouseMove) {
                     domElement.removeEventListener('mousemove', onDocumentMouseMove, false);
                 }
-                else{
+                else {
                     domElement.removeEventListener('mousemove', _onDocumentMouseMove, false);
                 }
-                
+
                 domElement.removeEventListener('wheel', onDocumentMouseWheel, false);
                 if (onDocumentMouseClick) domElement.removeEventListener('click', onDocumentMouseClick, false);
                 if (onDocumentMouseDblClick) domElement.removeEventListener('dblclick', onDocumentMouseDblClick, false);
@@ -199,14 +199,14 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         };
 
     }, []); // Added dependencies to reinitialize map if lat/lng changes
-    
+
     const fetchGeofences = async () => {
         const _fetchGeofences = async () => {
             const retrievedData = await getDataByKey('geoFences');
             if (retrievedData && retrievedData.length > 0) {
                 geoFences.current = retrievedData
             }
-            else{
+            else {
                 const fences = await fetch('/SWK_S01_422.geojson')
                     .then(response => response.json())  // Parse it as JSON
                     .then(data => {
@@ -215,10 +215,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     .catch(error => {
                         console.error('Error fetching GeoJSON:', error);
                     });
-        
+
                 if (fences) {
                     const features = fences.features;
-                    
+
                     // Iterate over the features to access polygons or other geometry types
                     const _fences: any = []
                     _.map(features, feature => {
@@ -238,7 +238,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             if (retrievedData) {
                 processZipFile(retrievedData)
             }
-            else{
+            else {
                 const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
                 JSZip.loadAsync(zipBuffer).then(data => {
                     return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
@@ -249,8 +249,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 })
             }
         };
-      
-        await _fetchZipFile(); 
+
+        await _fetchZipFile();
     }
 
     const processZipFile = async (geojsonData) => {
@@ -260,39 +260,39 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         //     // //     loadMapView(geojsonData, retrievedData);
         //     // // }
         //     // // else{
-                // Fetch the ZIP file and get its ArrayBuffer
-                const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
-                
-                // Initialize an object to hold image data
-                let image_data = {};
-                
-                // Load the ZIP file using JSZip
-                const zip = await JSZip.loadAsync(zipBuffer);
-            
-                // Create an array to hold promises
-                const promises: any = [];
-            
-                // Iterate through each file in the ZIP
-                zip.forEach((relativePath, file) => {
-                    // Check if the file is a WebP image
-                    if (file.name.endsWith('.webp')) {
-                        // Create a promise for each image processing
-                        const promise = file.async('arraybuffer').then(data => {
-                            // Extract the filename without extension
-                            const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-                            // Store the image data in the object
-                            image_data[fileNameWithoutExtension] = data;
-                        });
-                        promises.push(promise);
-                    }
+        // Fetch the ZIP file and get its ArrayBuffer
+        const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
+
+        // Initialize an object to hold image data
+        let image_data = {};
+
+        // Load the ZIP file using JSZip
+        const zip = await JSZip.loadAsync(zipBuffer);
+
+        // Create an array to hold promises
+        const promises: any = [];
+
+        // Iterate through each file in the ZIP
+        zip.forEach((relativePath, file) => {
+            // Check if the file is a WebP image
+            if (file.name.endsWith('.webp')) {
+                // Create a promise for each image processing
+                const promise = file.async('arraybuffer').then(data => {
+                    // Extract the filename without extension
+                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
+                    // Store the image data in the object
+                    image_data[fileNameWithoutExtension] = data;
                 });
-            
-                // Wait for all promises to resolve
-                await Promise.all(promises);
-            
-                loadMapView(geojsonData, image_data);
-                geojsonData = null
-                image_data = {}
+                promises.push(promise);
+            }
+        });
+
+        // Wait for all promises to resolve
+        await Promise.all(promises);
+
+        loadMapView(geojsonData, image_data);
+        geojsonData = null
+        image_data = {}
         //         await addOrUpdateData('imageData', image_data);
         //     }
         // }
@@ -305,7 +305,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const initialQuaternion = new THREE.Quaternion(0, -0.00034019315841246704, 0, 0.9999999355799913);
         // Invert the quaternion to get the corrective rotation
         const correctiveQuaternion = initialQuaternion.clone().invert();
-        
+
         // Apply this corrective rotation to the body
         const rotation = excavator.body.rotation
 
@@ -321,7 +321,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         // Boom rotation (up and down motion)
         const boomTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.boom.uuid}.quaternion`,
-            [boomStart, boomStart + 5, ],
+            [boomStart, boomStart + 5,],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.7, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.15, 0, 0)).toArray(),
@@ -408,15 +408,25 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         //         ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0.3, 0)).toArray()
         //     ]
         // );
-      
+
         // Hydraulic movement (keep aligned with boom and arm)
         const hydraulicCylinderTrack = new THREE.VectorKeyframeTrack(
             `${excavator.hydraulicCylinder.uuid}.position`,
             [8, 13, 18],
             [
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(), 
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(), 
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray() 
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicCylinder.position)).toArray()
+            ]
+        );
+
+        const hydraulicPistonTrack = new THREE.VectorKeyframeTrack(
+            `${excavator.hydraulicPiston.uuid}.position`,
+            [8, 13, 18],
+            [
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(excavator.hydraulicPiston.position)).toArray()
             ]
         );
 
@@ -427,6 +437,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         const action = mixerRef.current.clipAction(clip);
         action.setLoop(THREE.LoopRepeat, Infinity);
         action.play();
+
 
         const clock = new THREE.Clock();
         const updateAnimation = () => {
@@ -479,7 +490,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         metalness: 0.5
                     });
                 }
-                
+
                 if (child.isMesh) {
                     // Set depthTest to false
                     if (isArray(child.material)) {
@@ -500,7 +511,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         })
                         child.renderOrder = 9998
                     }
-                    else{
+                    else {
                         if (child.material && child.material.color && !(child.material.color.r < 0.1 && child.material.color.g < 0.1 && child.material.color.b < 0.1)) {
                             child.material = new THREE.MeshStandardMaterial({
                                 color: 0xFFB43B, // Default color if no material found
@@ -551,7 +562,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 else if (child.name == 'Plane019') {
                     arm = child;
                 }
-                else if (child.name == "Armature"){
+                else if (child.name == "Armature") {
                     bucket = child;
                 }
             });
@@ -567,7 +578,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 dirt,
                 truckDirt
             };
-        
+
             // Add the entire excavator object to the group and scene
             window.DiggerObject.group.add(object);
             window.DiggerObject.group.scale.set(0.1, 0.1, 0.1);
@@ -578,7 +589,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             if (!window.map || !window.map.scene) return;
             window.map.scene.add(window.DiggerObject.group);
             window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
-            
+
             window.TruckObject.rotation.z += Math.PI
             window.TruckObject.visible = true
             window.TruckObject.traverse((child: any) => {
@@ -591,7 +602,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         })
                         child.renderOrder = 9998
                     }
-                    else{
+                    else {
                         child.material.depthTest = true
                         child.material.depthWrite = true
                         child.material.transparent = false
@@ -617,7 +628,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             window.mixer = new THREE.AnimationMixer(object);
             // Traverse the loaded object to find and play animations
             object.animations.forEach((clip, index) => {
-                if (clip.name === '3D_Truck_Back1|3D_Truck_BackAction' || clip.name === '3D_Truck_Back2|3D_Truck_BackAction' || clip.name === '3D_Truck_Front|3D_Truck_FrontAction'){
+                if (clip.name === '3D_Truck_Back1|3D_Truck_BackAction' || clip.name === '3D_Truck_Back2|3D_Truck_BackAction' || clip.name === '3D_Truck_Front|3D_Truck_FrontAction') {
                     const action = window.mixer.clipAction(clip);
                     action.play();
                 }
@@ -633,7 +644,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                         })
                         child.renderOrder = 9998
                     }
-                    else{
+                    else {
                         child.material.depthTest = false
                         child.material.depthWrite = true
                         child.material.transparent = true
@@ -641,7 +652,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     }
                 }
             });
-            object.scale.set(0.2, 0.2 , 0.2);
+            object.scale.set(0.2, 0.2, 0.2);
             object.rotation.x = Math.PI / 2; // Correct if the object is flipped around the X axis
             object.rotation.y = Math.PI / 2;     // Adjust to face the correct direction
             object.position.z += 10
@@ -666,7 +677,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
         geojsonData.current = _geojsonData;
-    
+
         _.map(geojsonData.current.features, (feature) => {
             const bounds = bbox(feature);
             const item = {
@@ -698,14 +709,14 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             renderer.domElement.className = "threejs-view";
             localMapContainerRef.current.appendChild(renderer.domElement);
             if (isPitView && onDocumentMouseMove) {
-                renderer.domElement.addEventListener('mousemove', onDocumentMouseMove , false);
+                renderer.domElement.addEventListener('mousemove', onDocumentMouseMove, false);
             }
-            else{
-                renderer.domElement.addEventListener('mousemove', _onDocumentMouseMove , false);
+            else {
+                renderer.domElement.addEventListener('mousemove', _onDocumentMouseMove, false);
             }
             renderer.domElement.addEventListener('wheel', onDocumentMouseWheel, false);
             onDocumentMouseClick && renderer.domElement.addEventListener('click', onDocumentMouseClick, false)
-            onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', (e) => {onDocumentMouseDblClick(e)}, false)
+            onDocumentMouseDblClick && renderer.domElement.addEventListener('dblclick', (e) => { onDocumentMouseDblClick(e) }, false)
         }
 
         renderer.shadowMap.enabled = true;
@@ -720,10 +731,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         let controlsGizmo = new OrbitControlsGizmo(controls, { size: 100, padding: 8 });
         // Add the Gizmo to the document
         localMapContainerRef.current && localMapContainerRef.current.appendChild(controlsGizmo.domElement);
-        
+
         // Load the background image using THREE.TextureLoader
         if (isLight) {
-            if (window.map) {
+            if (window.map && window.map.scene) {
                 const loader = new THREE.TextureLoader();
                 loader.load(BACKGROUND_LIGHT, (texture) => {
                     window.map.scene.background = texture;  // Set the loaded texture as the background
@@ -731,10 +742,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             }
         }
         else{
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
+            if (window.map && window.map.scene) {
+                const loader = new THREE.TextureLoader();
+                loader.load(BACKGROUND, (texture) => {
+                    window.map.scene.background = texture;  // Set the loaded texture as the background
+                })
+            }
         }
         var axesHelper = new THREE.AxesHelper(2000)
         // scene.add(axesHelper)
@@ -762,7 +775,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 window.camera.position.copy(window.savedCameraPosition);
                 window.camera.quaternion.copy(window.savedCameraQuaternion);
             }
-        
+
             // If you need to trigger specific logic when zoom happens during animation
             if (window.isAnimation) {
                 handleZoomDuringAnimation();
@@ -775,7 +788,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             // Set spherical coordinates based on the adjusted direction
             sph.setFromVector3(adjustedDir);
             let normalizedTheta = -sph.theta;
-            
+
             // Apply this to the compass
             compass && (compass.style.transform = `rotate(${THREE.MathUtils.radToDeg(normalizedTheta) - 180}deg)`);
         });
@@ -823,7 +836,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
                 // Update camera and controls if in animation mode
                 animateWheels();
-                
+
                 // Ensure the camera position is set correctly during animation
                 if (window.savedCameraPosition) {
                     window.camera.position.copy(window.savedCameraPosition);
@@ -842,7 +855,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     window.savedCameraQuaternion = null
                     window.camera.updateProjectionMatrix();
                 }
-                else{
+                else {
                     renderer.render(scene, window.camera);
                 }
             }
@@ -872,7 +885,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 window.map.scene.background = texture;  // Set the loaded texture as the background
             });
         }
-        else{
+        else {
             const loader = new THREE.TextureLoader();
             loader.load(BACKGROUND, (texture) => {
                 window.map.scene.background = texture;  // Set the loaded texture as the background
@@ -894,7 +907,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
         window.camera.updateProjectionMatrix();
         window.camera.updateMatrixWorld();
         raycaster.setFromCamera(mouse, window.camera);
-        
+
         const x = (mouse.x * 0.5 + 0.5) * localMapContainerRef.current.clientWidth;
         const y = -(mouse.y * 0.5 - 0.5) * localMapContainerRef.current.clientHeight;
         // Check for intersections with clickable sprites
@@ -906,7 +919,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 const userData = intersect.object.userData;
                 return userData && (userData.isStopSign || userData.isRoute || userData.isPointer);
             });
-        
+
             // If there is exactly one valid intersect, change the cursor to 'pointer'
             if (validIntersects.length === 1) {
                 document.body.style.cursor = 'pointer';
@@ -930,7 +943,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                     tooltipRef.style.top = `${y - 270}px`;
                 }
             }
-            else{
+            else {
                 document.body.style.cursor = 'auto'; // Default cursor style
                 setShowToolTip(false)
             }
@@ -942,10 +955,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     const onDocumentMouseWheel = (event) => {
         if (!window.camera || !window.isAnimation) return;
-    
+
         const minZoom = 0.1;  // Set the minimum zoom level
         const maxZoom = 3.5;  // Set the maximum zoom level
-    
+
         if (event.deltaY < 0) {
             // Scrolling up (zooming in)
             if (window.camera.zoom < maxZoom) {  // Check if zoom level is below the max limit
@@ -962,7 +975,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             }
         }
     };
-    
+
 
     useEffect(() => {
         if (!defaultLayers || defaultLayers.length === 0) return
@@ -974,7 +987,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
 
     const drawGeofences = useCallback(() => {
-        if (geoFences.current.length === 0 || !window.map) return
+        if (!geoFences.current || geoFences.current.length === 0 || !window.map) return
 
         const center = {
             tileX: window.map.center.x,
@@ -992,7 +1005,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
                 const tileY = tileData.tileY;          // tile Y coordinate of the point
                 const tilePixelX = tileData.tilePixelX; // pixel X position inside the tile
                 const tilePixelY = tileData.tilePixelY; // pixel Y position inside the tile
-                
+
                 const worldPos = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
                 const point = new THREE.Vector3(worldPos.x, worldPos.y, (coord[2] - 400) * 2);
                 if (index === 0) {
@@ -1004,20 +1017,20 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
             // Extrude geometry based on the shape and elevation
             const extrudeSettings = {
                 steps: 1,                    // Number of points along the path
-                depth:  (_fence.properties.altitude - 400) * 2 - 7,                   // Extrude along the Z axis (depth)
+                depth: (_fence.properties.altitude - 400) * 2 - 7,                   // Extrude along the Z axis (depth)
                 bevelEnabled: true,          // No bevel for the shape
             };
             shape.autoClose = true;
             // Create the geometry and material
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-            const material = new THREE.MeshBasicMaterial({ 
-                color: properties.fillColor, 
+            const material = new THREE.MeshBasicMaterial({
+                color: properties.fillColor,
                 depthTest: true,
                 depthWrite: false,
                 transparent: false,
                 opacity: 1 // Adjust opacity if needed
             });
-            
+
             // Create the mesh and add it to the scene
             const mesh = new THREE.Mesh(geometry, material);
             mesh.renderOrder = 1
@@ -1028,51 +1041,51 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({children
 
     return (
         <>
-            <Card className='threejs-view-card-header' style={{marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%'}}>
+            <Card className='threejs-view-card-header' style={{ marginBottom: '0px', height: height ? height : "calc(100%)", padding: '0px', width: '100%' }}>
                 <CardBody className='threejs-view-body'>
                     {isLoading ? (
                         <>
-                            <div className="loading-overlay" style={{top: "calc(50vh - 151px)", position: 'absolute', width: 'calc(100% - 20px)', height: '50%', left: '10px'}}>
-                                <Spin className='map-loading-bar' style={{color: 'gold', background: 'transparent'}} tip="Loading...">
-                                    <Progress className='map-loading-progress-bar' percent={progress} status="active" style={{background: 'transparent'}} />
+                            <div className="loading-overlay" style={{ top: "calc(50vh - 151px)", position: 'absolute', width: 'calc(100% - 20px)', height: '50%', left: '10px' }}>
+                                <Spin className='map-loading-bar' style={{ color: 'gold', background: 'transparent' }} tip="Loading...">
+                                    <Progress className='map-loading-progress-bar' percent={progress} status="active" style={{ background: 'transparent' }} />
                                 </Spin>
                             </div>
                         </>
-                        ) : (
-                            <></>
-                        )}
-                    <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1'}}>
+                    ) : (
+                        <></>
+                    )}
+                    <div ref={localMapContainerRef} style={{ height: height ? height : "calc(100%)", width: width ? width : '100%', opacity: isLoading ? '0.05' : '1' }}>
                         {children}
                     </div>
-                    <div id="compassContainer" style={{position: 'absolute', top: '10px', right: isAutoRouting ? '40px' : '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%', display: 'flex', 'justifyContent': 'center', width: '160px'}}>
-                        <img id={'compass'} width={160} src={COMPASS} style={{position: 'absolute',filter: 'sepia(1)'}}></img>
-                        <img src={COMPASS_VECTOR} height={120} style={{transformOrigin: 'center center', position: 'absolute', top: '19px', left: '72px'}}>
+                    <div id="compassContainer" style={{ position: 'absolute', top: '10px', right: isAutoRouting ? '40px' : '10px', opacity: isLoading ? 0.1 : 1, borderRadius: '50%', display: 'flex', 'justifyContent': 'center', width: '160px' }}>
+                        <img id={'compass'} width={160} src={COMPASS} style={{ position: 'absolute', filter: 'sepia(1)' }}></img>
+                        <img src={COMPASS_VECTOR} height={120} style={{ transformOrigin: 'center center', position: 'absolute', top: '19px', left: '72px' }}>
                         </img>
                     </div>
-                    <div id='tooltipRef' style={{display: showToolTip ? 'block' : 'none'}} className='geofence-tooltip'>
+                    <div id='tooltipRef' style={{ display: showToolTip ? 'block' : 'none' }} className='geofence-tooltip'>
                         <table
                             style={{
-                            fontFamily: "arial, sans-serif",
-                            borderCollapse: "collapse",
-                            width: "100%",
-                            // border: "1px solid #000",
+                                fontFamily: "arial, sans-serif",
+                                borderCollapse: "collapse",
+                                width: "100%",
+                                // border: "1px solid #000",
                             }}
                         >
                             <tbody>
-                            {properties && Object.entries(properties).map(([key, value], index) => {
-                                if (key != "id" && key != "locationId") {
-                                    return (
-                                        <tr key={key}>
-                                            <td style={{ padding: "4px" }} className='geofence-property-key'>{key}</td>
-                                            <td style={{ padding: "4px" }} className='geofence-property-value'>{key == 'fillColor' ? <><div style={{width: '50px', height: '20px', background: value}}></div></> : value}</td>
-                                        </tr>
-                                    );
-                                }
-                                return "";
-                            })}
+                                {properties && Object.entries(properties).map(([key, value], index) => {
+                                    if (key != "id" && key != "locationId") {
+                                        return (
+                                            <tr key={key}>
+                                                <td style={{ padding: "4px" }} className='geofence-property-key'>{key}</td>
+                                                <td style={{ padding: "4px" }} className='geofence-property-value'>{key == 'fillColor' ? <><div style={{ width: '50px', height: '20px', background: value }}></div></> : value}</td>
+                                            </tr>
+                                        );
+                                    }
+                                    return "";
+                                })}
                             </tbody>
                         </table>
-                        </div>
+                    </div>
                 </CardBody>
             </Card>
         </>

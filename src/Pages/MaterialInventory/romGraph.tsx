@@ -148,7 +148,7 @@ const RomGraph = ({ graphType, shiftDate, shift }) => {
           {graphType == "bar" ? (
             <Chart options={options} series={data} type="bar" />
           ) : (
-            <Chart options={options} series={data} />
+            <Chart options={options} series={data} type="line" />
           )}
         </CardBody>
       </Card>

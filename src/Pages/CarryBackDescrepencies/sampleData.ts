@@ -2,24 +2,24 @@ export const data: any = [
   [
     {
       id: "1a",
-      model: "HD1500",
+      model: "HD785",
       equipmentName: "DT101",
-      loadsCompleted: "9/35",
+      loadsCompleted: "11",
       trips: "Trip1",
       materialType: "Waste",
-      actual: "10",
-      planned: "10",
+      actual: "902",
+      planned: "2975",
       tonnesIndicated: "10",
       avgLoadCarriedBack: "10",
       actualTonnes: "10",
     },
     {
       id: "1a",
-      model: "HD1500",
-      equipmentName: "DT101",
-      loadsCompleted: "9/35",
-      trips: "Trip1",
-      materialType: "Waste",
+      model: "HD785",
+      equipmentName: "DT102",
+      loadsCompleted: "8",
+      trips: "Trip2",
+      materialType: "HG01",
       actual: "10",
       planned: "10",
       tonnesIndicated: "10",
@@ -29,12 +29,12 @@ export const data: any = [
   ],
   [
     {
-      id: "1a",
+      id: "1b",
       model: "HD1500",
-      equipmentName: "DT101",
-      loadsCompleted: "9/35",
+      equipmentName: "DT121",
+      loadsCompleted: "10",
       trips: "Trip1",
-      materialType: "Waste",
+      materialType: "LG02",
       actual: "20",
       planned: "20",
       tonnesIndicated: "20",
@@ -44,10 +44,10 @@ export const data: any = [
     {
       id: "1b",
       model: "HD1500",
-      equipmentName: "DT101",
-      loadsCompleted: "9/35",
-      trips: "Trip1",
-      materialType: "Waste",
+      equipmentName: "DT122",
+      loadsCompleted: "9",
+      trips: "Trip2",
+      materialType: "HG01",
       actual: "20",
       planned: "20",
       tonnesIndicated: "20",
@@ -56,3 +56,24 @@ export const data: any = [
     },
   ],
 ];
+
+function generateRandomValue(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function updateDataWithRandomValues(data: any[]): any[] {
+  return data.map((dataGroup: any[]) => {
+    return dataGroup.map((entry) => {
+      const range = entry.model === "HD785" ? [60, 80] : entry.model === "HD1500" ? [90, 120] : [0, 0];
+
+      return {
+        ...entry,
+        actual: generateRandomValue(500, 1500).toString(),
+        planned: generateRandomValue(1500, 2500).toString(),
+        tonnesIndicated: generateRandomValue(range[0], range[1]).toString(),
+        avgLoadCarriedBack: generateRandomValue(range[0], range[1]).toString(),
+        actualTonnes: generateRandomValue(500, 1500).toString(),
+      };
+    });
+  });
+}

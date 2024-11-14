@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
-import { getAllFleet, getTargetsByRoster, vehicleLatestState } from 'slices/thunk';
+import { getAllFleet, getShiftRosters, getTargetsByRoster, vehicleLatestState } from 'slices/thunk';
 import { useDispatch, useSelector } from 'react-redux';
 import _, { cloneDeep, groupBy } from 'lodash';
 import { Segmented, Space } from 'antd';
 import { fleetInfo } from 'slices/thunk';
 import { getTarget, shiftTimings } from 'utils/common';
-import { EventSelector, FleetSelector, LayoutSelector, TargetSelector } from 'selectors';
+import { EventSelector, FleetSelector, LayoutSelector, RosterSelector, TargetSelector } from 'selectors';
 import Item from './Item';
 import './index.scss';
+import { ShiftRoster } from 'slices/shiftroster/reducer';
 
 const FMS = () => {
     document.title = "Fleet Status | FMS Live";
@@ -22,6 +23,7 @@ const FMS = () => {
     const { units } = useSelector(LayoutSelector);
     const { fleetUtilInfo } = useSelector(EventSelector);
     const { targets } = useSelector(TargetSelector);
+    const { rosters } = useSelector(RosterSelector);
 
     useEffect(() => {
         dispatch(getAllFleet(1, 50)); // Dispatch action to fetch data on component mount
@@ -30,6 +32,7 @@ const FMS = () => {
         dispatch(fleetInfo(`${shiftDetails.shiftDate}:${shiftDetails.shift}`));
         dispatch(getTargetsByRoster(`${shiftDetails.shiftDate}:${shiftDetails.shift}`));
         dispatch(vehicleLatestState())
+        dispatch(getShiftRosters(`${shiftDetails.shiftDate}:${shiftDetails.shift}`)); 
     }, [dispatch]);
 
     const getLoadsAndTonnes = (id, category, capacity) => {
@@ -65,6 +68,14 @@ const FMS = () => {
                 return false;
             }
         });
+        filteredData.map(vehicle => {
+            const roster = rosters.filter(i => i.vehicleId === vehicle.id)
+            if(roster != undefined && roster.length > 0) {
+                const operator = roster[0].operators[0]
+                vehicle['operator'] = operator
+                // console.log('operator name', operator.firstName, operator.lastName)
+            }
+        })
         return _.sortBy(filteredData, 'name')
     }
 

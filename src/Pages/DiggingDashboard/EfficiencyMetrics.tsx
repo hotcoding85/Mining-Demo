@@ -28,6 +28,8 @@ const ProgressInfo = styled.div`
 
 const ChartWrapper = styled.div`
   height: 185px;
+  margin-top: -30px;
+  margin-bottom: 30px;
 `;
 
 const metrics = [

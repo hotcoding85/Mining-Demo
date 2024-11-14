@@ -4,7 +4,8 @@ import Breadcrumb from "Components/Common/Breadcrumb";
 import { TextColor } from "Components/Charts/interfaces/general";
 import { LineGraph } from "Components/Charts/LineGraph";
 import HierarchycalTable, { HierarchycalTableColumn } from "Components/Common/HierchycalTable";
-import { data } from "./sampleData";
+import _ from "lodash";
+import { updateDataWithRandomValues, data } from "./sampleData";
 const CarryBackDescrepencies = (props: any) => {
 
   const [bench, setBench] = useState<any>();
@@ -125,6 +126,7 @@ const CarryBackDescrepencies = (props: any) => {
   // );
 
   const calculateSum = (key: any) => {
+    if (key === 'equipmentName' || key === 'loadsCompleted' || key === 'trips' || key === 'materialType') return ''
     let value = tableData?.reduce((sum: any, item: any) => sum + (item[key] || 0), 0);
     return typeof value === 'string' ? "" : value
   };
@@ -152,25 +154,11 @@ const CarryBackDescrepencies = (props: any) => {
         footer: "Total"
       },
       {
-        header: "Equipment Name",
-        accessorKey: "equipmentName",
-        enableColumnFilter: false,
-        enableSorting: true,
-        footer: calculateSum('equipmentName')
-      },
-      {
         header: "Loads Completed",
         accessorKey: "loadsCompleted",
         enableColumnFilter: false,
         enableSorting: true,
         footer: calculateSum("loadsCompleted")
-      },
-      {
-        header: "Trips",
-        accessorKey: "trips",
-        enableColumnFilter: false,
-        enableSorting: true,
-        footer: calculateSum("trips")
       },
       {
         header: "Material Type",
@@ -248,7 +236,10 @@ const CarryBackDescrepencies = (props: any) => {
         Object.entries(subRow).forEach(([key, value]: any) => {
           if (key === 'id' || key === 'subRows') {
             result[key] = value;
-          } else if (!isNaN(value)) {
+          } else if (key === 'equipmentName' || key === 'loadsCompleted' || key === 'trips' || key === 'materialType') {
+            result[key] = '';
+          }
+          else if (!isNaN(value)) {
             result[key] = (result[key] || 0) + parseFloat(value);
           } else {
             result[key] = value;
@@ -261,7 +252,8 @@ const CarryBackDescrepencies = (props: any) => {
   }
 
   useEffect(() => {
-    const rowData = createHierarchicalData(data);
+    const _data = updateDataWithRandomValues(data)
+    const rowData = createHierarchicalData(_data);
     setTableData(rowData)
   }, [])
 

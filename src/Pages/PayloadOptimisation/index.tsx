@@ -11,7 +11,7 @@ const PayloadOptimsation
     document.title = "Payload Optimzation | FMS Live";
 
     const [excavator, setExcavator] = useState<DropdownType>({
-        label: "EX201 (EMU_S04_465_004)",
+        label: "EX201 (SWK_S01_420_002)",
         value: "EX201",
     });
 

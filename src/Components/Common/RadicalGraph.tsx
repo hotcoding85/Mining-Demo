@@ -12,7 +12,8 @@ const TimeLabel = styled.div<{ color?: string }>`
 `;
 
 const ChartWrapper = styled.div`
-  height: 185px;
+  height: 155px;
+  padding-bottom: 30px;
 `;
 
 interface TruckingStateProps {
@@ -22,7 +23,7 @@ interface TruckingStateProps {
 const RadicalGraph: React.FC<TruckingStateProps> = ({ truckStates }) => {
   return (
     <Card className="state-card">
-      <div className="d-flex flex-column align-items-start">
+      <div className="d-flex flex-column align-items-start" style={{marginBottom: '30px'}}>
         <div className="state-card-title"></div>
         <div className="mt-3 d-flex align-items-center justify-content-center w-100">
           {truckStates.map(({ time, state, ...item }) => (
