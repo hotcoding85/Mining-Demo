@@ -440,21 +440,24 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
 
         const clock = new THREE.Clock();
+        let loaded = false
         const updateAnimation = () => {
             const delta = clock.getDelta(); // Time since last frame
             if (mixerRef.current) {
                 mixerRef.current.update(delta); // Update the animation mixer
         
                 // Get the current time within the action's play duration
-                const currentTime = action.time % loopDuration; // Real-time playback progress
-        
+                if (action.time >= loopDuration && !loaded) {
+                    loaded = true
+                }
+                let currentTime = action.time % loopDuration; // Real-time playback progress
                 // Implement your time-based logic
                 if (currentTime >= 4 && currentTime <= 15) {
                     window.DiggerObject.dirt.visible = true;
-                    window.DiggerObject.truckDirt.visible = false;
+                    loaded && (window.DiggerObject.truckDirt.visible = false)
                 } else {
                     window.DiggerObject.dirt.visible = false;
-                    window.DiggerObject.truckDirt.visible = true;
+                    loaded && (window.DiggerObject.truckDirt.visible = true)
                 }
             }
         
