@@ -12,8 +12,7 @@ const TimeLabel = styled.div<{ color?: string }>`
 `;
 
 const ChartWrapper = styled.div`
-  height: 155px;
-  padding-bottom: 30px;
+  height: 185px;
 `;
 
 interface TruckingStateProps {
