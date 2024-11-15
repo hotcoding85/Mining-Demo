@@ -732,23 +732,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Add the Gizmo to the document
         localMapContainerRef.current && localMapContainerRef.current.appendChild(controlsGizmo.domElement);
 
-        // Load the background image using THREE.TextureLoader
-        if (isLight) {
-            if (window.map && window.map.scene) {
-                const loader = new THREE.TextureLoader();
-                loader.load(BACKGROUND_LIGHT, (texture) => {
-                    window.map.scene.background = texture;  // Set the loaded texture as the background
-                });
-            }
-        }
-        else{
-            if (window.map && window.map.scene) {
-                const loader = new THREE.TextureLoader();
-                loader.load(BACKGROUND, (texture) => {
-                    window.map.scene.background = texture;  // Set the loaded texture as the background
-                })
-            }
-        }
         var axesHelper = new THREE.AxesHelper(2000)
         // scene.add(axesHelper)
 
@@ -802,6 +785,23 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // draw the routes only one time
         let drawed = true
 
+        // Load the background image using THREE.TextureLoader
+        if (isLight) {
+            if (window.map && window.map.scene) {
+                const loader = new THREE.TextureLoader();
+                loader.load(BACKGROUND_LIGHT, (texture) => {
+                    window.map.scene.background = texture;  // Set the loaded texture as the background
+                });
+            }
+        }
+        else{
+            if (window.map && window.map.scene) {
+                const loader = new THREE.TextureLoader();
+                loader.load(BACKGROUND, (texture) => {
+                    window.map.scene.background = texture;  // Set the loaded texture as the background
+                })
+            }
+        }
         fetch3DTruck()
         diggerImport && fetch3DExcavator()
         const cubeview: any = document.getElementById('obit-controls-gizmo')

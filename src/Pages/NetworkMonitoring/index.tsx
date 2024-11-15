@@ -21,7 +21,9 @@ import * as THREE from 'three';
 import _ from 'lodash';
 import { Dropdown, DropdownType } from "Components/Common/Dropdown";
 import { AppstoreOutlined, CloseOutlined, CloudUploadOutlined, RotateLeftOutlined, RotateRightOutlined, SaveOutlined } from '@ant-design/icons';
+import * as turf from '@turf/turf';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { toast } from "react-toastify";
 const { Title, Text } = Typography;
 
 const NetworkMonitoring = (props: any) => {
@@ -31,10 +33,10 @@ const NetworkMonitoring = (props: any) => {
     const dispatch: any = useDispatch();
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const initialTrailers = [
-        { name: 'Antenna', id: 'antenna', dataRate: '10 Mbps', avatar:  ANTENNA},
-        { name: 'Trailer', id: 'solor-trailer', dataRate: '8 Mbps', avatar: SOLOR_TRAILER },
+        { name: 'Tower', id: 'antenna', dataRate: '10 Mbps', avatar:  ANTENNA},
+        // { name: 'Trailer', id: 'solor-trailer', dataRate: '8 Mbps', avatar: SOLOR_TRAILER },
         { name: 'Solar Panel', id: 'solor-unit', dataRate: '12 Mbps', avatar: SOLOR_UNIT },
-        { name: 'Survey Marker', id: 'survey-marker', dataRate: '5 Mbps', avatar: SURVEY_MARKER },
+        { name: 'GPS RTK Base Station', id: 'survey-marker', dataRate: '5 Mbps', avatar: SURVEY_MARKER },
     ];
 
     const [addStatus, setAddStatus] = useState<boolean>(true)
@@ -97,24 +99,24 @@ const NetworkMonitoring = (props: any) => {
         // Array of models to load
         const models = [
             {
-                mtl: "/network-mornitoring/antenna/antenna.mtl",
-                obj: "/network-mornitoring/antenna/antenna.obj",
-                position: new THREE.Vector3(0, 0, 280), // Adjust position for this model
+                mtl: "/network-mornitoring/antenna/Tower.mtl",
+                obj: "/network-mornitoring/antenna/Tower.obj",
+                position: new THREE.Vector3(0, 0, 200), // Adjust position for this model
                 scale: new THREE.Vector3(100, 100, 100),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation for this model
                 id: 'antenna',
                 dataRate: '10 Mbps'
             },
             // Add other models here
-            {
-                mtl: "/network-mornitoring/solor-trailer/solor-trailer.mtl",
-                obj: "/network-mornitoring/solor-trailer/solor-trailer.obj",
-                position: new THREE.Vector3(100, 0, 280), // Adjust position
-                scale: new THREE.Vector3(70, 70, 70),
-                rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
-                id: 'solor-trailer',
-                dataRate: '10 Mbps'
-            },
+            // {
+            //     mtl: "/network-mornitoring/solor-trailer/solor-trailer.mtl",
+            //     obj: "/network-mornitoring/solor-trailer/solor-trailer.obj",
+            //     position: new THREE.Vector3(100, 0, 280), // Adjust position
+            //     scale: new THREE.Vector3(70, 70, 70),
+            //     rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
+            //     id: 'solor-trailer',
+            //     dataRate: '10 Mbps'
+            // },
             {
                 mtl: "/network-mornitoring/solor-unit/solor-unit.mtl",
                 obj: "/network-mornitoring/solor-unit/solor-unit.obj",
@@ -216,7 +218,7 @@ const NetworkMonitoring = (props: any) => {
 
             // Move to the next index, cycling back to 0 after 4
             currentIndex = (currentIndex + 1) % 6;
-        }, 1000); // Change every second
+        }, 500); // Change every second
 
         // Cleanup the interval when the component unmounts
         return () => clearInterval(intervalId);
@@ -224,6 +226,29 @@ const NetworkMonitoring = (props: any) => {
 
     useEffect(() => {
         if (isLoading || !window.map) return
+
+        const savedEquipments = localStorage.getItem('equipments');
+        if (savedEquipments) {
+            const data = JSON.parse(savedEquipments)
+            const updatedEquipments = data.map((equipment: any) => {
+                // Find the model corresponding to this equipment's type
+                const matchingModel = modelsRef.current.find(
+                  (model) => model.id === equipment.type
+                );
+                console.log(matchingModel)
+                // If a matching model is found, add the model's object to the equipment
+                if (matchingModel) {
+                    const clonedObject = matchingModel.object.clone();
+                    clonedObject.visible = true
+                    return { ...equipment, object: clonedObject }; // Add 'object' to the equipment
+                }
+                
+                return equipment; // If no matching model, return the equipment as is
+            });
+              
+            setEquipments(updatedEquipments);
+        }
+
         modelsRef.current.forEach((model: any) => {
             if (model) {
                 model.object.visible = true; // Set model to visible
@@ -308,7 +333,7 @@ const NetworkMonitoring = (props: any) => {
                 selectedModelRef.current = (object.object)
                 switch(selectedId) {
                     case 'antenna':
-                        selectedOffsetRef.current = 100;
+                        selectedOffsetRef.current = 0;
                         break
                     case 'solor-trailer':
                         selectedOffsetRef.current = 50;
@@ -480,6 +505,7 @@ const NetworkMonitoring = (props: any) => {
                             offset: selectedOffsetRef.current,
                             type: currentEquipmentType.current,
                             id: id,
+                            orientation: 0
                         }
                     ]);
                 },
@@ -548,9 +574,11 @@ const NetworkMonitoring = (props: any) => {
     }
 
     const dashedCirclesRef = useRef<any[]>([])
+    const greenStatusRef = useRef<any[]>([])
+    const uplinkPathRef = useRef<any[]>([])
 
     useEffect(() => {
-        if (!window.map || isLoading) return;
+        if (!window.map || !window.map.scene || isLoading) return;
         const center = {
             tileX: window.map.center.x,
             tileY: window.map.center.y
@@ -574,6 +602,19 @@ const NetworkMonitoring = (props: any) => {
             object.material?.dispose()
             object.geometry?.dispose()
         });
+
+        greenStatusRef.current.forEach((circle: any) => {
+            window.map.scene.remove(circle);
+            circle.material?.dispose()
+            circle.geometry?.dispose()
+        });
+        greenStatusRef.current = []
+        uplinkPathRef.current.forEach((arrow: any) => {
+            window.map.scene.remove(arrow);
+            arrow.material?.dispose()
+            arrow.geometry?.dispose()
+        });
+        uplinkPathRef.current = []
         objectsRef.current = []
         _.map(equipments, eq => {
             const lat = eq.lat; // Latitude
@@ -608,6 +649,10 @@ const NetworkMonitoring = (props: any) => {
                 removeButtonSprite.visible = false
             }
             removeBtnsRef.current.push(removeButtonSprite)
+
+            if (eq.orientation !== 0) {
+                eq.object.rotation.z = eq.orientation
+            }
             // Add both model and button to the scene
             window.map.scene.add(eq.object);
             objectsRef.current.push(eq.object)
@@ -632,7 +677,7 @@ const NetworkMonitoring = (props: any) => {
                     const geometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
                 
                     const material = new THREE.LineDashedMaterial({
-                        color: '#000ecb',
+                        color: 'blue',
                         linewidth: 4, // Only works in WebGL1
                         scale: 1, // Scale of the dashes
                         dashSize: 20, // Length of the dashes
@@ -649,9 +694,141 @@ const NetworkMonitoring = (props: any) => {
 
                     dashedCirclesRef.current.push(line)
                 }
-            }            
+            }    
+            if (eq.type === 'survey-marker') {
+                let flag = false
+                equipments.map(_antenna => {
+                    if (_antenna.type === 'antenna') {
+                        const coordinates: any = []
+                        coordinates.push([_antenna.lng, _antenna.lat])
+                        coordinates.push([eq.lng, eq.lat])
+                        let distance = Math.floor(turf.length(turf.lineString(coordinates), { units: 'meters' }))
+
+                        if (Math.abs(distance) <= 180) {
+                            flag = true
+                            return
+                        }
+                    }
+                })
+
+                if (flag) {
+                    drawGreenCircle(eq, '#00ab41')
+                }
+                else{
+                    drawGreenCircle(eq, '#ff474c')
+                }
+            }        
+            if (eq.type === 'antenna') {
+                equipments.filter(_eq => _eq.id !== eq.id).map(_antenna => {
+                    if (_antenna.type === 'antenna') {
+                        drawUplinkPaths(eq, _antenna)
+                    }
+                })
+            }        
         })
     }, [equipments])
+
+    const drawUplinkPaths = (startAntenna, endAntenna, color = '#00ab41') => {
+        if (window.map && window.map.scene) {
+            const center = {
+                tileX: window.map.center.x,
+                tileY: window.map.center.y
+            }
+            let lat = startAntenna.lat; // Latitude
+            let lng = startAntenna.lng; // Longitude
+            let tilePixel = window.map.convertGeoToPixel(lat, lng, window.map.zoom);
+            let tileX = tilePixel.tileX;          // tile X coordinate of the point
+            let tileY = tilePixel.tileY;          // tile Y coordinate of the point
+            let tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+            let tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+            const startPoint = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+            let elevationValue = 0
+            elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY) * 2 + 3;
+            const start = new THREE.Vector3(startPoint.x, startPoint.y, elevationValue)
+            lat = endAntenna.lat; // Latitude
+            lng = endAntenna.lng; // Longitude
+            tilePixel = window.map.convertGeoToPixel(lat, lng, window.map.zoom);
+            tileX = tilePixel.tileX;          // tile X coordinate of the point
+            tileY = tilePixel.tileY;          // tile Y coordinate of the point
+            tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+            tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+            const endPoint = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+            elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY) * 2 + 3;
+            const end = new THREE.Vector3(endPoint.x, endPoint.y, elevationValue)
+    
+            const direction = new THREE.Vector3().subVectors(end, start).normalize();
+            const distance = start.distanceTo(end);
+
+            // Calculate 1/3 of the distance (shaft length)
+            const shaftLength = 300;
+
+            // Calculate the point 1/3 of the way from start to end
+            const shaftEnd = new THREE.Vector3().addVectors(start, direction.clone().multiplyScalar(shaftLength));
+
+            // Create the shaft (cylinder) of the arrow
+            const shaftGeometry = new THREE.CylinderGeometry(3, 3, shaftLength, 8); // Adjusted to make it thinner
+            const shaftMaterial = new THREE.MeshBasicMaterial({ color: color });
+            const shaft = new THREE.Mesh(shaftGeometry, shaftMaterial);
+
+            // Position the shaft at the midpoint of start and shaftEnd (necessary for THREE.js CylinderGeometry)
+            const shaftPosition = new THREE.Vector3().addVectors(start, shaftEnd).multiplyScalar(0.5);
+            shaft.position.set(shaftPosition.x, shaftPosition.y, shaftPosition.z);
+
+            // Make the shaft point towards the shaftEnd
+            shaft.lookAt(shaftEnd);
+            shaft.rotation.y += Math.PI / 2; // Adjust rotation if necessary
+            // Create the arrowhead (cone)
+            const headGeometry = new THREE.ConeGeometry(16, 4, 3);
+            const headMaterial = new THREE.MeshBasicMaterial({ color: color });
+            const arrowhead = new THREE.Mesh(headGeometry, headMaterial);
+    
+            // Position the arrowhead at the end of the shaft
+            arrowhead.position.set(shaftEnd.x, shaftEnd.y, shaftEnd.z);
+            arrowhead.lookAt(end); // Orient the arrowhead to face the direction of the arrow
+            // arrowhead.rotation.x = Math.PI; // Rotate the cone to align with the shaft
+            // Add the shaft and arrowhead to the scene
+            // arrowhead.rotation.y = Math.PI / 2;
+            arrowhead.rotation.z = Math.PI;
+            window.map.scene.add(shaft);
+            window.map.scene.add(arrowhead);
+            uplinkPathRef.current.push(shaft)
+            uplinkPathRef.current.push(arrowhead)
+        }
+    }
+
+    const drawGreenCircle = (eq, color) => {
+        if (window.map && window.map.scene) {
+            const center = {
+                tileX: window.map.center.x,
+                tileY: window.map.center.y
+            }
+            const lat = eq.lat; // Latitude
+            const lng = eq.lng; // Longitude
+            const tilePixel = window.map.convertGeoToPixel(lat, lng, window.map.zoom);
+            const tileX = tilePixel.tileX;          // tile X coordinate of the point
+            const tileY = tilePixel.tileY;          // tile Y coordinate of the point
+            const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+            const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+            const worldPos = window.map.calculateWorldPosition(center, tileX, tileY, tilePixelX, tilePixelY, 512);
+            let elevationValue = 0
+            elevationValue = window.map.getElevationAt([tilePixelX, tilePixelY], tileX, tileY) * 2 + 3;
+
+            // Create a green circle
+            const circleGeometry = new THREE.CircleGeometry(100, 32); // 50px radius, 32 segments
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, depthTest: true, transparent: false });
+            const circleMesh = new THREE.Mesh(circleGeometry, circleMaterial);
+
+            // Position the circle at worldPos
+            circleMesh.position.set(worldPos.x, worldPos.y, elevationValue);
+
+            // Add the circle to the scene
+            window.map.scene.add(circleMesh);
+            greenStatusRef.current.push(circleMesh)
+        }
+    }
 
     useEffect(() => {
         removeStatusRef.current = removeStatus
@@ -799,8 +976,15 @@ const NetworkMonitoring = (props: any) => {
     );
 
     const submitNetworkMornitoring = useCallback(() => {
-        console.log('publish')
-    }, [])
+        const dataToSave = equipments.map((equipment) => {
+            // Create a new object excluding the 'object' property
+            const { object, ...rest } = equipment;
+            return rest;
+        });
+    
+        localStorage.setItem('equipments', JSON.stringify(dataToSave));
+        toast.success(`Data successfully saved to the DB.`, { autoClose: 2000 });
+    }, [equipments])
 
     const reset = () => {
         if (selectedEquipment && window.map) {
@@ -835,6 +1019,7 @@ const NetworkMonitoring = (props: any) => {
                                 ...equipment,
                                 lng: longitude, // Replace with the new longitude value
                                 lat: latitude,  // Replace with the new latitude value
+                                orientation: selectedEquipment.rotation ? selectedEquipment.rotation.z : 0
                             };
                         }
                         return equipment; // Keep other equipment unchanged
@@ -885,6 +1070,19 @@ const NetworkMonitoring = (props: any) => {
                     dashedCirclesRef.current.push(line)
                 }
             }
+        }
+        if (selectedEquipment.rotation && selectedEquipment.rotation.z != 0) {
+            setEquipments((prev: any) => 
+                prev.map((equipment: any) => {
+                    if (equipment.id === originalId.current) {
+                        return {
+                            ...equipment,
+                            orientation: selectedEquipment.rotation ? selectedEquipment.rotation.z : 0
+                        };
+                    }
+                    return equipment; // Keep other equipment unchanged
+                })
+            );
         }
         setIsMoving(false); 
         setSelectedEquipment(null)
