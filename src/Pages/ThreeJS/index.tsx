@@ -11,6 +11,8 @@ import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
 import { THREEJSMap } from 'Pages/3DMap';
 import * as THREE from 'three';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
@@ -51,23 +53,23 @@ export const ThreeJS = () => {
         const waitingAnnotation ={
                 type: 'truck',
                 position: new THREE.Vector3(-1430, 640, 45),
-                text: 'DT101',
+                text: 'DT121',
                 status: 'Waiting',
-                model: 'HD785',
+                model: 'HD1500',
                 time: '00:48',
                 tonnes: '0',
                 operator: 'Bain Chloe',
-                lastTime: '24:45'
+                lastTime: '13:49'
         }
         const loadingAnnotation ={
             type: 'truck',
             position: new THREE.Vector3(-1395, 490, 50),
-            text: 'DT201',
+            text: 'DT101',
             status: 'Loading',
             time: '01:20',
             model: 'HD1500',
             tonnes: '45.6',
-            lastTime: '02:12',
+            lastTime: '15:34',
             operator: 'Arlene McCoy'
         }
         const excavatorAnnotation ={
@@ -83,6 +85,9 @@ export const ThreeJS = () => {
         }
         setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation])
         annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation]
+
+        // load large dirt
+        loadLargeDirt()
         // Clean up on component unmount
         return () => {
             map && map.clean()
@@ -111,6 +116,63 @@ export const ThreeJS = () => {
             }
         };
     }, []); // Added dependencies to reinitialize map if lat/lng changes
+
+    const largeDirtRef = useRef<any>(null)
+    const loadLargeDirt = () => {
+        const mtlLoader = new MTLLoader();
+        mtlLoader.load('/dirt/dirt-large.mtl', (materials) => {
+            materials.preload();
+            let objLoader: any
+            objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
+                '/dirt/dirt-large.obj',
+                (object) => {
+                    // Check the type of the loaded object
+                    if (object instanceof THREE.Group) {
+                        object.children.forEach(child => {
+                            if (child instanceof THREE.LineSegments) {
+                                const geometry = (child.geometry as THREE.BufferGeometry).clone();
+                                const material = materials.materials[child.name] || new THREE.MeshStandardMaterial({
+                                    color: 0xFFD700, // Gold color
+                                    metalness: 1,    // High metalness for a metallic appearance
+                                    roughness: 0.4,  // Adjust for reflectivity (lower is shinier)
+                                });
+                                const mesh = new THREE.Mesh(geometry, material);
+                                mesh.scale.copy(new THREE.Vector3(4, 4, 4));
+                                object.add(mesh); // Add the new mesh to the group
+                            } else if (child instanceof THREE.Mesh) {
+                                child.scale.copy(new THREE.Vector3(4, 4, 4));
+                                child.rotation.copy(new THREE.Euler(Math.PI / 2, Math.PI / 2, 0));
+                                // Update the material of child meshes to have gold properties
+                                child.material = new THREE.MeshStandardMaterial({
+                                    color: 0xFFD700, // Gold color
+                                    metalness: 1,
+                                    roughness: 0.4,
+                                });
+                            }
+                        });
+                    }
+                    object.traverse((child: any) => {
+                        if (child.isMesh) {
+                            child.material.color.set(0x8B4513); // Set the color to soil brown
+                            child.material.metalness = 0.3;
+                            child.material.roughness = 0.7;
+                            child.material.depthTest = true
+                            child.material.depthWrite = true
+                            child.material.transparent = false
+                        }
+                    });
+                    object.visible = true; // Initially set to invisible
+                    largeDirtRef.current = object;
+                },
+                undefined,
+                (error) => {
+                    console.error(`An error occurred while loading the OBJ file: ${error}`);
+                }
+            );
+        });
+    }
 
     useEffect(() => {
         if (!isLoading && window.map) {
@@ -175,9 +237,15 @@ export const ThreeJS = () => {
 
             animationCameraId = requestAnimationFrame(animateZoom);
 
+            if (largeDirtRef.current) {
+                largeDirtRef.current.position.set(-1370, 450, 55)
+                largeDirtRef.current.visible = true
+                window.map.scene.add(largeDirtRef.current)
+            }
             // add waiting truck
             if (window.TruckObject) {
                 const copyModel = window.TruckObject.clone();
+                copyModel.visible = true
                 if (copyModel) {
                     copyModel.position.set(-1430, 640, 45)
                     copyModel.rotation.z += Math.PI
@@ -319,8 +387,9 @@ export const ThreeJS = () => {
                                                 <>
                                                     <h4 style={{textTransform: 'uppercase'}}>{annotation.status}</h4>
                                                     <h6><div>Operator:</div><div>{annotation.operator}</div></h6>
-                                                    <h6 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}><div>Payload</div><div>{annotation.tonnes !== '0' ? annotation.tonnes + 'T' : 'Waiting'} - {annotation.time}</div></h6>
-                                                    <h6><div>{annotation.status === 'Waiting' ? 'Last Trip' : 'Time'}:</div> <div>{annotation.lastTime}</div></h6>
+                                                    {annotation.status === 'Waiting' ? <></> :<h6><div>Payload: </div><div>{annotation.tonnes}T</div></h6>}
+                                                    <h6 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}><div>{annotation.status === 'Waiting' ? 'Waiting Time:' :'Loading Time:'}</div><div>{annotation.time}</div></h6>
+                                                    <h6><div>{'Last Cycle TIme'}:</div> <div>{annotation.lastTime}</div></h6>
                                                 </> :
                                                 <>
                                                     <h6 style={{fontSize: '14px'}}>Loading</h6>
@@ -331,7 +400,7 @@ export const ThreeJS = () => {
                                             }
                                         </div>
                                         <div className="annotation-line" id={`eq-annotation-line-${index}`} />
-                                        <svg width="120" height="6" viewBox="0 0 120 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '-3px'}}>
+                                        {/* <svg width="120" height="6" viewBox="0 0 120 6" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '-3px'}}>
                                             <path fill-rule="evenodd" clip-rule="evenodd" d="M18.64 0.0267208L20.2514 1.69232L42.0494 1.68044L43.4244 0.0237518H76.2596L77.6407 1.68044L99.4326 1.68935L101.044 0.0237518L117.474 0L119.26 1.89124L116.516 5.79842H89.3746L88.4108 4.61973H31.2731L30.3094 5.79842H3.16776L0.423828 1.89124L2.21015 0L18.64 0.0237518V0.0267208Z" fill="#535E77"/>
                                         </svg>
                                         <svg width="21" height="104" viewBox="0 0 21 104" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '0px', right: '0px'}}>
@@ -342,7 +411,7 @@ export const ThreeJS = () => {
                                         </svg>
                                         <svg width="21" height="104" viewBox="0 0 21 104" fill="none" xmlns="http://www.w3.org/2000/svg" style={{position: 'absolute', top: '0px', left: '0px'}}>
                                             <path d="M2.52427 37.0634L3.62 38.5717L3.64455 38.6043V38.6459C3.64762 43.5596 3.65069 47.9418 3.65069 51.7925C3.65069 55.6433 3.65069 60.0255 3.64762 64.9392V64.9808L3.62307 65.0134L2.52733 66.5217L2.50585 84.0861L3.60772 84.8165L3.66297 84.8551V84.9264L3.67525 94.1391L10.489 100.564H20.2739H20.5164L20.3721 100.769L18.6963 103.138L18.6595 103.192H6.49284L6.44373 103.189L6.40997 103.156L0.280623 97.4436L0.240723 97.405V6.18008L0.280623 6.14148L6.40997 0.435103L6.44373 0.402444H6.49284L18.595 0.399475H18.6595L18.6963 0.452917L20.3721 2.82216L20.5164 3.02702H10.486L3.67218 9.4519L3.6599 18.6646V18.7359L3.60158 18.7745L2.49971 19.5049L2.5212 37.0694L2.52427 37.0634Z" fill="#535E77"/>
-                                        </svg>
+                                        </svg> */}
 
 
 

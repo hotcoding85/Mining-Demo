@@ -88,9 +88,9 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     min-width: 150px;
     min-height: 100px;
     align-items: center;
-    height: 103px;
     padding: 5px 10px;
     border-radius: 10px;
+    z-index: 99999;
 }
 
 .annotation-line {
