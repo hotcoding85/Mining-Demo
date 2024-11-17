@@ -40,6 +40,7 @@ declare global {
         renderer: any;
         TruckObject: any;
         DiggerObject: any;
+        DrillObject: any;
         savedCameraPosition: any;
         savedCameraQuaternion: any;
         isAnimation: any;
@@ -81,12 +82,13 @@ interface THREEJSMapProps {
     isAnimation?: boolean;
     isAutoRouting?: boolean;
     diggerImport?: boolean;
+    drillImport?: boolean;
     isPitView?: boolean;
     diggerInitPoint?: any;
     truckInitPoint?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null }, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false }, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -126,7 +128,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
     const [progress, setProgress] = useState(0); // Progress state
     const animationFrameId = useRef<number | null>(null);
     let map: any;
-    const wheels = useRef<any>([])
+    const dirts = useRef<any>([])
     useEffect(() => {
         dispatch(getAllVehicleRoutes())
         dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
@@ -441,6 +443,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
         const clock = new THREE.Clock();
         let loaded = false
+        let elapsed = 0
+        let count = 0
         const updateAnimation = () => {
             const delta = clock.getDelta(); // Time since last frame
             if (mixerRef.current) {
@@ -454,10 +458,35 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 // Implement your time-based logic
                 if (currentTime >= 4 && currentTime <= 15) {
                     window.DiggerObject.dirt.visible = true;
-                    loaded && (window.DiggerObject.truckDirt.visible = false)
+                    // loaded && (window.DiggerObject.truckDirt.visible = false)
                 } else {
                     window.DiggerObject.dirt.visible = false;
-                    loaded && (window.DiggerObject.truckDirt.visible = true)
+                    // loaded && (window.DiggerObject.truckDirt.visible = true)
+                }
+                if (currentTime > 15 && loaded) {
+                    count = (count % 4) + 1; // Cycle count between 1 and 5
+                    loaded = false; // Reset loaded to ensure this logic only runs once per cycle
+                } else if (currentTime <= 15) {
+                    loaded = true; // Allow count to increment only when we go past 15
+                }
+
+                
+                if (dirts.current.length > 0) {
+                    if (count === 4 && (currentTime > 8 && currentTime < 15)) {
+                        dirts.current.map((dirt, index) => {
+                            dirt.visible = false
+                        })
+                    }
+                    else{
+                        dirts.current.map((dirt, index) => {
+                            if (count >= index + 1) {
+                                dirt.visible = true
+                            }
+                            else{
+                                dirt.visible = false
+                            }
+                        })
+                    }
                 }
             }
         
@@ -542,13 +571,35 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         dirt.visible = true
                     }
                     truckDirt = child.clone()
-                    // truckDirt && (truckDirt.visible = false)
                     if (truckDirt) {
                         truckDirt.position.copy(new THREE.Vector3(-1386, 473, 47))
                         truckDirt.rotation.copy(new THREE.Euler(Math.PI * 2, Math.PI, Math.PI))
                         truckDirt.scale.copy(new THREE.Vector3(5, 5, 5))
                         window.map.scene.add(truckDirt)
                     }
+                    let truckDirt1 = child.clone()
+                    if (truckDirt1) {
+                        truckDirt1.visible = true
+                        truckDirt1.position.copy(new THREE.Vector3(-1394, 475, 56))
+                        truckDirt1.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
+                        truckDirt1.scale.copy(new THREE.Vector3(3, 3, 3))
+                        window.map.scene.add(truckDirt1)
+                    }
+                    let truckDirt2 = child.clone()
+                    if (truckDirt2) {
+                        truckDirt2.position.copy(new THREE.Vector3(-1380, 492, 54))
+                        truckDirt2.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI / 2))
+                        truckDirt2.scale.copy(new THREE.Vector3(4, 4, 4))
+                        window.map.scene.add(truckDirt2)
+                    }
+                    let truckDirt3 = child.clone()
+                    if (truckDirt3) {
+                        truckDirt3.position.copy(new THREE.Vector3(-1394, 472, 58))
+                        truckDirt3.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
+                        truckDirt3.scale.copy(new THREE.Vector3(3, 3, 3))
+                        window.map.scene.add(truckDirt3)
+                    }
+                    dirts.current = [truckDirt, truckDirt1, truckDirt2, truckDirt3]
                 }
                 else if (child.name == 'Cylinder020') {
                     body = child
