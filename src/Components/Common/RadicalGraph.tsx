@@ -33,7 +33,7 @@ const RadicalGraph: React.FC<TruckingStateProps> = ({ truckStates }) => {
               <ChartWrapper>
                 <ProgressPieChart width={300} {...item} />
               </ChartWrapper>
-              <div className="state-label">{state}</div>
+              <div className="state-label" style={{marginTop: '40px'}}>{state}</div>
               <TimeLabel>{time}</TimeLabel>
             </div>
           ))}
