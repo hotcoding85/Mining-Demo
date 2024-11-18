@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardBody, Col, Container, FormGroup, Label, Row } from 'reactstrap';
+import { Card, CardBody, Col, Container, FormGroup, Label, ModalBody, ModalFooter, ModalHeader, Row } from 'reactstrap';
 import Breadcrumb from 'Components/Common/Breadcrumb';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Input, Layout, List, Modal, Typography } from 'antd';
+import { Button, Input, Layout, List, Modal, Select, Typography } from 'antd';
 import { THREEJSMap } from 'Pages/3DMap';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -25,7 +25,7 @@ import * as turf from '@turf/turf';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { toast } from "react-toastify";
 const { Title, Text } = Typography;
-
+const { Option } = Select;
 const NetworkMonitoring = (props: any) => {
     document.title = "Network Monitoring | FMS Live";
 
@@ -39,11 +39,11 @@ const NetworkMonitoring = (props: any) => {
         { name: 'GPS RTK Base Station', id: 'survey-marker', dataRate: '5 Mbps', avatar: SURVEY_MARKER },
     ];
 
-    const [addStatus, setAddStatus] = useState<boolean>(true)
+    const [addStatus, setAddStatus] = useState<boolean>(false)
     const [removeStatus, setRemoveStatus] = useState<boolean>(false)
-    const addStatusRef = useRef(true)
-    const removeStatusRef = useRef(true)
-
+    const addStatusRef = useRef(false)
+    const removeStatusRef = useRef(false)
+    const [newTitle, setNewTitle] = useState<string>("")
     const [angle, setAngle] = useState(0);
 
     const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +53,12 @@ const NetworkMonitoring = (props: any) => {
     const [equipment, setEquipment] = useState<DropdownType>({
         label: "",
     });
+
+    const [selectedUplinkAntennas, setSelectedUplinkAntennas] = useState([]);
+
+    const handleChange = (value) => {
+        setSelectedUplinkAntennas(value);
+    };
 
     const _equipments = useMemo(() => {
         const results: any = []
@@ -71,9 +77,13 @@ const NetworkMonitoring = (props: any) => {
     const tooltipRef = useRef<HTMLDivElement | null>(null);
 
     const [trailers, setTrailers] = useState(initialTrailers);
-
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+    const isModalOpenRef = useRef<boolean>(false)
     const [selectedId, setSelectedId] = useState(null);
-
+    useEffect(() => {
+        isModalOpenRef.current = isModalOpen
+        console.log(isModalOpenRef.current)
+    }, [isModalOpen])
     useEffect(() => {
         if (equipment.value) {
             handleSelect(equipment.value)
@@ -388,6 +398,8 @@ const NetworkMonitoring = (props: any) => {
     useEffect(() => {
         isMovingRef.current = isMoving
     }, [isMoving])
+
+    const newCoord = useRef<any>(null)
     const onDocumentMouseClick = useCallback((event) => {
         if (mapContainer.current && window.map && removeStatusRef.current) {
             const intersects = raycaster.intersectObjects(removeBtnsRef.current, true);
@@ -435,6 +447,25 @@ const NetworkMonitoring = (props: any) => {
                 }
                 return;
             }
+
+            if (addStatusRef.current && !isModalOpenRef.current) {
+                const intersects = raycaster.intersectObjects(window.map.scene.children, true);
+
+                // Cast a ray from the camera to the clicked position
+                if (intersects.length > 0) {
+                    let realWorldPosition = intersects[intersects.length - 1].point;
+                    const tileData = window.map.convertXYToPixel(realWorldPosition.x, realWorldPosition.y)
+                    const coord = window.map.convertTileToGeo(tileData.tileX, tileData.tileY, tileData.tilePixelX, tileData.tilePixelY)
+                    newCoord.current = coord
+
+                    setNewTitle('')
+                    setSelectedUplinkAntennas([])
+                    setSelectedId(null)
+                    setEquipment({label: ''})
+                    setIsModalOpen(true)
+                }
+                return
+            }
             objectsRef.current.forEach(group => {
                 group.traverse(child => {
                     child.userData = { ...group.userData };
@@ -461,9 +492,11 @@ const NetworkMonitoring = (props: any) => {
                     originalPos.current = firstIntersect.object.parent?.position.clone()
                     originalOffset.current = equipment.offset
                     originalType.current = equipment.type
+                    setSelectedEquipment(object)
+                    setSelectedUplinkAntennas(equipment.uplinkpaths && equipment.uplinkpaths.length !== 0 ? equipment.uplinkpaths : [])
                     setAngle(Math.floor(degrees))
                     setIsMoving(false)
-                    setSelectedEquipment(object)
+                    setNewTitle(equipment.name ? equipment.name : '')
                 }
                 else{
                     document.body.style.cursor = 'auto'; // Default cursor style
@@ -500,34 +533,7 @@ const NetworkMonitoring = (props: any) => {
             let realWorldPosition = intersects[intersects.length - 1].point;
             const tileData = window.map.convertXYToPixel(realWorldPosition.x, realWorldPosition.y)
             const coord = window.map.convertTileToGeo(tileData.tileX, tileData.tileY, tileData.tilePixelX, tileData.tilePixelY)
-            Modal.confirm({
-                title: "Are you sure you want to add this equipment?",
-                content: "GPS Coordinates is : [" + coord.longitude + ', ' + coord.latitude + ']',
-                okText: "Add",
-                okType: "primary",
-                cancelText: "Cancel",
-                onOk() {
-                    const copyModel = selectedModelRef.current.clone();
 
-                    // Optionally, set a new position, rotation, or scale for the copied model
-                    copyModel.position.set(0, 0, 0); // Example position
-                    copyModel.scale.set(1, 1, 1); // Example scale
-                    const id = Date.now()
-                    copyModel.userData = {id: id, type: currentEquipmentType.current, equipment: true}
-                    setEquipments((prev: any) => [
-                        ...prev,
-                        {
-                            lng: coord.longitude,
-                            lat: coord.latitude,
-                            object: copyModel,
-                            offset: selectedOffsetRef.current,
-                            type: currentEquipmentType.current,
-                            id: id,
-                            orientation: 0
-                        }
-                    ]);
-                },
-            });
         }
     }, [])
 
@@ -737,12 +743,15 @@ const NetworkMonitoring = (props: any) => {
                 }
             }        
             if (eq.type === 'antenna') {
-                equipments.filter(_eq => _eq.id !== eq.id).map(_antenna => {
-                    if (_antenna.type === 'antenna') {
-                        drawUplinkPaths(eq, _antenna)
-                    }
-                })
-            }        
+                equipments
+                    .filter(_eq => _eq.id !== eq.id) // Filter out the current `eq`
+                    .map(_antenna => {
+                        // Check if the current `_antenna` ID is present in `eq.uplinkpaths`
+                        if (_antenna.type === 'antenna' && eq.uplinkpaths.includes(_antenna.id)) {
+                            drawUplinkPaths(eq, _antenna);
+                        }
+                    });
+            }     
         })
     }, [equipments])
 
@@ -889,16 +898,16 @@ const NetworkMonitoring = (props: any) => {
                         let name = ''
                         switch (eq.type) {
                             case 'antenna':
-                                name = "Antenna";
+                                name = "Tower";
                                 break;
                             case 'solor-trailer':
                                 name = "Solar Trailer";
                                 break    
                             case 'solor-unit':
-                                name = "Solar Unit";
+                                name = "Solar Panel";
                                 break
                             case 'survey-marker':
-                                name = "Survey Marker";
+                                name = "GPS RTK Base Station";
                                 break
                         }
                         let html = `
@@ -912,7 +921,7 @@ const NetworkMonitoring = (props: any) => {
                                 </tr>
                                 <tr>
                                     <td style="padding: 4px;">Name</td>
-                                    <td style="padding: 4px;">${name || 'N/A'}</td>
+                                    <td style="padding: 4px;">${eq.name || 'N/A'}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 4px;">Type</td>
@@ -994,6 +1003,7 @@ const NetworkMonitoring = (props: any) => {
     );
 
     const submitNetworkMornitoring = useCallback(() => {
+        if (equipments.length === 0) return
         const dataToSave = equipments.map((equipment) => {
             // Create a new object excluding the 'object' property
             const { object, ...rest } = equipment;
@@ -1023,26 +1033,38 @@ const NetworkMonitoring = (props: any) => {
         originalType.current = null
     }
 
-    const save = () => {
-        if (selectedEquipment && window.map && newPos.current) {
+    const save = useCallback(() => {
+        if (newTitle.trim() === '') {
+            toast.warning("Please input the Equipment's name.")
+            return
+        }
+        let _equipments: any = []
+        _equipments = equipments.map((equipment: any) => {
+            if (equipment.id === originalId.current) {
+                return {
+                    ...equipment,
+                    name: newTitle,
+                };
+            }
+            return equipment; // Keep other equipment unchanged
+        })
+        if (selectedEquipmentRef.current && window.map && newPos.current) {
             let {tileX, tileY, tilePixelX, tilePixelY} = window.map.convertXYToPixel(newPos.current.x, newPos.current.y);
             let {latitude, longitude} = window.map.convertTileToGeo(tileX, tileY, tilePixelX, tilePixelY);
             if (newPos.current) {
-                selectedEquipment.position.copy(newPos.current)
+                selectedEquipmentRef.current.position.copy(newPos.current)
 
-                setEquipments((prev: any) => 
-                    prev.map((equipment: any) => {
-                        if (equipment.id === originalId.current) {
-                            return {
-                                ...equipment,
-                                lng: longitude, // Replace with the new longitude value
-                                lat: latitude,  // Replace with the new latitude value
-                                orientation: selectedEquipment.rotation ? selectedEquipment.rotation.z : 0
-                            };
-                        }
-                        return equipment; // Keep other equipment unchanged
-                    })
-                );
+                _equipments = _equipments.map((equipment: any) => {
+                    if (equipment.id === originalId.current) {
+                        return {
+                            ...equipment,
+                            lng: longitude, // Replace with the new longitude value
+                            lat: latitude,  // Replace with the new latitude value
+                            orientation: selectedEquipmentRef.current.rotation ? selectedEquipmentRef.current.rotation.z : 0
+                        };
+                    }
+                    return equipment; // Keep other equipment unchanged
+                })
             }
 
             if (originalType.current === 'antenna') {
@@ -1089,81 +1111,124 @@ const NetworkMonitoring = (props: any) => {
                 }
             }
         }
-        if (selectedEquipment.rotation && selectedEquipment.rotation.z != 0) {
-            setEquipments((prev: any) => 
-                prev.map((equipment: any) => {
-                    if (equipment.id === originalId.current) {
-                        return {
-                            ...equipment,
-                            orientation: selectedEquipment.rotation ? selectedEquipment.rotation.z : 0
-                        };
-                    }
-                    return equipment; // Keep other equipment unchanged
-                })
-            );
+        if (selectedEquipmentRef.current && selectedEquipmentRef.current.rotation && selectedEquipmentRef.current.rotation.z != 0) {
+            _equipments = _equipments.map((equipment: any) => {
+                if (equipment.id === originalId.current) {
+                    return {
+                        ...equipment,
+                        orientation: selectedEquipmentRef.current.rotation ? selectedEquipmentRef.current.rotation.z : 0
+                    };
+                }
+                return equipment; // Keep other equipment unchanged
+            })
         }
+        if (originalType.current === 'antenna') {
+            _equipments = _equipments.map((equipment: any) => {
+                if (equipment.id === originalId.current) {
+                    return {
+                        ...equipment,
+                        uplinkpaths: selectedUplinkAntennas
+                    };
+                }
+                return equipment; // Keep other equipment unchanged
+            })
+        }
+        setEquipments(_equipments)
+
         setIsMoving(false); 
         setSelectedEquipment(null)
         originalZ.current = null
         originalOffset.current = null
         originalPos.current = null
         originalType.current = null
-    }
+    }, [newTitle, equipments, selectedUplinkAntennas])
 
+    const content: any = {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+    const handleCancel = () => {
+        setIsModalOpen(false)
+        setAddStatus(false)
+    }
+    const handleSave = useCallback(() => {
+        if (!newCoord.current) return
+        if (newTitle.trim() === null || newTitle.trim() === '') {
+            toast.warning("Please input the Equipment's name.");
+            return;
+        }
+        if (!selectedModelRef.current) {
+            toast.warning("Please choose the Equipment.");
+            return;
+        }
+        const copyModel = selectedModelRef.current.clone();
+
+        // Optionally, set a new position, rotation, or scale for the copied model
+        copyModel.position.set(0, 0, 0); // Example position
+        copyModel.scale.set(1, 1, 1); // Example scale
+        const id = Date.now()
+        copyModel.userData = {id: id, type: currentEquipmentType.current, equipment: true}
+        setEquipments((prev: any) => [
+            ...prev,
+            {
+                lng: newCoord.current.longitude,
+                lat: newCoord.current.latitude,
+                object: copyModel,
+                offset: selectedOffsetRef.current,
+                type: currentEquipmentType.current,
+                id: id,
+                name: newTitle,
+                orientation: 0,
+                uplinkpaths: selectedUplinkAntennas
+            }
+        ]);
+
+        setIsModalOpen(false)
+        setAddStatus(false)
+    }, [newTitle, selectedUplinkAntennas])
+
+    const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        setNewTitle(event.target.value);
+    }, [newTitle])
+
+    const handleEdit = useCallback((id) => {
+
+    }, [])
+
+    const handleRemove = useCallback((id) => {
+        const equipment = equipmentsRef.current.find(eq => eq.id === id);
+        if (equipment) {
+            Modal.confirm({
+                title: "Are you sure you want to remove this equipment?",
+                content: "GPS Coordinates is : [" + equipment.lng + ', ' + equipment.lat + ']',
+                okText: "Remove",
+                okType: "danger",
+                cancelText: "Cancel",
+                onOk() {
+                    // Remove the equipment from `equipments` state
+                    setEquipments((prevEquipments: any) => 
+                        prevEquipments.filter((eq: any) => eq.id !== equipment.id)
+                    );
+
+                    // Optionally, remove the equipment and its remove button from the scene
+                    window.map.scene.remove(equipment.object);
+                },
+            });
+        }
+    }, [])
     return (
         <React.Fragment>
         <div className="page-content" style={{paddingBottom: '1rem'}}>
             <Container fluid>
             <Breadcrumb title="Home" breadcrumbItem="Network Monitoring" />
-            <Row>
-                <Col md={12} sm={12} xs={12} className='network-monitoring-topmenu'>
-                    <div className="network-monitoring-model-filter"> 
-                        <Dropdown
-                            label="Choose Model"
-                            items={_equipments}
-                            value={equipment}
-                            onChange={setEquipment}
-                        />
-                    </div>
-                    <FormGroup className='d-flex network-mornitoring-checkbox' style={{ marginLeft: '1rem' }}>
-                        <Input
-                            id="addEquipment"
-                            name="addEquipment"
-                            type="checkbox"
-                            checked={addStatus} // Bind the state to the checkbox
-                            onChange={(e) => {setAddStatus(e.target.checked)}} // Update state on change
-                        />
-                        <Label
-                            style={{ marginLeft: '0.5rem' }}
-                            check
-                            for="addEquipment"
-                        >
-                            Add
-                        </Label>
-                    </FormGroup>
-                    <FormGroup className='d-flex network-mornitoring-checkbox' style={{marginLeft: '1rem'}}>
-                        <Input
-                            id="removeEquipment"
-                            name="removeEquipment"
-                            type="checkbox"
-                            checked={removeStatus} // Bind the state to the checkbox
-                            onChange={(e) => setRemoveStatus(e.target.checked)} // Update state on change
-                        />
-                        <Label
-                            check
-                            style={{marginLeft: '0.5rem'}}
-                            for="removeEquipment"
-                        >
-                        Remove
-                        </Label>
-                    </FormGroup>
-                    <Button icon={<CloudUploadOutlined />} onClick={submitNetworkMornitoring} style={{marginLeft: '5px'}} >Save</Button>
-                </Col>
-            </Row>
             <Row style={{paddingTop: '0.5rem'}}>
                 <DndProvider backend={HTML5Backend}>
-                    <Col md={12} sm={12} xs={12}>
-                        <THREEJSMap ref={mapContainer} height='calc(100vh - 200px)' defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseMove={onDocumentMouseMove} isPitView={true}>
+                    <Col md={9} sm={6} xs={12}>
+                        <THREEJSMap ref={mapContainer} height='calc(100vh - 180px)' defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} onDocumentMouseClick={onDocumentMouseClick} onDocumentMouseMove={onDocumentMouseMove} isPitView={true}>
                             {hovered && (
                                 <div
                                     ref={tooltipRef}
@@ -1182,6 +1247,20 @@ const NetworkMonitoring = (props: any) => {
                             )}
                             <FormGroup className='orientation-slider' style={{display: selectedEquipment ? 'block' : 'none'}}>
                                 <div>Updating...</div>
+                                <Row style={{justifyContent: 'center', alignItems: 'center', marginTop: '0.2rem'}}>
+                                    <Col md={5}>
+                                        <div>Name</div>
+                                    </Col>
+                                    <Col md={7}>
+                                        <Input
+                                            type="text"
+                                            value={newTitle}
+                                            placeholder="Equipment Name"
+                                            onChange={handleInputChange}
+                                            style={{ width: '100%', padding: '5px', marginBottom: '5px' }}
+                                        />
+                                    </Col>
+                                </Row>
                                 <Label for="angleSlider" style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span>0°</span>
                                     <span>{angle}°</span>
@@ -1195,6 +1274,22 @@ const NetworkMonitoring = (props: any) => {
                                     value={angle}
                                     onChange={handleSliderChange}
                                 />
+                                <Row>
+                                    <Col md={12}>
+                                        {equipments.find(eq => eq.id === originalId.current) && equipments.find(eq => eq.id === originalId.current).type === 'antenna' && <Select
+                                                    mode="multiple"
+                                                    placeholder="Select Uplink Antennas"
+                                                    value={selectedUplinkAntennas}
+                                                    onChange={handleChange}
+                                                    style={{ width: '100%' }}
+                                                >
+                                                    {equipments.filter(eq => eq.type === 'antenna' && eq.id !== originalId.current).map(eq => {
+                                                        return <Option value={eq.id}>{eq.name}</Option>
+                                                    })}
+                                                </Select>
+                                        }
+                                    </Col>
+                                </Row>
                                 <div className='d-flex' style={{alignItems: 'center', marginTop: '0.5rem'}}>
                                     <FormGroup className='d-flex network-mornitoring-move-checkbox' style={{marginLeft: '1rem'}}>
                                         <Input
@@ -1218,11 +1313,16 @@ const NetworkMonitoring = (props: any) => {
                             </FormGroup>
                         </THREEJSMap>
                     </Col>
-                    {/* <Col md={3} sm={4} xs={12}>
-                        <Card className='p-4' style={{height:'calc(100vh - 170px)', marginBottom: '0px'}}>
-                            <Title style={{color: isLight ? 'rgba(0, 0, 0, 0.88)' : 'white'}} level={4}>Trailers and Equipments</Title>
+                    <Col md={3} sm={6} xs={12}>
+                        <Card className='p-4' style={{height:'calc(100vh - 180px)', marginBottom: '0px'}}>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', fontSize: '20px'}}>
+                                <Title style={{color: isLight ? 'rgba(0, 0, 0, 0.88)' : 'white'}} level={4}>Equipments</Title>
+                                <Button onClick={() => {setAddStatus(!addStatus)}}>
+                                    {addStatus ? <i className='fas fa-ellipsis-h'></i> : <i className='fas fa-plus'></i>}
+                                </Button>
+                            </div>
                             <List
-                            dataSource={trailers}
+                            dataSource={equipments}
                             renderItem={(trailer, index) => (
                                 <TrailerItem
                                     key={trailer.id}
@@ -1230,17 +1330,83 @@ const NetworkMonitoring = (props: any) => {
                                     index={index}
                                     isLight={isLight}
                                     isSelected={selectedId === trailer.id}
-                                    onSelect={() => handleSelect(trailer.id)}
-                                    />
+                                    onSelect={() => handleSelect(trailer.id)} 
+                                    handleEdit={handleEdit} 
+                                    handleRemove={handleRemove}                                    />
                             )}
                             />
+                            <div style={{ position: 'absolute', height: '50px', bottom: '-3px', width: '100%', marginLeft: '-24px' }}>
+                                <Button style={{ width: '100%', bottom: '5px', right: '0px', position: 'absolute' }} icon={<CloudUploadOutlined />} onClick={submitNetworkMornitoring}>Save
+                                </Button>
+                            </div>
                         </Card>
-                    </Col> */}
+                    </Col>
                 </DndProvider>
             </Row>
             </Container>
         </div>
-
+        <Modal
+            open={isModalOpen}
+            onClose={handleCancel}
+            onOk={handleSave}
+            style={{
+                content: content
+            }}
+            footer={[
+                <Button key="cancel" onClick={handleCancel}>
+                    Cancel
+                </Button>,
+                <Button key="save" type="primary" onClick={handleSave}>
+                    Save
+                </Button>
+            ]}
+        >
+            <Row>
+                <Col md={12}>
+                    <div style={{fontSize: '24px'}}>Add Equipment</div>
+                </Col>
+            </Row>
+            <div>
+                <Row style={{justifyContent: 'center', alignItems: 'center', marginTop: '1rem'}}>
+                    <Col md={5}>
+                        <div>Equipment Name</div>
+                    </Col>
+                    <Col md={7}>
+                        <Input
+                            type="text"
+                            value={newTitle}
+                            placeholder="Equipment Name"
+                            onChange={handleInputChange}
+                            style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <div id="network-monitoring-model-filter" style={{ width: '100%', marginTop: '10px' }}>
+                        <Dropdown
+                            label="Choose Model"
+                            items={_equipments}
+                            value={equipment}
+                            onChange={setEquipment}
+                        />
+                    </div>
+                </Row>
+                <Row>
+                    {selectedId === 'antenna' && <Select
+                                                    mode="multiple"
+                                                    placeholder="Select Uplink Antennas"
+                                                    value={selectedUplinkAntennas}
+                                                    onChange={handleChange}
+                                                    style={{ width: '100%' }}
+                                                >
+                                                    {equipments.filter(eq => eq.type === 'antenna').map(eq => {
+                                                        return <Option value={eq.id}>{eq.name}</Option>
+                                                    })}
+                                                </Select>
+                    }
+                </Row>
+            </div>
+        </Modal>
         
         </React.Fragment >
     );

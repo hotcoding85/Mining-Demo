@@ -24,18 +24,33 @@ body[data-layout-mode="light"]{
     }
 }
 
-.network-monitoring-model-filter{
+#network-monitoring-model-filter{
     & .language-switch{
-        min-width: 300px;
+        width: 100%;
         float: right;
-        & button {
-            min-width: 300px;
-        }
+        margin-bottom: 20px;
         & .dropdown-btn{
-            height: 32px;
-            padding: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.65) !important;
+            color: rgba(0, 0, 0, 0.88) !important;
+            background: #fff !important;
+            width: 100%;
             & div{
                 margin-top: -3px;
+            }
+        }
+
+        & .dropdown-menu{
+            color: rgba(0, 0, 0, 1) !important;
+            background: #fff !important;
+            border: 1px solid white;
+
+            & .dropdown-itemactive{
+                color: rgba(0, 0, 0, 1) !important;
+                background: #b4b4b4 !important;
+            }
+            & .dropdown-item:hover{
+                color: rgba(0, 0, 0, 1) !important;
+                background: #85858528 !important;
             }
         }
     }
@@ -139,6 +154,5 @@ body[data-layout-mode="light"]{
         margin-left: 0;
     }
 }
-
 
   
