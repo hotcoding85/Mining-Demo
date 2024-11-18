@@ -101,7 +101,8 @@ const NetworkMonitoring = (props: any) => {
             {
                 mtl: "/network-mornitoring/antenna/Tower.mtl",
                 obj: "/network-mornitoring/antenna/Tower.obj",
-                position: new THREE.Vector3(0, 0, 200), // Adjust position for this model
+                texture: "/network-mornitoring/antenna/Communications_Array__1115122845.png",
+                position: new THREE.Vector3(0, 0, 280), // Adjust position for this model
                 scale: new THREE.Vector3(100, 100, 100),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation for this model
                 id: 'antenna',
@@ -120,7 +121,8 @@ const NetworkMonitoring = (props: any) => {
             {
                 mtl: "/network-mornitoring/solor-unit/solor-unit.mtl",
                 obj: "/network-mornitoring/solor-unit/solor-unit.obj",
-                position: new THREE.Vector3(-100, 100, 210), // Adjust position
+                texture: "/network-mornitoring/solor-unit/Solar_Trailer_in_the__1115144448.png",
+                position: new THREE.Vector3(-100, 100, 220), // Adjust position
                 scale: new THREE.Vector3(80, 80, 80),
                 rotation: new THREE.Euler(Math.PI / 2, Math.PI / 2, 0), // Adjust rotation
                 id: 'solor-unit',
@@ -145,6 +147,11 @@ const NetworkMonitoring = (props: any) => {
                         const mtlLoader = new MTLLoader();
                         mtlLoader.load(model.mtl, (materials) => {
                             materials.preload();
+                            let texture: any = null
+                            if (model.texture) {
+                                const textureLoader = new THREE.TextureLoader();
+                                texture = textureLoader.load(model.texture);
+                            }
                             let objLoader: any
                             objLoader = new OBJLoader();
                             objLoader.setMaterials(materials);
@@ -172,6 +179,16 @@ const NetworkMonitoring = (props: any) => {
                                     object.traverse((child: any) => {
                                         if (child.isMesh) {
                                             child.material.transparent = false;
+                                            if (texture) {
+                                                (child.material.map = texture) // Apply the texture
+                                                const pbrMaterial = new THREE.MeshStandardMaterial({
+                                                    map: child.material.map, // Use the same texture map
+                                                    metalness: 0.3,          // Adjust for the material's reflectiveness
+                                                    roughness: 0.7           // Adjust for surface roughness
+                                                });
+                                                child.material = pbrMaterial;
+                                                child.material.needsUpdate = true; // Ensure material updates
+                                            }
                                         }
                                     });
                                     object.visible = false; // Initially set to invisible
@@ -313,6 +330,7 @@ const NetworkMonitoring = (props: any) => {
             if (progress < 1) {
                 animationCameraId = requestAnimationFrame(animateZoom);
             } else {
+                animationCameraId && cancelAnimationFrame(animationCameraId)
             }
         };
 
@@ -333,13 +351,13 @@ const NetworkMonitoring = (props: any) => {
                 selectedModelRef.current = (object.object)
                 switch(selectedId) {
                     case 'antenna':
-                        selectedOffsetRef.current = 0;
+                        selectedOffsetRef.current = 90;
                         break
                     case 'solor-trailer':
                         selectedOffsetRef.current = 50;
                         break
                     case 'solor-unit':
-                        selectedOffsetRef.current = 30;
+                        selectedOffsetRef.current = 40;
                         break
                     case 'survey-marker':
                         selectedOffsetRef.current = 70;
