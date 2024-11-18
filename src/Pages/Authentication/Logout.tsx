@@ -14,6 +14,7 @@ const Logout = () => {
 
   useEffect(() => {
     dispatch(logoutUser());
+    localStorage.getItem('equipments') && localStorage.removeItem('equipments');
   }, [dispatch]);
 
   if (isUserLogout) {
