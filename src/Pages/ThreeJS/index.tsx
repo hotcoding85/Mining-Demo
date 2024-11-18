@@ -83,17 +83,24 @@ export const ThreeJS = () => {
             passes: '6',
             totalTime: '16:24:45'
         }
-        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation])
-        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation]
+        const drillAnnotation ={
+            type: 'drill',
+            position: new THREE.Vector3(-1630, 1330, 40),
+            text: 'DR001',
+            status: 'Loading',
+            time: '01:20',
+            counts: '6',
+            operator: 'James Riden',
+            totalTime: '16:24:45'
+        }
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation]
 
         // load large dirt
-        loadLargeDirt()
+        // loadLargeDirt()
         // Clean up on component unmount
         return () => {
             map && map.clean()
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
     
             // Dispose Three.js objects
             if (geojsonData.current) {
@@ -186,9 +193,9 @@ export const ThreeJS = () => {
             window.controls && (window.controls.enabled = false)
 
             const sph = new THREE.Spherical();
-            sph.radius = 150; // Distance from the point (increase if needed)
+            sph.radius = 110; // Distance from the point (increase if needed)
             sph.theta = 1.2; // Set theta to 1.21 radians
-            sph.phi = -2; // Adjust phi as needed, usually between 0 and Math.PI
+            sph.phi = -2.06; // Adjust phi as needed, usually between 0 and Math.PI
 
             // Calculate the offset position from spherical coordinates
             const sphericalOffset = new THREE.Vector3();
@@ -242,11 +249,14 @@ export const ThreeJS = () => {
                 largeDirtRef.current.visible = true
                 window.map.scene.add(largeDirtRef.current)
             }
+            if (window.DrillObject) {
+                window.map.scene.add(window.DrillObject);
+            }
             // add waiting truck
             if (window.TruckObject) {
                 const copyModel = window.TruckObject.clone();
-                copyModel.visible = true
                 if (copyModel) {
+                    copyModel.visible = true
                     copyModel.position.set(-1430, 640, 45)
                     copyModel.rotation.z += Math.PI
     
@@ -276,14 +286,14 @@ export const ThreeJS = () => {
             const cameraPositionZ = window.map.camera.position.z;
             let scale;
             let offsetY, offsetX
-            let maxOffsetY = index == 2 ? 200 : 140
-            let minOffsetY = 20
-            let maxOffsetX = index == 1 ? 100 : index == 2 ? -50 : 0
+            let maxOffsetY = index == 0 ? 150 : 200
+            let minOffsetY = index == 0 ? 50 : 50
+            let maxOffsetX = index == 1 ? 150 : index == 2 ? -200 : index == 3 ? 120 : 0
             let minOffsetX = index == 1 ? 20 : index == 2 ? -80 : 0
 
             if (normalizedTheta > 0) {
-                maxOffsetX = index == 1 ? -100 : index == 2 ? 70 : 0
-                minOffsetX = index == 1 ? -20 : index == 2 ? 20 : 0
+                maxOffsetX = index == 1 ? -200 : index == 2 ? 250 : index == 3 ? -150 : 0
+                minOffsetX = index == 1 ? -20 : index == 2 ? 30 : 0
             }
             if (cameraPositionZ <= 150) {
                 scale = 1.3;
@@ -313,8 +323,8 @@ export const ThreeJS = () => {
     
                 // Check if the annotation is inside the viewport
                 const isInViewport = (
-                    x >= (105 + offsetX) && x <= containerBounds.width &&
-                    y >= (offsetY + 40) && y <= containerBounds.height
+                    x >= (105 + offsetX) && x <= (containerBounds.width + offsetX) &&
+                    y >= (offsetY + 40) && y <= (containerBounds.height + offsetY )
                 );
                 annotationDiv.style.transform = `translate(-50%, -50%) scale(${scale})`;
                 annotationDiv.style.display = isInViewport && cameraPositionZ < 500 ? 'flex' : 'none';
@@ -374,29 +384,78 @@ export const ThreeJS = () => {
                             </Checkbox>
                             <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                         </div>
-                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)'>
+                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)' isPitView={true}>
                                 {annotations.map((annotation: any, index) => (
                                     <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                         <div style={{padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', borderBottom: '1px solid white'}}>
-                                            <h3 style={{color: 'gold', fontWeight: 800, marginBottom: 0, fontSize: '18px'}}>{annotation.text}</h3>
+                                            <h3 style={{fontWeight: 800, marginBottom: 0, fontSize: '18px', color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}>{annotation.text}</h3>
                                             {/* <div style={{width: '20px', height: '20px', borderRadius: '50%', background: 'green', marginLeft: '1rem'}}></div> */}
                                         </div>
                                         <div className='annotation-content' style={{marginTop: '0.5rem', paddingLeft: '0rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%'}}>
                                             {
-                                                annotation.type === 'truck' ? 
-                                                <>
-                                                    <h4 style={{textTransform: 'uppercase'}}>{annotation.status}</h4>
-                                                    <h6><div>Operator:</div><div>{annotation.operator}</div></h6>
-                                                    {annotation.status === 'Waiting' ? <></> :<h6><div>Payload: </div><div>{annotation.tonnes}T</div></h6>}
-                                                    <h6 style={{color: annotation.status === 'Waiting' ? 'gold' : '#00ff00'}}><div>{annotation.status === 'Waiting' ? 'Waiting Time:' :'Loading Time:'}</div><div>{annotation.time}</div></h6>
-                                                    <h6><div>{'Last Cycle TIme'}:</div> <div>{annotation.lastTime}</div></h6>
-                                                </> :
-                                                <>
-                                                    <h6 style={{fontSize: '14px'}}>Loading</h6>
-                                                    <h6><div>Operator:</div><div>{annotation.operator}</div></h6>
-                                                    <h6><div>Payload:</div> <div>{annotation.tonnes}T</div></h6>
-                                                    <h6><div>Passes:</div> <div>{annotation.passes}</div></h6>
-                                                </>
+                                                annotation.type === 'truck' ? (
+                                                    <>
+                                                        <h4 style={{ textTransform: 'uppercase' }}>{annotation.status}</h4>
+                                                        <h6>
+                                                            <div>Operator:</div>
+                                                            <div>{annotation.operator}</div>
+                                                        </h6>
+                                                        {annotation.status !== 'Waiting' && (
+                                                            <h6>
+                                                                <div>Payload:</div>
+                                                                <div>{annotation.tonnes}T</div>
+                                                            </h6>
+                                                        )}
+                                                        <h6 style={{ color: annotation.status === 'Waiting' ? 'gold' : '#00ff00' }}>
+                                                            <div>{annotation.status === 'Waiting' ? 'Waiting Time:' : 'Loading Time:'}</div>
+                                                            <div>{annotation.time}</div>
+                                                        </h6>
+                                                        <h6>
+                                                            <div>Last Cycle Time:</div>
+                                                            <div>{annotation.lastTime}</div>
+                                                        </h6>
+                                                    </>
+                                                ) : 
+                                                annotation.type === 'drill' ? (
+                                                    <>
+                                                        <h4 style={{ textTransform: 'uppercase' }}>{annotation.status}</h4>
+                                                        <h6>
+                                                            <div>Operator:</div>
+                                                            <div>{annotation.operator}</div>
+                                                        </h6>
+                                                        {/* {annotation.status !== 'Waiting' && (
+                                                            <h6>
+                                                                <div>Payload:</div>
+                                                                <div>{annotation.tonnes}T</div>
+                                                            </h6>
+                                                        )} */}
+                                                        <h6 style={{ color: annotation.status === 'Waiting' ? 'gold' : '#00ff00' }}>
+                                                            <div>{annotation.status === 'Waiting' ? 'Waiting Time:' : 'Loading Time:'}</div>
+                                                            <div>{annotation.time}</div>
+                                                        </h6>
+                                                        {/* <h6>
+                                                            <div>Loading Time:</div>
+                                                            <div>{annotation.totalTime}</div>
+                                                        </h6> */}
+                                                    </>
+                                                ) : 
+                                                (
+                                                    <>
+                                                        <h6 style={{ fontSize: '14px' }}>Loading</h6>
+                                                        <h6>
+                                                            <div>Operator:</div>
+                                                            <div>{annotation.operator}</div>
+                                                        </h6>
+                                                        <h6>
+                                                            <div>Payload:</div>
+                                                            <div>{annotation.tonnes}T</div>
+                                                        </h6>
+                                                        <h6>
+                                                            <div>Passes:</div>
+                                                            <div>{annotation.passes}</div>
+                                                        </h6>
+                                                    </>
+                                                ) 
                                             }
                                         </div>
                                         <div className="annotation-line" id={`eq-annotation-line-${index}`} />

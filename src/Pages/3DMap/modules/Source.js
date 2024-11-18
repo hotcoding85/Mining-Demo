@@ -293,7 +293,7 @@ class Tile {
         this.buildGeometry();
         this.buildmesh();
         resolve(this); // Resolving the promise after delay
-      }, 0.1); // 1ms delay for bulk action
+      }, 1); // 1ms delay for bulk action
     })
   }
 
@@ -736,27 +736,14 @@ export class Map {
           // tiles.reverse();
       
           // Define a batch size for adding tiles incrementally
-          const batchSize = 512; // You can adjust this size based on performance
-          let currentIndex = 0;
+          const batchSize = 576; // You can adjust this size based on performance
       
-          // Define the batch addition function
-          const addBatch = () => {
-              // Add tiles in the current batch
-              for (let i = 0; i < batchSize && currentIndex < tiles.length; i++, currentIndex++) {
-                  const tile = tiles[currentIndex];
-                  tile.setPosition(this.center);
-                  this.scene.add(tile.mesh);
-                  tile.resolveSeams(this.tileCache);
-              }
-      
-              // If there are more tiles to add, schedule the next batch
-              if (currentIndex < tiles.length) {
-                  requestAnimationFrame(addBatch);
-              }
-          };
-      
-          // Start the first batch addition
-          addBatch();
+          for (let i = 0; i < batchSize; i++) {
+              const tile = tiles[i];
+              tile.setPosition(this.center);
+              this.scene.add(tile.mesh);
+              tile.resolveSeams(this.tileCache);
+          }
       });
       
 

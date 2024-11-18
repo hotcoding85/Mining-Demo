@@ -41,6 +41,7 @@ declare global {
         TruckObject: any;
         DiggerObject: any;
         DrillObject: any;
+        DrillHole: any;
         savedCameraPosition: any;
         savedCameraQuaternion: any;
         isAnimation: any;
@@ -137,6 +138,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
     useEffect(() => {
         if (map) return
         setIsLoading(true);
+        fetch3DTruck()
+        diggerImport && fetch3DExcavator()
+        drillImport && fetch3DDrill()
         fetchGeofences()
         fetchZipFile()
         // Clean up on component unmount
@@ -195,12 +199,56 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 mixer.current.stopAllAction();
                 mixer.current = null
             }
+            if (dirts.current.length > 0) {
+                dirts.current = [];
+            }
             geoFences.current = null
 
             intervalId.current &&  clearInterval(intervalId.current);
         };
 
     }, []); // Added dependencies to reinitialize map if lat/lng changes
+
+    useEffect(() => {
+        if (!isLoading && window.map && window.map.scene) {
+            window.map.scene.add(window.TruckObject);
+            if (diggerImport && window.DiggerObject && window.DiggerObject.group) {
+                window.map.scene.add(window.DiggerObject.group);
+                mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+                clock.current = new THREE.Clock();          
+            }
+            if (drillImport && window.DrillHole) {
+                const rows = 8;
+                const columns = 3;
+                const spacingX = 35; // Adjust spacing between holes along the X-axis
+                const spacingY = 30; // Adjust spacing between holes along the Y-axis
+            
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < columns; j++) {
+                        const object = window.DrillHole.clone();
+                        object.visible = true;
+                        
+                        // Calculate position for each hole
+                        object.position.copy(new THREE.Vector3(
+                            -1620 - j * spacingX, // Adjust X position for each column
+                            1340 - i * spacingY,  // Adjust Y position for each row
+                            40                    // Z position remains the same
+                        ));
+                        
+                        object.rotation.copy(new THREE.Euler(Math.PI / 2, Math.PI / 2, 0));
+                        console.log(object)
+                        window.map.scene.add(object);
+                    }
+                }
+            }
+
+            if (dirts.current.length > 0) {
+                dirts.current.map(dirt => {
+                    window.map.scene.add(dirt)
+                })
+            }
+        } 
+    }, [isLoading])
 
     const fetchGeofences = async () => {
         const _fetchGeofences = async () => {
@@ -499,8 +547,95 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         return mixerRef.current;
     };
 
+    const fetch3DDrill = () => {
+        const loader = new FBXLoader();
+        loader.load('/Drill/drill.fbx', (object) => {
+            object.traverse((child: any) => {
+                if (child.isMesh) {
+                    if (isArray(child.material)) {
+                        child.material.map((_child) => {
+                            _child.depthTest = true
+                            _child.depthWrite = true
+                            _child.transparent = false
+                        })
+                        child.renderOrder = 9998
+                    }
+                    else {
+                        child.material.depthTest = true
+                        child.material.depthWrite = true
+                        child.material.transparent = false
+                        child.renderOrder = 10000
+                    }
+                }
+            });
+
+            // Add the entire excavator object to the group and scene
+            object.scale.set(0.3, 0.3, 0.3);
+            object.position.copy(new THREE.Vector3(-1620, 1360, 40));
+            object.rotation.x = Math.PI / 2; // Adjust rotation
+            object.rotation.y += 0; // Adjust orientation
+            object.position.z += Math.PI;
+            object.visible = true;
+
+            window.DrillObject = object
+        }, (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        }, (error) => {
+            console.error('An error occurred:', error);
+        });
+
+
+        const mtlLoader = new MTLLoader();
+        mtlLoader.load('/hole/hole.mtl', (materials) => {
+            materials.preload();
+            let texture: any = null
+            let objLoader: any
+            objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
+                '/hole/hole.obj',
+                (object) => {
+                    if (object instanceof THREE.Group) {
+                        object.children.forEach(child => {
+                            if (child instanceof THREE.LineSegments) {
+                                const geometry = (child.geometry as THREE.BufferGeometry).clone();
+                                const material = new THREE.MeshStandardMaterial({
+                                    color: 0x8B4513, // Gold color
+                                    metalness: 0.5,
+                                    roughness: 0.5,
+                                    depthWrite: false,
+                                    transparent: true
+                                });
+                                const mesh = new THREE.Mesh(geometry, material);
+                                object.add(mesh); // Add the new mesh to the group
+                            } else if (child instanceof THREE.Mesh) {
+                                object.add(child);
+                            }
+                        });
+                    }
+                    object.traverse((child: any) => {
+                        if (child.isMesh) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0x8B4513, // Gold color
+                                metalness: 0.5,
+                                roughness: 0.5,
+                                depthWrite: false,
+                                transparent: true
+                            });
+                        }
+                    });
+                    object.scale.copy(new THREE.Vector3(0.1, 0.1, 0.1))
+                    object.visible = true; // Initially set to invisible
+                    window.DrillHole = object
+                },
+                undefined,
+                (error) => {
+                    console.error(`An error occurred while loading the OBJ file: ${error}`);
+                }
+            );
+        });
+    }
     const fetch3DExcavator = async () => {
-        if (!window.map || !window.map.scene) return;
         const loader = new FBXLoader();
         let hydraulicCylinder: THREE.Object3D | null = null;
         let hydraulicPiston: THREE.Object3D | null = null;
@@ -575,7 +710,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         truckDirt.position.copy(new THREE.Vector3(-1386, 473, 47))
                         truckDirt.rotation.copy(new THREE.Euler(Math.PI * 2, Math.PI, Math.PI))
                         truckDirt.scale.copy(new THREE.Vector3(5, 5, 5))
-                        window.map.scene.add(truckDirt)
+                        // window.map.scene.add(truckDirt)
                     }
                     let truckDirt1 = child.clone()
                     if (truckDirt1) {
@@ -583,21 +718,21 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         truckDirt1.position.copy(new THREE.Vector3(-1394, 475, 56))
                         truckDirt1.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
                         truckDirt1.scale.copy(new THREE.Vector3(3, 3, 3))
-                        window.map.scene.add(truckDirt1)
+                        // window.map.scene.add(truckDirt1)
                     }
                     let truckDirt2 = child.clone()
                     if (truckDirt2) {
                         truckDirt2.position.copy(new THREE.Vector3(-1380, 492, 54))
                         truckDirt2.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI / 2))
                         truckDirt2.scale.copy(new THREE.Vector3(4, 4, 4))
-                        window.map.scene.add(truckDirt2)
+                        // window.map.scene.add(truckDirt2)
                     }
                     let truckDirt3 = child.clone()
                     if (truckDirt3) {
                         truckDirt3.position.copy(new THREE.Vector3(-1394, 472, 58))
                         truckDirt3.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
                         truckDirt3.scale.copy(new THREE.Vector3(3, 3, 3))
-                        window.map.scene.add(truckDirt3)
+                        // window.map.scene.add(truckDirt3)
                     }
                     dirts.current = [truckDirt, truckDirt1, truckDirt2, truckDirt3]
                 }
@@ -640,8 +775,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             window.DiggerObject.group.rotation.y = Math.PI / 2; // Adjust orientation
             window.DiggerObject.group.position.z += 10;
             window.DiggerObject.group.visible = true;
-            if (!window.map || !window.map.scene) return;
-            window.map.scene.add(window.DiggerObject.group);
             window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
 
             window.TruckObject.rotation.z += Math.PI
@@ -665,8 +798,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
             });
             window.TruckObject.position.copy(truckInitPoint ? truckInitPoint : new THREE.Vector3(-1395, 490, 50));
-            clock.current = new THREE.Clock();
-            mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
         }, (xhr) => {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
@@ -675,7 +806,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
     }
 
     const fetch3DTruck = async () => {
-        if (!window.map || !window.map.scene) return;
         const loader = new FBXLoader();
         loader.load('/Truck/3D_Truck.fbx', (object) => {
             // Set up the AnimationMixer
@@ -714,9 +844,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             const group = new THREE.Group();
             group.add(object)
             group.visible = false
-            if (!window.map || !window.map.scene) return;
             window.TruckObject = group
-            window.map.scene.add(window.TruckObject);
         }, (xhr) => {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
@@ -856,8 +984,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 })
             }
         }
-        fetch3DTruck()
-        diggerImport && fetch3DExcavator()
         const cubeview: any = document.getElementById('obit-controls-gizmo')
         const compass: any = document.getElementById('compass')
         // Main render loop
