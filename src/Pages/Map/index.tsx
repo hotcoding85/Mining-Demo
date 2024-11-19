@@ -99,6 +99,34 @@ export const RealTimePositioning = ({ socket }) => {
     let animationFrameId: number;
     let map: any;
 
+    useEffect(() => {
+        return () => {
+            map && map.clean()
+            if (dashAnimation.current) {
+                clearInterval(dashAnimation.current)
+            }
+            // Dispose Three.js objects
+            if (geojsonData.current) {
+                geojsonData.current = null;
+            }
+    
+            // Clean up map and controls
+            if (window.mapPicker) {
+                window.mapPicker = null;
+            }
+            if (window.map) {
+                window.map = null;
+            }
+            if (window.controls) {
+                window.controls.dispose();
+            }
+            // Clean up Three.js objects
+            if (mapContainer.current && mapContainer.current.firstChild) {
+                mapContainer.current.removeChild(mapContainer.current.firstChild);
+            }
+        };
+    }, []);
+
     const updateAnnotations = useCallback(() => {
         if (!mapContainer.current || !window.map) return
         const mapContainerElement = mapContainer.current.getMapContainer();
@@ -144,7 +172,9 @@ export const RealTimePositioning = ({ socket }) => {
     }, [dispatch]);
 
     const travellingLine = useRef<any>([])
+    const travellingLineCurve = useRef<any>([])
     const dumpinglingLine = useRef<any>([])
+    const dashAnimation = useRef<any>(null)
     const animatedDashes = (() => {
         const dashArraySequence = [
             [50, 20],   // Initial dash and gap size
@@ -182,43 +212,77 @@ export const RealTimePositioning = ({ socket }) => {
                 }
             }
             function createLine(positions, color, offset = 0) {
-                const geometry = new THREE.BufferGeometry();
-                const vertices = new Float32Array(flattenPositions(positions, offset));
-                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-              
-                const material = new THREE.LineDashedMaterial({
-                  color: color,
-                  linewidth: 4, // Only works in WebGL1
-                  scale: 1, // Scale of the dashes
-                  dashSize: 50, // Length of the dashes
-                  gapSize: 20, // Length of the gaps
-                  depthTest: false,
-                  depthWrite: false,
-                  transparent: true
-                });
-              
-                // Use THREE.Line for continuous lines, not LineSegments
-                const line = new THREE.Line(geometry, material);
-                line.computeLineDistances(); // Required for dashed lines
-                window.map.scene.add(line);
-              
-                return line;
+                const curve = new THREE.CatmullRomCurve3(positions);
+                // window.map.scene.add(curveLine);
+
+                const totalLength = curve.getLength();
+                const deltaDistance = 100; // Set a constant distance between arrowheads
+                const numArrows = Math.floor(totalLength / deltaDistance);
+                const arrows: any = []
+                for (let i = 0; i <= numArrows; i++) {
+                    const distance = (i * deltaDistance) / totalLength;
+                    // Get position and tangent at this normalized distance along the curve
+                    const position = curve.getPointAt(distance);
+                    const tangent = curve.getTangentAt(distance);
+                
+                    // Create an arrowhead
+                    const headGeometry = new THREE.ConeGeometry(12, 1, 3); // Customize as needed
+                    const headMaterial = new THREE.MeshBasicMaterial({ color: color, depthTest: false, transparent: true });
+                    const arrowhead = new THREE.Mesh(headGeometry, headMaterial);
+                    // Position the arrowhead at the point along the curve
+                    arrowhead.position.set(position.x, position.y, position.z);
+                
+                    // Orient the arrowhead to follow the tangent at this point
+                    arrowhead.lookAt(position.clone().add(tangent));
+                    arrowhead.rotation.z += Math.PI / 2; // Adjust rotation if necessary
+                    arrows.push({ mesh: arrowhead, initialDistance: distance });
+                    // Add the arrowhead to the scene
+                    window.map.scene.add(arrowhead);
+                }
+                color === 0xffff00 && travellingLine.current.push({arrow: arrows, curve: curve})
+                const mainLinePoints = curve.getPoints(100);
+                const delta = 15; // Offset distance in world units (adjust as needed)
+                const leftLinePoints: THREE.Vector3[] = [];
+                const rightLinePoints: THREE.Vector3[] = [];
+        
+                for (let i = 0; i < mainLinePoints.length; i++) {
+                    const point = mainLinePoints[i];
+                    const tangent = curve.getTangent(i / (mainLinePoints.length - 1)).normalize();
+        
+                    // Calculate perpendicular vector
+                    const perpendicular = new THREE.Vector3(-tangent.y, tangent.x, 0).normalize();
+        
+                    // Create offset points
+                    const leftPoint = point.clone().add(perpendicular.clone().multiplyScalar(delta));
+                    const rightPoint = point.clone().add(perpendicular.clone().multiplyScalar(-delta));
+        
+                    leftLinePoints.push(leftPoint);
+                    rightLinePoints.push(rightPoint);
+                }
+
+                const _createTube = (points: THREE.Vector3[], color: number) => {
+                    const tubeRadius = 2; // Adjust the radius as needed
+                    const tubeSegments = 100;
+                    const radialSegments = 8;
+                    const _curve = new THREE.CatmullRomCurve3(points);
+                    const TubeGeometry = new THREE.TubeGeometry(_curve, tubeSegments, tubeRadius, radialSegments, false);
+                    const tubeMaterial = new THREE.MeshBasicMaterial({ color: color, depthTest: false, transparent: true }); // Blue for left tube
+                    return new THREE.Mesh(TubeGeometry, tubeMaterial);
+                };
+        
+                const leftLine = _createTube(leftLinePoints, color); // Blue line
+                const rightLine = _createTube(rightLinePoints, color); // Blue line
+
+                if (window.map && window.map.scene) {
+                    window.map.scene.add(leftLine)
+                    window.map.scene.add(rightLine)
+                }
             }
 
             // Create multiple lines with offsets to simulate thickness
             function createThickLine(points, color, type = 'travellingLine') {
-                const offsetStep = 0.1; // Distance between parallel lines (adjust as needed)
-                const lineCount = 20;  // Number of parallel lines (more lines = thicker effect)
-
                 // Draw the main line
-                type === 'travellingLine' ? travellingLine.current.push(createLine(points, color)) : dumpinglingLine.current.push(createLine(points, color))
-
-                // Draw parallel lines with offsets
-                for (let i = 1; i <= lineCount; i++) {
-                    // Positive and negative offsets for x and y
-                    type === 'travellingLine' ? travellingLine.current.push(createLine(points, color, i * offsetStep)) :  dumpinglingLine.current.push(createLine(points, color, i * offsetStep)) // Offset to positive direction
-                    type === 'travellingLine' ? travellingLine.current.push(createLine(points, color, -i * offsetStep)) :  dumpinglingLine.current.push(createLine(points, color, -i * offsetStep)) // Offset to negative direction
-                }
+                type === 'travellingLine' ? createLine(points, 0xffff00) : dumpinglingLine.current.push(createLine(points, 0x00ff00))
             }
             
             // Create lines for travellingPaths and dumpingPaths
@@ -272,34 +336,33 @@ export const RealTimePositioning = ({ socket }) => {
                 createThickLine(points, 0xffff00, 'dumpinglingLine'); // Yellow
             });
 
-            let dashStep = 0;
-
-            let dashInterval; // Store the interval ID for future reference
-            const dashDelay = 200; // Delay between each update (in milliseconds)
-
             function animateDashes() {
-                _.map(travellingLine.current, _travellingLine => {
-                    // Safeguard: Ensure the step does not accidentally reset the line dashes
-                    if (_travellingLine.material.dashSize !== dashArraySequence[dashStep][0] || 
-                        _travellingLine.material.gapSize !== dashArraySequence[dashStep][1]) {
+                
+                travellingLine.current.forEach((item) => {
+                    const arrow = item.arrow;
+                    const curve = item.curve;
+                    for (let i = 0 ; i < arrow.length ; i ++) {
+                        const arr = arrow[i]
+                        // Increase the distance along the curve to create forward motion
+                        arr.initialDistance += 0.01; // Adjust speed as needed
                         
-                        _travellingLine.material.dashSize = dashArraySequence[dashStep][0];
-                        _travellingLine.material.gapSize = dashArraySequence[dashStep][1];
-                        _travellingLine.material.needsUpdate = true; // Force material update
+                        if (arr.initialDistance > 1) arr.initialDistance -= 1;
+                        const position = curve.getPointAt(arr.initialDistance); // Normalize the distance
+                        const tangent = curve.getTangentAt(arr.initialDistance);
+                        arr.mesh.position.copy(position);
+                        arr.mesh.lookAt(position.clone().add(tangent));
+                        arr.mesh.rotation.z += Math.PI / 2;
                     }
                 });
-
-                dashStep = (dashStep + 1) % dashArraySequence.length; // Loop through the dash sequence
+                
+                // dashAnimation.current = requestAnimationFrame(animateDashes);
             }
 
             // Start the animation loop with setInterval
             function startDashAnimation() {
-                dashInterval = setInterval(animateDashes, dashDelay);
-            }
-
-            // Stop the animation if needed
-            function stopDashAnimation() {
-                clearInterval(dashInterval);
+                dashAnimation.current = setInterval(() => {
+                    animateDashes()
+                }, 300)
             }
 
             // Start the dash animation
