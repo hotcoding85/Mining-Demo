@@ -571,10 +571,10 @@ export const ThreeJS = () => {
         }
     }, [])
 
-    const [mapKey, setMapKey] = useState(0);
-    const refershMap = () => {
-        setMapKey(prevKey => prevKey + 1);
-    }
+    const [reloadModels, setReloadModels] = useState(0);
+    const refershMap = useCallback(() => {
+        setReloadModels(reloadModels + 1)
+    }, [reloadModels])
 
     return (
         <>
@@ -598,7 +598,7 @@ export const ThreeJS = () => {
                                     <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                                     <Button size='small' style={{width: '100px', marginLeft: '0.5rem'}} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
                                 </div>
-                                <THREEJSMap key={mapKey} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
+                                <THREEJSMap reloadModels={reloadModels} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
                                     {annotations.map((annotation: any, index) => (
                                         <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                             <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', borderBottom: '1px solid white', flexDirection:'column' }}>
