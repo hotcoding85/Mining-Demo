@@ -47,6 +47,7 @@ const QuadTextureMaterial = async (images) => {
   }));
   return Promise.resolve().then(() => {
     return new ShaderMaterial({
+      wireframe: true,
       uniforms: {
         mapNW: { value: textures[0] },
         mapSW: { value: textures[1] },

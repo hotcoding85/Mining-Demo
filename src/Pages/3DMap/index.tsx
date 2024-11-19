@@ -1,7 +1,6 @@
 import { Source, Map, MapPicker } from './modules/Source'
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Card, CardBody, Col, Container, Row } from 'reactstrap';
-import Breadcrumb from 'Components/Common/Breadcrumb';
+import { Card, CardBody } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css'
 import mapboxgl from 'mapbox-gl';
@@ -10,16 +9,14 @@ import { InfiniteGridHelper } from './modules/InfiniteGridHelper'
 import * as THREE from "three";
 import { MapControls } from 'Components/Common/CubeCamera/OrbitControls.js';
 import _, { isArray } from 'lodash';
-import { Checkbox, CheckboxProps, Progress, Spin } from 'antd';
+import { Progress, Spin } from 'antd';
 import 'antd/dist/reset.css';
 import JSZip from '@turbowarp/jszip'
 import * as Leaflet from 'leaflet';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
-import BACKGROUND from '../../assets/images/3DPit/galaxy.jpg'
-import BACKGROUND_LIGHT from '../../assets/images/3DPit/daysky.png'
 import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
-import { FenceSelector, LayoutSelector, VehicleRouteSelector } from 'selectors';
+import { LayoutSelector, VehicleRouteSelector } from 'selectors';
 import RBush from 'rbush';
 import bbox from '@turf/bbox';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
@@ -29,8 +26,6 @@ import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import { OrbitControlsGizmo } from "Components/Common/CubeCamera/OrbitControlsGizmo.js";
 import COMPASS from 'assets/images/compass.png'
 import COMPASS_VECTOR from 'assets/images/compass-vector.png'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { ConsoleSqlOutlined } from '@ant-design/icons';
 const index = new RBush();
 
 declare global {
@@ -1451,7 +1446,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             // Apply this to the compass
             compass && (compass.style.transform = `rotate(${THREE.MathUtils.radToDeg(normalizedTheta) - 180}deg)`);
         });
-        const grid: any = new InfiniteGridHelper(16, 256);
+        const grid: any = new InfiniteGridHelper(.1, .1, new THREE.Color("#8E6F47"));
         scene.add(grid);
 
         // set routes to the map variable
@@ -1462,22 +1457,22 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         let drawed = true
 
         // Load the background image using THREE.TextureLoader
-        if (isLight) {
-            if (window.map && window.map.scene) {
-                const loader = new THREE.TextureLoader();
-                loader.load(BACKGROUND_LIGHT, (texture) => {
-                    window.map.scene.background = texture;  // Set the loaded texture as the background
-                });
-            }
-        }
-        else{
-            if (window.map && window.map.scene) {
-                const loader = new THREE.TextureLoader();
-                loader.load(BACKGROUND, (texture) => {
-                    window.map.scene.background = texture;  // Set the loaded texture as the background
-                })
-            }
-        }
+        // if (isLight) {
+        //     if (window.map && window.map.scene) {
+        //         const loader = new THREE.TextureLoader();
+        //         loader.load(BACKGROUND_LIGHT, (texture) => {
+        //             window.map.scene.background = texture;  // Set the loaded texture as the background
+        //         });
+        //     }
+        // }
+        // else{
+        //     if (window.map && window.map.scene) {
+        //         const loader = new THREE.TextureLoader();
+        //         loader.load(BACKGROUND, (texture) => {
+        //             window.map.scene.background = texture;  // Set the loaded texture as the background
+        //         })
+        //     }
+        // }
         const cubeview: any = document.getElementById('obit-controls-gizmo')
         const compass: any = document.getElementById('compass')
         // Main render loop
@@ -1555,21 +1550,21 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         window.mixer && window.mixer.update(30)
     }
 
-    useEffect(() => {
-        if (!window.map) return
-        if (isLight) {
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND_LIGHT, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-        else {
-            const loader = new THREE.TextureLoader();
-            loader.load(BACKGROUND, (texture) => {
-                window.map.scene.background = texture;  // Set the loaded texture as the background
-            });
-        }
-    }, [isLight])
+    // useEffect(() => {
+    //     if (!window.map) return
+    //     if (isLight) {
+    //         const loader = new THREE.TextureLoader();
+    //         loader.load(BACKGROUND_LIGHT, (texture) => {
+    //             window.map.scene.background = texture;  // Set the loaded texture as the background
+    //         });
+    //     }
+    //     else {
+    //         const loader = new THREE.TextureLoader();
+    //         loader.load(BACKGROUND, (texture) => {
+    //             window.map.scene.background = texture;  // Set the loaded texture as the background
+    //         });
+    //     }
+    // }, [isLight])
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
