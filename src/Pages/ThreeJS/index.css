@@ -86,7 +86,7 @@ body[data-layout-mode='light'] .ant-checkbox-wrapper {
     display: none;
     flex-direction: column;
     min-width: 150px;
-    min-height: 100px;
+    min-height: 60px;
     align-items: center;
     padding: 5px 10px;
     border-radius: 10px;

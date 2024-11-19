@@ -17,7 +17,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
 
-    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations', 'Auto'];
+    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations', 'Auto', "Connecting Lines"];
     const defaultLayers = ['Active Benches'];
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
@@ -61,7 +61,7 @@ export const ThreeJS = () => {
             model: 'HD1500',
             time: '00:48',
             tonnes: '0',
-            operator: 'Bain Chloe',
+            operator: 'C. Bain',
             lastTime: '13:49'
         }
         const loadingAnnotation = {
@@ -73,7 +73,7 @@ export const ThreeJS = () => {
             model: 'HD1500',
             tonnes: '45.6',
             lastTime: '15:34',
-            operator: 'Arlene McCoy'
+            operator: 'M. Arlene'
         }
         const excavatorAnnotation = {
             type: 'excavator',
@@ -82,19 +82,20 @@ export const ThreeJS = () => {
             status: 'Loading',
             time: '01:20',
             tonnes: '45.6',
-            operator: 'Cody Fisher',
+            operator: 'F. Cody',
             passes: '5',
             totalTime: '16:24:45'
         }
         const drillAnnotation = {
             type: 'drill',
-            position: new THREE.Vector3(-1630, 1330, 40),
+            position: new THREE.Vector3(-1630, 1180, 40),
             text: 'DR001',
             status: 'Drilling',
             time: '01:20',
             counts: '6',
-            operator: 'James Riden',
-            totalTime: '16:24:45'
+            operator: 'R. James',
+            totalTime: '16:24:45',
+            eta_time: '08:21:00'
         }
 
         const waitingAnnotation2 = {
@@ -105,7 +106,7 @@ export const ThreeJS = () => {
             model: 'HD1500',
             time: '00:48',
             tonnes: '0',
-            operator: 'Adam Smith',
+            operator: 'S. Adam',
             lastTime: '15:29'
         }
         const loadingAnnotation2 = {
@@ -117,7 +118,7 @@ export const ThreeJS = () => {
             model: 'HD1500',
             tonnes: '32.6',
             lastTime: '12:53',
-            operator: 'Lincoln Jr'
+            operator: 'J. Lincoln'
         }
         const excavatorAnnotation2 = {
             type: 'excavator',
@@ -132,13 +133,14 @@ export const ThreeJS = () => {
         }
         const drillAnnotation2 = {
             type: 'drill',
-            position: new THREE.Vector3(-608, -1356, 50),
+            position: new THREE.Vector3(-608, -1506, 50),
             text: 'DR002',
             status: 'Drilling',
             time: '02:18',
             counts: '3',
-            operator: 'Ben Scott',
-            totalTime: '16:24:45'
+            operator: 'S. Ben',
+            totalTime: '16:24:45',
+            eta_time: '09:45:00'
         }
         setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2])
         annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2]
@@ -413,19 +415,35 @@ export const ThreeJS = () => {
     const CheckboxGroup = Checkbox.Group;
 
     useEffect(() => {
-        if (window.map && window.map.scene) {
+        if (!isLoading && window.map && window.map.scene) {
             // checkedList
             const isAuto = checkedList.find(item => item === 'Auto')
+            const drillPatterns = checkedList.find(item => item === 'Connecting Lines')
+            if (drillPatterns) {
+                window.map.scene.children.forEach((child) => {
+                    if (child.userData.isDrillPattern) {
+                        child.visible = true
+                    }
+                });
+            }
+            else{
+                window.map.scene.children.forEach((child) => {
+                    if (child.userData.isDrillPattern) {
+                        child.visible = false
+                    }
+                });
+            }
             if (isAuto) {
                 currentActiveEq.current++
-                cameraAnimationFrameId.current = setInterval(_animateZoom, 10000)
+                cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
+                cameraAnimationFrameId.current = setInterval(_animateZoom, 12000)
             }
             else {
                 currentActiveEq.current = null
                 cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
             }
         }
-    }, [checkedList])
+    }, [checkedList, isLoading])
 
     useEffect(() => {
         currentFilterRef.current = filter
@@ -436,12 +454,18 @@ export const ThreeJS = () => {
 
         if (currentFilterRef.current === 'All Equipment') {
             totalPositions.current = annotationsRef.current.filter(eq => eq.type !== 'truck'); // For demonstration, select the first annotation
-        } else if (currentFilterRef.current === 'EXCAVATOR') {
-            totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'excavator');
+        } else if (currentFilterRef.current === 'fleet1') {
+            totalPositions.current = annotationsRef.current.filter(annotation => annotation.text === 'EX201');
+        } else if (currentFilterRef.current === 'fleet2') {
+            totalPositions.current = annotationsRef.current.filter(annotation => annotation.text === 'EX202');
         } else if (currentFilterRef.current === 'DRILLER') {
             totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'drill');
         } else if (currentFilterRef.current === 'DOZER') {
             // Add logic for dozers if necessary
+        }
+
+        if(totalPositions.current.length == 0){
+            cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
         }
         targetAnnotation = totalPositions.current[currentActiveEq.current % (totalPositions.current.length)]
         currentActiveEq.current = currentActiveEq.current % (totalPositions.current.length)
@@ -495,6 +519,9 @@ export const ThreeJS = () => {
                         window.controls.update();
                         window.renderer.render(window.map.scene, window.camera);
                         if (window.controls) window.controls.enabled = true;
+                        if(totalPositions.current.length === 1){
+                            cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
+                        }
                         currentActiveEq.current++
                     }, 100);
                 }
@@ -552,7 +579,7 @@ export const ThreeJS = () => {
                         <Row>
                             <Col md="12" className='mb-4 d-flex flex-row-reverse'>
                                 <Space>
-                                    <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+                                    <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Fleet 1', value: 'fleet1' }, { label: 'Fleet 2', value: 'fleet2' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
                                 </Space>
                             </Col>
                         </Row>
@@ -564,7 +591,7 @@ export const ThreeJS = () => {
                                     </Checkbox>
                                     <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                                 </div>
-                                <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 220px)' isPitView={true} equipmentFilter={filter}>
+                                <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
                                     {annotations.map((annotation: any, index) => (
                                         <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                             <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', borderBottom: '1px solid white' }}>
@@ -610,8 +637,12 @@ export const ThreeJS = () => {
                                                             </h6>
                                                         )} */}
                                                                 <h6 style={{ color: annotation.status === 'Waiting' ? 'gold' : '#00ff00' }}>
-                                                                    <div>{annotation.status === 'Waiting' ? 'Waiting Time:' : 'Loading Time:'}</div>
+                                                                    <div>{annotation.status === 'Waiting' ? 'Waiting Time:' : 'Drilling Time:'}</div>
                                                                     <div>{annotation.time}</div>
+                                                                </h6>
+                                                                <h6 style={{ color: 'white' }}>
+                                                                    <div>ETA for Completion</div>
+                                                                    <div>{annotation.eta_time}</div>
                                                                 </h6>
                                                                 {/* <h6>
                                                             <div>Loading Time:</div>
@@ -625,14 +656,6 @@ export const ThreeJS = () => {
                                                                     <h6>
                                                                         <div>Operator:</div>
                                                                         <div>{annotation.operator}</div>
-                                                                    </h6>
-                                                                    <h6>
-                                                                        <div>Payload:</div>
-                                                                        <div>{annotation.tonnes}T</div>
-                                                                    </h6>
-                                                                    <h6>
-                                                                        <div>Passes:</div>
-                                                                        <div>{annotation.passes}</div>
                                                                     </h6>
                                                                 </>
                                                             )

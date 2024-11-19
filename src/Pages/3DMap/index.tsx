@@ -324,6 +324,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                                     10, // Length of the arrow
                                     materialColor // Color of the arrow
                                 );
+                                arrowHelper.userData = {isHole: true}
                                 arrowHelper.rotation.z = -(Math.PI / 4) - Math.PI / 2
                                 arrowHelper.position.copy(new THREE.Vector3(position.x - 3, position.y + 2.5, position.z))
                                 window.map.scene.add(arrowHelper);
@@ -347,7 +348,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                             arrowLength,
                             color // Color for the arrow connecting holes
                         );
-                        arrowHelper.userData={isHole: true}
+                        arrowHelper.userData={isHole: true, isDrillPattern: true}
                         window.map.scene.add(arrowHelper);
                     }
                 };
