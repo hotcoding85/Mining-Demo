@@ -86,9 +86,10 @@ interface THREEJSMapProps {
     diggerInitPoint?: any;
     truckInitPoint?: any;
     equipmentFilter?: any;
+    reloadModels?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [] }, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [], reloadModels = 0 }, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -139,6 +140,17 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         dispatch(getAllVehicleRoutes())
         dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
     }, [dispatch]);
+
+    useEffect(() => {
+        if (window.map && window.map.scene) {
+            if (reloadModels > 0) {
+                !window.TruckObject && fetch3DTruck()
+                diggerImport && !window.DiggerObject && !window.DiggerObject.group && fetch3DExcavator()
+                drillImport && !window.DrillObject && fetch3DDrill()
+
+            }
+        }
+    }, [reloadModels])
 
     useEffect(() => {
         if (map) return
@@ -502,6 +514,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // await _processZipFile();
     }
     const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+    const mixerRef2 = useRef<THREE.AnimationMixer | null>(null);
     const createExcavatorDiggingAnimation = (excavator: any) => {
         mixerRef.current = new THREE.AnimationMixer(excavator.group);
         const initialQuaternion = new THREE.Quaternion(0, -0.00034019315841246704, 0, 0.9999999355799913);
@@ -533,9 +546,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Arm rotation (inward and outward motion)
         const armTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [armStart, armStart + 2.5, armStart + 5],
+            [armStart, armStart + 2,  armStart + 5],
             [
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.5, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray()
             ]
@@ -580,12 +593,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Boom rotation (up and down motion)
         const armDumpingTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [dumpingStart, dumpingStart + 2, dumpingStart + 9, dumpingStart + 11],
+            [dumpingStart, dumpingStart + 2,  dumpingStart + 9, dumpingStart + 11],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
             ]
         );
 
@@ -656,7 +669,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
                 let currentTime = action.time % loopDuration; // Real-time playback progress
                 // Implement your time-based logic
-                if (currentTime >= 4 && currentTime <= 15) {
+                if (currentTime >= 5 && currentTime <= 15) {
                     window.DiggerObject.dirt.visible = true;
                     // loaded && (window.DiggerObject.truckDirt.visible = false)
                 } else {
@@ -664,7 +677,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     // loaded && (window.DiggerObject.truckDirt.visible = true)
                 }
                 if (currentTime > 15 && loaded) {
-                    count = (count % 4) + 1; // Cycle count between 1 and 5
+                    count = (count % 5) + 1; // Cycle count between 1 and 5
                     loaded = false; // Reset loaded to ensure this logic only runs once per cycle
                 } else if (currentTime <= 15) {
                     loaded = true; // Allow count to increment only when we go past 15
@@ -672,7 +685,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
                 
                 if (dirts.current.length > 0) {
-                    if (count === 4 && (currentTime > 8 && currentTime < 15)) {
+                    if (count === 5 && (currentTime > 8 && currentTime < 15)) {
                         dirts.current.map((dirt, index) => {
                             dirt.visible = false
                         })
@@ -700,7 +713,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
     };
 
     const createExcavatorDiggingAnimation2 = (excavator: any) => {
-        mixerRef.current = new THREE.AnimationMixer(excavator.group);
+        mixerRef2.current = new THREE.AnimationMixer(excavator.group);
         const initialQuaternion = new THREE.Quaternion(0, -0.00034019315841246704, 0, 0.9999999355799913);
         // Invert the quaternion to get the corrective rotation
         const correctiveQuaternion = initialQuaternion.clone().invert();
@@ -730,9 +743,9 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Arm rotation (inward and outward motion)
         const armTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [armStart, armStart + 2.5, armStart + 5],
+            [armStart, armStart + 2,  armStart + 5],
             [
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.5, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray()
             ]
@@ -777,12 +790,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Boom rotation (up and down motion)
         const armDumpingTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [dumpingStart, dumpingStart + 2, dumpingStart + 9, dumpingStart + 11],
+            [dumpingStart, dumpingStart + 2,  dumpingStart + 9, dumpingStart + 11],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
-                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)).toArray(),
+                ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
             ]
         );
 
@@ -833,7 +846,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         const clip = new THREE.AnimationClip('DiggingAnimation', loopDuration, [boomTrack, armTrack, bucketTrack, boomAfterTrack, bodyTrack, armDumpingTrack, bucketDumpingTrack, hydraulicCylinderTrack]);
 
         // Play the animation
-        const action = mixerRef.current.clipAction(clip);
+        const action = mixerRef2.current.clipAction(clip);
         action.setLoop(THREE.LoopRepeat, Infinity);
         action.play();
 
@@ -844,8 +857,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         let count = 0
         const updateAnimation2 = () => {
             const delta = clock.getDelta(); // Time since last frame
-            if (mixerRef.current) {
-                mixerRef.current.update(delta); // Update the animation mixer
+            if (mixerRef2.current) {
+                mixerRef2.current.update(delta); // Update the animation mixer
         
                 // Get the current time within the action's play duration
                 if (action.time >= loopDuration && !loaded) {
@@ -853,7 +866,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
                 let currentTime = action.time % loopDuration; // Real-time playback progress
                 // Implement your time-based logic
-                if (currentTime >= 4 && currentTime <= 15) {
+                if (currentTime >= 5 && currentTime <= 15) {
                     window.DiggerObject2.dirt.visible = true;
                     // loaded && (window.DiggerObject.truckDirt.visible = false)
                 } else {
@@ -861,7 +874,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     // loaded && (window.DiggerObject.truckDirt.visible = true)
                 }
                 if (currentTime > 15 && loaded) {
-                    count = (count % 4) + 1; // Cycle count between 1 and 5
+                    count = (count % 5) + 1; // Cycle count between 1 and 5
                     loaded = false; // Reset loaded to ensure this logic only runs once per cycle
                 } else if (currentTime <= 15) {
                     loaded = true; // Allow count to increment only when we go past 15
@@ -869,7 +882,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
                 
                 if (dirts2.current.length > 0) {
-                    if (count === 4 && (currentTime > 8 && currentTime < 15)) {
+                    if (count === 5 && (currentTime > 8 && currentTime < 15)) {
                         dirts2.current.map((dirt, index) => {
                             dirt.visible = false
                         })
@@ -893,7 +906,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Start the animation loop
         updateAnimation2();
         // Return mixer for use in render loop
-        return mixerRef.current;
+        return mixerRef2.current;
     };
 
     const fetch3DDrill = () => {
@@ -1078,12 +1091,19 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     }
                     let truckDirt3 = child.clone()
                     if (truckDirt3) {
-                        truckDirt3.position.copy(new THREE.Vector3(-1394, 472, 58))
+                        truckDirt3.position.copy(new THREE.Vector3(-1390, 470, 56))
                         truckDirt3.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
                         truckDirt3.scale.copy(new THREE.Vector3(3, 3, 3))
                         // window.map.scene.add(truckDirt3)
                     }
-                    dirts.current = [truckDirt, truckDirt1, truckDirt2, truckDirt3]
+                    let truckDirt4 = child.clone()
+                    if (truckDirt4) {
+                        truckDirt4.position.copy(new THREE.Vector3(-1394, 472, 58))
+                        truckDirt4.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
+                        truckDirt4.scale.copy(new THREE.Vector3(3, 3, 3))
+                        // window.map.scene.add(truckDirt3)
+                    }
+                    dirts.current = [truckDirt, truckDirt1, truckDirt2, truckDirt3, truckDirt4]
 
                     // -396, -2045, 40
                     const truck1Position = new THREE.Vector3(-1395, 490, 50);
@@ -1122,7 +1142,14 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         truck2Dirt3.scale.copy(new THREE.Vector3(3, 3, 3))
                         // window.map.scene.add(truckDirt3)
                     }
-                    dirts2.current = [truck2Dirt, truck2Dirt1, truck2Dirt2, truck2Dirt3]
+                    let truck2Dirt4 = truckDirt3?.clone()
+                    if (truck2Dirt4) {
+                        truck2Dirt4.position.copy(new THREE.Vector3(-1390, 470, 56).add(offset))
+                        truck2Dirt4.rotation.copy(new THREE.Euler(Math.PI * 2, 3, Math.PI))
+                        truck2Dirt4.scale.copy(new THREE.Vector3(3, 3, 3))
+                        // window.map.scene.add(truckDirt3)
+                    }
+                    dirts2.current = [truck2Dirt, truck2Dirt1, truck2Dirt2, truck2Dirt3, truck2Dirt4]
                 }
                 else if (child.name == 'Cylinder020') {
                     body = child
