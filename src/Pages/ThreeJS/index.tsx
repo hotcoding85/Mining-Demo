@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import './index.css'
 import mapboxgl from 'mapbox-gl';
 import _ from 'lodash';
-import { Checkbox, CheckboxProps, Segmented, Space } from 'antd';
+import { Checkbox, CheckboxProps, Segmented, Space, Button } from 'antd';
 import 'antd/dist/reset.css';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
@@ -13,6 +13,7 @@ import { THREEJSMap } from 'Pages/3DMap';
 import * as THREE from 'three';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { ReloadOutlined } from '@ant-design/icons';
 
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
@@ -594,9 +595,11 @@ export const ThreeJS = () => {
                                 <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
                                     {annotations.map((annotation: any, index) => (
                                         <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
-                                            <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', borderBottom: '1px solid white' }}>
+                                            <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', borderBottom: '1px solid white', flexDirection:'column' }}>
                                                 <h3 style={{ fontWeight: 800, marginBottom: 0, fontSize: '18px', color: annotation.status === 'Waiting' ? 'purple' : '#00ff00' }}>{annotation.text}</h3>
-                                                {/* <div style={{width: '20px', height: '20px', borderRadius: '50%', background: 'green', marginLeft: '1rem'}}></div> */}
+                                                {annotation.type === 'excavator' && <h6 style={{marginBottom: 0}}>
+                                                    <div style={{fontSize: '10px'}}>{annotation.operator}</div>
+                                                </h6>}
                                             </div>
                                             <div className='annotation-content' style={{ marginTop: '0.5rem', paddingLeft: '0rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
                                                 {
@@ -654,8 +657,12 @@ export const ThreeJS = () => {
                                                                 <>
                                                                     <h6 style={{ fontSize: '14px' }}>Loading</h6>
                                                                     <h6>
-                                                                        <div>Operator:</div>
-                                                                        <div>{annotation.operator}</div>
+                                                                        <div>Payload:</div>
+                                                                        <div>{annotation.tonnes}T</div>
+                                                                    </h6>
+                                                                    <h6>
+                                                                        <div>Passes:</div>
+                                                                        <div>{annotation.passes}</div>
                                                                     </h6>
                                                                 </>
                                                             )
