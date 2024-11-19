@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import './index.css'
 import mapboxgl from 'mapbox-gl';
 import _ from 'lodash';
-import { Checkbox, CheckboxProps } from 'antd';
+import { Checkbox, CheckboxProps, Segmented, Space } from 'antd';
 import 'antd/dist/reset.css';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
 import { DropdownType } from 'Components/Common/Dropdown';
@@ -17,7 +17,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
 
-    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs',        'Restricted', 'Dump Locations'];
+    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations', 'Auto'];
     const defaultLayers = ['Active Benches'];
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
@@ -37,13 +37,16 @@ export const ThreeJS = () => {
     const [lng, setLng] = useState(120.44871814239025);
     const [lat, setLat] = useState(-29.1506602184213);
     const geojsonData = useRef<any>();
-
+    const cameraAnimationFrameId = useRef<any>(null)
+    const currentActiveEq = useRef<any>(1)
+    const totalPositions = useRef<any[]>([])
     const [annotations, setAnnotations] = useState<any>([]);
     const annotationsRef = useRef<any[]>([])
     // state for Map loading status
     let animationFrameId: number;
     let map: any;
-
+    const [filter, setFilter] = useState<string>("All Equipment");
+    const currentFilterRef = useRef<any>(null)
     useEffect(() => {
         dispatch(getAllVehicleRoutes())
         dispatch(getGeoFences()); // Dispatch action to fetch data on component mount
@@ -80,7 +83,7 @@ export const ThreeJS = () => {
             time: '01:20',
             tonnes: '45.6',
             operator: 'Cody Fisher',
-            passes: '6',
+            passes: '5',
             totalTime: '16:24:45'
         }
         const drillAnnotation ={
@@ -93,8 +96,52 @@ export const ThreeJS = () => {
             operator: 'James Riden',
             totalTime: '16:24:45'
         }
-        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation])
-        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation]
+
+        const waitingAnnotation2 ={
+            type: 'truck',
+            position: new THREE.Vector3(-505, -1940, 50),
+            text: 'DT122',
+            status: 'Waiting',
+            model: 'HD1500',
+            time: '00:48',
+            tonnes: '0',
+            operator: 'Adam Smith',
+            lastTime: '15:29'
+        }
+        const loadingAnnotation2 ={
+            type: 'truck',
+            position: new THREE.Vector3(-396, -2045, 55),
+            text: 'DT102',
+            status: 'Loading',
+            time: '00:49',
+            model: 'HD1500',
+            tonnes: '32.6',
+            lastTime: '12:53',
+            operator: 'Lincoln Jr'
+        }
+        const excavatorAnnotation2 ={
+            type: 'excavator',
+            position: new THREE.Vector3(-380, -2111, 55),
+            text: 'EX201',
+            status: 'Loading',
+            time: '01:20',
+            tonnes: '106.4',
+            operator: 'Ivan Shyba',
+            passes: '5',
+            totalTime: '11:32:21'
+        }
+        const drillAnnotation2 ={
+            type: 'drill',
+            position: new THREE.Vector3(-608, -1356, 50),
+            text: 'DR002',
+            status: 'Loading',
+            time: '02:18',
+            counts: '3',
+            operator: 'Ben Scott',
+            totalTime: '16:24:45'
+        }
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2]
 
         // load large dirt
         // loadLargeDirt()
@@ -121,6 +168,8 @@ export const ThreeJS = () => {
             if (mapContainer.current && mapContainer.current.firstChild) {
                 mapContainer.current.removeChild(mapContainer.current.firstChild);
             }
+
+            cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
         };
     }, []); // Added dependencies to reinitialize map if lat/lng changes
 
@@ -182,7 +231,7 @@ export const ThreeJS = () => {
     }
 
     useEffect(() => {
-        if (!isLoading && window.map) {
+        if (!isLoading && window.map && window.camera) {
             let animationCameraId = 0
             const startPosition = window.map.camera.position.clone();
             const point = new THREE.Vector3(-1400, 470, 70); // Zoom offset
@@ -206,6 +255,7 @@ export const ThreeJS = () => {
 
             // Set the final position in animateZoom
             const animateZoom = (time) => {
+                if (!window.camera) return
                 if (startTime === null) startTime = time;
                 const _elapsed = time - (startTime ? startTime : time);
                 const progress = Math.min(_elapsed / zoomDuration, 1);
@@ -238,6 +288,17 @@ export const ThreeJS = () => {
                         window.controls.update();
                         window.renderer.render(window.map.scene, window.camera);
                         if (window.controls) window.controls.enabled = true;
+
+                        const isAuto = checkedList.find(item => item === 'Auto')
+                        if (isAuto) {
+                            currentActiveEq.current ++
+                            cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
+                            cameraAnimationFrameId.current = setInterval(_animateZoom, 10000)
+                        }
+                        else{
+                            currentActiveEq.current = null
+                            cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
+                        }
                     }, 100);
                 }
             };
@@ -251,6 +312,13 @@ export const ThreeJS = () => {
             }
             if (window.DrillObject) {
                 window.map.scene.add(window.DrillObject);
+
+                const clonedDrill = window.DrillObject.clone();
+                clonedDrill.position.x = -608; // Apply X offset
+                clonedDrill.position.y = -1356; // Apply Y offset
+
+                console.log(clonedDrill.position)
+                window.map.scene.add(clonedDrill);
             }
             // add waiting truck
             if (window.TruckObject) {
@@ -261,6 +329,15 @@ export const ThreeJS = () => {
                     copyModel.rotation.z += Math.PI
     
                     window.map.scene.add(copyModel)
+                }
+
+                const copyModel2 = window.TruckObject.clone();
+                if (copyModel2) {
+                    copyModel2.visible = true
+                    copyModel2.position.set(-505, -1940, 45)
+                    copyModel2.rotation.z += Math.PI
+    
+                    window.map.scene.add(copyModel2)
                 }
             }
         }
@@ -334,6 +411,101 @@ export const ThreeJS = () => {
     const checkAll = layerOptions.length === checkedList.length;
     const indeterminate = checkedList.length > 0 && checkedList.length < layerOptions.length;
     const CheckboxGroup = Checkbox.Group;
+
+    useEffect(() => {
+        if (window.map && window.map.scene) {
+            // checkedList
+            const isAuto = checkedList.find(item => item === 'Auto')
+            if (isAuto) {
+                currentActiveEq.current ++
+                cameraAnimationFrameId.current = setInterval(_animateZoom, 10000)
+            }
+            else{
+                currentActiveEq.current = null
+                cameraAnimationFrameId.current && clearInterval(cameraAnimationFrameId.current)
+            }
+        }
+    }, [checkedList])
+
+    useEffect(() => {
+        currentFilterRef.current = filter
+    }, [filter])
+
+    const _animateZoom = () => {
+        let targetAnnotation: any = null;
+
+        if (currentFilterRef.current === 'All Equipment') {
+            totalPositions.current = annotationsRef.current.filter(eq => eq.type !== 'truck'); // For demonstration, select the first annotation
+        } else if (currentFilterRef.current === 'EXCAVATOR') {
+            totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'excavator');
+        } else if (currentFilterRef.current === 'DRILLER') {
+            totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'drill');
+        } else if (currentFilterRef.current === 'DOZER') {
+            // Add logic for dozers if necessary
+        }
+        targetAnnotation = totalPositions.current[currentActiveEq.current % (totalPositions.current.length)]
+        currentActiveEq.current = currentActiveEq.current % (totalPositions.current.length)
+        if (targetAnnotation) {
+            const startPosition = window.map.camera.position.clone();
+            const point = targetAnnotation.position.clone(); // Position from the selected annotation
+            point.z += 100
+            point.x -= 100
+            point.y += 100
+            const zoomDuration = 1000; // 1 second
+            let startTime: number | null = null;
+            let animationCameraId = 0;
+            window.isAnimation = true;
+            if (window.controls) window.controls.enabled = false;
+
+            const sph = new THREE.Spherical();
+            sph.radius = 110; // Adjust distance if necessary
+            sph.theta = 1.2; // Adjust angle as needed
+            sph.phi = -2.06; // Adjust angle between 0 and Math.PI
+
+            const sphericalOffset = new THREE.Vector3();
+            sphericalOffset.setFromSpherical(sph);
+
+            const targetPosition = point.clone().add(sphericalOffset);
+
+            const animateCamera = (time: any) => {
+                if (!startTime) startTime = time;
+                const elapsed = time - (startTime ? startTime : time);
+                const progress = Math.min(elapsed / zoomDuration, 1);
+
+                // Interpolate the camera position
+                window.camera.position.lerpVectors(startPosition, targetPosition, progress);
+                // Animate the controls target
+                window.controls.target.lerpVectors(startPosition, point, progress);
+
+                // Save the current camera position and orientation for reference
+                window.savedCameraPosition = window.camera.position.clone();
+                window.savedCameraQuaternion = window.camera.quaternion.clone();
+
+                window.camera.updateProjectionMatrix();
+                window.camera.updateMatrixWorld();
+
+                if (progress < 1) {
+                    animationCameraId = requestAnimationFrame(animateCamera);
+                } else {
+                    window.camera.position.copy(targetPosition);
+                    window.controls.target.copy(point);
+                    window.isAnimation = false;
+
+                    setTimeout(() => {
+                        window.controls.update();
+                        window.renderer.render(window.map.scene, window.camera);
+                        if (window.controls) window.controls.enabled = true;
+                        currentActiveEq.current ++
+                    }, 100);
+                }
+            };
+            
+            animationCameraId = requestAnimationFrame(animateCamera);
+        }
+        else{
+            currentActiveEq.current ++ 
+        }
+    }
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const onDocumentMouseClick = useCallback((event) => {
@@ -363,6 +535,7 @@ export const ThreeJS = () => {
             const intersectedObject = intersects[0].object;
             // Get the first intersection point
             let realWorldPosition = intersects[0].point;
+            // console.log(realWorldPosition)
             if (window.DiggerObject){
                 window.DiggerObject.group.visible = true
                 // window.DiggerObject.group.position.set(realWorldPosition.x, realWorldPosition.y, realWorldPosition.z + 10);
@@ -377,6 +550,13 @@ export const ThreeJS = () => {
                     <Container fluid>
                     <Breadcrumb title="Home" breadcrumbItem="3D Pit View" />
                     <Row>
+                        <Col md="12" className='mb-4 d-flex flex-row-reverse'>
+                            <Space>
+                                <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]} />
+                            </Space>
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col lg="12">
                         <div style={{ alignContent: 'center', marginBottom: '20px' }}>
                             <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll}>
@@ -384,7 +564,7 @@ export const ThreeJS = () => {
                             </Checkbox>
                             <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                         </div>
-                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 200px)' isPitView={true}>
+                            <THREEJSMap ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => {}} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 220px)' isPitView={true} equipmentFilter={filter}>
                                 {annotations.map((annotation: any, index) => (
                                     <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                         <div style={{padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', borderBottom: '1px solid white'}}>
