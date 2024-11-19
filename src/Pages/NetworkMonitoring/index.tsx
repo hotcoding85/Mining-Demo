@@ -1189,6 +1189,8 @@ const NetworkMonitoring = (props: any) => {
 
         setIsModalOpen(false)
         setAddStatus(false)
+        setSelectedEquipment(null)
+        selectedModelRef.current = null
     }, [newTitle, selectedUplinkAntennas])
 
     const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
