@@ -159,7 +159,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         diggerImport && fetch3DExcavator()
         drillImport && fetch3DDrill()
         fetchGeofences()
-        fetchZipFile()
+        loadMapView()
         // Clean up on component unmount
         return () => {
             window.map && window.map.clean()
@@ -226,8 +226,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             }
             geoFences.current = null
 
-            intervalId.current &&  clearInterval(intervalId.current);
-            intervalId2.current &&  clearInterval(intervalId2.current);
+            intervalId.current && clearInterval(intervalId.current);
+            intervalId2.current && clearInterval(intervalId2.current);
         };
 
     }, []); // Added dependencies to reinitialize map if lat/lng changes
@@ -242,7 +242,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             if (diggerImport && window.DiggerObject && window.DiggerObject.group) {
                 window.map.scene.add(window.DiggerObject.group);
                 mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
-                clock.current = new THREE.Clock();          
+                clock.current = new THREE.Clock();
             }
             if (drillImport && window.DrillHole) {
                 const rows = 10;
@@ -265,7 +265,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         }
                     }
                 }
-            
+
                 // Step 2: Loop through the grid and create objects based on holeType
                 for (let i = 0; i < rows; i++) {
                     for (let j = 0; j < columns; j++) {
@@ -275,7 +275,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                             1500 - i * spacingY,  // Adjust Y position for each row
                             45                    // Z position remains the same
                         );
-            
+
                         if (holeType === 'drilled') {
                             // Clone and configure drilled hole
                             const object = window.DrillHole.clone();
@@ -295,10 +295,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
                             const markerGeometry = new THREE.CircleGeometry(3, 32);
                             let materialColor = 0xff0000;
-            
+
                             const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
                             const marker = new THREE.Mesh(markerGeometry, material);
-            
+
                             marker.position.copy(position);
                             marker.position.z += 0; // Slight offset for visibility
                             // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
@@ -308,7 +308,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                             // Create a circle marker for 'unDrilled' or 'angleHole'
                             const markerGeometry = new THREE.CircleGeometry(3, 32);
                             let materialColor;
-            
+
                             if (holeType === 'unDrilled') {
                                 materialColor = 0x0000ff; // Blue color for unDrilled
                                 unDrilledHoles.push(position); // Store position of unDrilled hole
@@ -316,10 +316,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                                 materialColor = Math.random() > 0.5 ? 0xff0000 : 0x0000ff; // Red color for angleHole
                                 angleHoles.push(position); // Store position of angleHole
                             }
-            
+
                             const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
                             const marker = new THREE.Mesh(markerGeometry, material);
-            
+
                             marker.position.copy(position);
                             marker.position.z += 0; // Slight offset for visibility
                             // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
@@ -331,17 +331,17 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                             if (holeType === 'angleHole') {
                                 const arrowDir = new THREE.Vector3(1, 1, 0); // Example direction for arrow
                                 const arrowHelper = new THREE.ArrowHelper(
-                                    arrowDir, 
-                                    position, 
+                                    arrowDir,
+                                    position,
                                     10, // Length of the arrow
                                     materialColor // Color of the arrow
                                 );
-                                arrowHelper.userData = {isHole: true}
+                                arrowHelper.userData = { isHole: true }
                                 arrowHelper.rotation.z = -(Math.PI / 4) - Math.PI / 2
                                 arrowHelper.position.copy(new THREE.Vector3(position.x - 3, position.y + 2.5, position.z))
                                 window.map.scene.add(arrowHelper);
                             }
-            
+
                             window.map.scene.add(marker);
                         }
                     }
@@ -353,18 +353,18 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         const end = holes[i + 1];
                         const direction = new THREE.Vector3().subVectors(end, start).normalize();
                         const arrowLength = start.distanceTo(end);
-            
+
                         const arrowHelper = new THREE.ArrowHelper(
                             direction,
                             start,
                             arrowLength,
                             color // Color for the arrow connecting holes
                         );
-                        arrowHelper.userData={isHole: true, isDrillPattern: true}
+                        arrowHelper.userData = { isHole: true, isDrillPattern: true }
                         window.map.scene.add(arrowHelper);
                     }
                 };
-            
+
                 // Add sequences for drilled, unDrilled, and angleHoles
                 addArrowSequence(drilledHoles, 0xff00ff); // Magenta color for drilled holes
                 addArrowSequence(unDrilledHoles, 0xff00ff); // Blue color for unDrilled holes
@@ -397,7 +397,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 clonedTruck.position.copy(new THREE.Vector3(-396, -2045, 40))
                 window.map.scene.add(clonedTruck);
             }
-            
+
             // Adding the DiggerObject to the scene
             if (diggerImport && window.DiggerObject2 && window.DiggerObject2.group) {
                 // Add the entire excavator object to the group and scene
@@ -411,7 +411,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     window.map.scene.add(dirt)
                 })
             }
-        } 
+        }
     }, [isLoading])
 
     const fetchGeofences = async () => {
@@ -446,73 +446,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         await _fetchGeofences()
     }
 
-    const fetchZipFile = async () => {
-        const _fetchZipFile = async () => {
-            const retrievedData = await getDataByKey('mainGeojson');
-            if (retrievedData) {
-                processZipFile(retrievedData)
-            }
-            else {
-                const zipBuffer = await fetch('/240817_Pits_3D_WGS84.zip').then(response => response.arrayBuffer())
-                JSZip.loadAsync(zipBuffer).then(data => {
-                    return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
-                }).then(async (text) => {
-                    var geojsonData = JSON.parse(text as string)
-                    processZipFile(geojsonData)
-                    await addOrUpdateData('mainGeojson', geojsonData);
-                })
-            }
-        };
-
-        await _fetchZipFile();
-    }
-
-    const processZipFile = async (geojsonData) => {
-        // const _processZipFile = async () => {
-        //     // const retrievedData = await getDataByKey('imageData');
-        //     // // if (retrievedData) {
-        //     // //     loadMapView(geojsonData, retrievedData);
-        //     // // }
-        //     // // else{
-        // Fetch the ZIP file and get its ArrayBuffer
-        const zipBuffer = await fetch('/images.zip').then(response => response.arrayBuffer());
-
-        // Initialize an object to hold image data
-        let image_data = {};
-
-        // Load the ZIP file using JSZip
-        const zip = await JSZip.loadAsync(zipBuffer);
-
-        // Create an array to hold promises
-        const promises: any = [];
-
-        // Iterate through each file in the ZIP
-        zip.forEach((relativePath, file) => {
-            // Check if the file is a WebP image
-            if (file.name.endsWith('.webp')) {
-                // Create a promise for each image processing
-                const promise = file.async('arraybuffer').then(data => {
-                    // Extract the filename without extension
-                    const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-                    // Store the image data in the object
-                    image_data[fileNameWithoutExtension] = data;
-                });
-                promises.push(promise);
-            }
-        });
-
-        // Wait for all promises to resolve
-        await Promise.all(promises);
-
-        loadMapView(geojsonData, image_data);
-        geojsonData = null
-        image_data = {}
-        //         await addOrUpdateData('imageData', image_data);
-        //     }
-        // }
-
-        // await _processZipFile();
-    }
     const mixerRef = useRef<THREE.AnimationMixer | null>(null);
     const mixerRef2 = useRef<THREE.AnimationMixer | null>(null);
     const createExcavatorDiggingAnimation = (excavator: any) => {
@@ -546,7 +479,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Arm rotation (inward and outward motion)
         const armTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [armStart, armStart + 2,  armStart + 5],
+            [armStart, armStart + 2, armStart + 5],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.5, 0, 0)).toArray(),
@@ -593,7 +526,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Boom rotation (up and down motion)
         const armDumpingTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [dumpingStart, dumpingStart + 2,  dumpingStart + 9, dumpingStart + 11],
+            [dumpingStart, dumpingStart + 2, dumpingStart + 9, dumpingStart + 11],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
@@ -662,7 +595,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             const delta = clock.getDelta(); // Time since last frame
             if (mixerRef.current) {
                 mixerRef.current.update(delta); // Update the animation mixer
-        
+
                 // Get the current time within the action's play duration
                 if (action.time >= loopDuration && !loaded) {
                     loaded = true
@@ -683,29 +616,29 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     loaded = true; // Allow count to increment only when we go past 15
                 }
 
-                
+
                 if (dirts.current.length > 0) {
                     if (count === 5 && (currentTime > 8 && currentTime < 15)) {
                         dirts.current.map((dirt, index) => {
                             dirt.visible = false
                         })
                     }
-                    else{
+                    else {
                         dirts.current.map((dirt, index) => {
                             if (count >= index + 1) {
                                 dirt.visible = true
                             }
-                            else{
+                            else {
                                 dirt.visible = false
                             }
                         })
                     }
                 }
             }
-        
+
             intervalId.current = requestAnimationFrame(updateAnimation); // Continue the render loop
         };
-        
+
         // Start the animation loop
         updateAnimation();
         // Return mixer for use in render loop
@@ -743,7 +676,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Arm rotation (inward and outward motion)
         const armTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [armStart, armStart + 2,  armStart + 5],
+            [armStart, armStart + 2, armStart + 5],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.5, 0, 0)).toArray(),
@@ -790,7 +723,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Boom rotation (up and down motion)
         const armDumpingTrack = new THREE.QuaternionKeyframeTrack(
             `${excavator.arm.uuid}.quaternion`,
-            [dumpingStart, dumpingStart + 2,  dumpingStart + 9, dumpingStart + 11],
+            [dumpingStart, dumpingStart + 2, dumpingStart + 9, dumpingStart + 11],
             [
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-0, 0, 0)).toArray(),
                 ...new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.5, 0, 0)).toArray(),
@@ -859,7 +792,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             const delta = clock.getDelta(); // Time since last frame
             if (mixerRef2.current) {
                 mixerRef2.current.update(delta); // Update the animation mixer
-        
+
                 // Get the current time within the action's play duration
                 if (action.time >= loopDuration && !loaded) {
                     loaded = true
@@ -880,29 +813,29 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     loaded = true; // Allow count to increment only when we go past 15
                 }
 
-                
+
                 if (dirts2.current.length > 0) {
                     if (count === 5 && (currentTime > 8 && currentTime < 15)) {
                         dirts2.current.map((dirt, index) => {
                             dirt.visible = false
                         })
                     }
-                    else{
+                    else {
                         dirts2.current.map((dirt, index) => {
                             if (count >= index + 1) {
                                 dirt.visible = true
                             }
-                            else{
+                            else {
                                 dirt.visible = false
                             }
                         })
                     }
                 }
             }
-        
+
             intervalId2.current = requestAnimationFrame(updateAnimation2); // Continue the render loop
         };
-        
+
         // Start the animation loop
         updateAnimation2();
         // Return mixer for use in render loop
@@ -1056,7 +989,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                         child.renderOrder = 10000
                     }
                 }
-                if (child.name === 'Dirt'){
+                if (child.name === 'Dirt') {
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0x8B4513, // Default color if no material found
                         roughness: 0.5,
@@ -1191,7 +1124,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             window.DiggerObject.group.position.z += 10;
             window.DiggerObject.group.visible = true;
             window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
-            
+
             window.TruckObject.rotation.z += Math.PI
             window.TruckObject.visible = true
             window.TruckObject.traverse((child: any) => {
@@ -1272,7 +1205,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 if (child.name == 'Cylinder020') {
                     body = child
                 }
-                else if (child.name === 'Dirt'){
+                else if (child.name === 'Dirt') {
                     child.material = new THREE.MeshStandardMaterial({
                         color: 0x8B4513, // Default color if no material found
                         roughness: 0.5,
@@ -1374,20 +1307,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         isAnimationRef.current = isAnimation;
     }, [isAnimation]);
 
-    const loadMapView = useCallback(async (_geojsonData: JSON, image_data) => {
-        geojsonData.current = _geojsonData;
+    const loadMapView = useCallback(async () => {
 
-        _.map(geojsonData.current.features, (feature) => {
-            const bounds = bbox(feature);
-            const item = {
-                minX: bounds[0],
-                minY: bounds[1],
-                maxX: bounds[2],
-                maxY: bounds[3],
-                feature: feature
-            };
-            index.insert(item);
-        });
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1e6);
 
@@ -1448,7 +1369,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         const source = new Source('mapbox', mapboxgl.accessToken);
         let nTiles = 24;
         let zoom = 18
-        const map = new Map(scene, window.camera, source, position, nTiles, zoom, {}, _geojsonData, image_data);
+        const map = new Map(scene, window.camera, source, position, nTiles, zoom, {});
         window.map = map;
         const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
         window.mapPicker = mapPicker;

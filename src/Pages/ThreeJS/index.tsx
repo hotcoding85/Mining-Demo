@@ -18,7 +18,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
 
-    const layerOptions = ['Active Benches', 'Current Haul Routes', 'Future Road Designs', 'Speed Restrictions', 'Pit Bottom', 'Pit Climb', 'Stop Signs', 'Restricted', 'Dump Locations', 'Auto', "Connecting Lines"];
+    const layerOptions = ['Auto', "Connecting Lines"];
     const defaultLayers = ['Active Benches'];
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [checkedList, setCheckedList] = useState<string[]>(defaultLayers);
@@ -592,9 +592,6 @@ export const ThreeJS = () => {
                         <Row>
                             <Col lg="12">
                                 <div style={{ alignContent: 'center', marginBottom: '20px' }}>
-                                    <Checkbox indeterminate={indeterminate} onChange={onCheckAllChange} checked={checkAll}>
-                                        All
-                                    </Checkbox>
                                     <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                                     <Button size='small' style={{width: '100px', marginLeft: '0.5rem'}} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
                                 </div>

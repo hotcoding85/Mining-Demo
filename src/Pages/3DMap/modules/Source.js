@@ -1,76 +1,74 @@
 import { addOrUpdateData, getDataByKey } from 'interfaces/IDB';
 import * as THREE from 'three'
 import RBush from 'rbush';
-import bbox from '@turf/bbox';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import getPixels from 'image-pixels'
 import QuadTextureMaterial from './QuadTextureMaterial'
 import _ from 'lodash';
 import STOP_SIGN_PNG from 'assets/images/stop_sign.png'
-const tileMaterial = new THREE.MeshNormalMaterial({wireframe: true})
+const tileMaterial = new THREE.MeshNormalMaterial({ wireframe: true })
 const baseTileSize = 512
 const token = 'sk.eyJ1IjoibXlreXRhcyIsImEiOiJjbTExNjUwODgwbHN0MmxzZ3l1YzFmdmlsIn0.pbDu9G65zies9q30ZwlbQA'
 export class Source {
-    constructor(api, token, options) {
-      this.supportedApis = {
-        'osm': this.mapUrlOSM.bind(this),
-        'mapbox': this.mapUrlMapbox.bind(this),
-        'eox': this.mapUrlSentinel2Cloudless.bind(this),
-        'maptiler': this.mapUrlmapTiler.bind(this),
-      }
-      if (!(api in this.supportedApis)) {
-        throw new Error('Unknown source api');
-      }
-      this.api = api
-      this.token = token
-      this.options = options
+  constructor(api, token, options) {
+    this.supportedApis = {
+      'osm': this.mapUrlOSM.bind(this),
+      'mapbox': this.mapUrlMapbox.bind(this),
+      'eox': this.mapUrlSentinel2Cloudless.bind(this),
+      'maptiler': this.mapUrlmapTiler.bind(this),
     }
-  
-    mapUrlOSM(z, x, y) {
-      return `https://c.tile.openstreetmap.org/${z}/${x}/${y}.png`
+    if (!(api in this.supportedApis)) {
+      throw new Error('Unknown source api');
     }
+    this.api = api
+    this.token = token
+    this.options = options
+  }
 
-    async mapUrlMapbox(z, x, y) {
-      const styleId = "cm0nq8gmt002p01pq62w695ce";
-      const token = this.token;
-      const url = `https://api.mapbox.com/v4/mykytas.3bho3ytt/${z}/${x}/${y}.webp?sku=101nNnqDhoG1q&access_token=${token}`
-      // return await this.isValidImage(url, z, x, y)
-      return `./images/${z}_${x}_${y}.webp`
-    }
-    async isValidImage(url, z, x, y) {
-        const styleId = "cm0nq8gmt002p01pq62w695ce";
-        const token = this.token;
-        try {
-            const response = await fetch(url);
-            
-            // Check if the request was successful (status code 200)
-            if (response.status === 200) {
-                // Check if the content type is an image
-                const contentType = response.headers.get('Content-Type');
-                if (contentType && contentType.startsWith('image')) {
-                  return url
-                } 
-            } 
-              return `https://api.mapbox.com/styles/v1/mykytas/${styleId}/tiles/${z}/${x}/${y}?access_token=${token}&zoomwheel=true&fresh=true`;
-        } catch (error) {
-          return `https://api.mapbox.com/styles/v1/mykytas/${styleId}/tiles/${z}/${x}/${y}?access_token=${token}&zoomwheel=true&fresh=true`;
+  mapUrlOSM(z, x, y) {
+    return `https://c.tile.openstreetmap.org/${z}/${x}/${y}.png`
+  }
+
+  async mapUrlMapbox(z, x, y) {
+    const styleId = "cm0nq8gmt002p01pq62w695ce";
+    const token = this.token;
+    const url = `https://api.mapbox.com/v4/mykytas.3bho3ytt/${z}/${x}/${y}.webp?sku=101nNnqDhoG1q&access_token=${token}`
+    // return await this.isValidImage(url, z, x, y)
+    return `/images/${z}_${x}_${y}.webp`
+  }
+  async isValidImage(url, z, x, y) {
+    const styleId = "cm0nq8gmt002p01pq62w695ce";
+    const token = this.token;
+    try {
+      const response = await fetch(url);
+
+      // Check if the request was successful (status code 200)
+      if (response.status === 200) {
+        // Check if the content type is an image
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.startsWith('image')) {
+          return url
         }
+      }
+      return `https://api.mapbox.com/styles/v1/mykytas/${styleId}/tiles/${z}/${x}/${y}?access_token=${token}&zoomwheel=true&fresh=true`;
+    } catch (error) {
+      return `https://api.mapbox.com/styles/v1/mykytas/${styleId}/tiles/${z}/${x}/${y}?access_token=${token}&zoomwheel=true&fresh=true`;
     }
-    
-  
-    mapUrlSentinel2Cloudless(z, x, y) {
-      // cf. https://tiles.maps.eox.at/wmts/1.0.0/WMTSCapabilities.xml
-      return `https://tiles.maps.eox.at/wmts?layer=s2cloudless_3857&style=default&tilematrixset=g&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix=${z}&TileCol=${x}&TileRow=${y}`
-    }
-  
-    mapUrlmapTiler(z, x, y) {
-      return `https://api.maptiler.com/tiles/satellite/${z}/${x}/${y}.jpg?key=${this.token}`
-    }
-  
-    mapUrl(z, x, y) {
-      return this.supportedApis[this.api](z, x, y)
-    }
-  
+  }
+
+
+  mapUrlSentinel2Cloudless(z, x, y) {
+    // cf. https://tiles.maps.eox.at/wmts/1.0.0/WMTSCapabilities.xml
+    return `https://tiles.maps.eox.at/wmts?layer=s2cloudless_3857&style=default&tilematrixset=g&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix=${z}&TileCol=${x}&TileRow=${y}`
+  }
+
+  mapUrlmapTiler(z, x, y) {
+    return `https://api.maptiler.com/tiles/satellite/${z}/${x}/${y}.jpg?key=${this.token}`
+  }
+
+  mapUrl(z, x, y) {
+    return this.supportedApis[this.api](z, x, y)
+  }
+
 }
 const index = new RBush();
 class Tile {
@@ -90,24 +88,24 @@ class Tile {
   calculateCentroid(coordinates) {
     let x = 0, y = 0, z = 0;
     const total = coordinates.length;
-  
+
     coordinates.forEach(([lon, lat]) => {
       const latitude = (lat * Math.PI) / 180;
       const longitude = (lon * Math.PI) / 180;
-  
+
       x += Math.cos(latitude) * Math.cos(longitude);
       y += Math.cos(latitude) * Math.sin(longitude);
       z += Math.sin(latitude);
     });
-  
+
     x = x / total;
     y = y / total;
     z = z / total;
-  
+
     const centralLongitude = Math.atan2(y, x);
     const centralSquareRoot = Math.sqrt(x * x + y * y);
     const centralLatitude = Math.atan2(z, centralSquareRoot);
-  
+
     return [(centralLongitude * 180) / Math.PI, (centralLatitude * 180) / Math.PI];
   }
 
@@ -127,6 +125,7 @@ class Tile {
 
   mapUrl() {
     // return this.map.source.mapUrl(this.z, this.x, this.y)
+    // return this.map.source.mapUrlMapbox(this.z, this.x, this.y)
     return this.map.imageData[this.z + '_' + this.x + '_' + this.y]
   }
   pixelToLatLng(
@@ -135,17 +134,17 @@ class Tile {
     pixelX,
     pixelY,
     zoom
-  ){
+  ) {
     const n = Math.pow(2, zoom);
-  
+
     // Convert tile + pixel coordinates to world coordinates
     const worldX = (tileX + pixelX / 256) / n;
     const worldY = (tileY + pixelY / 256) / n;
-  
+
     // Convert world coordinates to latitude and longitude
     const longitude = worldX * 360 - 180;
     const latitude = (Math.atan(Math.sinh(Math.PI * (1 - 2 * worldY)))) * (180 / Math.PI);
-  
+
     return { latitude, longitude };
   }
 
@@ -160,39 +159,39 @@ class Tile {
     const elevation = new Float32Array(height * width);
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-          const ij = i + height * j;
-          // const rgba = pixels.data.slice(ij * 4, ij * 4 + 4);
+        const ij = i + height * j;
+        // const rgba = pixels.data.slice(ij * 4, ij * 4 + 4);
 
-          let elevationValue = 0;
-          const coord = this.pixelToLatLng(this.x, this.y, i, j, this.z);
-          const candidates = index.search({
-              minX: coord.longitude,
-              minY: coord.latitude,
-              maxX: coord.longitude,
-              maxY: coord.latitude
-          });
-          let nearestFeature = null;
+        let elevationValue = 0;
+        const coord = this.pixelToLatLng(this.x, this.y, i, j, this.z);
+        const candidates = index.search({
+          minX: coord.longitude,
+          minY: coord.latitude,
+          maxX: coord.longitude,
+          maxY: coord.latitude
+        });
+        let nearestFeature = null;
 
-          candidates.forEach((item) => {
-              const isInside = booleanPointInPolygon([coord.longitude, coord.latitude], item.feature.geometry);
-              if (isInside) {
-                nearestFeature = item.feature;
-                  return false; // Exit loop early if point is inside a polygon
-              }
-          });
-          if (nearestFeature) {
-            elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
+        candidates.forEach((item) => {
+          const isInside = booleanPointInPolygon([coord.longitude, coord.latitude], item.feature.geometry);
+          if (isInside) {
+            nearestFeature = item.feature;
+            return false; // Exit loop early if point is inside a polygon
           }
+        });
+        if (nearestFeature) {
+          elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
+        }
 
-          if (!nearestFeature || isNaN(elevationValue)) {
-            // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-            // elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 400;
-            elevationValue = 90
-          }
+        if (!nearestFeature || isNaN(elevationValue)) {
+          // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
+          // elevationValue = ((rgba[0] * 256 * 256 + rgba[1] * 256 + rgba[2]) * 0.1) - 10000 - 400;
+          elevationValue = 90
+        }
 
-          // Here you can decide how to use rgba values if needed
-          // For now, it simply uses elevationValue
-          elevation[ij] = elevationValue
+        // Here you can decide how to use rgba values if needed
+        // For now, it simply uses elevationValue
+        elevation[ij] = elevationValue
       }
     }
 
@@ -224,7 +223,7 @@ class Tile {
       geometry.attributes.position.setZ(
         i,
         this.elevation[
-          Math.round(Math.round(x * ratio) * nElevation + y * ratio)
+        Math.round(Math.round(x * ratio) * nElevation + y * ratio)
         ] * 2
       )
     }
@@ -271,9 +270,9 @@ class Tile {
       // Simulating the delay with setTimeout
       setTimeout(() => {
         const pixels = {
-            width: 256,
-            height: 256,
-            data: []
+          width: 256,
+          height: 256,
+          data: []
         };
         this.map.progress++;
         this.computeElevation(pixels);
@@ -367,22 +366,22 @@ class Tile {
   }
 }
 class Utils {
-  static long2tile (lon, zoom) {
+  static long2tile(lon, zoom) {
     return (lon + 180) / 360 * Math.pow(2, zoom)
   }
 
-  static lat2tile (lat, zoom) {
+  static lat2tile(lat, zoom) {
     return (
       (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)
-      )
+    )
   }
 
-  static geo2tile (geoLocation, zoom) {
+  static geo2tile(geoLocation, zoom) {
     const maxTile = Math.pow(2, zoom);
     return {
       x: Math.abs(Math.floor(Utils.long2tile(geoLocation[1], zoom)) % maxTile),
       y: Math.abs(Math.floor(Utils.lat2tile(geoLocation[0], zoom)) % maxTile)
-    } 
+    }
   }
 
   static tile2position(z, x, y, center, tileSize) {
@@ -404,36 +403,36 @@ class Utils {
     const centerPosition = Utils.tile2position(z, center.x, center.y, center, tileSize)
     const deltaX = Math.round((x - centerPosition.x) / tileSize)
     const deltaY = Math.round(-(y - centerPosition.y) / tileSize)
-    return {x: deltaX + center.x, y: deltaY + center.y, z}
+    return { x: deltaX + center.x, y: deltaY + center.y, z }
   }
 
   static latLngToTilePixel(latitude, longitude, zoom, tileSize = baseTileSize) {
     const sinLat = Math.sin(latitude * Math.PI / 180);
-    
+
     // Normalize world X (longitude)
     const worldX = (longitude + 180) / 360;
-    
+
     // Project latitude to world Y using Mercator projection
     const worldY = 0.5 - (Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI));
-    
+
     // Calculate world pixel coordinates
     const scale = tileSize * Math.pow(2, zoom);
     const pixelX = Math.floor(worldX * scale);
     const pixelY = Math.floor(worldY * scale);
-    
+
     // Calculate the tile coordinates
     const tileX = Math.floor(pixelX / tileSize);
     const tileY = Math.floor(pixelY / tileSize);
-    
+
     // Calculate the pixel coordinates within the tile
     const tilePixelX = pixelX % tileSize;
     const tilePixelY = pixelY % tileSize;
-    
+
     return {
-        tileX,
-        tileY,
-        tilePixelX,
-        tilePixelY
+      tileX,
+      tileY,
+      tilePixelX,
+      tilePixelY
     };
   }
 
@@ -444,7 +443,7 @@ class Utils {
 
     let tilePixelX = ((x - centerPosition.x) % tileSize + tileSize / 2) % tileSize;
     let tilePixelY = (-(y - centerPosition.y) % tileSize + tileSize / 2) % tileSize;
-    
+
     if (tilePixelX < 0) tilePixelX = tilePixelX + tileSize
     if (tilePixelY < 0) tilePixelY = tilePixelY + tileSize
     // Calculate the tile coordinates
@@ -452,12 +451,12 @@ class Utils {
     const tileY = deltaY + center.y;
 
     return {
-        tileX,
-        tileY,
-        tilePixelX,
-        tilePixelY
+      tileX,
+      tileY,
+      tilePixelX,
+      tilePixelY
     };
-}
+  }
 
 
 
@@ -477,15 +476,15 @@ class Utils {
     const latitude = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
 
     return {
-        latitude,
-        longitude
+      latitude,
+      longitude
     };
 
   }
 }
 
 export class Map {
-  constructor (scene, camera, source, geoLocation, nTiles, zoom=10, options, geojson, image_data) {
+  constructor(scene, camera, source, geoLocation, nTiles, zoom = 10, options) {
     this.scene = scene
     this.camera = camera
     this.source = source
@@ -500,24 +499,13 @@ export class Map {
     this.tubeMeshes = [];
     this.stopSignSprites = [];
     this.filteredCategories = [];
-    this.imageData = image_data
+    // this.imageData = image_data
     this.init()
 
-    geojson.features.map((feature) => {
-      let bounds = bbox(feature);
-      let item = {
-          minX: bounds[0],
-          minY: bounds[1],
-          maxX: bounds[2],
-          maxY: bounds[3],
-          feature: feature
-      };
-      index.insert(item);
-    });
   }
 
   setRoutes(_routes) {
-    if (_routes.length !== this.routes.length){
+    if (_routes.length !== this.routes.length) {
       this.routes = _routes
     }
   }
@@ -526,24 +514,24 @@ export class Map {
     // Calculate the offset of the current tile relative to the center tile
     const tileOffsetX = (tileX - centerTile.tileX) * tileSize;
     const tileOffsetY = -(tileY - centerTile.tileY) * tileSize;
-  
+
     // Calculate the total world position by adding the pixel offset inside the tile
     const worldX = tileOffsetX + tilePixelX - tileSize / 2;
     const worldY = tileOffsetY - tilePixelY + tileSize / 2;
-  
+
     // Assuming z=0 for 2D tile map, adjust if 3D height is needed
     return { x: worldX, y: worldY, z: 0 };
   }
 
-  convertGeoToPixel (lat, lng, zoom = this.zoom) {
+  convertGeoToPixel(lat, lng, zoom = this.zoom) {
     return Utils.latLngToTilePixel(lat, lng, zoom);
   }
 
-  convertXYToPixel (x, y, center = this.center, zoom = this.zoom) {
+  convertXYToPixel(x, y, center = this.center, zoom = this.zoom) {
     return Utils.pointToTilePixel(x, y, center, zoom, baseTileSize)
   }
 
-  convertTileToGeo (tileX, tileY, x, y, zoom = this.zoom, tileSize = this.tileSize) {
+  convertTileToGeo(tileX, tileY, x, y, zoom = this.zoom, tileSize = this.tileSize) {
     return Utils.tilePixelToLatLng(tileX, tileY, x, y, zoom, tileSize)
   }
 
@@ -555,152 +543,152 @@ export class Map {
     const centerLatLng = this.geoLocation; // Assuming getCenter() gets the current view center position
     const centerPixel = Utils.latLngToTilePixel(centerLatLng[0], centerLatLng[1], this.zoom);
     _.map(this.routes, (_route) => {
-        if (_route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE') {
-            const points = [];
-            const coordinates = _route.geoJson.geometry.coordinates;
-            // Loop over each coordinate and calculate its pixel position relative to the current view
-            for (let i = 0; i < coordinates.length; i++) {
-                const lat = coordinates[i][1]; // Latitude
-                const lng = coordinates[i][0]; // Longitude
+      if (_route.category !== 'STOP_SIGNS' && _route.status == 'ACTIVE') {
+        const points = [];
+        const coordinates = _route.geoJson.geometry.coordinates;
+        // Loop over each coordinate and calculate its pixel position relative to the current view
+        for (let i = 0; i < coordinates.length; i++) {
+          const lat = coordinates[i][1]; // Latitude
+          const lng = coordinates[i][0]; // Longitude
 
-                // Convert lat/lng to tile pixel
-                const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
-                const tileX = tilePixel.tileX;          // tile X coordinate of the point
-                const tileY = tilePixel.tileY;          // tile Y coordinate of the point
-                const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
-                const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+          // Convert lat/lng to tile pixel
+          const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
+          const tileX = tilePixel.tileX;          // tile X coordinate of the point
+          const tileY = tilePixel.tileY;          // tile Y coordinate of the point
+          const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+          const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
 
-                const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
-                // Create a THREE.Vector3 using view-relative pixel coordinates
-                const point = new THREE.Vector3(worldPos.x, worldPos.y, 0);
+          const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
+          // Create a THREE.Vector3 using view-relative pixel coordinates
+          const point = new THREE.Vector3(worldPos.x, worldPos.y, 0);
 
-                // Get the elevation for this point and set the Z coordinate
-                let elevationValue = 0
-                const candidates = index.search({
-                  minX: lng,
-                  minY: lat,
-                  maxX: lng,
-                  maxY: lat
-                });
-      
-                let nearestFeature = null;
-      
-                candidates.forEach((item) => {
-                    const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
-                    if (isInside) {
-                        nearestFeature = item.feature;
-                        return false; // Exit loop early if point is inside a polygon
-                    }
-                });
-                if (nearestFeature) {
-                  elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
-                }
-      
-                if (!nearestFeature || isNaN(elevationValue)) {
-                  // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-                  elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
-                }
-                point.z = elevationValue * 2
-                points.push(point);
+          // Get the elevation for this point and set the Z coordinate
+          let elevationValue = 0
+          const candidates = index.search({
+            minX: lng,
+            minY: lat,
+            maxX: lng,
+            maxY: lat
+          });
+
+          let nearestFeature = null;
+
+          candidates.forEach((item) => {
+            const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
+            if (isInside) {
+              nearestFeature = item.feature;
+              return false; // Exit loop early if point is inside a polygon
             }
-
-            // Create a curve from the points for TubeGeometry
-            const curve = new THREE.CatmullRomCurve3(points);
-
-            // Tube Geometry parameters: path, tubular segments, radius, radial segments, closed
-            const tubeGeometry = new THREE.TubeGeometry(curve, 100, 15, 10, false);
-
-            // Create the tube material with color from _route.color
-            const tubeMaterial = new THREE.MeshBasicMaterial({ color: _route.color, opacity: 0.4, transparent: true, depthTest: false, depthWrite: false });
-
-            // Create the tube mesh
-            const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-
-            // Add the tube mesh to the scene
-            this.tubeMeshes.push({
-              index: _route.category,
-              value: tubeMesh
-            })
-            this.scene.add(tubeMesh);
-        } else  if (_route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE') {
-          // Handle the STOP_SIGNS category by showing an image at the point
-          const coordinates = _route.geoJson.geometry.coordinates;
-          if (coordinates.length === 1) { // Assuming there's only one point for STOP_SIGNS
-            const lat = coordinates[0][1];
-            const lng = coordinates[0][0];
-
-            // Convert lat/lng to tile pixel
-            const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
-            const tileX = tilePixel.tileX;          // tile X coordinate of the point
-            const tileY = tilePixel.tileY;          // tile Y coordinate of the point
-            const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
-            const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
-
-            const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
-
-            // Create a sprite or mesh for the image
-            const imageTexture = new THREE.TextureLoader().load(STOP_SIGN_PNG); // Load your image
-            const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture });
-            const sprite = new THREE.Sprite(spriteMaterial);
-
-            // Set the sprite position at the calculated world position
-            // Get the elevation for this point and set the Z coordinate
-            const candidates = index.search({
-              minX: lng,
-              minY: lat,
-              maxX: lng,
-              maxY: lat
-            });
-  
-            let nearestFeature = null;
-  
-            candidates.forEach((item) => {
-                const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
-                if (isInside) {
-                    nearestFeature = item.feature;
-                    return false; // Exit loop early if point is inside a polygon
-                }
-            });
-            let elevationValue = 0
-            if (nearestFeature) {
-              elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
-            }
-  
-            if (!nearestFeature || isNaN(elevationValue)) {
-              // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
-              elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
-            }
-            sprite.position.set(worldPos.x, worldPos.y, (elevationValue * 2 + 60));
-            sprite.scale.set(50, 50, 1);
-            sprite.renderOrder = 999
-            // Add the sprite to the scene
-            this.scene.add(sprite);
-
-            // Optionally, you can push this into an array like `this.tubeMeshes` if you want to toggle its visibility later
-            this.stopSignSprites.push(sprite);
-
+          });
+          if (nearestFeature) {
+            elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
           }
+
+          if (!nearestFeature || isNaN(elevationValue)) {
+            // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
+            elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+          }
+          point.z = elevationValue * 2
+          points.push(point);
         }
-        this.setFilteredCategories(this.filteredCategories)
+
+        // Create a curve from the points for TubeGeometry
+        const curve = new THREE.CatmullRomCurve3(points);
+
+        // Tube Geometry parameters: path, tubular segments, radius, radial segments, closed
+        const tubeGeometry = new THREE.TubeGeometry(curve, 100, 15, 10, false);
+
+        // Create the tube material with color from _route.color
+        const tubeMaterial = new THREE.MeshBasicMaterial({ color: _route.color, opacity: 0.4, transparent: true, depthTest: false, depthWrite: false });
+
+        // Create the tube mesh
+        const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
+
+        // Add the tube mesh to the scene
+        this.tubeMeshes.push({
+          index: _route.category,
+          value: tubeMesh
+        })
+        this.scene.add(tubeMesh);
+      } else if (_route.category == 'STOP_SIGNS' && _route.status == 'ACTIVE') {
+        // Handle the STOP_SIGNS category by showing an image at the point
+        const coordinates = _route.geoJson.geometry.coordinates;
+        if (coordinates.length === 1) { // Assuming there's only one point for STOP_SIGNS
+          const lat = coordinates[0][1];
+          const lng = coordinates[0][0];
+
+          // Convert lat/lng to tile pixel
+          const tilePixel = Utils.latLngToTilePixel(lat, lng, this.zoom);
+          const tileX = tilePixel.tileX;          // tile X coordinate of the point
+          const tileY = tilePixel.tileY;          // tile Y coordinate of the point
+          const tilePixelX = tilePixel.tilePixelX; // pixel X position inside the tile
+          const tilePixelY = tilePixel.tilePixelY; // pixel Y position inside the tile
+
+          const worldPos = this.calculateWorldPosition(centerPixel, tileX, tileY, tilePixelX, tilePixelY, baseTileSize);
+
+          // Create a sprite or mesh for the image
+          const imageTexture = new THREE.TextureLoader().load(STOP_SIGN_PNG); // Load your image
+          const spriteMaterial = new THREE.SpriteMaterial({ map: imageTexture });
+          const sprite = new THREE.Sprite(spriteMaterial);
+
+          // Set the sprite position at the calculated world position
+          // Get the elevation for this point and set the Z coordinate
+          const candidates = index.search({
+            minX: lng,
+            minY: lat,
+            maxX: lng,
+            maxY: lat
+          });
+
+          let nearestFeature = null;
+
+          candidates.forEach((item) => {
+            const isInside = booleanPointInPolygon([lng, lat], item.feature.geometry);
+            if (isInside) {
+              nearestFeature = item.feature;
+              return false; // Exit loop early if point is inside a polygon
+            }
+          });
+          let elevationValue = 0
+          if (nearestFeature) {
+            elevationValue = Math.round(parseFloat(nearestFeature.geometry.elevation) * 100) / 100 - 400;
+          }
+
+          if (!nearestFeature || isNaN(elevationValue)) {
+            // elevationValue = parseFloat(rgba[0] * 256 + rgba[1] + rgba[2] / 256 - 32768)
+            elevationValue = this.getElevationAt([tilePixelX, tilePixelY], tileX, tileY);
+          }
+          sprite.position.set(worldPos.x, worldPos.y, (elevationValue * 2 + 60));
+          sprite.scale.set(50, 50, 1);
+          sprite.renderOrder = 999
+          // Add the sprite to the scene
+          this.scene.add(sprite);
+
+          // Optionally, you can push this into an array like `this.tubeMeshes` if you want to toggle its visibility later
+          this.stopSignSprites.push(sprite);
+
+        }
+      }
+      this.setFilteredCategories(this.filteredCategories)
     });
   }
 
 
-  
+
   setFilteredCategories(_categories) {
     this.filteredCategories = _categories;
-    
+
     if (this.tubeMeshes.length > 0) {
-        _.map(this.tubeMeshes, _tube => {
-            // Check if the category of the current tube is in the filtered categories
-            if (this.filteredCategories.includes(_tube.index)) {
-                // Show the tube
-                _tube.value.visible = true;
-            } else {
-                // Hide the tube
-                _tube.value.visible = false;
-            }
-        });
+      _.map(this.tubeMeshes, _tube => {
+        // Check if the category of the current tube is in the filtered categories
+        if (this.filteredCategories.includes(_tube.index)) {
+          // Show the tube
+          _tube.value.visible = true;
+        } else {
+          // Hide the tube
+          _tube.value.visible = false;
+        }
+      });
     }
     // Filter stopSignSprites
     if (this.stopSignSprites.length > 0) {
@@ -718,6 +706,11 @@ export class Map {
     this.center = Utils.geo2tile(this.geoLocation, this.zoom)
     const tileOffset = Math.floor(this.nTiles / 2)
 
+    this.imageData = await getDataByKey('imageData');
+
+    const retrievedData = await getDataByKey('mainGeoJson');
+    index.fromJSON(retrievedData)
+
     const _init = async () => {
       const retrievedData = await getDataByKey('tileCaches');
       if (retrievedData) {
@@ -734,29 +727,29 @@ export class Map {
         Promise.all(promises).then(tiles => {
           // Reverse the tiles array to avoid seam artifacts
           // tiles.reverse();
-      
+
           // Define a batch size for adding tiles incrementally
           const batchSize = 576; // You can adjust this size based on performance
-      
+
           for (let i = 0; i < batchSize; i++) {
-              const tile = tiles[i];
-              tile.setPosition(this.center);
-              this.scene.add(tile.mesh);
-              tile.resolveSeams(this.tileCache);
+            const tile = tiles[i];
+            tile.setPosition(this.center);
+            this.scene.add(tile.mesh);
+            tile.resolveSeams(this.tileCache);
           }
-      });
-      
+        });
+
 
         this.progress = this.nTiles * this.nTiles
       }
-      else{
+      else {
         for (let i = 0; i < this.nTiles; i++) {
           for (let j = 0; j < this.nTiles; j++) {
             const tile = new Tile(this, this.zoom, this.center.x + i - tileOffset, this.center.y + j - tileOffset, baseTileSize)
             this.tileCache[tile.key()] = tile
           }
         }
-    
+
         const promises = Object.values(this.tileCache).map(tile =>
           tile.fetch().then(tile => {
             tile.setPosition(this.center)
@@ -764,7 +757,7 @@ export class Map {
             return tile
           })
         )
-    
+
         Promise.all(promises).then(async tiles => {
           tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
             tile.resolveSeams(this.tileCache)
@@ -834,33 +827,33 @@ export class Map {
     // Dispose of all tube meshes
     this.tubeMeshes.forEach(tube => {
       if (tube.value) {
-          this.scene.remove(tube.value); // Remove tube mesh from the scene
-          tube.value.geometry.dispose();
-          if (tube.value.material) {
-              if (Array.isArray(tube.value.material)) {
-                  tube.value.material.forEach(material => {
-                    material.dispose()
-                    for (const key in material) {
-                      const value = (material)[key];
-                      if (value && typeof value === 'object' && value.isTexture) {
-                        value.dispose(); // Dispose the texture
-                      }
-                    }
-                  });
-              } else {
-                  tube.value.material.dispose();
+        this.scene.remove(tube.value); // Remove tube mesh from the scene
+        tube.value.geometry.dispose();
+        if (tube.value.material) {
+          if (Array.isArray(tube.value.material)) {
+            tube.value.material.forEach(material => {
+              material.dispose()
+              for (const key in material) {
+                const value = (material)[key];
+                if (value && typeof value === 'object' && value.isTexture) {
+                  value.dispose(); // Dispose the texture
+                }
               }
+            });
+          } else {
+            tube.value.material.dispose();
           }
+        }
       }
     });
 
     // Dispose of all stop sign sprites
     this.stopSignSprites.forEach(sprite => {
-        if (sprite) {
-          this.scene.remove(sprite); // Remove sprite from the scene
-          sprite.material.map.dispose(); // Dispose of the texture
-          sprite.material.dispose(); // Dispose of the sprite material
-        }
+      if (sprite) {
+        this.scene.remove(sprite); // Remove sprite from the scene
+        sprite.material.map.dispose(); // Dispose of the texture
+        sprite.material.dispose(); // Dispose of the sprite material
+      }
     });
     this.tileCache = {}
     this.tubeMeshes = [];
@@ -903,7 +896,7 @@ export class MapPicker {
 
     this.vec.unproject(this.camera);
     this.vec.sub(this.camera.position).normalize();
-    
+
     var distance = -this.camera.position.z / this.vec.z;
 
     this.position.copy(this.camera.position).add(this.vec.multiplyScalar(distance));
@@ -913,7 +906,7 @@ export class MapPicker {
     this.computeWorldPosition(event)
   }
 
-  onMouseDblClick (event) {
+  onMouseDblClick(event) {
     this.computeWorldPosition(event)
     this.map.addFromPosition(this.position.x, this.position.y)
   }
@@ -929,13 +922,13 @@ export class MapPicker {
     }
 
   }
-  
+
   drawLineBetweenPoints(point1, point2) {
     const material = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 10, depthTest: false, depthWrite: false });
-    
+
     // Create the points array directly from the two selected points
     const points = [point1.clone(), point2.clone()];
-  
+
     const {
       x,
       y,
@@ -945,11 +938,11 @@ export class MapPicker {
     // Get the elevation for the two points from the terrain
     const elevation1 = this.map.getElevationAt(point1);
     const elevation2 = this.map.getElevationAt(point2);
-  
+
     // Adjust Z based on elevation
     points[0].z = elevation1;
     points[1].z = elevation2;
-  
+
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geometry, material);
     this.map.scene.add(line);

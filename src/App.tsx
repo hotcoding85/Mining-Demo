@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 import { authProtectedRoutes, publicRoutes } from "./Routes/allRoutes";
@@ -35,10 +35,42 @@ const getLayout = (layoutType: any) => {
 };
 
 function App() {
- 
-  const { layoutTypes, layoutModeType } = useSelector(LayoutSelector);
 
+  const { layoutTypes, layoutModeType } = useSelector(LayoutSelector);
   const Layout = getLayout(layoutTypes);
+
+  useEffect(() => {
+    // Create a new web worker
+    const myWorker = new Worker(new URL('./workers/processImageData.ts', import.meta.url), { type: 'module' });
+    // Save the worker instance to state
+    myWorker.postMessage('start');
+    // Set up event listener for messages from the worker
+    myWorker.onmessage = function (event) {
+      console.log('Received result from imageData worker:', event.data);
+    };
+
+    // Clean up the worker when the component unmounts
+    return () => {
+      myWorker.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Create a new web worker
+    const myWorker = new Worker(new URL('./workers/processGeoJson.ts', import.meta.url), { type: 'module' });
+    // Save the worker instance to state
+    myWorker.postMessage('start');
+    // Set up event listener for messages from the worker
+    myWorker.onmessage = function (event) {
+      console.log('Received result from geoJson worker:', event.data);
+    };
+
+    // Clean up the worker when the component unmounts
+    return () => {
+      myWorker.terminate();
+    };
+  }, []);
+
   return (
     <React.Fragment>
       <React.Suspense fallback={<div className="d-flex justify-content-center align-items-center">FMS Live</div>}>
