@@ -13,7 +13,7 @@ onmessage = (event) => {
         })
         .then(data => {
             return data.file('240817_Pits_3D_WGS84.geojson')?.async("string");
-        }).then(async (text) => {
+        }).then((text) => {
             var geojsonData = JSON.parse(text as string);
             const indexRBush = new RBush();
             geojsonData.features.map((feature) => {
@@ -28,8 +28,9 @@ onmessage = (event) => {
                 indexRBush.insert(item);
             })
             const indexedData = indexRBush.toJSON()
-            return addOrUpdateData('mainGeoJson', indexedData);
-        }).then(() => {
-            postMessage("Done")
+            return indexedData
+        }).then(async (data) => {
+            // await addOrUpdateData('mainGeoJson', data);
+            postMessage(data)
         })
 }

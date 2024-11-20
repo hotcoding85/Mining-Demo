@@ -702,84 +702,119 @@ export class Map {
     }
   }
 
+  waitForGeoJson = () => {
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (window.mainGeoJson) {
+          clearInterval(interval);  // Stop checking
+          resolve()
+        }
+      }, 0.001);
+    })
+
+  };
+
+  waitForImageData = () => {
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (window.imageData) {
+          clearInterval(interval);  // Stop checking
+          resolve()
+        }
+      }, 0.001);
+    });
+  };
+
+  async processTiles() {
+    const batchSize = 576; // Define the batch size for processing tiles
+    const baseTileSize = 512; // Assuming a base tile size is defined somewhere
+    const tileOffset = Math.floor(this.nTiles / 2); // Assuming a tile offset is defined somewhere
+    const storedData = {};
+    this.center = Utils.geo2tile(this.geoLocation, this.zoom)
+
+    // Common function to handle tile processing
+    const processTile = async (tile) => {
+      const _tile = new Tile(this, tile.z, tile.x, tile.y, baseTileSize);
+      this.tileCache[_tile.key()] = _tile;
+      _tile.setElevation(tile.elevation);
+      _tile.setConstants(tile.size, tile.shape);
+      _tile.buildGeometry();
+      _tile.buildmesh();
+      _tile.setPosition(this.center);
+      this.scene.add(_tile.mesh);
+
+      // Store the tile data without modifying the original mesh
+      storedData[_tile.key()] = {
+        elevation: _tile.elevation,
+        shape: _tile.shape,
+        size: _tile.size,
+        x: _tile.x,
+        y: _tile.y,
+        z: _tile.z,
+      };
+      return _tile;
+    };
+
+    // If tileCaches exist in window object, use them
+    const cachedTiles = window.tileCaches;
+    if (cachedTiles) {
+
+      // Use Promise.all to handle all tile processing
+      const tiles = await Promise.all(
+        Object.values(cachedTiles).map(tile => processTile.call(this, tile))
+      );
+
+      // Define a batch size for adding tiles incrementally
+      for (let i = 0; i < Math.min(batchSize, tiles.length); i++) {
+        const tile = tiles[i];
+        this.scene.add(tile.mesh);
+      }
+
+      // Call resolveSeams after all tiles are added to adjust gaps
+      tiles.reverse().forEach(tile => {
+        tile.resolveSeams(this.tileCache);
+      });
+
+    } else {
+      // If tileCaches do not exist, create new tiles
+      for (let i = 0; i < this.nTiles; i++) {
+        for (let j = 0; j < this.nTiles; j++) {
+          const tile = new Tile(this, this.zoom, this.center.x + i - tileOffset, this.center.y + j - tileOffset, baseTileSize);
+          this.tileCache[tile.key()] = tile;
+        }
+      }
+
+      // Fetch and process all tiles
+      const tiles = await Promise.all(
+        Object.values(this.tileCache).map(tile =>
+          tile.fetch().then(() => processTile.call(this, tile))
+        )
+      );
+
+      // Call resolveSeams after all tiles are added to adjust gaps
+      tiles.reverse().forEach(tile => {
+        tile.resolveSeams(this.tileCache);
+      });
+    }
+
+    // Store processed tile data in window object for future use
+    window.tileCaches = storedData;
+    this.progress = this.nTiles * this.nTiles;
+  }
+
+
   async init() {
     this.center = Utils.geo2tile(this.geoLocation, this.zoom)
     const tileOffset = Math.floor(this.nTiles / 2)
-
-    this.imageData = await getDataByKey('imageData');
-
-    const retrievedData = await getDataByKey('mainGeoJson');
-    index.fromJSON(retrievedData)
-
-    const _init = async () => {
-      const retrievedData = await getDataByKey('tileCaches');
-      if (retrievedData) {
-        const promises = _.map(retrievedData, async tile => {
-          const _tile = new Tile(this, tile.z, tile.x, tile.y, baseTileSize)
-          this.tileCache[_tile.key()] = _tile
-          _tile.setElevation(tile.elevation)
-          _tile.setConstants(tile.size, tile.shape)
-          _tile.buildGeometry()
-          _tile.buildmesh()
-          return _tile
-        })
-
-        Promise.all(promises).then(tiles => {
-          // Reverse the tiles array to avoid seam artifacts
-          // tiles.reverse();
-
-          // Define a batch size for adding tiles incrementally
-          const batchSize = 576; // You can adjust this size based on performance
-
-          for (let i = 0; i < batchSize; i++) {
-            const tile = tiles[i];
-            tile.setPosition(this.center);
-            this.scene.add(tile.mesh);
-            tile.resolveSeams(this.tileCache);
-          }
-        });
-
-
-        this.progress = this.nTiles * this.nTiles
-      }
-      else {
-        for (let i = 0; i < this.nTiles; i++) {
-          for (let j = 0; j < this.nTiles; j++) {
-            const tile = new Tile(this, this.zoom, this.center.x + i - tileOffset, this.center.y + j - tileOffset, baseTileSize)
-            this.tileCache[tile.key()] = tile
-          }
-        }
-
-        const promises = Object.values(this.tileCache).map(tile =>
-          tile.fetch().then(tile => {
-            tile.setPosition(this.center)
-            this.scene.add(tile.mesh)
-            return tile
-          })
-        )
-
-        Promise.all(promises).then(async tiles => {
-          tiles.reverse().forEach(tile => {  // reverse to avoid seams artifacts
-            tile.resolveSeams(this.tileCache)
-          })
-          const storedData = {}
-          _.map(this.tileCache, tile => {
-            const _tile = tile;
-            // Store the tile data without modifying the original mesh
-            storedData[tile.key()] = {
-              elevation: _tile.elevation,
-              shape: _tile.shape,
-              size: _tile.size,
-              x: _tile.x,
-              y: _tile.y,
-              z: _tile.z,
-            };
-          });
-          await addOrUpdateData('tileCaches', storedData);
-        })
-      }
-    }
-    await _init()
+    let retrievedData = window.mainGeoJson;
+    this.waitForGeoJson().then(() => {
+      retrievedData = window.mainGeoJson;
+      index.fromJSON(retrievedData)
+      return this.waitForImageData()
+    }).then(() => {
+      this.imageData = window.imageData;
+      this.processTiles()
+    })
   }
 
   addFromPosition(posX, posY) {

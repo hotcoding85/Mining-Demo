@@ -45,6 +45,8 @@ declare global {
         mixer: any;
         mixer2: any;
         animationZoom: any;
+        mainGeoJson: any;
+        imageData: any;
     }
 }
 type Propertytype = {
@@ -1371,8 +1373,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         let zoom = 18
         const map = new Map(scene, window.camera, source, position, nTiles, zoom, {});
         window.map = map;
-        const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
-        window.mapPicker = mapPicker;
+        // const mapPicker = new MapPicker(window.camera, map, localMapContainerRef.current, controls);
+        // window.mapPicker = mapPicker;
         window.controls.addEventListener('change', () => {
             if (window.savedCameraPosition && window.savedCameraQuaternion) {
                 window.camera.position.copy(window.savedCameraPosition);

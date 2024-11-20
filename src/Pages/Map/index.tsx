@@ -463,7 +463,7 @@ export const RealTimePositioning = ({ socket }) => {
         let animationCameraId = 0
         const startPosition = window.map.camera.position.clone();
         const point = marker.position.clone(); // Zoom offset
-        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 400)
+        const targetPosition = new THREE.Vector3(point.x, point.y, point.z + 1000)
         // Animate the camera movement
         const zoomDuration = 1000; // 1 second
         let startTime: number | null = null;

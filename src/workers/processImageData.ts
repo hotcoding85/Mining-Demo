@@ -14,7 +14,6 @@ onmessage = (event) => {
             if (file.name.endsWith('.webp')) {
                 // Create a promise for each image processing
                 const promise = file.async('arraybuffer').then(data => {
-                    console.log(data)
                     // Extract the filename without extension
                     const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
                     // Store the image data in the object
@@ -24,8 +23,8 @@ onmessage = (event) => {
             }
         });
         await Promise.all(promises);
-        await addOrUpdateData('imageData', image_data);
-        postMessage('processed image data')
+        // await addOrUpdateData('imageData', image_data);
+        postMessage(image_data)
     });
 
 }

@@ -47,6 +47,7 @@ function App() {
     // Set up event listener for messages from the worker
     myWorker.onmessage = function (event) {
       console.log('Received result from imageData worker:', event.data);
+      window.imageData = event.data
     };
 
     // Clean up the worker when the component unmounts
@@ -63,6 +64,7 @@ function App() {
     // Set up event listener for messages from the worker
     myWorker.onmessage = function (event) {
       console.log('Received result from geoJson worker:', event.data);
+      window.mainGeoJson = event.data
     };
 
     // Clean up the worker when the component unmounts

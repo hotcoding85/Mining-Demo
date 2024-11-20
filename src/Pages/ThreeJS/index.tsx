@@ -8,7 +8,6 @@ import _ from 'lodash';
 import { Checkbox, CheckboxProps, Segmented, Space, Button } from 'antd';
 import 'antd/dist/reset.css';
 import { getAllVehicleRoutes, getGeoFences } from 'slices/thunk';
-import { DropdownType } from 'Components/Common/Dropdown';
 import { THREEJSMap } from 'Pages/3DMap';
 import * as THREE from 'three';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
