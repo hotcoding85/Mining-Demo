@@ -882,6 +882,15 @@ export class Map {
       }
     });
 
+    // remove all 3D objects
+    this.scene.traverse((object) => {
+      if (object instanceof THREE.Object3D) {
+        object.children.forEach(child => {
+          object.remove(child);
+        });
+      }
+    });
+
     // Dispose of all stop sign sprites
     this.stopSignSprites.forEach(sprite => {
       if (sprite) {

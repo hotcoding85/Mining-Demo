@@ -35,10 +35,14 @@ declare global {
         controls: any;
         renderer: any;
         TruckObject: any;
+        TruckObject2: any;
         DiggerObject: any;
         DiggerObject2: any;
         DrillObject: any;
+        DrillObject2: any;
         DrillHole: any;
+        DozerObject: any;
+        DozerObject2: any;
         savedCameraPosition: any;
         savedCameraQuaternion: any;
         isAnimation: any;
@@ -149,7 +153,39 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 !window.TruckObject && fetch3DTruck()
                 diggerImport && !window.DiggerObject && !window.DiggerObject.group && fetch3DExcavator()
                 drillImport && !window.DrillObject && fetch3DDrill()
+                if (window.map.scene.children.includes(window.TruckObject)) {
+                    window.map.scene.remove(window.TruckObject);
+                }
+                window.map.scene.add(window.TruckObject);
+                if (window.map.scene.children.includes(window.TruckObject2)) {
+                    window.map.scene.remove(window.TruckObject2);
+                }
+                window.map.scene.add(window.TruckObject2);
 
+                if (window.map.scene.children.includes(window.DiggerObject.group)) {
+                    window.map.scene.remove(window.DiggerObject.group);
+                }
+                window.map.scene.add(window.DiggerObject.group);
+
+                if (window.map.scene.children.includes(window.DiggerObject2.group)) {
+                    window.map.scene.remove(window.DiggerObject2.group);
+                }
+                window.map.scene.add(window.DiggerObject2.group);
+
+                if (window.map.scene.children.includes(window.DrillObject)) {
+                    window.map.scene.remove(window.DrillObject);
+                }
+                window.map.scene.add(window.DrillObject);
+
+                if (window.map.scene.children.includes(window.DrillObject2)) {
+                    window.map.scene.remove(window.DrillObject2);
+                }
+                window.map.scene.add(window.DrillObject2);
+
+                if (window.map.scene.children.includes(window.DozerObject)) {
+                    window.map.scene.remove(window.DozerObject);
+                }
+                window.map.scene.add(window.DozerObject);
             }
         }
     }, [reloadModels])
