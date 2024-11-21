@@ -12,7 +12,7 @@ import { THREEJSMap } from 'Pages/3DMap';
 import * as THREE from 'three';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { ReloadOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, ReloadOutlined } from '@ant-design/icons';
 
 export const ThreeJS = () => {
     const dispatch: any = useDispatch();
@@ -166,8 +166,8 @@ export const ThreeJS = () => {
             eta_time: '08:21:00'
         }
 
-        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2])
-        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2]
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2]
         // load large dirt
         // loadLargeDirt()
         // Clean up on component unmount
@@ -309,6 +309,46 @@ export const ThreeJS = () => {
 
 
                     window.isAnimation = false;
+                    if (largeDirtRef.current) {
+                        largeDirtRef.current.position.set(-1370, 450, 55)
+                        largeDirtRef.current.visible = true
+                        window.map.scene.add(largeDirtRef.current)
+                    }
+                    if (window.DrillObject) {
+                        window.map.scene.add(window.DrillObject);
+                    }
+        
+                    if (window.DozerObject) {
+                        window.map.scene.add(window.DozerObject);
+        
+                        const clonedDozer = window.DozerObject.clone();
+                        clonedDozer.position.x = -508; // Apply X offset
+                        clonedDozer.position.y = -1786; // Apply Y offset
+                        clonedDozer.rotation.y = Math.PI / 2
+                        window.map.DozerObject2 = clonedDozer
+                        window.map.scene.add(clonedDozer);
+                    }
+                    // add waiting truck
+                    if (window.TruckObject) {
+                        const copyModel = window.TruckObject.clone();
+                        if (copyModel) {
+                            copyModel.visible = true
+                            copyModel.position.set(-1430, 640, 45)
+                            copyModel.rotation.z += Math.PI
+                            window.TruckWaitingObject = copyModel
+                            window.map.scene.add(copyModel)
+                        }
+        
+                        const copyModel2 = window.TruckObject.clone();
+                        if (copyModel2) {
+                            copyModel2.visible = true
+                            copyModel2.position.set(-505, -1940, 45)
+                            copyModel2.rotation.z += Math.PI
+                            window.TruckWaitingObject2 = copyModel2
+                            window.map.scene.add(copyModel2)
+                        }
+                    }
+
                     setTimeout(() => {
                         window.controls.update();
                         window.renderer.render(window.map.scene, window.camera);
@@ -329,51 +369,6 @@ export const ThreeJS = () => {
             };
 
             animationCameraId = requestAnimationFrame(animateZoom);
-
-            if (largeDirtRef.current) {
-                largeDirtRef.current.position.set(-1370, 450, 55)
-                largeDirtRef.current.visible = true
-                window.map.scene.add(largeDirtRef.current)
-            }
-            if (window.DrillObject) {
-                window.map.scene.add(window.DrillObject);
-
-                const clonedDrill = window.DrillObject.clone();
-                clonedDrill.position.x = -608; // Apply X offset
-                clonedDrill.position.y = -1356; // Apply Y offset
-
-                window.map.scene.add(clonedDrill);
-            }
-
-            if (window.DozerObject) {
-                window.map.scene.add(window.DozerObject);
-
-                const clonedDozer = window.DozerObject.clone();
-                clonedDozer.position.x = -508; // Apply X offset
-                clonedDozer.position.y = -1786; // Apply Y offset
-                clonedDozer.rotation.y = Math.PI / 2
-                window.map.DozerObject2 = clonedDozer
-                window.map.scene.add(clonedDozer);
-            }
-            // add waiting truck
-            if (window.TruckObject) {
-                const copyModel = window.TruckObject.clone();
-                if (copyModel) {
-                    copyModel.visible = true
-                    copyModel.position.set(-1430, 640, 45)
-                    copyModel.rotation.z += Math.PI
-                    window.map.scene.add(copyModel)
-                }
-
-                const copyModel2 = window.TruckObject.clone();
-                if (copyModel2) {
-                    copyModel2.visible = true
-                    copyModel2.position.set(-505, -1940, 45)
-                    copyModel2.rotation.z += Math.PI
-
-                    window.map.scene.add(copyModel2)
-                }
-            }
         }
     }, [isLoading])
 

@@ -36,6 +36,8 @@ declare global {
         renderer: any;
         TruckObject: any;
         TruckObject2: any;
+        TruckWaitingObject: any;
+        TruckWaitingObject2: any;
         DiggerObject: any;
         DiggerObject2: any;
         DrillObject: any;
@@ -88,6 +90,7 @@ interface THREEJSMapProps {
     isAutoRouting?: boolean;
     diggerImport?: boolean;
     drillImport?: boolean;
+    loaderImport?: boolean;
     dozerImport?: boolean;
     isPitView?: boolean;
     diggerInitPoint?: any;
@@ -96,7 +99,7 @@ interface THREEJSMapProps {
     reloadModels?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [], reloadModels = 0, dozerImport = false }, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [], reloadModels = 0, loaderImport = false, dozerImport = false }, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -154,9 +157,10 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 !window.TruckObject && fetch3DTruck()
                 diggerImport && !window.DiggerObject && !window.DiggerObject.group && fetch3DExcavator()
                 drillImport && !window.DrillObject && fetch3DDrill()
-                dozerImport && !window.DozerObject && fetch3DDozer()
-                let excavatorAnimation1 = false
-                let excavatorAnimation2 = false
+                drillImport && !window.DrillObject && fetchDrillHole()
+                loaderImport && !window.DozerObject && fetch3DLoader()
+                let excavatorAnimation1 = true
+                let excavatorAnimation2 = true
                 if (window.map.scene.children.includes(window.TruckObject)) {
                     window.map.scene.remove(window.TruckObject);
                 }
@@ -174,18 +178,28 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
     
                     window.map.scene.add(clonedTruck);
                 }
-                
-                if (window.map.scene.children.includes(window.DiggerObject.group)) {
-                    window.map.scene.remove(window.DiggerObject.group);
-                    excavatorAnimation1 = true
-                }
-                window.map.scene.add(window.DiggerObject.group);
 
-                if (window.map.scene.children.includes(window.DiggerObject2.group)) {
-                    window.map.scene.remove(window.DiggerObject2.group);
-                    excavatorAnimation2 = true
+                window.map.scene.add(window.TruckWaitingObject);
+                if (window.map.scene.children.includes(window.TruckWaitingObject)) {
+                    window.map.scene.remove(window.TruckWaitingObject);
                 }
-                window.map.scene.add(window.DiggerObject2.group);
+                window.map.scene.add(window.TruckWaitingObject);
+
+                window.map.scene.add(window.TruckWaitingObject2);
+                if (window.map.scene.children.includes(window.TruckWaitingObject2)) {
+                    window.map.scene.remove(window.TruckWaitingObject2);
+                }
+                window.map.scene.add(window.TruckWaitingObject2);
+
+                if (!window.map.scene.children.includes(window.DiggerObject.group)) {
+                    window.map.scene.add(window.DiggerObject.group);
+                    excavatorAnimation1 = false
+                }
+
+                if (!window.map.scene.children.includes(window.DiggerObject2.group)) {
+                    window.map.scene.add(window.DiggerObject2.group);
+                    excavatorAnimation2 = false
+                }
 
                 if (window.map.scene.children.includes(window.DrillObject)) {
                     window.map.scene.remove(window.DrillObject);
@@ -202,6 +216,40 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
                 window.map.scene.add(window.DozerObject);
 
+                const objectsToRemove: THREE.Object3D[] = [];
+
+                // Collect objects to remove
+                window.map.scene.traverse((object) => {
+                    if (object.userData.isHole) {
+                        objectsToRemove.push(object);
+                    }
+                });
+
+                // Remove and dispose of objects
+                objectsToRemove.forEach((object: any) => {
+                    if (object.geometry) object.geometry.dispose();
+                    if (Array.isArray(object.material)) {
+                        object.material.forEach((material) => material.dispose());
+                    } else if (object.material) {
+                        object.material.dispose();
+                    }
+                    window.map.scene.remove(object);
+                });
+
+                drawDrillHoles()
+
+                const offsetX = 1058; // X offset for the second pit
+                const offsetY = -2871; // Y offset for the second pit
+
+                // Iterate over the first set of holes and create a cloned version for the second pit
+                window.map.scene.children.forEach((child) => {
+                    if (child.userData.isHole) {
+                        const clonedHole = child.clone();
+                        clonedHole.position.x += offsetX; // Apply X offset
+                        clonedHole.position.y += offsetY; // Apply Y offset
+                        window.map.scene.add(clonedHole);
+                    }
+                });
                 if (dirts.current.length > 0) {
                     dirts.current.map(dirt => {
                         if (window.map.scene.children.includes(dirt)) {
@@ -236,7 +284,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         fetch3DTruck()
         diggerImport && fetch3DExcavator()
         drillImport && fetch3DDrill()
-        dozerImport && fetch3DDozer()
+        drillImport && fetchDrillHole()
+        loaderImport && fetch3DLoader()
         fetchGeofences()
         loadMapView()
         // Clean up on component unmount
@@ -323,132 +372,6 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
                 clock.current = new THREE.Clock();
             }
-            if (drillImport && window.DrillHole) {
-                const rows = 10;
-                const columns = 5;
-                const spacingX = 25; // Adjust spacing between holes along the X-axis
-                const spacingY = 30; // Adjust spacing between holes along the Y-axis
-                const holeTypes: string[][] = [];
-                const drilledHoles: THREE.Vector3[] = [];
-                const unDrilledHoles: THREE.Vector3[] = []; // Array to hold positions of unDrilled holes
-                const angleHoles: THREE.Vector3[] = []; // Array to hold positions of angleHoles
-                // Step 1: Generate holeType array for the grid
-                for (let i = 0; i < rows; i++) {
-                    holeTypes[i] = [];
-                    for (let j = 0; j < columns; j++) {
-                        if (i === 0 || i === rows - 1 || j === 0 || j === columns - 1) {
-                            holeTypes[i][j] = 'angleHole'; // Edge holes are angle holes
-                        } else {
-                            // Randomly decide between 'drilled' and 'unDrilled' for inside holes
-                            holeTypes[i][j] = Math.random() > 0.5 ? 'drilled' : 'unDrilled';
-                        }
-                    }
-                }
-
-                // Step 2: Loop through the grid and create objects based on holeType
-                for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < columns; j++) {
-                        const holeType = holeTypes[i][j];
-                        const position = new THREE.Vector3(
-                            -1620 - j * spacingX, // Adjust X position for each column
-                            1500 - i * spacingY,  // Adjust Y position for each row
-                            45                    // Z position remains the same
-                        );
-
-                        if (holeType === 'drilled') {
-                            // Clone and configure drilled hole
-                            const object = window.DrillHole.clone();
-                            object.visible = true;
-                            const depth = (Math.random() * 10 + 10).toFixed(2); // Depth between 10m and 20m
-                            const minutes = Math.floor(Math.random() * 60 + 120); // Drill time between 120 and 180 minutes
-                            const drillTime = `${Math.floor(minutes / 60).toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}`;
-                            const label = `${String.fromCharCode(65 + j)}${rows + 139 - i}`; // e.g., 'A139', 'B140'
-                            drilledHoles.push(position); // Store position of drilled hole
-                            object.position.copy(position);
-                            object.userData = { name: label, drillTime, depth, isHole: true, holeType };
-                            object.traverse(child => {
-                                child.userData = { ...object.userData };
-                            });
-                            object.rotation.copy(new THREE.Euler(Math.PI / 2, Math.PI / 2, 0));
-                            window.map.scene.add(object);
-
-                            const markerGeometry = new THREE.CircleGeometry(3, 32);
-                            let materialColor = 0xff0000;
-
-                            const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
-                            const marker = new THREE.Mesh(markerGeometry, material);
-
-                            marker.position.copy(position);
-                            marker.position.z += 0; // Slight offset for visibility
-                            // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
-                            marker.userData = { name: label, drillTime, depth, isHole: true, holeType };
-                            window.map.scene.add(marker);
-                        } else {
-                            // Create a circle marker for 'unDrilled' or 'angleHole'
-                            const markerGeometry = new THREE.CircleGeometry(3, 32);
-                            let materialColor;
-
-                            if (holeType === 'unDrilled') {
-                                materialColor = 0x0000ff; // Blue color for unDrilled
-                                unDrilledHoles.push(position); // Store position of unDrilled hole
-                            } else if (holeType === 'angleHole') {
-                                materialColor = Math.random() > 0.5 ? 0xff0000 : 0x0000ff; // Red color for angleHole
-                                angleHoles.push(position); // Store position of angleHole
-                            }
-
-                            const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
-                            const marker = new THREE.Mesh(markerGeometry, material);
-
-                            marker.position.copy(position);
-                            marker.position.z += 0; // Slight offset for visibility
-                            // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
-                            const label = `${String.fromCharCode(65 + j)}${rows + 139 - i}`; // e.g., 'A139', 'B140'
-                            marker.userData = { name: label, drillTime: '---', depth: '---', isHole: true, holeType };
-                            // marker.rotation.y += Math.PI / 2
-                            // marker.rotation.x += Math.PI / 2
-                            // Add arrow for angleHole
-                            if (holeType === 'angleHole') {
-                                const arrowDir = new THREE.Vector3(1, 1, 0); // Example direction for arrow
-                                const arrowHelper = new THREE.ArrowHelper(
-                                    arrowDir,
-                                    position,
-                                    10, // Length of the arrow
-                                    materialColor // Color of the arrow
-                                );
-                                arrowHelper.userData = { isHole: true }
-                                arrowHelper.rotation.z = -(Math.PI / 4) - Math.PI / 2
-                                arrowHelper.position.copy(new THREE.Vector3(position.x - 3, position.y + 2.5, position.z))
-                                window.map.scene.add(arrowHelper);
-                            }
-
-                            window.map.scene.add(marker);
-                        }
-                    }
-                }
-
-                const addArrowSequence = (holes: THREE.Vector3[], color: number) => {
-                    for (let i = 0; i < holes.length - 1; i++) {
-                        const start = holes[i];
-                        const end = holes[i + 1];
-                        const direction = new THREE.Vector3().subVectors(end, start).normalize();
-                        const arrowLength = start.distanceTo(end);
-
-                        const arrowHelper = new THREE.ArrowHelper(
-                            direction,
-                            start,
-                            arrowLength,
-                            color // Color for the arrow connecting holes
-                        );
-                        arrowHelper.userData = { isHole: true, isDrillPattern: true }
-                        window.map.scene.add(arrowHelper);
-                    }
-                };
-
-                // Add sequences for drilled, unDrilled, and angleHoles
-                addArrowSequence(drilledHoles, 0xff00ff); // Magenta color for drilled holes
-                addArrowSequence(unDrilledHoles, 0xff00ff); // Blue color for unDrilled holes
-                addArrowSequence(angleHoles, 0xff00ff); // Red color for angle holes
-            }
 
             if (dirts.current.length > 0) {
                 dirts.current.map(dirt => {
@@ -470,7 +393,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
             });
 
-            if (window.TruckObject) {
+            if (window.TruckObject && diggerImport && drillImport) {
                 // Clone and offset the TruckObject for the second pit
                 const clonedTruck = window.TruckObject.clone();
                 clonedTruck.position.copy(new THREE.Vector3(-396, -2045, 40))
@@ -492,9 +415,203 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     window.map.scene.add(dirt)
                 })
             }
+
+            let excavatorAnimation1 = true
+            let excavatorAnimation2 = true
+            if (window.map.scene.children.includes(window.TruckObject)) {
+                window.map.scene.remove(window.TruckObject);
+            }
+            window.map.scene.add(window.TruckObject);
+            if (window.map.scene.children.includes(window.TruckObject2)) {
+                window.map.scene.remove(window.TruckObject2);
+            }
+            window.map.scene.add(window.TruckObject2);
+
+            if (!window.TruckObject2 && window.TruckObject) {
+                // Clone and offset the TruckObject for the second pit
+                const clonedTruck = window.TruckObject.clone();
+                clonedTruck.position.copy(new THREE.Vector3(-396, -2045, 40))
+                window.TruckObject2 = clonedTruck
+
+                window.map.scene.add(clonedTruck);
+            }
+
+            window.map.scene.add(window.TruckWaitingObject);
+            if (window.map.scene.children.includes(window.TruckWaitingObject)) {
+                window.map.scene.remove(window.TruckWaitingObject);
+            }
+            window.map.scene.add(window.TruckWaitingObject);
+
+            window.map.scene.add(window.TruckWaitingObject2);
+            if (window.map.scene.children.includes(window.TruckWaitingObject2)) {
+                window.map.scene.remove(window.TruckWaitingObject2);
+            }
+            window.map.scene.add(window.TruckWaitingObject2);
+
+            if (window.DiggerObject && window.DiggerObject.group && !window.map.scene.children.includes(window.DiggerObject.group)) {
+                window.map.scene.add(window.DiggerObject.group);
+                excavatorAnimation1 = false
+            }
+
+            if (window.DiggerObject2 && window.DiggerObject2.group && !window.map.scene.children.includes(window.DiggerObject2.group)) {
+                window.map.scene.add(window.DiggerObject2.group);
+                excavatorAnimation2 = false
+            }
+
+            if (window.map.scene.children.includes(window.DrillObject)) {
+                window.map.scene.remove(window.DrillObject);
+            }
+            window.map.scene.add(window.DrillObject);
+
+            if (window.map.scene.children.includes(window.DrillObject2)) {
+                window.map.scene.remove(window.DrillObject2);
+            }
+            window.map.scene.add(window.DrillObject2);
+
+            if (window.map.scene.children.includes(window.DozerObject)) {
+                window.map.scene.remove(window.DozerObject);
+            }
+            window.map.scene.add(window.DozerObject);
+
+            if (!excavatorAnimation1) {
+                mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+                clock.current = new THREE.Clock();
+            }
+            if (!excavatorAnimation2) {
+                mixer2.current = createExcavatorDiggingAnimation2(window.DiggerObject2);
+                clock2.current = new THREE.Clock();
+            }
         }
     }, [isLoading])
 
+    const drawDrillHoles = async () => {
+        const rows = 10;
+        const columns = 5;
+        const spacingX = 25; // Adjust spacing between holes along the X-axis
+        const spacingY = 30; // Adjust spacing between holes along the Y-axis
+        const holeTypes: string[][] = [];
+        const drilledHoles: THREE.Vector3[] = [];
+        const unDrilledHoles: THREE.Vector3[] = []; // Array to hold positions of unDrilled holes
+        const angleHoles: THREE.Vector3[] = []; // Array to hold positions of angleHoles
+        // Step 1: Generate holeType array for the grid
+        for (let i = 0; i < rows; i++) {
+            holeTypes[i] = [];
+            for (let j = 0; j < columns; j++) {
+                if (i === 0 || i === rows - 1 || j === 0 || j === columns - 1) {
+                    holeTypes[i][j] = 'angleHole'; // Edge holes are angle holes
+                } else {
+                    // Randomly decide between 'drilled' and 'unDrilled' for inside holes
+                    holeTypes[i][j] = Math.random() > 0.5 ? 'drilled' : 'unDrilled';
+                }
+            }
+        }
+
+        // Step 2: Loop through the grid and create objects based on holeType
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                const holeType = holeTypes[i][j];
+                const position = new THREE.Vector3(
+                    -1620 - j * spacingX, // Adjust X position for each column
+                    1500 - i * spacingY,  // Adjust Y position for each row
+                    45                    // Z position remains the same
+                );
+
+                if (holeType === 'drilled') {
+                    // Clone and configure drilled hole
+                    const depth = (Math.random() * 10 + 10).toFixed(2); // Depth between 10m and 20m
+                    const minutes = Math.floor(Math.random() * 60 + 120); // Drill time between 120 and 180 minutes
+                    const drillTime = `${Math.floor(minutes / 60).toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}`;
+                    const label = `${String.fromCharCode(65 + j)}${rows + 139 - i}`; // e.g., 'A139', 'B140'
+                    if (window.DrillHole) {
+                        const object = window.DrillHole.clone();
+                        object.visible = true;
+                        drilledHoles.push(position); // Store position of drilled hole
+                        object.position.copy(position);
+                        object.userData = { name: label, drillTime, depth, isHole: true, holeType };
+                        object.traverse(child => {
+                            child.userData = { ...object.userData };
+                        });
+                        object.rotation.copy(new THREE.Euler(Math.PI / 2, Math.PI / 2, 0));
+                        window.map.scene.add(object);
+                    }
+
+                    const markerGeometry = new THREE.CircleGeometry(3, 32);
+                    let materialColor = 0xff0000;
+
+                    const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
+                    const marker = new THREE.Mesh(markerGeometry, material);
+
+                    marker.position.copy(position);
+                    marker.position.z += 0; // Slight offset for visibility
+                    // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
+                    marker.userData = { name: label, drillTime, depth, isHole: true, holeType };
+                    window.map.scene.add(marker);
+                } else {
+                    // Create a circle marker for 'unDrilled' or 'angleHole'
+                    const markerGeometry = new THREE.CircleGeometry(3, 32);
+                    let materialColor;
+
+                    if (holeType === 'unDrilled') {
+                        materialColor = 0x0000ff; // Blue color for unDrilled
+                        unDrilledHoles.push(position); // Store position of unDrilled hole
+                    } else if (holeType === 'angleHole') {
+                        materialColor = Math.random() > 0.5 ? 0xff0000 : 0x0000ff; // Red color for angleHole
+                        angleHoles.push(position); // Store position of angleHole
+                    }
+
+                    const material = new THREE.MeshBasicMaterial({ color: materialColor, depthWrite: false, transparent: true });
+                    const marker = new THREE.Mesh(markerGeometry, material);
+
+                    marker.position.copy(position);
+                    marker.position.z += 0; // Slight offset for visibility
+                    // marker.rotation.copy(new THREE.Euler(Math.PI / 2, 0, 0));
+                    const label = `${String.fromCharCode(65 + j)}${rows + 139 - i}`; // e.g., 'A139', 'B140'
+                    marker.userData = { name: label, drillTime: '---', depth: '---', isHole: true, holeType };
+                    // marker.rotation.y += Math.PI / 2
+                    // marker.rotation.x += Math.PI / 2
+                    // Add arrow for angleHole
+                    if (holeType === 'angleHole') {
+                        const arrowDir = new THREE.Vector3(1, 1, 0); // Example direction for arrow
+                        const arrowHelper = new THREE.ArrowHelper(
+                            arrowDir,
+                            position,
+                            10, // Length of the arrow
+                            materialColor // Color of the arrow
+                        );
+                        arrowHelper.userData = { isHole: true }
+                        arrowHelper.rotation.z = -(Math.PI / 4) - Math.PI / 2
+                        arrowHelper.position.copy(new THREE.Vector3(position.x - 3, position.y + 2.5, position.z))
+                        window.map.scene.add(arrowHelper);
+                    }
+
+                    window.map.scene.add(marker);
+                }
+            }
+        }
+
+        const addArrowSequence = (holes: THREE.Vector3[], color: number) => {
+            for (let i = 0; i < holes.length - 1; i++) {
+                const start = holes[i];
+                const end = holes[i + 1];
+                const direction = new THREE.Vector3().subVectors(end, start).normalize();
+                const arrowLength = start.distanceTo(end);
+
+                const arrowHelper = new THREE.ArrowHelper(
+                    direction,
+                    start,
+                    arrowLength,
+                    color // Color for the arrow connecting holes
+                );
+                arrowHelper.userData = { isHole: true, isDrillPattern: true }
+                window.map.scene.add(arrowHelper);
+            }
+        };
+
+        // Add sequences for drilled, unDrilled, and angleHoles
+        addArrowSequence(drilledHoles, 0xff00ff); // Magenta color for drilled holes
+        addArrowSequence(unDrilledHoles, 0xff00ff); // Blue color for unDrilled holes
+        addArrowSequence(angleHoles, 0xff00ff); // Red color for angle holes
+    }
     const fetchGeofences = async () => {
         const _fetchGeofences = async () => {
             const retrievedData = await getDataByKey('geoFences');
@@ -923,7 +1040,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         return mixerRef2.current;
     };
 
-    const fetch3DDozer = () => {
+    const fetch3DLoader = () => {
         const mtlLoader = new MTLLoader();
         mtlLoader.load('/Dozer/Dozer.mtl', (materials) => {
             materials.preload();
@@ -990,15 +1107,72 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             object.visible = true;
 
             window.DrillObject = object
+
+            const clonedDrill = window.DrillObject.clone();
+            clonedDrill.position.x = -608; // Apply X offset
+            clonedDrill.position.y = -1356; // Apply Y offset
+            window.DrillObject2 = clonedDrill
+
         }, (xhr) => {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
             console.error('An error occurred:', error);
         });
 
-
         const mtlLoader = new MTLLoader();
         mtlLoader.load('/hole/hole.mtl', (materials) => {
+            materials.preload();
+            let texture: any = null
+            let objLoader: any
+            objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
+                '/hole/hole.obj',
+                (object) => {
+                    if (object instanceof THREE.Group) {
+                        object.children.forEach(child => {
+                            if (child instanceof THREE.LineSegments) {
+                                const geometry = (child.geometry as THREE.BufferGeometry).clone();
+                                const material = new THREE.MeshStandardMaterial({
+                                    color: 0x8B4513, // Gold color
+                                    metalness: 0.5,
+                                    roughness: 0.5,
+                                    depthWrite: false,
+                                    transparent: true
+                                });
+                                const mesh = new THREE.Mesh(geometry, material);
+                                object.add(mesh); // Add the new mesh to the group
+                            } else if (child instanceof THREE.Mesh) {
+                                object.add(child);
+                            }
+                        });
+                    }
+                    object.traverse((child: any) => {
+                        if (child.isMesh) {
+                            child.material = new THREE.MeshStandardMaterial({
+                                color: 0x8B4513, // Gold color
+                                metalness: 0.5,
+                                roughness: 0.5,
+                                depthWrite: false,
+                                transparent: true
+                            });
+                        }
+                    });
+                    object.scale.copy(new THREE.Vector3(0.1, 0.1, 0.1))
+                    object.visible = true; // Initially set to invisible
+                    window.DrillHole = object
+                },
+                undefined,
+                (error) => {
+                    console.error(`An error occurred while loading the OBJ file: ${error}`);
+                }
+            );
+        });
+    }
+
+    const fetchDrillHole = async () => {
+        const mtlLoader = new MTLLoader();
+        await mtlLoader.load('/hole/hole.mtl', (materials) => {
             materials.preload();
             let texture: any = null
             let objLoader: any
@@ -1242,27 +1416,29 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
             window.DiggerObject.group.visible = true;
             window.DiggerObject.group.position.copy(diggerInitPoint ? diggerInitPoint : new THREE.Vector3(-1380, 430, 65));
 
-            window.TruckObject.rotation.z += Math.PI
-            window.TruckObject.visible = true
-            window.TruckObject.traverse((child: any) => {
-                if (child.isMesh) {
-                    if (isArray(child.material)) {
-                        child.material.map((_child) => {
-                            _child.depthTest = true
-                            _child.depthWrite = true
-                            _child.transparent = false
-                        })
-                        child.renderOrder = 9998
+            if (window.TruckObject) {
+                window.TruckObject.rotation.z += Math.PI
+                window.TruckObject.visible = true
+                window.TruckObject.traverse((child: any) => {
+                    if (child.isMesh) {
+                        if (isArray(child.material)) {
+                            child.material.map((_child) => {
+                                _child.depthTest = true
+                                _child.depthWrite = true
+                                _child.transparent = false
+                            })
+                            child.renderOrder = 9998
+                        }
+                        else {
+                            child.material.depthTest = true
+                            child.material.depthWrite = true
+                            child.material.transparent = false
+                            child.renderOrder = 10000
+                        }
                     }
-                    else {
-                        child.material.depthTest = true
-                        child.material.depthWrite = true
-                        child.material.transparent = false
-                        child.renderOrder = 10000
-                    }
-                }
-            });
-            window.TruckObject.position.copy(truckInitPoint ? truckInitPoint : new THREE.Vector3(-1395, 490, 50));
+                });
+                window.TruckObject.position.copy(truckInitPoint ? truckInitPoint : new THREE.Vector3(-1395, 490, 50));
+            }
         }, (xhr) => {
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         }, (error) => {
