@@ -166,8 +166,8 @@ export const ThreeJS = () => {
             eta_time: '08:21:00'
         }
 
-        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2])
-        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2]
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2]
         // load large dirt
         // loadLargeDirt()
         // Clean up on component unmount
@@ -320,13 +320,7 @@ export const ThreeJS = () => {
         
                     if (window.DozerObject) {
                         window.map.scene.add(window.DozerObject);
-        
-                        const clonedDozer = window.DozerObject.clone();
-                        clonedDozer.position.x = -508; // Apply X offset
-                        clonedDozer.position.y = -1786; // Apply Y offset
-                        clonedDozer.rotation.y = Math.PI / 2
-                        window.map.DozerObject2 = clonedDozer
-                        window.map.scene.add(clonedDozer);
+                        // window.map.scene.add(clonedDozer);
                     }
                     // add waiting truck
                     if (window.TruckObject) {
@@ -392,14 +386,14 @@ export const ThreeJS = () => {
             const cameraPositionZ = window.map.camera.position.z;
             let scale;
             let offsetY, offsetX
-            let maxOffsetY = index === 0 ? 150 : 200
-            let minOffsetY = index === 0 ? 50 : 50
-            let maxOffsetX = index === 1 ? 150 : index === 2 ? -200 : index === 3 ? 120 : 0
-            let minOffsetX = index === 1 ? 20 : index === 2 ? -80 : 0
+            let maxOffsetY = index == 0 ? 150 : 200
+            let minOffsetY = index == 0 ? 50 : 50
+            let maxOffsetX = index == 1 ? 150 : index == 2 ? -200 : index == 3 ? 120 : 0
+            let minOffsetX = index == 1 ? 20 : index == 2 ? -80 : 0
 
             if (normalizedTheta > 0) {
-                maxOffsetX = index === 1 ? -200 : index === 2 ? 250 : index === 3 ? -150 : 0
-                minOffsetX = index === 1 ? -20 : index === 2 ? 30 : 0
+                maxOffsetX = index == 1 ? -200 : index == 2 ? 250 : index == 3 ? -150 : 0
+                minOffsetX = index == 1 ? -20 : index == 2 ? 30 : 0
             }
             if (cameraPositionZ <= 150) {
                 scale = 1.3;
@@ -620,7 +614,7 @@ export const ThreeJS = () => {
                                     <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                                     <Button size='small' style={{width: '100px', marginLeft: '0.5rem'}} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
                                 </div>
-                                <THREEJSMap reloadModels={reloadModels} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} dozerImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
+                                <THREEJSMap reloadModels={reloadModels} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} loaderImport={true} dozerImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
                                     {annotations.map((annotation: any, index) => (
                                         <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                             <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', borderBottom: '1px solid white', flexDirection:'column' }}>

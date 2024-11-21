@@ -216,6 +216,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
                 window.map.scene.add(window.DozerObject);
 
+                if (window.map.scene.children.includes(window.DozerObject2)) {
+                    window.map.scene.remove(window.DozerObject2);
+                }
+                window.map.scene.add(window.DozerObject2);
+
                 const objectsToRemove: THREE.Object3D[] = [];
 
                 // Collect objects to remove
@@ -472,6 +477,11 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 window.map.scene.remove(window.DozerObject);
             }
             window.map.scene.add(window.DozerObject);
+
+            if (window.map.scene.children.includes(window.DozerObject2)) {
+                window.map.scene.remove(window.DozerObject2);
+            }
+            window.map.scene.add(window.DozerObject2);
 
             if (!excavatorAnimation1) {
                 mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
@@ -1067,6 +1077,12 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     window.DozerObject = object;
                     object.scale.set(30, 30, 30)
                     window.DozerObject.position.copy(new THREE.Vector3(-1580, 960, 40))
+
+                    const clonedDozer = window.DozerObject.clone();
+                    clonedDozer.position.x = -508; // Apply X offset
+                    clonedDozer.position.y = -1786; // Apply Y offset
+                    clonedDozer.rotation.y = Math.PI / 2
+                    window.DozerObject2 = clonedDozer
                 },
                 undefined,
                 (error) => {
