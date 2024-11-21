@@ -51,6 +51,7 @@ export interface HaulRoute {
   locationImg: string;
   locationName: string;
   diggerId?: string;
+  name: string;
 }
 
 export interface Material {

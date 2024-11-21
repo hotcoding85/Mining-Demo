@@ -52,8 +52,8 @@ export const dumpLocationsForAssign: DumpLocation[] = [
 ];
 
 export const haulRoutesForAssign: HaulRoute[] = [
-    { id: 1, assignId: 0, locationImg: centralRampToDump, locationName : "Central Ramp - Dump"},
-    { id: 2, assignId: 0, locationImg: wasteToCentral, locationName : "Waste - Central"}
+    { id: 1, assignId: 0, locationImg: centralRampToDump, locationName : "Central Ramp - Dump", name: "Central Ramp - Dump"},
+    { id: 2, assignId: 0, locationImg: wasteToCentral, locationName : "Waste - Central", name: "Waste - Central"}
 ];
 
 export const OreDumpsForAssign: DumpLocation[] = [

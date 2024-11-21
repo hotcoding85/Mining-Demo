@@ -22,11 +22,12 @@ const AssignRouteItem: React.FC<AssignRouteItemProps> = ({
 
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "ROUTE",
-    drop: (draggedLocation: DumpLocation) => {
+    drop: (draggedLocation: HaulRoute) => {
       const newLocation = {
         ...draggedLocation,
         assignId: sourceId,
-        diggerId : diggerId
+        diggerId : diggerId,
+        name: draggedLocation.locationName || draggedLocation.name
       };
       addHaulRoute(newLocation);
     },

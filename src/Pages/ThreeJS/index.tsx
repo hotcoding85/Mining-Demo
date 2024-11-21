@@ -392,14 +392,14 @@ export const ThreeJS = () => {
             const cameraPositionZ = window.map.camera.position.z;
             let scale;
             let offsetY, offsetX
-            let maxOffsetY = index == 0 ? 150 : 200
-            let minOffsetY = index == 0 ? 50 : 50
-            let maxOffsetX = index == 1 ? 150 : index == 2 ? -200 : index == 3 ? 120 : 0
-            let minOffsetX = index == 1 ? 20 : index == 2 ? -80 : 0
+            let maxOffsetY = index === 0 ? 150 : 200
+            let minOffsetY = index === 0 ? 50 : 50
+            let maxOffsetX = index === 1 ? 150 : index === 2 ? -200 : index === 3 ? 120 : 0
+            let minOffsetX = index === 1 ? 20 : index === 2 ? -80 : 0
 
             if (normalizedTheta > 0) {
-                maxOffsetX = index == 1 ? -200 : index == 2 ? 250 : index == 3 ? -150 : 0
-                minOffsetX = index == 1 ? -20 : index == 2 ? 30 : 0
+                maxOffsetX = index === 1 ? -200 : index === 2 ? 250 : index === 3 ? -150 : 0
+                minOffsetX = index === 1 ? -20 : index === 2 ? 30 : 0
             }
             if (cameraPositionZ <= 150) {
                 scale = 1.3;

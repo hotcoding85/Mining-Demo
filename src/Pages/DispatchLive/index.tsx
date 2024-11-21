@@ -47,7 +47,7 @@ const DispatchLive: React.FC = () => {
             users: state.Users.data,
             benches: state.Benches.data,
             targets: state.Targets.data,
-            vehicleRoutes: state.VehicleRoutes.data,
+            vehicleRoutes: state.VehicleRoutes.data.filter(item => item.category === "CURRENT_HAUL_ROUTES"),
           };
         }
       )
@@ -76,10 +76,81 @@ const DispatchLive: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<string>("All");
   const [diggersForShow, setDiggersForShow] = useState<any[]>([]);
 
-  const [haulRoutes, setHaulRoutes] = useState<HaulRoute[]>([]);
+  const [haulRoutes, setHaulRoutes] = useState<HaulRoute[]>([{
+    "id": 0,
+    "assignId": 0,
+    "locationName": "Haul Road to ROM",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to ROM",
+    "diggerId": "9966fdb2-95ac-4dde-93f5-c78f488cedc3"
+  },
+  {
+    "id": 1,
+    "assignId": 1,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "9966fdb2-95ac-4dde-93f5-c78f488cedc3"
+  },
+  {
+    "id": 2,
+    "assignId": 2,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "9966fdb2-95ac-4dde-93f5-c78f488cedc3"
+  }, {
+    "id": 0,
+    "assignId": 0,
+    "locationName": "Haul Road to ROM",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to ROM",
+    "diggerId": "ad9bb92e-ace6-43ea-84c3-eba9725b28a7"
+  },
+  {
+    "id": 1,
+    "assignId": 1,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "ad9bb92e-ace6-43ea-84c3-eba9725b28a7"
+  },
+  {
+    "id": 2,
+    "assignId": 2,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "ad9bb92e-ace6-43ea-84c3-eba9725b28a7"
+  },
+  {
+    "id": 0,
+    "assignId": 0,
+    "locationName": "Haul Road to ROM",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to ROM",
+    "diggerId": "413d454c-9037-4726-b67f-e5a53770bc02"
+  },
+  {
+    "id": 1,
+    "assignId": 1,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "413d454c-9037-4726-b67f-e5a53770bc02"
+  },
+  {
+    "id": 2,
+    "assignId": 2,
+    "locationName": "Haul Road to Central Pit",
+    "locationImg": "/static/media/centralRampToDump.d256cc5ca334bd22c858.png",
+    "name": "Haul Road to Central Pit",
+    "diggerId": "413d454c-9037-4726-b67f-e5a53770bc02"
+  }]);
   const [assignedBenches, setAssignedBenches] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  console.log('state.VehicleRoutes.data', vehicleRoutes.filter(item => item.category === "CURRENT_HAUL_ROUTES"))
   useEffect(() => {
     const hour = new Date().getHours();
     setShift(hour >= 6 && hour < 18 ? "DS" : "NS");
@@ -170,6 +241,7 @@ const DispatchLive: React.FC = () => {
   };
 
   const addHaulRoute = (newHaulRoute: HaulRoute) => {
+    console.log('newHaulRoute', newHaulRoute)
     const existItem = haulRoutes.find(
       (item) =>
         item.assignId === newHaulRoute.assignId &&
@@ -179,7 +251,7 @@ const DispatchLive: React.FC = () => {
       setHaulRoutes((prevBenches) =>
         prevBenches.map((item) =>
           item.assignId === newHaulRoute.assignId &&
-          item.diggerId == newHaulRoute.diggerId
+            item.diggerId == newHaulRoute.diggerId
             ? newHaulRoute
             : item
         )
