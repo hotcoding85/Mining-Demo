@@ -88,6 +88,7 @@ interface THREEJSMapProps {
     isAutoRouting?: boolean;
     diggerImport?: boolean;
     drillImport?: boolean;
+    dozerImport?: boolean;
     isPitView?: boolean;
     diggerInitPoint?: any;
     truckInitPoint?: any;
@@ -95,7 +96,7 @@ interface THREEJSMapProps {
     reloadModels?: any;
     children?: React.ReactNode; // Children prop is optional
 }
-export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [], reloadModels = 0 }, ref: any) => {
+export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ children = <></>, defaultLayers, drawMarkers, updateAnnotations, setIsLoading, isLoading, updateMarkerTooltip, height, width, isAnimation = false, onDocumentMouseClick, onDocumentMouseDblClick, onDocumentMouseMove, isPitView = false, isAutoRouting = false, diggerImport = false, diggerInitPoint = null, truckInitPoint = null, drillImport = false, equipmentFilter = [], reloadModels = 0, dozerImport = false }, ref: any) => {
     const dispatch: any = useDispatch();
     const geoFences = useRef<any>([])
 
@@ -149,10 +150,13 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
     useEffect(() => {
         if (window.map && window.map.scene) {
-            if (reloadModels > 0) {
+            if (window.map && window.map.scene && diggerImport && drillImport) {
                 !window.TruckObject && fetch3DTruck()
                 diggerImport && !window.DiggerObject && !window.DiggerObject.group && fetch3DExcavator()
                 drillImport && !window.DrillObject && fetch3DDrill()
+                dozerImport && !window.DozerObject && fetch3DDozer()
+                let excavatorAnimation1 = false
+                let excavatorAnimation2 = false
                 if (window.map.scene.children.includes(window.TruckObject)) {
                     window.map.scene.remove(window.TruckObject);
                 }
@@ -162,13 +166,24 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 }
                 window.map.scene.add(window.TruckObject2);
 
+                if (!window.TruckObject2) {
+                    // Clone and offset the TruckObject for the second pit
+                    const clonedTruck = window.TruckObject.clone();
+                    clonedTruck.position.copy(new THREE.Vector3(-396, -2045, 40))
+                    window.TruckObject2 = clonedTruck
+    
+                    window.map.scene.add(clonedTruck);
+                }
+                
                 if (window.map.scene.children.includes(window.DiggerObject.group)) {
                     window.map.scene.remove(window.DiggerObject.group);
+                    excavatorAnimation1 = true
                 }
                 window.map.scene.add(window.DiggerObject.group);
 
                 if (window.map.scene.children.includes(window.DiggerObject2.group)) {
                     window.map.scene.remove(window.DiggerObject2.group);
+                    excavatorAnimation2 = true
                 }
                 window.map.scene.add(window.DiggerObject2.group);
 
@@ -186,6 +201,31 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     window.map.scene.remove(window.DozerObject);
                 }
                 window.map.scene.add(window.DozerObject);
+
+                if (dirts.current.length > 0) {
+                    dirts.current.map(dirt => {
+                        if (window.map.scene.children.includes(dirt)) {
+                            window.map.scene.remove(dirt);
+                        }
+                        window.map.scene.add(dirt)
+                    })
+                }
+                if (dirts2.current.length > 0) {
+                    dirts2.current.map(dirt => {
+                        if (window.map.scene.children.includes(dirt)) {
+                            window.map.scene.remove(dirt);
+                        }
+                        window.map.scene.add(dirt)
+                    })
+                }
+                if (!excavatorAnimation1) {
+                    mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+                    clock.current = new THREE.Clock();
+                }
+                if (!excavatorAnimation2) {
+                    mixer2.current = createExcavatorDiggingAnimation2(window.DiggerObject2);
+                    clock2.current = new THREE.Clock();
+                }
             }
         }
     }, [reloadModels])
@@ -196,6 +236,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         fetch3DTruck()
         diggerImport && fetch3DExcavator()
         drillImport && fetch3DDrill()
+        dozerImport && fetch3DDozer()
         fetchGeofences()
         loadMapView()
         // Clean up on component unmount
@@ -433,6 +474,8 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 // Clone and offset the TruckObject for the second pit
                 const clonedTruck = window.TruckObject.clone();
                 clonedTruck.position.copy(new THREE.Vector3(-396, -2045, 40))
+                window.TruckObject2 = clonedTruck
+
                 window.map.scene.add(clonedTruck);
             }
 
@@ -879,6 +922,42 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
         // Return mixer for use in render loop
         return mixerRef2.current;
     };
+
+    const fetch3DDozer = () => {
+        const mtlLoader = new MTLLoader();
+        mtlLoader.load('/Dozer/Dozer.mtl', (materials) => {
+            materials.preload();
+            let objLoader: any
+            objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
+                '/Dozer/Dozer.obj',
+                (object) => {
+                    // Check the type of the loaded object
+                    object.traverse((child: any) => {
+                        if (child.isMesh) {
+                            child.material.depthTest = true
+                            child.material.depthWrite = true
+                            child.material.transparent = false
+                            child.material.metalness = 0.7
+                            child.material.roughness = 0.7
+                        }
+                    });
+                    object.visible = true; // Initially set to invisible
+                    object.rotation.x = Math.PI / 2; // Adjust rotation
+                    object.rotation.y += Math.PI / 4; // Adjust orientation
+                    object.position.z += 10;
+                    window.DozerObject = object;
+                    object.scale.set(30, 30, 30)
+                    window.DozerObject.position.copy(new THREE.Vector3(-1580, 960, 40))
+                },
+                undefined,
+                (error) => {
+                    console.error(`An error occurred while loading the OBJ file: ${error}`);
+                }
+            );
+        });
+    }
 
     const fetch3DDrill = () => {
         const loader = new FBXLoader();

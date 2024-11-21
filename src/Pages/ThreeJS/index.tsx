@@ -98,6 +98,18 @@ export const ThreeJS = () => {
             eta_time: '08:21:00'
         }
 
+        const dozerAnnotation = {
+            type: 'dozer',
+            position: new THREE.Vector3(-1580, 960, 40),
+            text: 'DZ001',
+            status: 'Loading',
+            time: '01:20',
+            counts: '6',
+            operator: 'S. Dave',
+            totalTime: '00:24:550',
+            eta_time: '09:45:00'
+        }
+
         const waitingAnnotation2 = {
             type: 'truck',
             position: new THREE.Vector3(-505, -1940, 50),
@@ -127,7 +139,7 @@ export const ThreeJS = () => {
             status: 'Loading',
             time: '01:20',
             tonnes: '106.4',
-            operator: 'Ivan Shyba',
+            operator: 'S. Ivan',
             passes: '5',
             totalTime: '11:32:21'
         }
@@ -142,9 +154,20 @@ export const ThreeJS = () => {
             totalTime: '16:24:45',
             eta_time: '09:45:00'
         }
-        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2])
-        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2]
 
+        const dozerAnnotation2 = {
+            type: 'dozer',
+            position: new THREE.Vector3(-508, -1786, 40),
+            text: 'DZ002',
+            status: 'Loading',
+            time: '23:20',
+            operator: 'P. Whitney',
+            totalTime: '02:23:41',
+            eta_time: '08:21:00'
+        }
+
+        setAnnotations([waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2])
+        annotationsRef.current = [waitingAnnotation, loadingAnnotation, excavatorAnnotation, drillAnnotation, waitingAnnotation2, loadingAnnotation2, excavatorAnnotation2, drillAnnotation2, dozerAnnotation, dozerAnnotation2]
         // load large dirt
         // loadLargeDirt()
         // Clean up on component unmount
@@ -319,8 +342,18 @@ export const ThreeJS = () => {
                 clonedDrill.position.x = -608; // Apply X offset
                 clonedDrill.position.y = -1356; // Apply Y offset
 
-                console.log(clonedDrill.position)
                 window.map.scene.add(clonedDrill);
+            }
+
+            if (window.DozerObject) {
+                window.map.scene.add(window.DozerObject);
+
+                const clonedDozer = window.DozerObject.clone();
+                clonedDozer.position.x = -508; // Apply X offset
+                clonedDozer.position.y = -1786; // Apply Y offset
+                clonedDozer.rotation.y = Math.PI / 2
+                window.map.DozerObject2 = clonedDozer
+                window.map.scene.add(clonedDozer);
             }
             // add waiting truck
             if (window.TruckObject) {
@@ -329,7 +362,6 @@ export const ThreeJS = () => {
                     copyModel.visible = true
                     copyModel.position.set(-1430, 640, 45)
                     copyModel.rotation.z += Math.PI
-
                     window.map.scene.add(copyModel)
                 }
 
@@ -391,7 +423,6 @@ export const ThreeJS = () => {
             const containerBounds = mapContainerElement.getBoundingClientRect(); // Use getBoundingClientRect
             const screenPosition = annotation.position.clone();
             screenPosition.project(window.camera); // Project to screen space
-
             const x = (screenPosition.x * 0.5 + 0.5) * containerBounds.width;
             const y = -(screenPosition.y * 0.5 - 0.5) * containerBounds.height;
 
@@ -461,7 +492,7 @@ export const ThreeJS = () => {
         } else if (currentFilterRef.current === 'DRILLER') {
             totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'drill');
         } else if (currentFilterRef.current === 'DOZER') {
-            // Add logic for dozers if necessary
+            totalPositions.current = annotationsRef.current.filter(annotation => annotation.type === 'dozer');
         }
 
         if(totalPositions.current.length == 0){
@@ -594,7 +625,7 @@ export const ThreeJS = () => {
                                     <CheckboxGroup options={layerOptions} value={checkedList} onChange={onChange} />
                                     <Button size='small' style={{width: '100px', marginLeft: '0.5rem'}} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
                                 </div>
-                                <THREEJSMap reloadModels={reloadModels} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
+                                <THREEJSMap reloadModels={reloadModels} ref={mapContainer} defaultLayers={checkedList} drawMarkers={() => { }} updateAnnotations={updateAnnotations} isLoading={isLoading} setIsLoading={setIsLoading} drillImport={true} dozerImport={true} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} height='calc(100vh - 240px)' isPitView={true} equipmentFilter={filter}>
                                     {annotations.map((annotation: any, index) => (
                                         <div key={index} id={`eq-annotation-${index}`} className={`eq-annotation ${annotation.status}`}>
                                             <div style={{ padding: 0, textAlign: 'center', width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', borderBottom: '1px solid white', flexDirection:'column' }}>
@@ -628,7 +659,7 @@ export const ThreeJS = () => {
                                                             </h6>
                                                         </>
                                                     ) :
-                                                        annotation.type === 'drill' ? (
+                                                        (annotation.type === 'drill' || annotation.type === 'dozer') ? (
                                                             <>
                                                                 <h4 style={{ textTransform: 'uppercase' }}>{annotation.status}</h4>
                                                                 <h6>
@@ -642,7 +673,8 @@ export const ThreeJS = () => {
                                                             </h6>
                                                         )} */}
                                                                 <h6 style={{ color: annotation.status === 'Waiting' ? 'gold' : '#00ff00' }}>
-                                                                    <div>{annotation.status === 'Waiting' ? 'Waiting Time:' : 'Drilling Time:'}</div>
+                                                                    <div>{annotation.status === 'Waiting' ? 'Waiting Time:' :
+                                                                    annotation.type === 'drill' ? 'Drilling Time:' : 'Loading Time:'}</div>
                                                                     <div>{annotation.time}</div>
                                                                 </h6>
                                                                 <h6 style={{ color: 'white' }}>
