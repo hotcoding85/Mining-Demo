@@ -35,6 +35,7 @@ import FloatingActionButton from "./components/FloatingActionButton";
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+import { ReloadOutlined } from "@ant-design/icons";
 
 export type TripRoutesDataType = {
     id: string,
@@ -1457,6 +1458,11 @@ const Replay = () => {
         })
     }, [filter])
 
+    const [reloadModels, setReloadModels] = useState(0);
+    const refershMap = useCallback(() => {
+        setReloadModels(reloadModels + 1)
+    }, [reloadModels])
+
     return (
         <React.Fragment>
             <div className="page-content">
@@ -1472,6 +1478,7 @@ const Replay = () => {
                                             <Space style={{marginRight: '10px'}}>
                                                 <Segmented className="customSegmentLabel customSegmentBackground" value={filter} onChange={(e) => setFilter(e)} options={['All Equipment', { label: 'Excavators', value: 'EXCAVATOR' }, { label: 'Trucks', value: 'DUMP_TRUCK' }, { label: 'Loaders', value: 'LOADER' }, { label: 'Drillers', value: 'DRILLER' }, { label: 'Dozers', value: 'DOZER' }]}  />
                                             </Space>
+                                            <Button size='small' style={{width: '100px', marginLeft: '0.5rem', marginRight: '0.5rem', height: '32px'}} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
                                             <DatePicker style={{height: '48px', marginRight: '10px'}} className={'fleet-tracking-datepicker'} allowClear={false} value={dayjs(selectedDate)} onChange={onDateChange} />
                                             <Dropdown
                                                 label="Choose Location"
@@ -1483,6 +1490,7 @@ const Replay = () => {
                                     </div>
                                     <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: '0px', marginRight: '0px', width: '100%'}}>
                                         <THREEJSMap 
+                                            reloadModels={reloadModels}
                                             ref={mapContainer}
                                             height={'calc(100vh - 292px)'} 
                                             width={'100%'} 

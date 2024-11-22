@@ -223,38 +223,39 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
                 const objectsToRemove: THREE.Object3D[] = [];
 
-                // Collect objects to remove
-                window.map.scene.traverse((object) => {
-                    if (object.userData.isHole) {
-                        objectsToRemove.push(object);
-                    }
-                });
-
-                // Remove and dispose of objects
-                objectsToRemove.forEach((object: any) => {
-                    if (object.geometry) object.geometry.dispose();
-                    if (Array.isArray(object.material)) {
-                        object.material.forEach((material) => material.dispose());
-                    } else if (object.material) {
-                        object.material.dispose();
-                    }
-                    window.map.scene.remove(object);
-                });
-
-                drawDrillHoles()
-
-                const offsetX = 1058; // X offset for the second pit
-                const offsetY = -2871; // Y offset for the second pit
-
-                // Iterate over the first set of holes and create a cloned version for the second pit
-                window.map.scene.children.forEach((child) => {
-                    if (child.userData.isHole) {
-                        const clonedHole = child.clone();
-                        clonedHole.position.x += offsetX; // Apply X offset
-                        clonedHole.position.y += offsetY; // Apply Y offset
-                        window.map.scene.add(clonedHole);
-                    }
-                });
+                if (drillImport) {
+                    // Collect objects to remove
+                    window.map.scene.traverse((object) => {
+                        if (object.userData.isHole) {
+                            objectsToRemove.push(object);
+                        }
+                    });
+    
+                    // Remove and dispose of objects
+                    objectsToRemove.forEach((object: any) => {
+                        if (object.geometry) object.geometry.dispose();
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach((material) => material.dispose());
+                        } else if (object.material) {
+                            object.material.dispose();
+                        }
+                        window.map.scene.remove(object);
+                    });
+                    drawDrillHoles()
+    
+                    const offsetX = 1058; // X offset for the second pit
+                    const offsetY = -2871; // Y offset for the second pit
+    
+                    // Iterate over the first set of holes and create a cloned version for the second pit
+                    window.map.scene.children.forEach((child) => {
+                        if (child.userData.isHole) {
+                            const clonedHole = child.clone();
+                            clonedHole.position.x += offsetX; // Apply X offset
+                            clonedHole.position.y += offsetY; // Apply Y offset
+                            window.map.scene.add(clonedHole);
+                        }
+                    });
+                }
                 if (dirts.current.length > 0) {
                     dirts.current.map(dirt => {
                         if (window.map.scene.children.includes(dirt)) {
@@ -279,6 +280,24 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                     mixer2.current = createExcavatorDiggingAnimation2(window.DiggerObject2);
                     clock2.current = new THREE.Clock();
                 }
+            }
+            else if (!isLoading && window.map && window.map.scene && diggerImport) {
+                if (window.map.scene.children.includes(window.TruckObject)) {
+                    window.map.scene.remove(window.TruckObject);
+                }
+                window.map.scene.add(window.TruckObject);
+                console.log(window.DiggerObject)
+                if (window.DiggerObject && window.DiggerObject.group && !window.map.scene.children.includes(window.DiggerObject.group)) {
+                    window.map.scene.add(window.DiggerObject.group);
+                    mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+                    clock.current = new THREE.Clock();
+                }
+            }
+            else if (!isLoading && window.map && window.map.scene){
+                if (window.map.scene.children.includes(window.TruckObject)) {
+                    window.map.scene.remove(window.TruckObject);
+                }
+                window.map.scene.add(window.TruckObject);
             }
         }
     }, [reloadModels])
@@ -370,7 +389,7 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
 
     }, [equipmentFilter])
     useEffect(() => {
-        if (!isLoading && window.map && window.map.scene) {
+        if (!isLoading && window.map && window.map.scene && diggerImport && drillImport) {
             window.map.scene.add(window.TruckObject);
             if (diggerImport && window.DiggerObject && window.DiggerObject.group) {
                 window.map.scene.add(window.DiggerObject.group);
@@ -491,6 +510,23 @@ export const THREEJSMap = forwardRef<HTMLDivElement, THREEJSMapProps>(({ childre
                 mixer2.current = createExcavatorDiggingAnimation2(window.DiggerObject2);
                 clock2.current = new THREE.Clock();
             }
+        }
+        else if (!isLoading && window.map && window.map.scene && diggerImport) {
+            if (window.map.scene.children.includes(window.TruckObject)) {
+                window.map.scene.remove(window.TruckObject);
+            }
+            window.map.scene.add(window.TruckObject);
+            if (window.DiggerObject && window.DiggerObject.group && !window.map.scene.children.includes(window.DiggerObject.group)) {
+                window.map.scene.add(window.DiggerObject.group);
+                mixer.current = createExcavatorDiggingAnimation(window.DiggerObject);
+                clock.current = new THREE.Clock();
+            }
+        }
+        else if (!isLoading && window.map && window.map.scene){
+            if (window.map.scene.children.includes(window.TruckObject)) {
+                window.map.scene.remove(window.TruckObject);
+            }
+            window.map.scene.add(window.TruckObject);
         }
     }, [isLoading])
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardBody, Col, Container, Row } from "reactstrap";
 import Breadcrumb from "Components/Common/Breadcrumb";
-import { TabsProps } from "antd";
+import { Button, TabsProps } from "antd";
 import './index.scss'
 import ExcavatorItem from "./ExcavatorItem";
 import {excavators, generateTruckData} from './sampleData';
@@ -11,6 +11,10 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import * as THREE from "three";
 import { isArray } from "lodash";
 import FONT from 'three/examples/fonts/gentilis_bold.typeface.json'
+import { ReloadOutlined } from "@ant-design/icons";
+import { LAYOUT_MODE_TYPES } from "Components/constants/layout";
+import { useSelector } from "react-redux";
+import { LayoutSelector } from "selectors";
 const Visual
  = (props: any) => {
 
@@ -22,6 +26,10 @@ const Visual
     const font = useRef<any>(null)
     const [selectedTrip, setSelectedTrip] = useState<any>(props.trucks[0].index)
     const selectedTripRef = useRef<string>(props.trucks[0].index)
+
+    const { layoutModeType } = useSelector(LayoutSelector);
+    const isLight = layoutModeType === LAYOUT_MODE_TYPES.LIGHT;
+    
     useEffect(() => {
         selectedTripRef.current = selectedTrip
     }, [selectedTrip])
@@ -330,11 +338,20 @@ const Visual
         return () => {
         };
     }, [])
+
+    const [reloadModels, setReloadModels] = useState(0);
+    const refershMap = useCallback(() => {
+        setReloadModels(reloadModels + 1)
+    }, [reloadModels])
+
     return (
         <>
             <Row>
+                <Button size='small' style={{width: '100px', marginTop: '1rem', marginLeft: '1rem', marginRight: '0.5rem', height: '32px', background: isLight ? 'white' : '#25324c', color: isLight ? "#25324c" : 'white' }} icon={<ReloadOutlined />} onClick={refershMap}>Refresh</Button>
+            </Row>
+            <Row>
                 <Col lg={6} sm={12} style={{marginTop: '1rem'}}>
-                    <THREEJSMap ref={mapContainer} isAutoRouting={true} height="583px" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={centerPos} truckInitPoint={new THREE.Vector3(-1550, 760, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
+                    <THREEJSMap reloadModels={reloadModels} ref={mapContainer} isAutoRouting={true} height="583px" defaultLayers={[]} isLoading={isLoading} setIsLoading={setIsLoading} diggerInitPoint={centerPos} truckInitPoint={new THREE.Vector3(-1550, 760, 45)} diggerImport={true} onDocumentMouseClick={onDocumentMouseClick} />
                 </Col>
                 <Col lg={6} sm={12}  className="scrollable-row row" style={{ marginTop: '1rem', display: 'flex', overflowX: 'auto', flexWrap: 'nowrap', padding: 0 }}>
                     {
