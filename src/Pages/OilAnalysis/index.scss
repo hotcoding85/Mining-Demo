@@ -1,0 +1,609 @@
+.date-picker-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.date-picker-input {
+  width: 100%;
+  padding: 8px 36px 8px 10px;
+  border: 1px solid #a0a0a0;
+  border-radius: 4px;
+  background-color: var(--dark-bg-color);
+  color: #ffffff;
+}
+
+.date-label {
+  display: block;
+  color: #ffffff;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  top: 70%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status.caution {
+  color: #ffb400;
+  text-transform: uppercase;
+}
+
+.status.normal {
+  color: #00ff00;
+  text-transform: uppercase;
+}
+
+.status.critical {
+  color: #ff0000;
+  text-transform: uppercase;
+}
+
+tr {
+  transition: background-color 0.2s ease-in-out;
+}
+
+tr:hover {
+  background-color: var(--dark-bg-color);
+}
+
+.oil-analysis-card {
+  background-color: var(--dark-bg-color);
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+}
+
+.oil-analysis-scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.oil-analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  /* color: #fff; */
+  font-weight: bold;
+  /* background-color: var(--bg-color); */
+  padding: 15px;
+  text-align: left;
+}
+
+td {
+  /* color: #fff; */
+  padding: 15px;
+}
+
+tbody tr {
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background-color: var(--dark-bg-color);
+}
+
+tbody tr td {
+  border: none;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status.caution {
+  color: #ffb400;
+}
+
+.status.normal {
+  color: #00ff00;
+}
+
+.status.critical {
+  color: #ff0000;
+}
+
+.oil-analysis-table tbody tr:hover {
+  background-color: var(--dark-bg-color) !important;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* tbody tr {
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease;
+}
+
+tbody tr:hover {
+  background-color: var(--dark-bg-color);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+} */
+
+
+.oil-analysis-table thead th {
+  /* background-color: #24314D; */
+  /* color: #fff; */
+}
+
+.oil-analysis-card {
+  background-color: var(--bg-color);
+  ;
+}
+
+/* Header section styling */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* Dropdown for Day/Night */
+.shift-dropdown {
+  background-color: var(--dark-bg-color);
+  color: #fff;
+  border: 1px solid #ccc;
+  padding: 8px 20px;
+}
+
+.dropdown-menu {
+  background-color: var(--dark-bg-color);
+  color: white;
+}
+
+/* Shift button styling */
+.shift-btn {
+  padding: 8px 20px;
+  font-weight: bold;
+  border: none;
+  color: white;
+}
+
+.shift-btn.active {
+  background-color: #6c757d;
+  color: white;
+}
+
+.shift-btn:not(.active) {
+  background-color: transparent;
+  border: 1px solid #6c757d;
+}
+
+/* Date pickers */
+.date-picker-section {
+  align-items: center;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.date-picker-label {
+  margin-bottom: 4px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.date-picker-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-picker-input {
+  background-color: var(--dark-bg-color);
+  border: 1px solid #5A6E84;
+  padding: 8px 36px 8px 12px;
+  /* Padding adjusted to fit the icon inside */
+  font-size: 14px;
+  border-radius: 8px;
+  /* Rounded corners */
+  width: 160px;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  width: 36px;
+  font-size: 18px;
+  color: #fff;
+}
+
+.date-picker-input:focus {
+  outline: none;
+  border-color: var(--dark-bg-color);
+}
+
+.form-control {
+  box-shadow: none;
+}
+
+/* Card for report data */
+.oil-analysis-report-card {
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Additional Table Styling */
+.detailed-analysis-table {
+  margin-top: 30px;
+}
+
+.detailed-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detailed-table td {
+  padding: 12px;
+  border-bottom: 1px solid #6c757d;
+  border-right: 1px solid #6c757d;
+  color: #fff;
+  /* background-color: var(--dark-bg-color); */
+}
+
+.detailed-table tr:nth-child(even) {
+  background-color: var(--bg-color);
+}
+
+.detailed-analysis-table .section-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.section-title {
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.machine-info-section {
+  margin-bottom: 20px;
+}
+
+.machine-info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.machine-info-table tr {
+  height: 40px;
+}
+
+.icon-cell {
+  width: 40px;
+}
+
+.info-icon {
+  font-size: 20px;
+  color: #6c757d;
+}
+
+.label-cell {
+  font-size: 14px;
+  color: #ccc;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+.dashed-line {
+  border-bottom: 1px dashed #ccc;
+  padding: 0 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.dashed-text {
+  font-size: 14px;
+  text-align: left;
+}
+
+/* Styling for other content */
+.oil-analysis-report-card {
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Modal */
+
+.modal-details-content p {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 8px;
+  font-size: 16px;
+  font-weight: 300;
+  background-color: var(--dark-bg-color);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header-content h4,
+.modal-header-content p {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.modal-header-content p {
+  font-size: 18px;
+}
+
+.oil-analysis-summary-item{
+  border: 2px solid #7f7f7f !important;
+  border-radius: 10px;
+
+  & .title{
+    font-size: 20px;
+  }
+
+  & .report{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    & span.font-bold{
+      font-size: 30px;
+      font-weight: 600;
+    }
+    & .up{
+      color: green;
+    }
+    & .below{
+      color: red;
+    }
+    & .progress.up {
+      background-color: #eaf7ea;
+    }
+    & .progress.below {
+      background-color: #f7eaea;
+    }
+    & .progress{
+      align-items: center;
+      border-radius: 5px;
+      padding: 5px;
+      height: 100%;
+      font-size: 12px;
+      & svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      & .up {
+        transform: rotate(45deg);
+        color: green;
+        
+      }
+      & .below {
+        transform: rotate(-45deg);
+        color: red;
+      }
+    }
+  }
+}
+.btn-light-filter{
+  color: #2A2A2A !important;
+}
+body[data-layout-mode='light'] {
+  .alert-subtitle {
+    color: grey !important;
+  }
+  .report-dashboard {
+    & .title{
+      color: #2A2A2A;
+    }
+  }
+  & .table-status-panel ul li {
+    color: #2A2A2A;
+  }
+  & .main-table th,
+  .main-table td {
+    color: #2A2A2A;
+  }
+  & .main-table tr:hover {
+    background-color: transparent !important;
+  }
+}
+
+body[data-layout-mode='dark'] {
+  .alert-subtitle {
+    color: grey !important;
+  }
+  .report-dashboard {
+    & .title{
+      color: white;
+    }
+  }
+  & .table-status-panel ul li {
+    color: #ffffff;
+  }
+  & .main-table th,
+  .main-table td {
+    color: #ffffff;
+  }
+  & .main-table tr:hover {
+    background-color: transparent !important;
+  }
+}
+
+.oil-analysis-card{
+  & th, td, tr, .ant-table-column-title {
+    text-align: center !important;
+  }
+}
+
+.oil-report-card{
+  & th, td, tr, .ant-table-column-title {
+    text-align: center !important;
+    font-size: 12px;
+    padding: 5px;
+    border: 1px solid grey;
+  }
+}
+
+.report-dashboard {
+  & span.text-gray-400{
+    min-width: 150px;
+  }
+}
+
+.oil-analysis-item-table{
+  th, tr, td {
+    font-size: 12px !important;
+  }
+}
+
+.oil-analysis-container{
+  overflow: auto;
+  margin-right: 12px;
+}
+
+.hierarchy-table-container {
+  width: calc(100% - 24px) !important;
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #1d2939;
+}
+
+.hierarchy-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border: 1px solid #2e3b4e;
+  padding: 10px;
+  border-radius: 8px;
+  // background-color: #2b3a4c;
+  color: white;
+}
+
+.main-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.main-table th,
+.main-table td {
+  border: 1px solid #444c5c;
+  padding: 8px;
+  text-align: center;
+}
+
+.main-table th {
+  // background-color: #3c4a5e;
+}
+
+.sub-table {
+  width: 100%;
+  margin-top: 0px;
+  border-collapse: collapse;
+}
+
+.sub-table td {
+  padding: 6px;
+  border: 1px solid #444c5c;
+}
+
+.table-status-panel {
+  width: 100%;
+  display: flex;
+  height: 225px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.table-status {
+  width: 80%;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  text-align: center;
+  color: white;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.table-status.normal {
+  background-color: green;
+}
+
+.table-status.query {
+  background-color: purple;
+}
+
+.table-status.caution {
+  background-color: orange;
+}
+
+.table-status.action {
+  background-color: gray;
+}
+
+.table-status.critical {
+  background-color: red;
+}
+
+.table-status-panel.normal {
+  border: 8px solid green;
+}
+
+.table-status-panel.query {
+  border: 8px solid purple;
+}
+
+.table-status-panel.caution {
+  border: 8px solid  orange;
+}
+
+.table-status-panel.action {
+  border: 8px solid  gray;
+}
+
+.table-status-panel.critical {
+  border: 8px solid  red;
+}
+
+.table-status-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.table-status-panel ul li {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+th.no-background{
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.oil-analysis-rechart-legend .recharts-legend-wrapper{
+  position: absolute;
+  width: 400px !important;
+  height: 20px !important;
+  right: 20px !important;
+  left: calc(100% - 400px) !important;
+  top: -50px !important;
+}
