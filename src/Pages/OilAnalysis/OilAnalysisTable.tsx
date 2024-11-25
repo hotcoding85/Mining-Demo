@@ -131,12 +131,12 @@ const OilAnalysisTable = (props) => {
     setSelectedData(rowData);
     props.setSelectedData(rowData)
     // setIsModalOpen(!isModalOpen);
-    navigate("/oil-analysis-report", { state: { rowData } });
+    navigate(`/oil-analysis-report/${rowData.machineId}`, {state: {rowData}});
   };
 
   const openDetailedReportPage = () => {
     setIsModalOpen(false);
-    navigate("/oil-analysis-report", { state: { selectedData } });
+    navigate(`/oil-analysis-report/${selectedData.machineId}`, {state: {selectedData}});
   };
 
   const handleStatus = (status) => {

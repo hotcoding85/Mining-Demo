@@ -2,24 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Card, CardBody, Col, Container, Row, Table } from "reactstrap";
 import {  Segmented, Space, Select, Button } from "antd";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCogs, FaUser } from "react-icons/fa";
 import './index.scss';
-import AnalysisCard from "Pages/FleetTimeline/components/AnalysisCard";
 import {DatePicker} from "antd";
-
-
-import {
-  ActiveAnalysis,
-  DelayAnalysis,
-  DownAnalysis,
-  StandByAnalysis,
-  oilAnalysisData
-} from "./mock";
-import {
-  FLEET_TIME_STATE_COLOR,
-  LAYOUT_MODE_TYPES,
-} from "Components/constants/layout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import SearchDropdown from "./../TruckLoadOptimisation/components/SearchDropdown";
 import { UploadOutlined } from "@ant-design/icons";
@@ -30,26 +15,15 @@ import EventDetail from "./EventDetail";
 const OilAnalysisReportPage = (props: any) => {
   document.title = "Oil Analysis Report | FMS Live";
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedShift, setSelectedShift] = useState("Day");
-  const [currentShift, setCurrentShift] = useState("Current Shift");
 
   const [startDate, setStartDate] = React.useState<any>('');
-  const [endDate, setEndDate] = React.useState(new Date());
-  const [fleetMode, setFleetMode] = useState<string>("CURRENT_SHIFT");
-
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-
-  const handleShiftChange = (shift: string) => {
-    setSelectedShift(shift);
-    setDropdownOpen(false);
-  };
 
   function generateRandomElement() {
     // Randomly return either a number, "<1", or "<0.1"
     const rand = Math.random();
     if (rand < 0.3) return "<1";
     if (rand < 0.6) return "<0.1";
-    return Math.floor(Math.random() * 500); // Random number from 0 to 499
+    return Math.floor(Math.random() * 100); // Random number from 0 to 99
   }
   
   function generateEvaluation(status: string): string {
@@ -86,13 +60,14 @@ const OilAnalysisReportPage = (props: any) => {
     }
   }
   
-  function generateDataRow(status: string, _date: dayjs.Dayjs): Record<string, any> {
-    const elements = Array.from({ length: 26 }, (_, i) =>
+  function generateDataRow(status: string, dateOffset: number): Record<string, any> {
+    const elements = Array.from({ length: 27 }, (_, i) =>
       i === 21 ? "<0.1" : generateRandomElement()
     );
   
     // Calculate the date
-    const date = new Date(_date.format('YYYY-MM-DD'));
+    const date = new Date();
+    date.setDate(date.getDate() - dateOffset);
     const formattedDate = date.toLocaleDateString("en-GB"); // Format: DD/MM/YYYY
   
     return {
@@ -118,8 +93,7 @@ const OilAnalysisReportPage = (props: any) => {
 
   const [data, setData] = useState<any[]>([])
   useEffect(() => {
-    // const data = generateDataRow(status, index)
-    // setData(data)
+
   }, [])
 
   const statusColors: { [key: string]: string } = {
@@ -132,10 +106,9 @@ const OilAnalysisReportPage = (props: any) => {
 
   const location = useLocation();
   const rowData = location.state?.rowData; // Access the state passed via navigate.
-
+  const { machineId } = useParams();
   const selectedData = useMemo(() => {
-    const machineId = rowData.machineId;
-
+    let _rowData
     const defaultMachineId = machineId
       ? machineId.startsWith("DT10") // Check if it starts with DT101, DT102, etc.
         ? "HD765"
@@ -143,25 +116,47 @@ const OilAnalysisReportPage = (props: any) => {
         ? "HD1500"
         : machineId // Use the original value if it doesn't match the conditions
       : "HD765"; // Default to HD765 if `machineId` is undefined or empty
+    if (!rowData || rowData === undefined) {
+      const date = new Date();
+      const formattedDate = date.toLocaleDateString("en-GB");
+      _rowData = {
+        "key": machineId,
+        "machineId": machineId,
+        "viscosity": "Low",
+        "wearMetals": formattedDate,
+        "waterContent": "Optimal",
+        "status": "Normal",
+        "defaultMachineId": defaultMachineId
+    }
+    }
+    else{
+      _rowData = rowData
+    }
+    _rowData.defaultMachineId = defaultMachineId
 
-    rowData.defaultMachineId = defaultMachineId
-    const newDate = dayjs(rowData.wearMetals, "DD/MM/YYYY"); // Parse the string as DD/MM/YYYY format
-
-    // Update state
-    setStartDate(newDate);
-
-    const data = [generateDataRow(rowData.status, newDate)]
+    const data = status.map((status, index) => generateDataRow(status, index));
     setData(data)
-    return rowData
+    return _rowData
   }, [rowData])
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
 
+  const [filtered, setFiltered] = useState<any>(null)
   useEffect(() => {
-    const data = [generateDataRow(rowData.status, startDate)]
-    setData(data)
-  }, [startDate])
+    if (!startDate || startDate === '') {
+      setFiltered(null)
+      return
+    }
+    // Parse `startDate` into a Date object
+    const convertToISOFormat = (dateString: string): string => {
+      const [day, month, year] = dateString.split("/").map(Number);
+      return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    };
+    // Filter the data
+    const filteredData = data.filter((row) => {
+      const rowDate = dayjs(row.date, "DD/MM/YYYY"); // Parse row date in the given format
+      return rowDate.isSame(startDate, "day"); // Compare only the day
+    });
+    setFiltered(filteredData.length > 0 ? filteredData[0] : null);
+  }, [startDate, data])
 
   const filters = {
     model: [
@@ -287,7 +282,8 @@ const OilAnalysisReportPage = (props: any) => {
                           </tr>
                           </thead>
                   </table>
-                  {data.map((item: any, index) => (
+
+                  {!filtered && data.map((item: any, index) => (
                     <div key={index} className="hierarchy-table">
                       <table className="main-table">
                         <thead>
@@ -345,10 +341,10 @@ const OilAnalysisReportPage = (props: any) => {
                           </tr>
                           <tr>
                             <td style={{background: '#535E77'}}>Unit</td>
-                            <td>{item.unit}</td>
-                            <td colSpan={11}>Evaluation</td>
-                            <td colSpan={4}>Oil Information</td>
-                            <td colSpan={12}>Recommendaton</td>
+                            <td style={{width: '8%'}}>{item.unit}</td>
+                            <td colSpan={11}  style={{width: '35%'}}>Evaluation</td>
+                            <td colSpan={4} style={{width: '15%'}}>Oil Information</td>
+                            <td colSpan={12} style={{width: '35%'}}>Recommendaton</td>
                           </tr>
                           <tr>
                             <td style={{background: '#535E77'}}>Comp</td>
@@ -369,42 +365,121 @@ const OilAnalysisReportPage = (props: any) => {
                           </tr>
                         </tbody>
                       </table>
-                      {/* <div className="status-panel">
-                        <div className={`status ${item.status.toLowerCase()}`}>{item.status}</div>
-                        <ul>
-                          <li>Normal</li>
-                          <li>Query</li>
-                          <li>Caution</li>
-                          <li>Action</li>
-                          <li>Critical</li>
-                        </ul>
-                      </div> */}
                     </div>
                   ))}
+                  {
+                    filtered && <div key={-1} className="hierarchy-table">
+                    <table className="main-table">
+                      <thead>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td rowSpan={2} colSpan={2}>
+                            <div className="d-flex" style={{flexDirection: 'column', border: '1px solid grey'}}>
+                              <div style={{background: '#535E77'}}>Date</div>
+                              <div>{filtered.date}</div>
+                            </div>
+                            <div>Hours</div>
+                          </td>
+                          <td>Fe</td>
+                          <td>Pb</td>
+                          <td>Cu</td>
+                          <td>Cr</td>
+                          <td>Al</td>
+                          <td>Si</td>
+                          <td>Na</td>
+                          <td>K</td>
+                          <td>Mo</td>
+                          <td>Mg</td>
+                          <td>Zn</td>
+                          <td>P</td>
+                          <td>Ca</td>
+                          <td>B</td>
+                          <td>ISO</td>
+                          <td>PQ</td>
+                          <td>Soot</td>
+                          <td>Oxi</td>
+                          <td>Nit</td>
+                          <td>Sul</td>
+                          <td>VI100</td>
+                          <td>Water</td>
+                          <td>KF</td>
+                          <td>Fuel</td>
+                          <td>TAN</td>
+                          <td>TBN</td>
+                          <td>Oil</td>
+                          <td style={{minWidth: '140px', padding: 0}} rowSpan={6}>
+                            <div className={`table-status-panel ${filtered.status.toLowerCase()}`}>
+                              {
+                                status.map(st => {
+                                  return <div className={`table-status ${st === filtered.status ? filtered.status.toLowerCase() : ''}`}>{st}</div>
+                                })
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          {filtered.elements.map((val, idx) => (
+                            <td key={idx}>{val}</td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td style={{background: '#535E77'}}>Unit</td>
+                          <td>{filtered.unit}</td>
+                          <td colSpan={11}>Evaluation</td>
+                          <td colSpan={4}>Oil Information</td>
+                          <td colSpan={12}>Recommendaton</td>
+                        </tr>
+                        <tr>
+                          <td style={{background: '#535E77'}}>Comp</td>
+                          <td>{filtered.comp}</td>
+                          <td colSpan={11} rowSpan={3}><div>{filtered.evaluation}</div></td>
+                          <td colSpan={4}>Make: SINOPEC</td>
+                          <td colSpan={12} rowSpan={3}>{filtered.recommendation}</td>
+                        </tr>
+                        <tr>
+                          <td style={{background: '#535E77'}}>Oil</td>
+                          <td>{filtered.oil}</td>
+                          <td colSpan={4}>Type: ?</td>
+                        </tr>
+                        <tr>
+                          <td style={{background: '#535E77'}}>Changed</td>
+                          <td>{filtered.changed}</td>
+                          <td colSpan={4}>Grade: 10W30</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  }
                 </div>
             </Row>
           </Card>
-          <Row className="mb-3">
-            <Col className="d-flex">
-              <Segmented
-                className="customSegmentLabel customSegmentBackground"
-                value={displayType}
-                onChange={onDisplayTypeChange}
-                options={[
-                  { value: "oil", label: "Oil Analysis Data" },
-                  { value: "event", label: "Event Details" },
-                ]}
-              />
-            </Col>
-          </Row>
-          <Row className="mt-2">
-            {
-              displayType === 'oil' ?
-              <OilAnalysisData />
-              :
-              <EventDetail />
-            }
-          </Row>
+          {
+            filtered && 
+            <>
+                <Row className="mb-3">
+                  <Col className="d-flex">
+                    <Segmented
+                      className="customSegmentLabel customSegmentBackground"
+                      value={displayType}
+                      onChange={onDisplayTypeChange}
+                      options={[
+                        { value: "oil", label: "Oil Analysis Data" },
+                        { value: "event", label: "Event Details" },
+                      ]}
+                    />
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  {
+                    displayType === 'oil' ?
+                    <OilAnalysisData />
+                    :
+                    <EventDetail />
+                  }
+                </Row>
+            </>
+          }
         </Container>
 
       </div>

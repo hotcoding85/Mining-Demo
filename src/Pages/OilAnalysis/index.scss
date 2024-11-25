@@ -51,10 +51,6 @@ tr {
   transition: background-color 0.2s ease-in-out;
 }
 
-tr:hover {
-  background-color: var(--dark-bg-color);
-}
-
 .oil-analysis-card {
   background-color: var(--dark-bg-color);
   color: #fff;
@@ -90,10 +86,6 @@ tbody tr {
   cursor: pointer;
 }
 
-tbody tr:hover {
-  background-color: var(--dark-bg-color);
-}
-
 tbody tr td {
   border: none;
 }
@@ -115,26 +107,8 @@ tbody tr td {
 }
 
 .oil-analysis-table tbody tr:hover {
-  background-color: var(--dark-bg-color) !important;
   cursor: pointer;
   transition: background-color 0.3s ease;
-}
-
-/* tbody tr {
-  background-color: var(--bg-color);
-  transition: background-color 0.3s ease;
-}
-
-tbody tr:hover {
-  background-color: var(--dark-bg-color);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-} */
-
-
-.oil-analysis-table thead th {
-  /* background-color: #24314D; */
-  /* color: #fff; */
 }
 
 .oil-analysis-card {
@@ -419,6 +393,9 @@ body[data-layout-mode='light'] {
   & .main-table tr:hover {
     background-color: transparent !important;
   }
+  & .table-status{
+    color: #2A2A2A;
+  }
 }
 
 body[data-layout-mode='dark'] {
@@ -488,10 +465,8 @@ body[data-layout-mode='dark'] {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border: 1px solid #2e3b4e;
-  padding: 10px;
+  padding: 0px;
   border-radius: 8px;
-  // background-color: #2b3a4c;
   color: white;
 }
 
@@ -505,10 +480,6 @@ body[data-layout-mode='dark'] {
   border: 1px solid #444c5c;
   padding: 8px;
   text-align: center;
-}
-
-.main-table th {
-  // background-color: #3c4a5e;
 }
 
 .sub-table {
@@ -545,22 +516,27 @@ body[data-layout-mode='dark'] {
 
 .table-status.normal {
   background-color: green;
+  color: white !important;
 }
 
 .table-status.query {
   background-color: purple;
+  color: white !important;
 }
 
 .table-status.caution {
   background-color: orange;
+  color: white !important;
 }
 
 .table-status.action {
   background-color: gray;
+  color: white !important;
 }
 
 .table-status.critical {
   background-color: red;
+  color: white !important;
 }
 
 .table-status-panel.normal {

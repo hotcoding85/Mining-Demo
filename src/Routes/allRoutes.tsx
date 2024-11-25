@@ -233,7 +233,7 @@ const authProtectedRoutes = [
   { path: "/dig-blocks", exact: true, component: <DigBlockLayout /> },
   { path: "/kpi", exact: true, component: <ManagerKPI /> },
   { path: "/oil-analysis", exact: true, component: <OilAnalysis /> },
-  { path: "/oil-analysis-report", exact: true, component: <OilAnalysisReportPage/> },
+  { path: "/oil-analysis-report/:machineId", exact: true, component: <OilAnalysisReportPage/> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
   { path: "/pre-starts/:id", exact: true, component: <PreStartDetails /> }, 
   { path: "/haul-road-optimisation", exact: true, component: <HaulRoadOptimisation /> },
