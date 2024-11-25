@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardBody,
@@ -7,76 +7,63 @@ import {
   ModalFooter,
   Button,
   Col,
+  Row,
 } from "reactstrap";
-import "./index.css";
+import "./index.scss";
 import { useNavigate } from "react-router-dom";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { FaCogs } from "react-icons/fa";
 import { Input, Space } from "antd";
 import Table from "Components/Common/Table";
-const OilAnalysisTable = () => {
+import { PiClockClockwiseLight } from "react-icons/pi";
+import dayjs, { Dayjs } from "dayjs";
+const OilAnalysisTable = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedData, setSelectedData] = useState<any>(null);
+  const [startDate, setStartDate] = React.useState(props.startDate);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [data] = useState([
-    {
-      key: "DT101",
-      machineId: "DT101",
-      viscosity: "Low",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Caution",
-    },
-    {
-      key: "DT102",
-      machineId: "DT102",
-      viscosity: "Medium",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Normal",
-    },
-    {
-      key: "DT103",
-      machineId: "DT103",
-      viscosity: "Unknown",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Critical",
-    },
-    {
-      key: "DT104",
-      machineId: "DT104",
-      viscosity: "Recently Tested",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Normal",
-    },
-    {
-      key: "DT105",
-      machineId: "DT105",
-      viscosity: "Unknown",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Normal",
-    },
-    {
-      key: "DT106",
-      machineId: "DT106",
-      viscosity: "Unknown",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Normal",
-    },
-    {
-      key: "DT107",
-      machineId: "DT107",
-      viscosity: "Unknown",
-      wearMetals: "07/11/24",
-      waterContent: "07/11/24",
-      status: "Normal",
-    },
-  ]);
+  const status = [
+    'Normal',
+    'Query',
+    'Caution',
+    'Action',
+    'Critical'
+  ]
+  function generateRandomDate(startDate): string {
+    console.log(startDate)
+    return startDate.toLocaleDateString("en-GB"); // Format: DD/MM/YY
+  }
+  
+  function getRandomFromArray<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  
+  function generateDynamicData(count: number, startDate: string): any[] {
+    const statuses = ["Normal", "Query", "Caution", "Action", "Critical"];
+    const waterContents = ["Caution", "Critical", "Optimal"];
+    const viscosities = ["Low", "Medium", "Unknown", "Recently Tested"];
+  
+    return Array.from({ length: count }, (_, i) => {
+      const prefix = i % 2 === 0 ? "DT10" : "DT12"; // Alternate between DT10? and DT12?
+      const machineId = `${prefix}${Math.floor(i / 2) + 1}`; // Generate IDs like DT101, DT121, DT102, DT122, etc.
+      return {
+        key: machineId,
+        machineId: machineId,
+        viscosity: getRandomFromArray(viscosities),
+        wearMetals: generateRandomDate(startDate),
+        waterContent: getRandomFromArray(waterContents),
+        status: getRandomFromArray(statuses),
+      };
+    });
+  }
+  
+  // Example usage
+  const [data, setData] = useState<any[]>([])
+  useEffect(() => {
+    const dynamicData = generateDynamicData(6, props.startDate); // Generate 10 entries
+    setData(dynamicData)
+  }, [props.startDate])
 
   const columns: any = useMemo(
     () => [
@@ -85,6 +72,9 @@ const OilAnalysisTable = () => {
         dataIndex: "machineId",
         key: "machineId",
         dataType: "string",
+        render: (_, record) => {
+          return MachineId(_, record);
+        },
       },
       {
         title: "Viscosity",
@@ -126,9 +116,22 @@ const OilAnalysisTable = () => {
     []
   );
 
+  const MachineId = (text, rowData: any) => {
+    if (rowData.status === "Critical") {
+      return <><div>{text}</div><div style={{color: 'grey', fontSize: '11px'}}><PiClockClockwiseLight />Recently Viewed</div></>;
+    } else if (rowData.status === "Caution") {
+      return <><div>{text}</div><div style={{color: 'grey', fontSize: '11px'}}><PiClockClockwiseLight />Last seen: {dayjs(startDate).toISOString().substring(0, 10)}</div></>;
+    } else {
+      return <><div>{text}</div><div style={{color: 'grey', fontSize: '11px'}}><PiClockClockwiseLight />Last seen: {dayjs(startDate).toISOString().substring(0, 10)}</div></>;
+    }
+    
+  }
+
   const toggleModal = (rowData: any) => {
     setSelectedData(rowData);
-    setIsModalOpen(!isModalOpen);
+    props.setSelectedData(rowData)
+    // setIsModalOpen(!isModalOpen);
+    navigate("/oil-analysis-report", { state: { rowData } });
   };
 
   const openDetailedReportPage = () => {
@@ -159,23 +162,23 @@ const OilAnalysisTable = () => {
   }, [data, searchTerm, columns]);
 
   return (
-    <div>
+    <Row>
       <Card className="oil-analysis-card">
         <CardBody>
-          <h2 className="mb-4">Oil Analysis Report</h2>
+          <h2 className="mb-4">Report</h2>
           <Col sm={4}>
-            <Input
+            {/* <Input
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ marginBottom: 16 }}
               allowClear
-            />
+            /> */}
           </Col>
           <Table
             columns={columns}
             data={filteredData || []}
-            paginationPageSize={5}
+            paginationPageSize={10}
           />
         </CardBody>
       </Card>
@@ -260,7 +263,7 @@ const OilAnalysisTable = () => {
           </ModalFooter>
         </Modal>
       )}
-    </div>
+    </Row>
   );
 };
 

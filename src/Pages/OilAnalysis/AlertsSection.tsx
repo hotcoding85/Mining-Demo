@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Container, Row } from "reactstrap";
 import "react-datepicker/dist/react-datepicker.css";
-import './index.css';
+import './index.scss';
 
 const AlertsSection = () => {
 
