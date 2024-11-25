@@ -4,10 +4,10 @@ import {  Segmented, Space, Select, Button } from "antd";
 import "react-datepicker/dist/react-datepicker.css";
 import './index.scss';
 import {DatePicker} from "antd";
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Breadcrumb from "Components/Common/Breadcrumb";
 import SearchDropdown from "./../TruckLoadOptimisation/components/SearchDropdown";
-import { UploadOutlined } from "@ant-design/icons";
+import { BackwardOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import OilAnalysisData from "./OilAnalysisData";
 import EventDetail from "./EventDetail";
@@ -92,9 +92,6 @@ const OilAnalysisReportPage = (props: any) => {
   ]
 
   const [data, setData] = useState<any[]>([])
-  useEffect(() => {
-
-  }, [])
 
   const statusColors: { [key: string]: string } = {
     Normal: "success",
@@ -103,10 +100,11 @@ const OilAnalysisReportPage = (props: any) => {
     Action: "secondary",
     Critical: "danger",
   };
-
+  const navigate = useNavigate();
   const location = useLocation();
   const rowData = location.state?.rowData; // Access the state passed via navigate.
-  const { machineId } = useParams();
+  const { machineId, filterDate } = useParams();
+  const [filtered, setFiltered] = useState<any>(null)
   const selectedData = useMemo(() => {
     let _rowData
     const defaultMachineId = machineId
@@ -136,15 +134,17 @@ const OilAnalysisReportPage = (props: any) => {
 
     const data = status.map((status, index) => generateDataRow(status, index));
     setData(data)
+    setFiltered(null)
     return _rowData
   }, [rowData])
 
-  const [filtered, setFiltered] = useState<any>(null)
   useEffect(() => {
     if (!startDate || startDate === '') {
       setFiltered(null)
+      navigate(`/oil-analysis/${selectedData.machineId}`, {state: {selectedData}});
       return
     }
+    navigate(`/oil-analysis/${selectedData.machineId}/${dayjs(startDate).format('YYYY-MM-DD')}`, {state: {selectedData}});
     // Parse `startDate` into a Date object
     const convertToISOFormat = (dateString: string): string => {
       const [day, month, year] = dateString.split("/").map(Number);
@@ -196,11 +196,18 @@ const OilAnalysisReportPage = (props: any) => {
   const onDisplayTypeChange = (displayInfo: string) => {
     setDisplayType(displayInfo);
   };
+
+  const handleClick = (id) => {
+    const filteredData = data.filter((row, index) => {
+      return index === id
+    });
+    setFiltered(filteredData.length > 0 ? filteredData[0] : null);
+  }
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb title="Fleet Maintenance / Oil Analysis" link="../oil-analysis" breadcrumbItem="Report" />
+          <Breadcrumb onClick={() => setFiltered(null)} title="Fleet Maintenance / Oil Analysis" link={`../oil-analysis/${selectedData.machineId}`} breadcrumbItem="Report" />
           <Row className="justify-content-end mb-2">
             <Col md={4} xs={12} lg={3} className="d-flex" style={{alignItems: 'center', justifyContent: 'flex-end'}}>
               <DatePicker allowClear={true} value={startDate} style={{ width: "100%", minWidth: '150px' }} onChange={(value) => setStartDate(value)} />
@@ -274,7 +281,14 @@ const OilAnalysisReportPage = (props: any) => {
                   <table className="">
                         <thead>
                           <tr>
-                            <th className="no-background" style={{minWidth: '80px'}} rowSpan={2}></th>
+                            <th className="no-background" style={{width: '8%'}} rowSpan={2}>
+                              {
+                                filtered && <Button size="small" onClick={() => {setFiltered(null); setStartDate('')}}>
+                                  Go to list
+                                  <BackwardOutlined />
+                                </Button>
+                              }
+                            </th>
                             <th className="no-background" colSpan={13}>Elements - Parts Per Million (ppm)</th>
                             <th className="no-background" colSpan={3}>Particles</th>
                             <th className="no-background" colSpan={5}>Physicals</th>
@@ -284,7 +298,7 @@ const OilAnalysisReportPage = (props: any) => {
                   </table>
 
                   {!filtered && data.map((item: any, index) => (
-                    <div key={index} className="hierarchy-table">
+                    <div key={index} className="hierarchy-table" onClick={() => handleClick(index)}>
                       <table className="main-table">
                         <thead>
                         </thead>

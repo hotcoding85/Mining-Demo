@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardBody,
@@ -127,16 +127,16 @@ const OilAnalysisTable = (props) => {
     
   }
 
-  const toggleModal = (rowData: any) => {
+  const toggleModal = useCallback((rowData: any) => {
     setSelectedData(rowData);
     props.setSelectedData(rowData)
     // setIsModalOpen(!isModalOpen);
-    navigate(`/oil-analysis-report/${rowData.machineId}`, {state: {rowData}});
-  };
+    navigate(`/oil-analysis/${rowData.machineId}`, {state: {rowData}});
+  }, [startDate])
 
   const openDetailedReportPage = () => {
     setIsModalOpen(false);
-    navigate(`/oil-analysis-report/${selectedData.machineId}`, {state: {selectedData}});
+    navigate(`/oil-analysis/${selectedData.machineId}`, {state: {selectedData}});
   };
 
   const handleStatus = (status) => {
