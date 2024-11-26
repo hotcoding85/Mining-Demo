@@ -201,16 +201,21 @@ const OilAnalysisReportPage = (props: any) => {
     const filteredData = data.filter((row, index) => {
       return index === id
     });
+    if (filteredData.length > 0) {
+      console.log(filteredData[0].date)
+      setStartDate(dayjs(filteredData[0].date, 'DD/MM/YYYY').format('YYYY-MM-DD'))
+
+    }
     setFiltered(filteredData.length > 0 ? filteredData[0] : null);
   }
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumb onClick={() => setFiltered(null)} title="Fleet Maintenance / Oil Analysis" link={`../oil-analysis/${selectedData.machineId}`} breadcrumbItem="Report" />
+          <Breadcrumb onClick={() => setFiltered(null)} title="Fleet Maintenance / Oil Analysis" link={`../oil-analysis`} breadcrumbItem="Report" />
           <Row className="justify-content-end mb-2">
             <Col md={4} xs={12} lg={3} className="d-flex" style={{alignItems: 'center', justifyContent: 'flex-end'}}>
-              <DatePicker allowClear={true} value={startDate} style={{ width: "100%", minWidth: '150px' }} onChange={(value) => setStartDate(value)} />
+              {/* <DatePicker allowClear={true} value={startDate} style={{ width: "100%", minWidth: '150px' }} onChange={(value) => setStartDate(value)} /> */}
               <SearchDropdown
                 itemsGroup={filters}
                 disableTitle={false}
