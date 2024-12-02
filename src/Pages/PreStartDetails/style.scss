@@ -13,22 +13,62 @@
   justify-content: space-between;
   align-items: center;
   margin: 0 0 20px !important;
+  padding: 0.5rem;
+  border: 1px solid rgba(var(--bs-danger-rgb));
+}
+
+.banner-card .checkedlist-title {
+  margin-bottom: 0px;
+  margin-left: 10px;
+  font-size: 18px;
+  text-transform: capitalize !important;
 }
 /* Attention Banner */
 .attention-banner {
-  background-color: #cf1322;
-  color: white;
   padding: 5px 15px;
   font-size: 16px;
   font-weight: bold;
   border-radius: 5px;
 }
+body[data-layout-mode='light'] {
+  .pre-start-detail-checklist-table {
+    & thead > tr {
+      background-color: white;
+    }
+  }
+}
+.pre-start-detail-checklist-table {
+  border-radius: 10px;
+  margin-top: -1rem;
+  thead > tr {
+    background-color: #535E77;
+  }
+  th {
+    text-align: center;
+    font-size: 14px;
+  }
+  td {
+    text-align: center;
+    font-size: 14px;
+  }
+  tr{
+    border: 1px solid grey;
+  }
+
+  & .expanded-content{
+    max-height: 140px;
+    padding: 5px;
+    border: 1px solid grey;
+  }
+}
 /* Col for Attention Needed Banner */
 .attention-banner-container {
   display: flex;
-  justify-content: center;
+  width: 100%;
+  justify-content: space-between;
   align-items: center;
   flex-grow: 1;
+  flex-wrap: nowrap !important;
 }
 
 /* Schedule Button */
@@ -124,7 +164,7 @@
   width: 5px;
 }
 .notes-content {
-  max-height: 150px;
+  max-height: 63px;
   overflow-y: auto;
 }
 
@@ -141,7 +181,7 @@
 
 .image-item {
   flex: 0 0 auto;
-  width: 100px;
+  width: 60px;
   margin-right: 10px;
 }
 
@@ -200,7 +240,7 @@ td:first-child {
 /* General Styling */
 
 .modal-header {
-  background-color: #2c3e50;
+  background-color: #535E77;
   color: white;
 }
 
@@ -226,11 +266,122 @@ input[type="radio"] {
   border-radius: 50%;
   border: 2px solid #ccc;
   background-color: #24314d;
-
+  margin-bottom: 0px;
   cursor: pointer;
 }
 
-.custom-radio input[type="radio"]:checked + label {
+.custom-radio.fail input[type="radio"]:checked + label {
   background-color: #cf1322;
   border: 5px solid #24314d;
+}
+.custom-checkbox {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  input {
+    display: none;
+    position: relative;
+    display: inline-block;
+    width: 20px;  /* Size of the checkbox */
+    height: 20px;
+    border: 2px solid #000;  /* Border color of the checkbox */
+    border-radius: 4px;  /* Rounded corners */
+    background-color: #000000;  /* Background color when unchecked */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+/* Style the checkmark (tick) */
+.custom-checkbox label::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;  /* Size of the tick */
+  height: 16px;
+  background-color: transparent;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+/* Optionally add hover effect */
+.custom-checkbox:hover {
+  border-color: #666;  /* Darker border color on hover */
+}
+.custom-radio.pass input[type="radio"]:checked + label {
+  background-color: green;
+  border: 5px solid #24314d;
+}
+
+
+/* Navigation Buttons (Left/Right) */
+.gallery-nav {
+  background: none;
+  border: none;
+  font-size: 30px;
+  color: #333;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.gallery-nav:hover {
+  color: #007bff; /* Change to blue on hover */
+}
+
+.gallery-nav:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Image Gallery Styling */
+.image-gallery1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  max-height: 400px; /* Limit image height */
+}
+
+/* Individual Image Styling */
+.image-item1 img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.image-item1 img:hover {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+/* Modal Visibility */
+.prestart-detail-modal.show {
+  display: flex; /* Show modal when active */
+}
+
+/* For Small Screens */
+@media (max-width: 768px) {
+  .prestart-detail-modal-content {
+    width: 95%;
+    max-width: 95%;
+    padding: 15px;
+  }
+
+  .prestart-detail-modal-content h6 {
+    font-size: 0.8rem;
+  }
+
+  .gallery-nav {
+    font-size: 24px;
+  }
+
+  .image-item img {
+    max-height: 250px;
+  }
+}
+.prestart-detail-modal-header{
+  border-bottom: 0px !important;
 }

@@ -236,7 +236,7 @@ const authProtectedRoutes = [
   { path: "/oil-analysis/:machineId", exact: true, component: <OilAnalysisReportPage/> },
   { path: "/oil-analysis/:machineId/:filterDate", exact: true, component: <OilAnalysisReportPage/> },
   { path: "/pre-starts", exact: true, component: <PreStarts /> },
-  { path: "/pre-starts/:id", exact: true, component: <PreStartDetails /> }, 
+  { path: "/pre-starts/:start/:end/:equipmentId", exact: true, component: <PreStartDetails /> }, 
   { path: "/haul-road-optimisation", exact: true, component: <HaulRoadOptimisation /> },
   { path: "/auto-routing", exact: true, component: <AutoRouting /> },
   { path: "/truck-load-optimisation", exact: true, component: <TruckLoadOptimisation /> },
